@@ -1,0 +1,27 @@
+{
+    "welcome": "Welcome",
+    "username": "Username",
+    "password": "Password",
+    "develop": "Developed By - ASA Group",
+    "select_language": "Select language",
+    "save": "Save",
+    "home": "HOME",
+    "you_can_change_language":"You can change language",
+    "welcomeWait":"Welcome.Plearse wait",
+    "nezsystem":"Controle System",
+    "axtar":"Search",
+    "developed":"DEVELOPED BY : ASA GROUP",
+    "usercount":"Users count",
+    "users":"Employees",
+    "department":"DEPARTMENTS",
+    "position":"POSITIONS",
+    "userGender":"GENDER",
+    "userName":"NAME & SURNAME",
+    "userPhone":"PHONE",
+    "usersDepartment":"DEPARTMENT",
+    "usersPosition":"POSITION",
+    "usersStatus":"DEVICE STATUS",
+    "lastAktivdate":"LAST ONLINE",
+    "clouse":"Clouse"
+
+}
