@@ -25,7 +25,7 @@ class UsersApiController extends GetxController {
   SharedManager sharedManager = SharedManager();
   Dio dio = Dio();
   RxBool isLoading = false.obs;
-  String baseEndpoint="https://ceea-62-212-234-9.ngrok-free.app/api/";
+  String baseEndpoint="https://a2f6-85-132-97-2.ngrok-free.app/api/";
 
 
   @override
@@ -39,7 +39,7 @@ class UsersApiController extends GetxController {
   @override
   void onInit() async {
     await sharedManager.init();
-    dio=Dio(BaseOptions(baseUrl:baseEndpoint,followRedirects: false))..interceptors.add(DioInspector());
+   // dio=Dio(BaseOptions(baseUrl:baseEndpoint,followRedirects: false))..interceptors.add(DioInspector());
     super.onInit();
   }
 
@@ -60,60 +60,56 @@ class UsersApiController extends GetxController {
       ));
       chengeLoading();
     } else {
-      LoggedUserModel modelLogged=LoggedUserModel().getLoggedUserModel();
-      sharedManager.saveUser("keyUser", modelLogged);
+      try {
+        final response = await dio.post(
+         "${baseEndpoint}v1/User/login-with-username",
+          data: {'username': ctUsername.text, 'password': ctPassword.text},
+          options: Options(
+            // receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceTipe,
+              'abs': '123456'
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        print(response.data.toString());
+        print(response.requestOptions.data.toString());
+        if(response.statusCode==404){
+          chengeLoading();
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "error:404.Sistem muveqqeti olaraq islemir",
+            callback: () {},
+          ));
+        }else {
+          BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+          if (response.statusCode == 200) {
+            TokenModel modelToken = TokenModel.fromJson(baseResponce.result['token']);
+            UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
+            CompanyModel modelCompany = CompanyModel.fromJson(baseResponce.result['company']);
+            LoggedUserModel modelLogged = LoggedUserModel(isLogged: true, companyModel: modelCompany, tokenModel: modelToken, userModel: modelUser);
+            sharedManager.saveUser("keyUser", modelLogged);
             Get.offNamed(RouteHelper.mainScreenWidows,arguments: modelLogged);
             chengeLoading();
-      // try {
-      //   final response = await dio.post(
-      //    "${baseEndpoint}v1/User/login-with-username",
-      //     data: {'username': 'abas_jafar', 'password': 'abas123'},
-      //   //  data: {'username': ctUsername.text, 'password': ctPassword.text},
-      //     options: Options(
-      //       // receiveTimeout: const Duration(seconds: 60),
-      //       headers: {
-      //         'Lang': languageIndex,
-      //         'Device': dviceTipe,
-      //         'abs': '123456'
-      //       },
-      //       validateStatus: (_) => true,
-      //       contentType: Headers.jsonContentType,
-      //       responseType: ResponseType.json,
-      //     ),
-      //   );
-      //   if(response.statusCode==404){
-      //     chengeLoading();
-      //     Get.dialog(ShowInfoDialog(
-      //       icon: Icons.error,
-      //       messaje: "error:404.Sistem muveqqeti olaraq islemir",
-      //       callback: () {},
-      //     ));
-      //   }else {
-      //     BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-      //     print("Base responce :"+baseResponce.toString());
-      //     if (response.statusCode == 200) {
-      //       TokenModel modelToken = TokenModel.fromJson(baseResponce.result['token']);
-      //       UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
-      //       CompanyModel modelCompany = CompanyModel.fromJson(baseResponce.result['company']);
-      //       LoggedUserModel modelLogged = LoggedUserModel(isLogged: true, companyModel: modelCompany, tokenModel: modelToken, userModel: modelUser);
-      //       sharedManager.saveUser("keyUser", modelLogged);
-      //       Get.offNamed(RouteHelper.mainScreenWidows,arguments: modelLogged);
-      //       chengeLoading();
-      //     } else {
-      //       Get.dialog(ShowInfoDialog(
-      //         icon: Icons.error_outline,
-      //         messaje: baseResponce.exception!.message.toString(),
-      //         callback: () {},
-      //       ));
-      //       chengeLoading();
-      //     }
-      //   }} on DioError catch (e) {
-      //   Get.dialog(ShowInfoDialog(
-      //     icon: Icons.error_outline,
-      //     messaje: e.message!,
-      //     callback: () {},
-      //   ));
-      // }
+          } else {
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {},
+            ));
+            chengeLoading();
+          }
+        }} on DioError catch (e) {
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message!,
+          callback: () {},
+        ));
+      }
     }
   }
 

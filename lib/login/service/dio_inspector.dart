@@ -3,7 +3,7 @@ import 'package:zs_managment/login/models/model_token.dart';
 import 'package:zs_managment/login/service/shared_manager.dart';
 
 class DioInspector extends Interceptor{
-  String baseEndpoint="https://ceea-62-212-234-9.ngrok-free.app/api/";
+  String baseEndpoint="https://a2f6-85-132-97-2.ngrok-free.app/api/";
 
 
   @override
@@ -23,13 +23,17 @@ class DioInspector extends Interceptor{
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) async{
     print("onError STATUS CODE  "+err.response.toString());
+     if(err.response!.statusCode!=null){
+       if (err.response!.statusCode == 401) {
+         print("RESPONCE STATUS CODE 401 ");
+         await refreshToken();
+         return handler.resolve(await _retry(err.requestOptions));
+       }else{
 
-    if (err.response!.statusCode == 401) {
-        print("RESPONCE STATUS CODE 401 ");
-       await refreshToken();
-       return handler.resolve(await _retry(err.requestOptions));
-
-      }
+       }
+      print("Xeta bas verdi");
+      return handler.reject(DioError(requestOptions: RequestOptions()));
+    }
     // TODO: implement onError
     super.onError(err, handler);
   }
