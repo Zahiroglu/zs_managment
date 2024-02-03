@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 class ScreenMercCariEdit extends StatefulWidget {
   ModelMercBaza modelMerc;
@@ -24,7 +25,9 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
 
   _body(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: CustomText(labeltext: widget.modelMerc.cariad!),
+      ),
     );
   }
 }
