@@ -23,6 +23,8 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   }
 
   _body(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(),
+    );
   }
 }
