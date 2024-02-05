@@ -27,7 +27,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
   ControllerMercPref controllerRoutDetailUser = Get.put(ControllerMercPref());
   late TabController tabController;
   late PageController _controller;
-  late PageController _controllerInfo;
+  late PageController _controllerIki;
   final int _initialIndex = 0;
   var _scrollControllerNested;
   int tabinitialIndex = 0;
@@ -35,13 +35,15 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
   List<Widget> listBodyWidgets = [];
   late AnimationController _animationController;
   String selectedGunIndex = "1-ci Gun";
+  int t=0; //Tid
+  double p=0; //Position
 
   @override
   void initState() {
     _scrollControllerNested = ScrollController();
-    _controller = PageController(initialPage: _initialIndex, viewportFraction: 1);
-    _controllerInfo = PageController(initialPage: _initialIndex, viewportFraction: 1);
-    _controllerInfo.addListener(() {});
+    _controller = PageController(initialPage: _initialIndex, viewportFraction:  1);
+    _controllerIki = PageController(initialPage: _initialIndex, viewportFraction:  1);
+    _controllerIki.addListener(() {});
     _controller.addListener(() {});
     if (controllerRoutDetailUser.initialized) {
       controllerRoutDetailUser.getAllCariler(widget.modelMercBaza, widget.listGirisCixis);
@@ -78,7 +80,6 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
     _animationController.dispose();
     tabController.dispose();
     _controller.dispose();
-    _controllerInfo.dispose();
     // TODO: implement dispose
     super.dispose();
   }
@@ -88,79 +89,88 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
     return Material(
       child: SafeArea(
         child: Scaffold(
-          body: NestedScrollView(
-            controller: _scrollControllerNested,
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
-              return <Widget>[
-                Obx(() => SliverSafeArea(
-                      sliver: SliverAppBar(
-                        elevation: 0,
-                        backgroundColor: Colors.white,
-                        centerTitle: false,
-                        expandedHeight: tabinitialIndex == 0
-                            ? 380
-                            : tabinitialIndex == 1
-                                ? 320
-                                : 225,
-                        pinned: true,
-                        floating: false,
-                        stretch: true,
-                        title: CustomText(
-                            labeltext: widget.modelMercBaza.first.mercadi!),
-                        flexibleSpace: FlexibleSpaceBar(
-                          stretchModes: const [StretchMode.blurBackground],
-                          background: pagetViewInfo(),
-                          collapseMode: CollapseMode.values[0],
-                          centerTitle: true,
-                        ),
-                        bottom: PreferredSize(
-                            preferredSize: const Size.fromHeight(50),
-                            child: ColoredBox(
-                              color: Colors.white,
-                              child: TabBar(
-                                physics: const NeverScrollableScrollPhysics(),
-                                onTap: (index) {
-                                  setState(() {
-                                    tabinitialIndex == index;
-                                    _controller.jumpToPage(index);
-                                  });
-                                },
-                                dividerColor: Colors.grey,
-                                splashBorderRadius: BorderRadius.circular(10),
-                                indicatorColor: Colors.green,
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                indicatorPadding: const EdgeInsets.all(0),
-                                unselectedLabelColor: Colors.black,
-                                dividerHeight: 1,
-                                labelColor: Colors.red,
-                                controller: tabController,
-                                tabs: controllerRoutDetailUser.listTabItems
-                                    .map((element) => Tab(
-                                          iconMargin: const EdgeInsets.all(5),
-                                          child: Text(element.label!,
-                                              textAlign: TextAlign.center),
-                                        ))
-                                    .toList(),
-                              ),
-                            )),
-                      ),
-                    ))
-              ];
+          body: Listener(
+            onPointerMove: (pos) { //Get pointer position when pointer moves
+              //If time since last scroll is undefined or over 100 milliseconds
+              if (t == null || DateTime.now().millisecondsSinceEpoch - t > 100) {
+                t = DateTime.now().millisecondsSinceEpoch;
+                p = pos.position.dx; //x position
+              } else {
+                //Calculate velocity
+                double v = (p - pos.position.dx) / (DateTime.now().millisecondsSinceEpoch - t);
+                if (v < -1 || v > 1) { //Don't run if velocity is to low
+                  //Move to page based on velocity (increase velocity multiplier to scroll further)
+                  _controllerIki.animateToPage((v *0.4).round(),
+                      duration: Duration(milliseconds: 3000), curve: Curves.easeOutCubic);
+                }
+              }
+              setState(() {});
             },
-            body: PageView(
-              onPageChanged: _onPageViewChange,
-              controller: _controller,
-              children: listBodyWidgets.toList(),
+            child: NestedScrollView(
+              controller: _scrollControllerNested,
+              headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[
+                  Obx(() => SliverSafeArea(
+                        sliver: SliverAppBar(
+                          elevation: 0,
+                          backgroundColor: Colors.white,
+                          centerTitle: false,
+                          expandedHeight: tabinitialIndex == 0
+                              ? 380
+                              : tabinitialIndex == 1
+                                  ? 320
+                                  : 225,
+                          pinned: true,
+                          floating: false,
+                          stretch: true,
+                          title: CustomText(
+                              labeltext: widget.modelMercBaza.first.mercadi!),
+                          flexibleSpace: FlexibleSpaceBar(
+                            stretchModes: const [StretchMode.blurBackground],
+                            background: pagetViewInfo(),
+                            collapseMode: CollapseMode.values[0],
+                            centerTitle: true,
+                          ),
+                          bottom: PreferredSize(
+                              preferredSize: const Size.fromHeight(50),
+                              child: ColoredBox(
+                                color: Colors.white,
+                                child: TabBar(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  onTap: (index) {
+                                    setState(() {
+                                      tabinitialIndex == index;
+                                      _controller.jumpToPage(index);
+                                    });
+                                  },
+                                  dividerColor: Colors.grey,
+                                  splashBorderRadius: BorderRadius.circular(10),
+                                  indicatorColor: Colors.green,
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  indicatorPadding: const EdgeInsets.all(0),
+                                  unselectedLabelColor: Colors.black,
+                                  dividerHeight: 1,
+                                  labelColor: Colors.red,
+                                  controller: tabController,
+                                  tabs: controllerRoutDetailUser.listTabItems
+                                      .map((element) => Tab(
+                                            iconMargin: const EdgeInsets.all(5),
+                                            child: Text(element.label!,
+                                                textAlign: TextAlign.center),
+                                          ))
+                                      .toList(),
+                                ),
+                              )),
+                        ),
+                      ))
+                ];
+              },
+              body: PageView(
+                onPageChanged: _onPageViewChange,
+                controller: _controller,
+                children: listBodyWidgets.toList(),
+              ),
             ),
-            // body: TabBarView(
-            //   controller: tabController,
-            //   children: <Widget>[
-            //     _pageViewUmumiCariler(),
-            //    Container()
-            //    // _pageViewUmumiRutGunleri()
-            //   ],
-            // ),
           ),
         ),
       ),
@@ -169,8 +179,9 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
 
   Widget pagetViewInfo() {
     return PageView(
-      onPageChanged: _onPageViewChangeInfo,
-      controller: _controllerInfo,
+      physics: ClampingScrollPhysics(), //Will scroll to far with BouncingScrollPhysics
+      // onPageChanged: _onPageViewChange,
+      controller: _controllerIki,
       children: listHeaderWidgets.toList(),
     );
   }
@@ -1157,21 +1168,13 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
     setState(() {
       tabController.animateTo(page);
       //_controllerInfo.animateToPage(page, duration: Duration(milliseconds: 100), curve: Curves.easeInOut);
-      _controllerInfo.jumpToPage(page);
       _controller.jumpToPage(page);
+      _controllerIki.jumpToPage(page);
+      _initialIndex==page;
       tabinitialIndex = page;
     });
   }
 
-  void _onPageViewChangeInfo(int value) {
-    setState(() {
-      tabController.animateTo(value);
-      _controllerInfo.animateToPage(value,
-          duration: const Duration(milliseconds: 100), curve: Curves.bounceOut);
-      _controller.jumpToPage(value);
-      tabinitialIndex = value;
-    });
-  }
 
   ///ziyaret tarixleri
   Widget _pageViewZiyaretTarixcesi() {
