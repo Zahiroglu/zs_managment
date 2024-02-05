@@ -737,6 +737,7 @@ class NewUserController extends GetxController {
 
           DialogHelper.hideLoading();
           Get.dialog(DialogSelectedUserConnectins(
+            isWindows: true,
             selectedListUsers: selectedListUserConnections,
             addConnectin: (listSelected, listDeselected) {
               addSelectedUserToList(listSelected, listDeselected, selectedGroupName.value.id);

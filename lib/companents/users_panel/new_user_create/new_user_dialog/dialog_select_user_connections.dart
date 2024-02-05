@@ -12,11 +12,13 @@ class DialogSelectedUserConnectins extends StatefulWidget {
   List<User> selectedListUsers;
   Function(List<User>, List<User>) addConnectin;
   String vezifeAdi = "";
+  bool isWindows=true;
 
   DialogSelectedUserConnectins({required this.selectedListUsers,
     required this.addConnectin,
     required this.listUsers,
     required this.vezifeAdi,
+    required this.isWindows,
     super.key});
 
   @override
@@ -53,7 +55,7 @@ class _DialogSelectedUserConnectinsState
       color: Colors.transparent,
       child: isLoading ? const SizedBox() : Center(
         child: Container(
-          margin: EdgeInsets.symmetric(vertical: 35.h, horizontal: 110.w),
+          margin: widget.isWindows?EdgeInsets.symmetric(vertical: 35.h, horizontal: 110.w):EdgeInsets.symmetric(vertical: 80.h, horizontal: 20.w),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -62,7 +64,7 @@ class _DialogSelectedUserConnectinsState
           // width:100,
           child: Stack(
             children: [
-              Padding(
+              widget.isWindows? Padding(
                 padding: EdgeInsets.only(
                     top: 10.h, bottom: 10.h, left: 5.w, right: 2.w),
                 child: Column(
@@ -122,6 +124,82 @@ class _DialogSelectedUserConnectinsState
                                     value: listUsers.where((element) => element.isSelected == true).toList().length == listUsers.length,
                                     onChanged: (val) {
                                         changeAllSelectedUsers(val!);
+                                    })
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                          itemCount: listUsers.length,
+                          itemBuilder: (context, index) {
+                            return myUsersItems(listUsers.elementAt(index));
+                          }),
+                    )
+                  ],
+                ),
+              ):Padding(
+                padding: EdgeInsets.only(
+                    top: 15.h, bottom: 15.h, left: 2.w, right: 2.w),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CustomText(
+                          labeltext: widget.vezifeAdi,
+                          fontWeight: FontWeight.w800,
+                          overflow: TextOverflow.ellipsis,
+                          fontsize: 18),
+                    ),
+                    SizedBox(
+                      height: 60,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CustomTextField(
+                          onTextChange: (s) {
+                            searchFromList(s);
+                          },
+                          icon: Icons.search_outlined,
+                          controller: _cnSearching,
+                          obscureText: false,
+                          hindtext: "axtar".tr,
+                          inputType: TextInputType.text,
+                          fontsize: 14,
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2)
+                        ),
+                        child: SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width,
+                          height: 30,
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                CustomText(labeltext: "Secilen : ".tr),
+                                CustomText(labeltext: listUsers
+                                    .where((element) =>
+                                element.isSelected == true)
+                                    .toList()
+                                    .length
+                                    .toString()),
+                                const SizedBox(width: 5,),
+                                Checkbox(
+                                    splashRadius: 5,
+                                    value: listUsers.where((element) => element.isSelected == true).toList().length == listUsers.length,
+                                    onChanged: (val) {
+                                      changeAllSelectedUsers(val!);
                                     })
                               ],
                             ),
