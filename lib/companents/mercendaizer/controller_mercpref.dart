@@ -25,6 +25,8 @@ class ControllerMercPref extends GetxController {
   RxList<Widget> listPagesHeader = List<Widget>.empty(growable: true).obs;
   RxList<ModelGunlukGirisCixis> listTarixlerRx = List<ModelGunlukGirisCixis>.empty(growable: true).obs;
   String totalIsSaati="0";
+  String hefteninGunu = "";
+  bool userHasPermitionEditRutSira=true;
 
   @override
   void onInit() {
@@ -38,6 +40,34 @@ class ControllerMercPref extends GetxController {
     // TODO: implement dispose
     super.dispose();
   }
+
+  void melumatlariGuneGoreDoldur() {
+    DateTime dateTime = DateTime.now();
+    switch (dateTime.weekday) {
+      case 1:
+        hefteninGunu = "gun1";
+        break;
+      case 2:
+        hefteninGunu = "gun2";
+        break;
+      case 3:
+        hefteninGunu = "gun3";
+        break;
+      case 4:
+        hefteninGunu = "gun4";
+        break;
+      case 5:
+        hefteninGunu = "gun5";
+        break;
+      case 6:
+        hefteninGunu = "gun6";
+        break;
+    }
+    changeRutGunu(dateTime.weekday);
+    update();
+
+  }
+
 
   ////umumi cariler hissesi
   void getAllCariler(List<ModelMercBaza> listMercBaza, List<ModelGirisCixis> listGirisCixis) {
@@ -79,6 +109,7 @@ class ControllerMercPref extends GetxController {
         keyText: "um"
     ));
     ziyaretTarixcesiTablesini(listGirisCixis);
+    melumatlariGuneGoreDoldur();
     update();
   }
   
@@ -265,29 +296,29 @@ class ControllerMercPref extends GetxController {
     return d.substring(0).replaceFirst(RegExp(r'\.?0*$'), '');
   }
 
-  void changeRutGunu(String tr) {
+  void changeRutGunu(int tr) {
     listRutGunleri.clear();
     switch (tr) {
-      case "1-ci Gun":
+      case 1:
         listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.gun1 == "1").toList();
         break;
-      case "2-ci Gun":
+      case 2:
         listRutGunleri.value =
             listSelectedMercBaza.where((p0) => p0.gun2 == "1").toList();
         break;
-      case "3-cu Gun":
+      case 3:
         listRutGunleri.value =
             listSelectedMercBaza.where((p0) => p0.gun3 == "1").toList();
         break;
-      case "4-cu Gun":
+      case 4:
         listRutGunleri.value =
             listSelectedMercBaza.where((p0) => p0.gun4 == "1").toList();
         break;
-      case "5-ci Gun":
+      case 5:
         listRutGunleri.value =
             listSelectedMercBaza.where((p0) => p0.gun5 == "1").toList();
         break;
-      case "6-ci Gun":
+      case 6:
         listRutGunleri.value =
             listSelectedMercBaza.where((p0) => p0.gun6 == "1").toList();
         break;

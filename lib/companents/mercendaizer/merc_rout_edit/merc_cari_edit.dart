@@ -22,7 +22,12 @@ class ScreenMercCariEdit extends StatefulWidget {
 class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   List<User> listUsers=[];
   late ModelMercBaza modelMerc;
-
+  bool rutGunuBir = false;
+  bool rutGunuIki = false;
+  bool rutGunuUc = false;
+  bool rutGunuDort = false;
+  bool rutGunuBes = false;
+  bool rutGunuAlti = false;
 
   @override
   void initState() {
@@ -37,6 +42,12 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
 
     }
     modelMerc=widget.modelMerc;
+    rutGunuBir = modelMerc.gun1 == "1";
+    rutGunuIki = modelMerc.gun2 == "1";
+    rutGunuUc = modelMerc.gun3 == "1";
+    rutGunuDort = modelMerc.gun4 == "1";
+    rutGunuBes = modelMerc.gun5 == "1";
+    rutGunuAlti = modelMerc.gun6 == "1";
     // TODO: implement initState
     super.initState();
   }
@@ -57,6 +68,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
     return Column(
       children: [
         _infoMerc(context),
+        widgetRutGunleri(context),
       ],
     );
   }
@@ -155,4 +167,133 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       ),
     );
   }
+
+  Widget widgetRutGunleri(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0).copyWith(left: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(0.0).copyWith(left: 0,bottom: 5),
+            child: CustomText(
+                labeltext: "rutmelumat",
+                fontsize: 16,
+                fontWeight: FontWeight.w700),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                boxShadow: const [
+                  BoxShadow(
+                      offset: Offset(2,2),
+                      color: Colors.grey,
+                      blurRadius: 5,
+                      spreadRadius: 2
+                  )
+                ]
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                 Padding(
+                    padding: const EdgeInsets.all(0.0)
+                        .copyWith(left: 20, right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                CustomText(labeltext: "gun1".tr),
+                                Checkbox(
+                                    value: rutGunuBir ? true : false,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        rutGunuBir = value!;
+                                      });
+                                    }),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                CustomText(labeltext: "gun2".tr),
+                                Checkbox(
+                                    value: rutGunuIki,
+                                    onChanged: (v) {
+                                      setState(() {
+                                        rutGunuIki = v!;
+                                      });
+                                    }),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                CustomText(labeltext: "gun3".tr),
+                                Checkbox(
+                                    value: rutGunuUc,
+                                    onChanged: (v) {
+                                      setState(() {
+                                        rutGunuUc = v!;
+                                      });
+                                    }),
+                              ],
+                            )
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                CustomText(labeltext: "gun4".tr),
+                                Checkbox(
+                                    value: rutGunuDort,
+                                    onChanged: (v) {
+                                      setState(() {
+                                        rutGunuDort = v!;
+                                      });
+                                    }),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                CustomText(labeltext: "gun5".tr),
+                                Checkbox(
+                                    value: rutGunuBes,
+                                    onChanged: (v) {
+                                      setState(() {
+                                        rutGunuBes = v!;
+                                      });
+                                    }),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                CustomText(labeltext: "gun6".tr),
+                                Checkbox(
+                                    value: rutGunuAlti,
+                                    onChanged: (v) {
+                                      setState(() {
+                                        rutGunuAlti = v!;
+                                      });
+                                    }),
+                              ],
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
 }

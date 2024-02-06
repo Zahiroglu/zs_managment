@@ -22,8 +22,7 @@ class ScreenMercRoutDatail extends StatefulWidget {
   State<ScreenMercRoutDatail> createState() => _ScreenMercRoutDatailState();
 }
 
-class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
-    with TickerProviderStateMixin {
+class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with TickerProviderStateMixin {
   ControllerMercPref controllerRoutDetailUser = Get.put(ControllerMercPref());
   late TabController tabController;
   late PageController _controller;
@@ -40,17 +39,17 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
 
   @override
   void initState() {
+    melumatlariGuneGoreDoldur();
     _scrollControllerNested = ScrollController();
     _controller = PageController(initialPage: _initialIndex, viewportFraction:  1);
     _controllerIki = PageController(initialPage: _initialIndex, viewportFraction:  1);
     _controllerIki.addListener(() {
       setState(() {
-        _controller.animateTo(_controller.position.pixels, duration: Duration(milliseconds: 500), curve:  Curves.easeOutCubic);
       });
     });
     _controller.addListener(() {
       setState(() {
-        _controllerIki.animateTo(_controller.position.pixels, duration: Duration(milliseconds: 500), curve:  Curves.easeOutCubic);
+        _controllerIki.animateTo(_controller.position.pixels, duration: Duration(milliseconds: 1000), curve:  Curves.easeOutCubic);
       });
     });
     if (controllerRoutDetailUser.initialized) {
@@ -68,6 +67,32 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
     tabController.addListener(() {});
     super.initState();
   }
+  void melumatlariGuneGoreDoldur() {
+    DateTime dateTime = DateTime.now();
+    switch (dateTime.weekday) {
+      case 1:
+        selectedGunIndex = "gun1".tr.toString();
+        break;
+      case 2:
+        selectedGunIndex = "gun2".tr.toString();
+        break;
+      case 3:
+        selectedGunIndex = "gun3".tr.toString();
+        break;
+      case 4:
+        selectedGunIndex = "gun4".tr.toString();
+        break;
+      case 5:
+        selectedGunIndex = "gun5".tr.toString();
+        break;
+      case 6:
+        selectedGunIndex = "gun6".tr.toString();
+        break;
+    }
+    setState(() {
+    });
+  }
+
   void fillAllPages() {
     listBodyWidgets.clear();
     listHeaderWidgets.clear();
@@ -934,19 +959,19 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
                             controllerRoutDetailUser.listSelectedMercBaza
                                 .where((p0) => p0.gun1 == "1")
                                 .toList()
-                                .length),
+                                .length,1),
                         _itemIndoMenuRutGunu(
                             "gun2".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
                                 .where((p0) => p0.gun2 == "1")
                                 .toList()
-                                .length),
+                                .length,2),
                         _itemIndoMenuRutGunu(
                             "gun3".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
                                 .where((p0) => p0.gun3 == "1")
                                 .toList()
-                                .length),
+                                .length,3),
                       ],
                     ),
                   ),
@@ -959,19 +984,19 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
                             controllerRoutDetailUser.listSelectedMercBaza
                                 .where((p0) => p0.gun4 == "1")
                                 .toList()
-                                .length),
+                                .length,4),
                         _itemIndoMenuRutGunu(
                             "gun5".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
                                 .where((p0) => p0.gun5 == "1")
                                 .toList()
-                                .length),
+                                .length,5),
                         _itemIndoMenuRutGunu(
                             "gun6".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
                                 .where((p0) => p0.gun6 == "1")
                                 .toList()
-                                .length),
+                                .length,6),
                       ],
                     ),
                   )
@@ -984,11 +1009,11 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
     );
   }
 
-  _itemIndoMenuRutGunu(String rutGunu, int length) {
+  _itemIndoMenuRutGunu(String rutGunu, int length, int gunInt) {
     return InkWell(
       onTap: () {
         selectedGunIndex = rutGunu.toString();
-        controllerRoutDetailUser.changeRutGunu(rutGunu);
+        controllerRoutDetailUser.changeRutGunu(gunInt);
         fillAllPages();
         setState(() {});
       },
@@ -1018,16 +1043,17 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
                   width: double.infinity,
                 ),
                 CustomText(
-                  labeltext: length.toString(),
+                  labeltext: rutGunu.toString(),
                   fontWeight: selectedGunIndex.endsWith(rutGunu)
                       ? FontWeight.w800
-                      : FontWeight.normal,
+                      : FontWeight.w600,
                   color: selectedGunIndex.endsWith(rutGunu)
                       ? Colors.white
                       : Colors.black,
                 ),
+                Divider(height: 1,color: Colors.black,endIndent: 40,indent: 40),
                 CustomText(
-                  labeltext: rutGunu.toString(),
+                  labeltext: length.toString()+" "+ "market".tr,
                   fontWeight: selectedGunIndex.endsWith(rutGunu)
                       ? FontWeight.w800
                       : FontWeight.normal,
@@ -1042,10 +1068,19 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
               selectedGunIndex.endsWith(rutGunu)
                   ? Icons.perm_contact_calendar_outlined
                   : Icons.calendar_month,
-              color: selectedGunIndex.endsWith(rutGunu)
+              color:gunInt==DateTime.now().weekday?Colors.orange:selectedGunIndex.endsWith(rutGunu)
                   ? Colors.white
                   : Colors.black,
-            ))
+            )),
+            controllerRoutDetailUser.userHasPermitionEditRutSira?selectedGunIndex.endsWith(rutGunu)?Positioned(
+              top: -5,
+                right: -10,
+                child:IconButton(
+                  onPressed: (){
+                    _intentRutSirasiScreen();
+                  },
+                  icon:  Icon(Icons.edit,color: Colors.red,size: 18,),
+                )):SizedBox():SizedBox(),
           ],
         ),
       ),
@@ -1343,6 +1378,10 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
         )
       ],
     );
+  }
+
+  void _intentRutSirasiScreen() {
+    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments: controllerRoutDetailUser.listRutGunleri.value);
   }
 
 }

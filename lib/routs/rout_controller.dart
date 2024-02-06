@@ -9,6 +9,7 @@ import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gun
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';
 import 'package:zs_managment/companents/mercendaizer/info_mercmusteri_datail.dart';
 import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/merc_cari_edit.dart';
+import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/screen_rutsirasi_edit.dart';
 import 'package:zs_managment/companents/mercendaizer/merc_routdatail_screen.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifariselave_et.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifarisler.dart';
@@ -52,6 +53,7 @@ class RouteHelper {
   static const String screenZiyaretGirisCixis = '/screenZiyaretGirisCixis';
   static const String screenMercMusteriDetail = '/screenMercMusteriDetail';
   static const String screenEditMercMusteri = '/screenEditMercMusteri';
+  static const String screenMercRutSiraEdit = '/screenMercRutSiraEdit';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
@@ -80,6 +82,7 @@ class RouteHelper {
   static String getScreenZiyaretGirisCixis() => screenZiyaretGirisCixis;
   static String getScreenMercMusteriDetail() => screenMercMusteriDetail;
   static String getScreenEditMercMusteri() => screenEditMercMusteri;
+  static String getScreenMercRutSiraEdit() => screenMercRutSiraEdit;
 
   static List<GetPage> routes = [
     GetPage(
@@ -251,6 +254,13 @@ class RouteHelper {
         transitionDuration: const Duration(milliseconds: 500),
         name: screenEditMercMusteri, page: () {
       return   ScreenMercCariEdit(modelMerc: Get.arguments[0],listUsers: Get.arguments[1],);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenMercRutSiraEdit, page: () {
+      return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments,);
       return  Container();
     }),
   ];
