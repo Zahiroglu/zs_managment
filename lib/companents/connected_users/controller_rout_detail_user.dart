@@ -361,7 +361,7 @@ class ControllerRoutDetailUser extends GetxController {
       listGirisCixis.value=await getDataFromServerGirisCixis(temKod);
       DialogHelper.hideLoading();
       if (listSelectedMercBaza.isNotEmpty) {
-        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==1).toList()]);
+        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==2).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
             messaje: "Melumat tapilmadi",

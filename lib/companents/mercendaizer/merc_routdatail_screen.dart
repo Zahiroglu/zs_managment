@@ -43,8 +43,16 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
     _scrollControllerNested = ScrollController();
     _controller = PageController(initialPage: _initialIndex, viewportFraction:  1);
     _controllerIki = PageController(initialPage: _initialIndex, viewportFraction:  1);
-    _controllerIki.addListener(() {});
-    _controller.addListener(() {});
+    _controllerIki.addListener(() {
+      setState(() {
+        _controller.animateTo(_controller.position.pixels, duration: Duration(milliseconds: 500), curve:  Curves.easeOutCubic);
+      });
+    });
+    _controller.addListener(() {
+      setState(() {
+        _controllerIki.animateTo(_controller.position.pixels, duration: Duration(milliseconds: 500), curve:  Curves.easeOutCubic);
+      });
+    });
     if (controllerRoutDetailUser.initialized) {
       controllerRoutDetailUser.getAllCariler(widget.modelMercBaza, widget.listGirisCixis);
       _animationController = AnimationController(
@@ -89,24 +97,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
     return Material(
       child: SafeArea(
         child: Scaffold(
-          body: Listener(
-            onPointerMove: (pos) { //Get pointer position when pointer moves
-              //If time since last scroll is undefined or over 100 milliseconds
-              if (t == null || DateTime.now().millisecondsSinceEpoch - t > 100) {
-                t = DateTime.now().millisecondsSinceEpoch;
-                p = pos.position.dx; //x position
-              } else {
-                //Calculate velocity
-                double v = (p - pos.position.dx) / (DateTime.now().millisecondsSinceEpoch - t);
-                if (v < -1 || v > 1) { //Don't run if velocity is to low
-                  //Move to page based on velocity (increase velocity multiplier to scroll further)
-                  _controllerIki.animateToPage((v *0.4).round(),
-                      duration: Duration(milliseconds: 3000), curve: Curves.easeOutCubic);
-                }
-              }
-              setState(() {});
-            },
-            child: NestedScrollView(
+          body:  NestedScrollView(
               controller: _scrollControllerNested,
               headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                 return <Widget>[
@@ -173,14 +164,13 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail>
             ),
           ),
         ),
-      ),
     );
   }
 
   Widget pagetViewInfo() {
     return PageView(
-      physics: ClampingScrollPhysics(), //Will scroll to far with BouncingScrollPhysics
-      // onPageChanged: _onPageViewChange,
+      onPageChanged: _onPageViewChange,
+      physics: const ClampingScrollPhysics(),
       controller: _controllerIki,
       children: listHeaderWidgets.toList(),
     );

@@ -21,11 +21,12 @@ class ScreenMercCariEdit extends StatefulWidget {
 
 class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   List<User> listUsers=[];
+  late ModelMercBaza modelMerc;
 
 
   @override
   void initState() {
-    widget.listUsers.forEach((element) {
+    for (var element in widget.listUsers) {
       listUsers.add( User(
           code: element.code,
           roleId: element.roleId,
@@ -34,7 +35,8 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         isSelected: element.code==widget.modelMerc.rutadi,
       ));
 
-    });
+    }
+    modelMerc=widget.modelMerc;
     // TODO: implement initState
     super.initState();
   }
@@ -60,77 +62,96 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   }
 
   Widget _infoMerc(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(0.0).copyWith(left: 10),
-      child: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(0.0).copyWith(left: 10),
-                child: CustomText(
-                  labeltext: "mercBaglanti".tr,
-                  fontsize: 16,
-                  fontWeight: FontWeight.w700,
+    return InkWell(
+      onTap: (){
+        Get.dialog(DialogSimpleUserSelect(
+          selectedUserCode: widget.modelMerc.rutadi!,
+          getSelectedUse:  (selectedUser) {
+            setState(() {
+              modelMerc.rutadi=selectedUser.code;
+              modelMerc.mercadi=selectedUser.fullName;
+            });
+          },
+          listUsers: listUsers,
+          vezifeAdi: "Mercendaizerler",
+        ));
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(0.0).copyWith(left: 10),
+        child: Stack(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(0.0).copyWith(left: 10),
+                  child: CustomText(
+                    labeltext: "mercBaglanti".tr,
+                    fontsize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.only(left: 5,top: 5,bottom: 5),
-                margin: const EdgeInsets.all(10).copyWith(top: 5),
-                height: MediaQuery.of(context).size.height * 0.08,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    boxShadow: const [
-                    BoxShadow(
-                      offset: Offset(2,2),
-                      color: Colors.grey,
-                      blurRadius: 5,
-                      spreadRadius: 2
-                    )
-                  ]
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CustomText(labeltext: "rutKod".tr+ " : "),
-                        CustomText(labeltext: widget.modelMerc.rutadi!,fontWeight: FontWeight.w700,),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        CustomText(labeltext: "merc".tr+ " : "),
-                        CustomText(labeltext: widget.modelMerc.mercadi!,fontWeight: FontWeight.w700,),
-                      ],
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-          Positioned(
-              top: 5,
-              right: -0,
-              child: IconButton(
-                iconSize: 32,
-                onPressed: (){
-                  Get.dialog(DialogSimpleUserSelect(
-                    getSelectedUse:  (selectedUser) {
-                      //addSelectedUserToList(listSelected, listDeselected, selectedGroupName.value.id);
-                    },
-                    listUsers: listUsers,
-                    vezifeAdi: "Mercendaizerler",
-                  ));
-                },
-                icon: const Icon(Icons.change_circle,color: Colors.green,),
-              ))
+                Container(
+                  padding: const EdgeInsets.only(left: 5,top: 5,bottom: 5),
+                  margin: const EdgeInsets.all(10).copyWith(top: 5),
+                  height: MediaQuery.of(context).size.height * 0.08,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      boxShadow: const [
+                      BoxShadow(
+                        offset: Offset(2,2),
+                        color: Colors.grey,
+                        blurRadius: 5,
+                        spreadRadius: 2
+                      )
+                    ]
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CustomText(labeltext: "rutKod".tr+ " : "),
+                          CustomText(labeltext: modelMerc.rutadi!,fontWeight: FontWeight.w700,),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          CustomText(labeltext: "merc".tr+ " : "),
+                          CustomText(labeltext: modelMerc.mercadi!,fontWeight: FontWeight.w700,),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Positioned(
+                top: 5,
+                right: -0,
+                child: IconButton(
+                  iconSize: 32,
+                  onPressed: (){
+                    Get.dialog(DialogSimpleUserSelect(
+                      selectedUserCode: widget.modelMerc.rutadi!,
+                      getSelectedUse:  (selectedUser) {
+                        setState(() {
+                          modelMerc.rutadi=selectedUser.code;
+                          modelMerc.mercadi=selectedUser.fullName;
+                        });
+                      },
+                      listUsers: listUsers,
+                      vezifeAdi: "Mercendaizerler",
+                    ));
+                  },
+                  icon: const Icon(Icons.change_circle,color: Colors.green,),
+                ))
 
-        ],
+          ],
+        ),
       ),
     );
   }
