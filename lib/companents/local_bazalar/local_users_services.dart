@@ -36,7 +36,6 @@ class LocalUserServices {
 
   Future<bool> getIfAppOpenFistOrNot() async {
     bool value = await appFirstTimeOpen.get("LoggedUsers")??false;
-    print("print value : appFirstTimeOpen"+value.toString());
     return value;
   }
 

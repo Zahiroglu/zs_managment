@@ -36,7 +36,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
           code: element.code,
           roleId: element.roleId,
           roleName: element.roleName,
-          fullName: element.username,
+          fullName: element.name,
         isSelected: element.code==widget.modelMerc.rutadi,
       ));
 

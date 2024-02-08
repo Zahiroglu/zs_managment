@@ -750,7 +750,7 @@ class _YeniGirisCixisSonState extends State<YeniGirisCixisSon> {
           onTap: () {
             _onMarkerClick(model);
           },
-          icon: await getClusterBitmap(120, model, model.ziyaret!,
+          icon: await getClusterBitmap(120, model, model.ziyaret??"0",
               controllerGirisCixis.marketeGirisEdilib.value),
           position: map.LatLng(
               double.parse(model.longitude!), double.parse(model.latitude!))));

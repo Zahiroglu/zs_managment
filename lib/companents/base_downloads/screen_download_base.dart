@@ -8,9 +8,8 @@ import 'controller_base_downloads.dart';
 
 class ScreenBaseDownloads extends StatefulWidget {
   bool fromFirstScreen;
-  bool davamEtButonuGorunsun;
 
-  ScreenBaseDownloads({required this.fromFirstScreen,required this.davamEtButonuGorunsun, super.key});
+  ScreenBaseDownloads({required this.fromFirstScreen, super.key});
 
   @override
   State<ScreenBaseDownloads> createState() => _ScreenBaseDownloadsState();
@@ -48,7 +47,7 @@ class _ScreenBaseDownloadsState extends State<ScreenBaseDownloads> {
                       children: [
                         Center(
                             child: CustomText(
-                          labeltext: "Yuklemeler".tr,
+                          labeltext: "yuklemeler".tr,
                           textAlign: TextAlign.center,
                           fontsize: 22,
                           fontWeight: FontWeight.bold,
@@ -59,17 +58,6 @@ class _ScreenBaseDownloadsState extends State<ScreenBaseDownloads> {
                       ],
                     ),
                     const SizedBox(height: 10,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        IconButton(
-                            padding: EdgeInsets.all(0),
-                            onPressed: (){
-                          controllerBaseDownloads.clearAllDataSatis();
-                        }, icon: const Icon(Icons.cleaning_services))
-                      ],
-                    ),
                     SizedBox(
                       height: MediaQuery.of(context).size.height-MediaQuery.of(context).size.height*0.25,
                       child: SingleChildScrollView(
@@ -86,7 +74,7 @@ class _ScreenBaseDownloadsState extends State<ScreenBaseDownloads> {
                         ),
                       ),
                     ),
-                    widget.davamEtButonuGorunsun? Align(
+                    controllerBaseDownloads.davamEtButonuGorunsun.isTrue?Align(
                       alignment: Alignment.bottomCenter,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -111,5 +99,9 @@ class _ScreenBaseDownloadsState extends State<ScreenBaseDownloads> {
             )),
       );
     });
+  }
+
+  _clearAllData(){
+    controllerBaseDownloads.clearAllDataSatis();
   }
 }

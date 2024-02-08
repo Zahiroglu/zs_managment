@@ -7,18 +7,21 @@ import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart'
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
+import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 
 class LocalBaseDownloads {
   late Box downloads = Hive.box<ModelDownloads>("baseDownloads");
  late Box boxCariBaza = Hive.box<ModelCariler>("CariBaza");
   late Box boxAnbarBaza = Hive.box<ModelAnbarRapor>("AnbarBaza");
+  late Box boxListConnectedUsers = Hive.box<UserModel>("listConnectedUsers");
   LocalGirisCixisServiz localGirisCixisServiz=LocalGirisCixisServiz();
 
   Future<void> init() async {
     downloads = await Hive.openBox<ModelDownloads>("baseDownloads");
     boxCariBaza = await Hive.openBox<ModelCariler>("CariBaza");
     boxAnbarBaza = await Hive.openBox<ModelAnbarRapor>("AnbarBaza");
+    boxListConnectedUsers = await Hive.openBox<UserModel>("listConnectedUsers");
     await localGirisCixisServiz.init();
   }
 
@@ -231,7 +234,6 @@ class LocalBaseDownloads {
     return ziyaretEdilemyenler;
   }
 
-
   ///Anbar bazasi////
   Future<void> addAnbarBaza(List<ModelAnbarRapor> mallar) async {
     await boxAnbarBaza.clear();
@@ -253,6 +255,22 @@ class LocalBaseDownloads {
     return boxAnbarBaza.toMap().isNotEmpty?true:false;
   }
 
+  ///listUsers baza
+  Future<void> addConnectedUsers(List<UserModel> listUser) async {
+    await boxAnbarBaza.clear();
+    for (UserModel model in listUser) {
+      await boxListConnectedUsers.put(model.name!, model);
+    }
+  }
+
+  List<UserModel> getAllConnectedUserFromLocal() {
+    List<UserModel> list = [];
+    boxListConnectedUsers.toMap().forEach((key, value) {
+      list.add(value);
+    });
+
+    return list;
+  }
 
 
 }

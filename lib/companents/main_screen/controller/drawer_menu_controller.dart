@@ -124,14 +124,6 @@ class DrawerMenuController extends getx.GetxController {
         statickField: true,
         isSelected: false,
         codename: "logout");
-    SelectionButtonData buttonBaglantilar = SelectionButtonData(
-        icon: Icons.connect_without_contact_outlined,
-        label: "Baglantilar",
-        activeIcon: Icons.connect_without_contact_sharp,
-        totalNotif: 0,
-        statickField: false,
-        isSelected: false,
-        codename: "connection");
     drawerMenus.add(buttonstaticAboudAs);
     drawerMenus.add(buttonstaticPrivansyPolisy);
     if (dviceType == 3 || dviceType == 2) {
@@ -169,7 +161,6 @@ class DrawerMenuController extends getx.GetxController {
         drawerMenus.add(buttonData);
       }
     }
-    drawerMenus.add(buttonBaglantilar);
     update();
     return drawerMenus;
   }
@@ -464,9 +455,7 @@ class DrawerMenuController extends getx.GetxController {
         }
         break;
       case "down":
-        pageView = ScreenBaseDownloads(
-          davamEtButonuGorunsun: false,
-          fromFirstScreen: false,
+        pageView = ScreenBaseDownloads(fromFirstScreen: false,
         );
         break;
       case "users":
@@ -499,7 +488,7 @@ class DrawerMenuController extends getx.GetxController {
         case "sellDetal":
           pageView=const ScreenSifarislereBax();
         break;
-        case "connection":
+        case "myUserRut":
           pageView=const RoutDetailScreenUsers();
         break;
       case "logout":

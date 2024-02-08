@@ -176,7 +176,7 @@ class RouteHelper {
     }),
     GetPage(
         name: bazaDownloadMobile, page: () {
-      return   ScreenBaseDownloads(davamEtButonuGorunsun: true,fromFirstScreen: true,);
+      return   ScreenBaseDownloads(fromFirstScreen: true,);
       return  Container();
     }),
     GetPage(
@@ -260,7 +260,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercRutSiraEdit, page: () {
-      return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments,);
+      return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],);
       return  Container();
     }),
   ];

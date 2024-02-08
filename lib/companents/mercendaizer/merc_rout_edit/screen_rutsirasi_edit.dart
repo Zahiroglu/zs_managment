@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 class ScreenMercRutSirasiEdit extends StatefulWidget {
   List<ModelMercBaza> listRutGunleri;
-  ScreenMercRutSirasiEdit({required this.listRutGunleri,super.key});
+  String rutGunu;
+  ScreenMercRutSirasiEdit({required this.listRutGunleri,required this.rutGunu,super.key});
 
   @override
   State<ScreenMercRutSirasiEdit> createState() => _ScreenMercRutSirasiEditState();
@@ -13,7 +17,7 @@ class ScreenMercRutSirasiEdit extends StatefulWidget {
 
 class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
   List<ModelMercBaza> listRutGunleri=[];
-  bool isStart=false;
+  bool deyisiklikEdildi=false;
 
 @override
   void initState() {
@@ -30,18 +34,40 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
   @override
   Widget build(BuildContext context) {
     return Material(child:  Scaffold(
-      appBar: AppBar(),
-      body: _body(listRutGunleri),
+      appBar: AppBar(
+        title: CustomText(labeltext: "${widget.rutGunu} ${"msirasi".tr}"),
+        centerTitle: false,
+      ),
+      body:Column(
+        children: [
+          _body(listRutGunleri),
+          deyisiklikEdildi?Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(0.0).copyWith(top: 10),
+              child: CustomElevetedButton(
+                width: MediaQuery.of(context).size.width/2,
+              height: 40,
+              elevation: 10,
+              borderColor: Colors.green,
+              surfaceColor: Colors.white,
+              textColor: Colors.green,
+              fontWeight: FontWeight.bold,
+              label: "change".tr,
+              cllback: (){
+                  Get.back();
+              },),
+            ),):const SizedBox()
+        ],
+      ),
     ));
   }
 
   _body(List<ModelMercBaza> listRutGunleri) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height*0.9,
+      height:deyisiklikEdildi?MediaQuery.of(context).size.height*0.8:MediaQuery.of(context).size.height*0.85,
       child: ReorderableListView(
         shrinkWrap: false,
-        onReorderEnd: _recordStop(),
-        onReorderStart: _recordStart(),
         padding: EdgeInsets.all(0),
         children: listRutGunleri.map((e) =>ListTile(
           enabled: true,
@@ -64,6 +90,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     }
     ModelMercBaza model=listRutGunleri.removeAt(oldIndex);
     listRutGunleri.insert(newIndex, model);
+    deyisiklikEdildi=true;
   });
   }
 
@@ -73,7 +100,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     decoration: BoxDecoration(
       boxShadow:  [
         BoxShadow(
-          color:isStart?Colors.green: Colors.black,
+          color: Colors.black,
           offset: Offset(0,0),
           spreadRadius: 0.2,
           blurRadius: 5,
@@ -136,18 +163,6 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     // ),
 
   );
-  }
-
-  _recordStart() {
-  setState(() {
-    isStart==false;
-  });
-  }
-
-  _recordStop() {
-    setState(() {
-      isStart==true;
-    });
   }
 
 }

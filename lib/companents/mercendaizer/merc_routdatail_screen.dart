@@ -883,7 +883,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         double.parse(element.plan!).round();
     final List<ChartData> chartData = [
       ChartData(
-          "plan".tr, double.parse(element.netsatis!).round(), Colors.green),
+          "plan".tr, (double.parse(element.netsatis!).round()), Colors.green),
       ChartData(
           'satis'.tr,
           satiskecib
@@ -1051,7 +1051,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       ? Colors.white
                       : Colors.black,
                 ),
-                Divider(height: 1,color: Colors.black,endIndent: 40,indent: 40),
+                const Divider(height: 1,color: Colors.black,endIndent: 40,indent: 40),
                 CustomText(
                   labeltext: length.toString()+" "+ "market".tr,
                   fontWeight: selectedGunIndex.endsWith(rutGunu)
@@ -1077,7 +1077,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                 right: -10,
                 child:IconButton(
                   onPressed: (){
-                    _intentRutSirasiScreen();
+                    _intentRutSirasiScreen(rutGunu);
                   },
                   icon:  Icon(Icons.edit,color: Colors.red,size: 18,),
                 )):SizedBox():SizedBox(),
@@ -1380,8 +1380,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     );
   }
 
-  void _intentRutSirasiScreen() {
-    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments: controllerRoutDetailUser.listRutGunleri.value);
+  void _intentRutSirasiScreen(String rutGunu) {
+    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri.value,rutGunu]);
   }
 
 }

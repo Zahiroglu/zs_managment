@@ -1,9 +1,9 @@
 {
     "welcome": "Xosh geldiniz",
-    "melumattapilmadi": "Melumat Tapilmadi",
+    "melumattapilmadi": "Melumat tapilmadi",
     "internetError": "Internet bağlantı xətası var",
     "baglantierror": "Bağlantı xətası var.Zəhmət olmasa adminlə alaqə saxla.Error code :404",
-    "yoxlanir": "Melumatlar Yoxlanir...",
+    "yoxlanir": "Melumatlar yoxlanir...",
     "mDeyisdirilir": "Melumatlar deyisdirilir...",
     "password": "Sifre",
     "develop": "Developed By - ASA Group",
@@ -95,7 +95,7 @@
     "giriscixistype": "Giris-Cixis Tipi",
     "map": "Xerite modu",
     "list": "Liste modu",
-    "Yuklemeler": "Yuklemeler",
+    "yuklemeler": "Yuklemeler",
     "lastRefresh": "Son yenileme",
     "infoRefresh": "Melumati yenilemeniz vacibdir.Eks halda bezi problemler yarana biler",
     "baseDownloaded": "Yuklenmis Bazalar",
@@ -169,5 +169,7 @@
     "girisVaxt": "Giris vaxti",
     "time": "Vaxt",
     "rutKod": "Rut kodu",
-    "mercBaglanti": "Merc baglanti"
+    "mercBaglanti": "Merc baglanti",
+    "msirasi": "musteriler sirasi",
+    "cmendirilir": "Cari melumatlar endirilir..."
 }

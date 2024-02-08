@@ -272,10 +272,10 @@ class UserApiControllerMobile extends GetxController {
             localUserServices.addUserToLocalDB(modelLogged);
             if (await checkUsersDownloads(modelUser.roleId)) {
               /// if user must donwloads same base need enter
-              Future.delayed(const Duration(seconds: 2), () {Get.offNamed(RouteHelper.bazaDownloadMobile, arguments: [true,true]);
+              Future.delayed(const Duration(milliseconds: 20), () {Get.offNamed(RouteHelper.bazaDownloadMobile, arguments: [true,true]);
               });
             } else {
-              Future.delayed(const Duration(seconds: 2), () {Get.offNamed(RouteHelper.mobileMainScreen, arguments: modelLogged);
+              Future.delayed(const Duration(milliseconds: 20), () {Get.offNamed(RouteHelper.mobileMainScreen, arguments: modelLogged);
               });
             }
           } else {

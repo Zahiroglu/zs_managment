@@ -153,7 +153,7 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomText(
-                          labeltext: element.username!,
+                          labeltext: element.name!,
                           fontsize: 16,
                           fontWeight: FontWeight.w800,
                         ),
@@ -185,9 +185,9 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
     String vezifeAdi="";
     if(s=="Exp"){
       vezifeAdi="expeditor".tr;
-      usercount=controllerRoutDetailUser.listUsers.where((p) => p.roleId==1).length;
+      usercount=controllerRoutDetailUser.listUsers.where((p) => p.roleId==17).length;
     }else{
-      usercount=controllerRoutDetailUser.listUsers.where((p) => p.roleId==2).length;
+      usercount=controllerRoutDetailUser.listUsers.where((p) => p.roleId==23).length;
       vezifeAdi="merc".tr;
 
     }

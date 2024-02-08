@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
+import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
@@ -26,6 +27,7 @@ import 'package:xml/xml.dart' as xml;
 class ControllerRoutDetailUser extends GetxController {
   LocalUserServices userService = LocalUserServices();
   LocalAppSetting appSetting = LocalAppSetting();
+  LocalBaseDownloads localBaseDownloads=LocalBaseDownloads();
   late Rx<AvailableMap> availableMap = AvailableMap(
       mapName: CustomMapType.google.name,
       mapType: MapType.google,
@@ -83,65 +85,69 @@ class ControllerRoutDetailUser extends GetxController {
     update();
   }
 
-  void getAllUsers() {
+  Future<void> getAllUsers() async {
+    await localBaseDownloads.init();
     dataLoading.value = true;
-    listUsers.value = [
-      UserModel(
-          roleName: "Expeditor",
-          roleId: 1,
-          username: "Asif Memmedov",
-          code: "112",
-          gender: 0),
-      UserModel(
-          roleName: "Expeditor",
-          roleId: 1,
-          username: "Zaur Eliyev",
-          code: "132",
-          gender: 0),
-      UserModel(
-          roleName: "Expeditor-Mercendaizer",
-          roleId: 1,
-          username: "Arzu Haciyeva",
-          code: "142",
-          gender: 1),
-      UserModel(
-          roleName: "Expeditor",
-          roleId: 1,
-          username: "Eli Qasimov",
-          code: "31",
-          gender: 0),
-      UserModel(
-          roleName: "Mercendaizer",
-          roleId: 2,
-          username: "Zuleyxa Kerimova",
-          code: "A1",
-          gender: 1),
-      UserModel(
-          roleName: "Mercendaizer",
-          roleId: 2,
-          username: "Nazile Qasimli",
-          code: "A2",
-          gender: 1),
-      UserModel(
-          roleName: "Mercendaizer",
-          roleId: 2,
-          username: "Aysu Qemberova",
-          code: "B2",
-          gender: 1),
-      UserModel(
-          roleName: "Mercendaizer",
-          roleId: 2,
-          username: "Qaragoz Afdandilova",
-          code: "B2",
-          gender: 1),
-      UserModel(
-          roleName: "Mercendaizer",
-          roleId: 2,
-          username: "Qafuq Memmedob",
-          code: "MIN01",
-          gender: 0),
-    ];
-    filteredListUsers.value = listUsers.where((p0) => p0.roleId == 1).toList();
+    listUsers.value=localBaseDownloads.getAllConnectedUserFromLocal();
+    if(listUsers.isEmpty){
+      listUsers.value = [
+        UserModel(
+            roleName: "Expeditor",
+            roleId: 17,
+            username: "Asif Memmedov",
+            code: "112",
+            gender: 0),
+        UserModel(
+            roleName: "Expeditor",
+            roleId: 17,
+            username: "Zaur Eliyev",
+            code: "132",
+            gender: 0),
+        UserModel(
+            roleName: "Expeditor-Mercendaizer",
+            roleId: 17,
+            username: "Arzu Haciyeva",
+            code: "142",
+            gender: 1),
+        UserModel(
+            roleName: "Expeditor",
+            roleId: 17,
+            username: "Eli Qasimov",
+            code: "31",
+            gender: 0),
+        UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            username: "Zuleyxa Kerimova",
+            code: "A1",
+            gender: 1),
+        UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            username: "Nazile Qasimli",
+            code: "A2",
+            gender: 1),
+        UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            username: "Aysu Qemberova",
+            code: "B2",
+            gender: 1),
+        UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            username: "Qaragoz Afdandilova",
+            code: "B2",
+            gender: 1),
+        UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            username: "Qafuq Memmedob",
+            code: "MIN01",
+            gender: 0),
+      ];
+    }
+    filteredListUsers.value = listUsers.where((p0) => p0.roleId == 17).toList();
     dataLoading.value = false;
     update();
   }
@@ -337,7 +343,7 @@ class ControllerRoutDetailUser extends GetxController {
   Future<void> temsilciMelumatlariniGetir(String temKod) async {
     listSelectedCustomers.clear();
     listFilteredCustomers.clear();
-    DialogHelper.showLoading("Cari melumatlar endirilir...");
+    DialogHelper.showLoading("cmendirilir".tr);
     if (fistTabSelected.value == "Exp") {
       listSelectedCustomers.value = await getDataFromServerUmumiCariler(temKod);
       listSelectedCustomers.value =
@@ -349,7 +355,7 @@ class ControllerRoutDetailUser extends GetxController {
         Get.toNamed(RouteHelper.screenExpRoutDetail, arguments: this);
       } else {
         Get.dialog(ShowInfoDialog(
-            messaje: "Melumat tapilmadi",
+            messaje: "mtapilmadi".tr,
             icon: Icons.error,
             callback: () {
               Get.back();
@@ -361,10 +367,10 @@ class ControllerRoutDetailUser extends GetxController {
       listGirisCixis.value=await getDataFromServerGirisCixis(temKod);
       DialogHelper.hideLoading();
       if (listSelectedMercBaza.isNotEmpty) {
-        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==2).toList()]);
+        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
-            messaje: "Melumat tapilmadi",
+            messaje: "mtapilmadi".tr,
             icon: Icons.error,
             callback: () {
               Get.back();
@@ -662,10 +668,10 @@ class ControllerRoutDetailUser extends GetxController {
   void changeUsers(String s) {
     if (s == "Exp") {
       filteredListUsers.value =
-          listUsers.where((p0) => p0.roleId == 1).toList();
+          listUsers.where((p0) => p0.roleId == 17).toList();
     } else {
       filteredListUsers.value =
-          listUsers.where((p0) => p0.roleId == 2).toList();
+          listUsers.where((p0) => p0.roleId ==23).toList();
     }
     update();
   }
