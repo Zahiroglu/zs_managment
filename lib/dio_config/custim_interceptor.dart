@@ -62,14 +62,7 @@ class CustomInterceptor extends Interceptor {
         }
       }
       else if(response.statusCode==404){
-        Get.dialog(ShowInfoDialog(
-          color: Colors.red,
-          icon: Icons.cast_connected_outlined,
-          messaje: "baglantierror".tr,
-          callback: () {
-            Get.back();
-          },
-        ));
+        Get.toNamed(RouteHelper.mobileLisanceScreen);
       }
       else if(response.statusCode != 200){
         exeptionHandler(response);
@@ -194,6 +187,64 @@ class CustomInterceptor extends Interceptor {
     }
     return succes;
   }
+
+  Future<int> getCompanyUrlByDivaceId() async {
+    int statusCode=0;
+    localUserServices.init();
+    late CheckDviceType checkDviceType = CheckDviceType();
+    String languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await dio.post(
+          "${AppConstands.baseUrlsMain}v1/User/serviceurl-by-device",
+          data: {"deviceId": localUserServices.getLoggedUser().userModel!.deviceId!, "macAddress": "123-123-123-123"},
+          options: Options(
+            // receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '1234589'
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+          if (response.statusCode == 200) {
+            String baseUrl=response.data['result'];
+            LoggedUserModel modelLogged = localUserServices.getLoggedUser();
+            modelLogged.baseUrl==baseUrl;
+            localUserServices.init();
+            localUserServices.addUserToLocalDB(modelLogged);
+            statusCode==200;
+          }else{
+            statusCode==response.statusCode!;
+          }
+
+      } on DioException catch (e) {
+        if (e.response != null) {
+        } else {}
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
+    }
+    return statusCode;
+  }
+
+
+
 }
 class ModelExceptions {
   String? code;

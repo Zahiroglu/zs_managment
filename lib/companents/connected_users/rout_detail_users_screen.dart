@@ -14,9 +14,12 @@ class RoutDetailScreenUsers extends StatefulWidget {
 
 class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
   ControllerRoutDetailUser controllerRoutDetailUser = Get.put(ControllerRoutDetailUser());
-
+  PageController scrollController=PageController();
   @override
   void initState() {
+
+    scrollController.addListener(() {
+    });
     // TODO: implement initState
     super.initState();
   }
@@ -25,6 +28,8 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
   @override
   void dispose() {
     Get.delete<ControllerRoutDetailUser>();
+    scrollController.dispose();
+
     // TODO: implement dispose
     super.dispose();
   }
@@ -34,24 +39,22 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
     return Material(
       color: Colors.white,
       child: Scaffold(
-        body:  SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 50,
-              ),
-              _header(context),
-              Obx(
-                    () => controllerRoutDetailUser.dataLoading.isFalse
-                    ? _body(context)
-                    : const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.blue,
-                  ),
+        body:  Column(
+          children: [
+            const SizedBox(
+              height: 50,
+            ),
+            _header(context),
+            Obx(
+                  () => controllerRoutDetailUser.dataLoading.isFalse
+                  ? _body(context)
+                  : const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.blue,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -62,7 +65,7 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CustomText(
-          labeltext: "Temsilciler",
+          labeltext: "temsilciler".tr,
           fontWeight: FontWeight.w800,
           fontsize: 18,
         )
@@ -86,24 +89,11 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
             const Spacer(),
           ],
         ),
-        Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: controllerRoutDetailUser.filteredListUsers.isNotEmpty?ListView.builder(
-              shrinkWrap: true,
-              itemCount: controllerRoutDetailUser.filteredListUsers.length,
-              padding: EdgeInsets.zero,
-              itemBuilder: (context, index) {
-                return _filteredListUsersItems(
-                    controllerRoutDetailUser.filteredListUsers.elementAt(index));
-              }):Center(
-            child: CustomText(labeltext: "mtapilmadi".tr,fontsize: 16),
-          ),
-        ),
+        _pageView(),
         Align(
           alignment: Alignment.bottomCenter,
           child: CustomElevetedButton(
-            label: "Basqa",
+            label: "temsilciSec".tr,
             cllback: () {
               controllerRoutDetailUser.createDialogTogetExpCode(context);
             },
@@ -194,6 +184,11 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
     return InkWell(
       onTap: (){
         setState(() {
+          if(s=="Exp"){
+            scrollController.animateToPage(0, duration: Duration(milliseconds: 100), curve: Curves.easeIn);
+          }else{
+            scrollController.animateToPage(0, duration: Duration(milliseconds: 100), curve: Curves.easeIn);
+          }
           controllerRoutDetailUser.fistTabSelected.value=s;
           controllerRoutDetailUser.changeUsers(s);
         });
@@ -220,5 +215,56 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
     );
  }
 
+  _pageView() {
+    return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.72,
+      child: PageView(
+        controller: scrollController,
+        onPageChanged: _onPageChange,
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            margin: const EdgeInsets.only(bottom: 10),
+            child: controllerRoutDetailUser.filteredListUsers.isNotEmpty?ListView.builder(
+                shrinkWrap: true,
+                itemCount: controllerRoutDetailUser.filteredListUsers.length,
+                padding: EdgeInsets.zero,
+                itemBuilder: (context, index) {
+                  return _filteredListUsersItems(controllerRoutDetailUser.filteredListUsers.elementAt(index));
+                }):Center(
+              child: CustomText(labeltext: "mtapilmadi".tr,fontsize: 16),
+            ),
+          ),
+          Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            margin: const EdgeInsets.only(bottom: 10),
+            child: controllerRoutDetailUser.filteredListUsers.isNotEmpty?ListView.builder(
+                shrinkWrap: true,
+                itemCount: controllerRoutDetailUser.filteredListUsers.length,
+                padding: EdgeInsets.zero,
+                itemBuilder: (context, index) {
+                  return _filteredListUsersItems(controllerRoutDetailUser.filteredListUsers.elementAt(index));
+                }):Center(
+              child: CustomText(labeltext: "mtapilmadi".tr,fontsize: 16),
+            ),
+          ),
 
+        ],
+      ),
+    );
+  }
+
+
+
+  void _onPageChange(int value) {
+    if(value==0){
+      controllerRoutDetailUser.fistTabSelected.value="Exp";
+      controllerRoutDetailUser.changeUsers("Exp");
+    }else{
+      controllerRoutDetailUser.fistTabSelected.value="Merc";
+      controllerRoutDetailUser.changeUsers("Merc");
+    }
+    setState(() {
+    });
+  }
 }

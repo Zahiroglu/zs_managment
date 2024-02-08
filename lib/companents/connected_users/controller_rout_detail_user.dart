@@ -167,8 +167,7 @@ class ControllerRoutDetailUser extends GetxController {
     }
   }
 
-  Future<map.BitmapDescriptor> getClusterBitmap2(int size,
-      ModelCariler model) async {
+  Future<map.BitmapDescriptor> getClusterBitmap2(int size,ModelCariler model) async {
     Color colors = Colors.black;
     String rutGunu = "rutsuz".tr;
     if (model.day1 == 1) {
