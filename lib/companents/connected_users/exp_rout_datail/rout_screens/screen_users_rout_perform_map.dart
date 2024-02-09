@@ -8,6 +8,7 @@ import 'package:hive/hive.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/connected_users/controller_rout_detail_user.dart';
+import 'package:zs_managment/companents/connected_users/exp_rout_datail/controller_exppref.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
@@ -15,7 +16,7 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 class ScreenUserRoutPerformMap extends StatefulWidget {
-  ControllerRoutDetailUser controllerRoutDetailUser;
+  ControllerExpPref controllerRoutDetailUser;
 
   ScreenUserRoutPerformMap({required this.controllerRoutDetailUser, super.key});
 
@@ -295,7 +296,7 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
     final map.GoogleMapController controller = await _controllerMap.future;
     ModelCariler model = await Get.toNamed(
         RouteHelper.mobileSearchMusteriMobile,
-        arguments: widget.controllerRoutDetailUser.listFilteredCustomers);
+        arguments: widget.controllerRoutDetailUser.listFilteredUmumiBaza);
     if (model.toString().isNotEmpty) {
       widget.controllerRoutDetailUser.selectedCariModel.value = model;
       widget.controllerRoutDetailUser.addCirculerToMap();
@@ -486,7 +487,7 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
       );
 
   Widget _rutHesabati() {
-    int rutsuzMusteriSayi=widget.controllerRoutDetailUser.listSelectedCustomers.where((p) => p.day1==0
+    int rutsuzMusteriSayi=widget.controllerRoutDetailUser.listSelectedExpBaza.where((p) => p.day1==0
         && p.day2==0&& p.day3==0&& p.day4==0&& p.day4==0&& p.day6==0).toList().length;
     return Padding(
       padding: const EdgeInsets.all(5.0).copyWith(left: 15),
@@ -530,19 +531,19 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
                       Row(
                         children: [
                           CustomText(labeltext: "${"umumiMusteri".tr} : ",fontWeight: FontWeight.w800),
-                          CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedCustomers.length.toString(),fontWeight: FontWeight.w600),
+                          CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.length.toString(),fontWeight: FontWeight.w600),
                         ],
                       ),
                       Row(
                         children: [
                           CustomText(labeltext: "${"aktivMusteri".tr} : ",fontWeight: FontWeight.w800),
-                          CustomText(labeltext: "${widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.action=true).toList().length} ${"musteri".tr}  |  ${((widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.action=true).toList().length/widget.controllerRoutDetailUser.listSelectedCustomers.length)*100).toString().substring(0,4)} %",fontWeight: FontWeight.w600),
+                          CustomText(labeltext: "${widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.action=true).toList().length} ${"musteri".tr}  |  ${((widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.action=true).toList().length/widget.controllerRoutDetailUser.listSelectedExpBaza.length)*100).toString().substring(0,4)} %",fontWeight: FontWeight.w600),
                         ],
                       ),
                       Row(
                         children: [
                           CustomText(labeltext: "${"passivMusteri".tr} : ",fontWeight: FontWeight.w800),
-                          CustomText(labeltext: "${widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.action=false).toList().length} ${"musteri".tr}  |  ${((widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.action=false).toList().length/widget.controllerRoutDetailUser.listSelectedCustomers.length)*100).toString().substring(0,(widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.action=false).toList().length/widget.controllerRoutDetailUser.listSelectedCustomers.length).toString().length>4?4:(widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.action=false).toList().length/widget.controllerRoutDetailUser.listSelectedCustomers.length).toString().length)} %",fontWeight: FontWeight.w600),
+                          CustomText(labeltext: "${widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.action=false).toList().length} ${"musteri".tr}  |  ${((widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.action=false).toList().length/widget.controllerRoutDetailUser.listSelectedExpBaza.length)*100).toString().substring(0,(widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.action=false).toList().length/widget.controllerRoutDetailUser.listSelectedExpBaza.length).toString().length>4?4:(widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.action=false).toList().length/widget.controllerRoutDetailUser.listSelectedExpBaza.length).toString().length)} %",fontWeight: FontWeight.w600),
                         ],
                       ),
                       const SizedBox(height: 1,),
@@ -551,7 +552,7 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
                       Row(
                         children: [
                           CustomText(labeltext: "${"bagliMusteri".tr} : ",fontWeight: FontWeight.normal),
-                          CustomText(labeltext: "${widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.day7.toString()=="1").length} ${"musteri".tr}",fontWeight: FontWeight.normal,fontsize: 16,),
+                          CustomText(labeltext: "${widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day7.toString()=="1").length} ${"musteri".tr}",fontWeight: FontWeight.normal,fontsize: 16,),
                         ],
                       ),
                       Row(
@@ -575,19 +576,19 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun1".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.day1.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day1.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun2".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.day2.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day2.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun3".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.day3.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day3.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
           
@@ -599,19 +600,19 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun4".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.day4.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day4.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun5".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.day5.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day5.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun6".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.day6.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day6.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
           
@@ -638,7 +639,7 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
   void createPoly(){
     List<List<map.LatLng>> listmap=[];
     List<map.LatLng> listmapP=[];
-    widget.controllerRoutDetailUser.listSelectedCustomers.where((p0) => p0.day1==1).toList().forEach((element) {
+    widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day1==1).toList().forEach((element) {
       listmap.add([map.LatLng(double.parse(element.longitude.toString()), double.parse(element.latitude.toString()))]);
       listmapP.add(map.LatLng(double.parse(element.longitude.toString()), double.parse(element.latitude.toString())));
     });

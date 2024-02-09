@@ -61,6 +61,8 @@ class ModelCariler {
   String? rutGunu;
   String? mesafe;
   double? mesafeInt;
+  int? ziyaretSayi;
+  String? sndeQalmaVaxti;
 
   ModelCariler({
     this.code,
@@ -91,6 +93,7 @@ class ModelCariler {
     this.orderNumber,
     this.ziyaret,
     this.mesafe,
+    this.ziyaretSayi,
   });
 
   ModelCariler copyWith({

@@ -1,21 +1,29 @@
+import 'dart:convert';
 import 'dart:ui';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
+import 'package:zs_managment/companents/login/models/base_responce.dart';
+import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
 import 'package:zs_managment/global_models/model_maptypeapp.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
+import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
@@ -35,18 +43,12 @@ class ControllerRoutDetailUser extends GetxController {
       'packages/map_launcher/assets/icons/${CustomMapType.google}.svg').obs;
   RxList<UserModel> listUsers = List<UserModel>.empty(growable: true).obs;
   RxList<UserModel> filteredListUsers = List<UserModel>.empty(growable: true).obs;
-  RxList<ModelCariler> listSelectedCustomers = List<ModelCariler>.empty(
-      growable: true).obs;
-  RxList<ModelMercBaza> listSelectedMercBaza = List<ModelMercBaza>.empty(
-      growable: true).obs;
-  RxList<ModelCariler> listFilteredCustomers = List<ModelCariler>.empty(
-      growable: true).obs;
-  RxList<ModelMercBaza> listFilteredMercBaza = List<ModelMercBaza>.empty(
-      growable: true).obs;
-  RxList<ModelGirisCixis> listGirisCixis = List<ModelGirisCixis>.empty(
-      growable: true).obs;
+  RxList<ModelCariler> listSelectedCustomers = List<ModelCariler>.empty(growable: true).obs;
+  RxList<ModelMercBaza> listSelectedMercBaza = List<ModelMercBaza>.empty(growable: true).obs;
+  RxList<ModelCariler> listFilteredCustomers = List<ModelCariler>.empty(growable: true).obs;
+  RxList<ModelMercBaza> listFilteredMercBaza = List<ModelMercBaza>.empty(growable: true).obs;
+  RxList<ModelGirisCixis> listGirisCixis = List<ModelGirisCixis>.empty(growable: true).obs;
   RxBool dataLoading = true.obs;
-  TextEditingController ctSearch = TextEditingController();
   TextEditingController ctTemsilciKodu = TextEditingController();
   String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
   String soaphost = "193.105.123.215";
@@ -54,36 +56,17 @@ class ControllerRoutDetailUser extends GetxController {
       ModelSifarislerTablesi>.empty(growable: true).obs;
   late Rx<ModelSifarislerTablesi> selectedTab = ModelSifarislerTablesi().obs;
   RxBool routDataLoading = true.obs;
-  RxString fromIntentPage = "list".obs;
-  final RxSet<map.Marker> markers = <map.Marker>{}.obs;
-  final RxSet<map.Circle> circles = <map.Circle>{}.obs;
-  late Rx<ModelCariler> selectedCariModel = ModelCariler().obs;
+
   RxString fistTabSelected = "Exp".obs;
+  String languageIndex = "az";
+  late CheckDviceType checkDviceType = CheckDviceType();
 
   @override
   void onInit() {
     getAllUsers();
-    getAppSetting();
     super.onInit();
   }
 
-  Future<void> getAppSetting() async {
-    await userService.init();
-    await appSetting.init();
-    ModelAppSetting modelSetting = await appSetting.getAvaibleMap();
-    if (modelSetting.mapsetting != null) {
-      ModelMapApp modelMapApp = modelSetting.mapsetting!;
-      CustomMapType? customMapType = modelMapApp.mapType;
-      MapType mapType = MapType.values[customMapType!.index];
-      if (modelMapApp.name != "null") {
-        availableMap.value = AvailableMap(
-            mapName: modelMapApp.name!,
-            mapType: mapType,
-            icon: modelMapApp.icon!);
-      }
-    }
-    update();
-  }
 
   Future<void> getAllUsers() async {
     await localBaseDownloads.init();
@@ -152,103 +135,6 @@ class ControllerRoutDetailUser extends GetxController {
     update();
   }
 
-  Future<void> setAllMarkers() async {
-    markers.clear();
-    for (ModelCariler model in listFilteredCustomers) {
-      markers.add(map.Marker(
-          markerId: map.MarkerId(model.code!),
-          onTap: () {
-            selectedCariModel.value = model;
-            addCirculerToMap();
-          },
-          icon: await getClusterBitmap2(120, model),
-          position: map.LatLng(
-              double.parse(model.longitude!), double.parse(model.latitude!))));
-    }
-  }
-
-  Future<map.BitmapDescriptor> getClusterBitmap2(int size,ModelCariler model) async {
-    Color colors = Colors.black;
-    String rutGunu = "rutsuz".tr;
-    if (model.day1 == 1) {
-      colors = Colors.blue;
-      rutGunu = "1";
-    } else if (model.day2 == 1) {
-      colors = Colors.orange;
-      rutGunu = "2";
-    } else if (model.day3 == 1) {
-      colors = Colors.green;
-      rutGunu = "3";
-    } else if (model.day4 == 1) {
-      colors = Colors.deepPurple;
-      rutGunu = "4";
-    } else if (model.day5 == 1) {
-      colors = Colors.lightBlueAccent;
-      rutGunu = "5";
-    } else if (model.day6 == 1) {
-      colors = Colors.redAccent;
-      rutGunu = "6";
-    } else if (model.day7 == 1) {
-      colors = Colors.brown;
-      rutGunu = "bagli".tr;
-    }
-    final PictureRecorder pictureRecorder = PictureRecorder();
-    final Canvas canvas = Canvas(pictureRecorder);
-    final Paint paint1 = Paint()
-      ..color = Colors.transparent;
-    canvas.drawCircle(Offset(size / 3.5, size / 2.7), size / 10.0, paint1);
-    var icon = Icons.place;
-    TextPainter textPainter = TextPainter(textDirection: TextDirection.rtl);
-    textPainter.text = TextSpan(
-        text: String.fromCharCode(icon.codePoint),
-        style: TextStyle(
-            fontSize: selectedCariModel.value.code == model.code
-                ? size * 0.9
-                : size * 0.7,
-            fontFamily: icon.fontFamily,
-            color: colors));
-    textPainter.layout();
-    textPainter.paint(
-        canvas,
-        selectedCariModel.value.code == model.code
-            ? Offset(size / 8, size / 8)
-            : Offset(size / 4, size / 4));
-    TextPainter painter = TextPainter(textDirection: TextDirection.ltr);
-    painter.text = TextSpan(
-      text: rutGunu,
-      style: TextStyle(
-          decoration: TextDecoration.none,
-          fontSize: selectedCariModel.value.code == model.code
-              ? size / 3
-              : size / 8,
-          color: Colors.black,
-          fontWeight: FontWeight.bold),
-    );
-    painter.layout();
-    painter.paint(
-      canvas,
-      selectedCariModel.value.code == model.code ? Offset(
-          (size - painter.width) * 0.6, size * -0.05) : Offset(
-          (size - painter.width) * 0.6, size / 6),
-    );
-    final img = await pictureRecorder.endRecording().toImage(size, size);
-    final data = await img.toByteData(format: ImageByteFormat.png);
-    return map.BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
-  }
-
-  addCirculerToMap() {
-    circles.clear;
-    circles.value = {
-      map.Circle(
-          circleId: map.CircleId(selectedCariModel.value.code!),
-          center: map.LatLng(double.parse(selectedCariModel.value.longitude!),
-              double.parse(selectedCariModel.value.latitude!)),
-          radius: 100,
-          fillColor: Colors.black.withOpacity(0.5),
-          strokeColor: Colors.red,
-          strokeWidth: 1)
-    };
-  }
 
   void createDialogTogetExpCode(BuildContext context) {
     Get.dialog(_widgetDialogExpCode(context), barrierDismissible: false);
@@ -344,9 +230,9 @@ class ControllerRoutDetailUser extends GetxController {
     listFilteredCustomers.clear();
     DialogHelper.showLoading("cmendirilir".tr);
     if (fistTabSelected.value == "Exp") {
-      listSelectedCustomers.value = await getDataFromServerUmumiCariler(temKod);
-      listSelectedCustomers.value =
-          createRandomOrdenNumber(listSelectedCustomers);
+      listSelectedCustomers.value = await getAllCustomers(temKod);
+      listGirisCixis.value=await getDataFromServerGirisCixis(temKod);
+      listSelectedCustomers.value = createRandomOrdenNumber(listSelectedCustomers);
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
         tabMelumatlariYukle();
@@ -377,7 +263,6 @@ class ControllerRoutDetailUser extends GetxController {
       }
     }
   }
-
 
   List<ModelCariler> createRandomOrdenNumber(List<ModelCariler> list) {
     List<ModelCariler> yeniList = [];
@@ -527,142 +412,6 @@ class ControllerRoutDetailUser extends GetxController {
     update();
   }
 
-  void showEditDialog(ModelCariler element, BuildContext context) {
-    Get.dialog(
-      _dialogEditCustomers(element, context),
-      barrierDismissible: true,
-    );
-  }
-
-  Widget _dialogEditCustomers(ModelCariler element, BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(15))),
-        margin: EdgeInsets.symmetric(
-            vertical: MediaQuery
-                .of(context)
-                .size
-                .height * 0.3,
-            horizontal: MediaQuery
-                .of(context)
-                .size
-                .width * 0.05),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0).copyWith(top: 20),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: CustomText(
-                            labeltext: element.name!,
-                            fontsize: 18,
-                            maxline: 2,
-                            fontWeight: FontWeight.w600,
-                            textAlign: TextAlign.center),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  CustomElevetedButton(
-                      icon: Icons.edit,
-                      elevation: 10,
-                      fontWeight: FontWeight.w600,
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.7,
-                      height: 50,
-                      cllback: () {
-                        Get.back();
-                        fromIntentPage.value = "list";
-                        intentEditCustomers(element);
-                      },
-                      label: "Musteri melumatlarini duzelt"),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  CustomElevetedButton(
-                      icon: Icons.add_business,
-                      elevation: 10,
-                      fontWeight: FontWeight.w600,
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.7,
-                      height: 50,
-                      cllback: () {
-                        Get.back();
-                        _intentAdToMercRut(element);
-                      },
-                      label: "Mercendaizer rutuna elave et"),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-                top: 0,
-                right: 0,
-                child: IconButton(
-                  onPressed: () {
-                    Get.back();
-                    ctTemsilciKodu.clear();
-                  },
-                  icon: Icon(
-                    Icons.clear,
-                    color: Colors.red,
-                  ),
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void intentEditCustomers(ModelCariler element) async {
-    await Get.toNamed(RouteHelper.screenEditMusteriDetailScreen,
-        arguments: [this, RouteHelper.screenExpRoutDetailMap, element]);
-    update();
-  }
-
-  void _intentAdToMercRut(ModelCariler element) {}
-
-
-  Future<void> changeCustomersInfo(ModelCariler modelCari) async {
-    Get.back();
-    if (modelCari.code != null) {
-      selectedCariModel.value = modelCari;
-      DialogHelper.showLoading("mDeyisdirilir".tr);
-      listSelectedCustomers.remove(listSelectedCustomers
-          .where((p) => p.code == modelCari.code)
-          .first);
-      listSelectedCustomers.insert(0, modelCari);
-      listFilteredCustomers.remove(listFilteredCustomers
-          .where((p) => p.code == modelCari.code)
-          .first);
-      listFilteredCustomers.insert(0, modelCari);
-      await Future.delayed(Duration(seconds: 2));
-      tabMelumatlariYukle();
-      changeSelectedTabItems(selectedTab.value);
-      DialogHelper.hideLoading();
-    }
-    tabMelumatlariYukle();
-    update();
-  }
 
   void changeUsers(String s) {
     if (s == "Exp") {
@@ -675,25 +424,82 @@ class ControllerRoutDetailUser extends GetxController {
     update();
   }
 
-  void filterCustomersBySearchView(String st) {
-    listFilteredCustomers.clear();
-    if (st.isNotEmpty) {
-      listSelectedCustomers
-          .where((p) =>
-      p.code!.toUpperCase().contains(st.toUpperCase()) ||
-          p.name!.toUpperCase().contains(st.toUpperCase()))
-          .forEach((element) {
-        listFilteredCustomers.add(element);
-      });
+
+  ///Cari Baza endirme/////////
+  Future<List<ModelCariler>> getAllCustomers(String temKod) async {
+    List<ModelCariler> listUsers=[];
+    languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    LoggedUserModel loggedUserModel=userService.getLoggedUser();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
     } else {
-      for (var element in listSelectedCustomers) {
-        listFilteredCustomers.add(element);
+      try {
+        final response = await ApiClient().dio().get("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-user-code?userCode="+temKod,
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+        if (response.statusCode == 404) {
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "baglantierror".tr,
+            callback: () {},
+          ));
+        } else {
+          // print("Request responce My USER INFO:" + response.data.toString());
+          if (response.statusCode == 200) {
+            var userlist = json.encode(response.data['result']);
+            List listuser = jsonDecode(userlist);
+            for(var i in listuser){
+              listUsers.add(ModelCariler.fromJson(i));
+            }
+
+          } else {
+            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {},
+            ));
+          }
+        }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
       }
     }
-    update();
+    return listUsers;
   }
 
-  ////Cari Baza endirme/////////
   Future<List<ModelMercBaza>> getDataFromServerMercBaza(
       String temsilcikodu) async {
     String temp = "'" + temsilcikodu + "'";
@@ -1082,5 +888,9 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       //  itemsList.add(_addResult);
     }).toList();
     return listKodrdinar;
+  }
+
+  Future<String> getLanguageIndex() async {
+    return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
 }

@@ -81,7 +81,7 @@ class ControllerBaseDownloads extends GetxController {
       }else if(element.code=="enter"){
         listDonwloads.add( ModelDownloads(
             name: "Cari Baza",
-            code: "expcari",
+            code: "enter",
             info: "Satis Temsilcilerinin erazi uzre cari musteri bazasini gormesi ucun lazimdir.",
             lastDownDay: "",
             musteDonwload: true));}
@@ -332,7 +332,8 @@ class ControllerBaseDownloads extends GetxController {
         }
         break;
       case "enter":
-        List<ModelCariler> data = await getDataFromServerUmumiCariler(loggedUserModel.userModel!.code!);
+       // List<ModelCariler> data = await getDataFromServerUmumiCariler(loggedUserModel.userModel!.code!);
+        List<ModelCariler> data = await getAllCustomers();
         await localBaseDownloads.addCariBaza(data);
         if (data.isNotEmpty) {
           listDonwloads.remove(model);
@@ -399,7 +400,7 @@ class ControllerBaseDownloads extends GetxController {
     callLocalBases();
     update();
   }
-/////connected users service
+///connected users service
   Future<List<UserModel>> getAllConnectedUsers() async {
     List<UserModel> listUsers=[];
     languageIndex = await getLanguageIndex();
@@ -484,7 +485,82 @@ class ControllerBaseDownloads extends GetxController {
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
-  ////Cari Baza endirme/////////
+  ///Get cari Baza From Serviz
+  Future<List<ModelCariler>> getAllCustomers() async {
+    List<ModelCariler> listUsers=[];
+    languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    loggedUserModel=localUserServices.getLoggedUser();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio().get("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-user-code?userCode="+loggedUserModel.userModel!.code!,
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+        if (response.statusCode == 404) {
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "baglantierror".tr,
+            callback: () {},
+          ));
+        } else {
+          // print("Request responce My USER INFO:" + response.data.toString());
+          if (response.statusCode == 200) {
+            var userlist = json.encode(response.data['result']);
+            List listuser = jsonDecode(userlist);
+            for(var i in listuser){
+              listUsers.add(ModelCariler.fromJson(i));
+            }
+
+          } else {
+            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {},
+            ));
+          }
+        }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
+    }
+    return listUsers;
+  }
+
+  ///Cari Baza endirme/////////
   Future<List<ModelCariler>> getDataFromServerUmumiCariler(
       String temsilcikodu) async {
     var envelopeaUmumicariler = '''

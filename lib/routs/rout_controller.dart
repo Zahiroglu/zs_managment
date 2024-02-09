@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/anbar/screen_anbarrapor.dart';
-import 'package:zs_managment/companents/connected_users/edit_screens/dart_edit_musteri_dayail.dart';
-import 'package:zs_managment/companents/connected_users/rout_screens/screen_users_rout_perform.dart';
-import 'package:zs_managment/companents/connected_users/rout_screens/screen_users_rout_perform_map.dart';
+import 'package:zs_managment/companents/connected_users/exp_rout_datail/edit_screens/dart_edit_musteri_dayail.dart';
+import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_screens/screen_users_rout_perform.dart';
+import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_screens/screen_users_rout_perform_map.dart';
 import 'package:zs_managment/companents/giris_cixis/companents/screen_musteridetail.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';

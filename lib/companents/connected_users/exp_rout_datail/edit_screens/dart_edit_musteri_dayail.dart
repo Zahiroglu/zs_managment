@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:map_picker/map_picker.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/connected_users/controller_rout_detail_user.dart';
+import 'package:zs_managment/companents/connected_users/exp_rout_datail/controller_exppref.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -15,7 +16,7 @@ import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
 
 class EditMusteriDetailScreen extends StatefulWidget {
-  ControllerRoutDetailUser controllerRoutDetailUser;
+  ControllerExpPref controllerRoutDetailUser;
   String routname;
   ModelCariler cariModel;
 

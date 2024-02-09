@@ -145,7 +145,7 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
                   child: Row(
                     children: [
                       const Icon(Icons.directions, color: Colors.blue),
-                      CustomText(labeltext: widget.modelCariler.mesafe!),
+                      CustomText(labeltext: widget.modelCariler.mesafe??"0"),
                     ],
                   ),
                 )):SizedBox(),
