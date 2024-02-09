@@ -32,6 +32,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
   late PageController _controllerInfo;
   int _initialIndex = 0;
   String hefteninGunu = "";
+  int sefZiyaret=0;
 
   @override
   void initState() {
@@ -93,15 +94,11 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
             .where((element) => element.gun4.toString() == "1")
             .toList()
             .forEach((element) {
-          element.ziyaretSayi = widget.modelGunlukGirisCixis.listgiriscixis
-              .where((e) => e.cariAd == element.cariad)
-              .length;
-          element.sndeQalmaVaxti = curculateTimeDistanceForVisit(widget
-              .modelGunlukGirisCixis.listgiriscixis
-              .where((e) => e.cariAd == element.cariad)
-              .toList());
+          element.ziyaretSayi = widget.modelGunlukGirisCixis.listgiriscixis.where((e) => e.cariAd == element.cariad).length;
+          element.sndeQalmaVaxti = curculateTimeDistanceForVisit(widget.modelGunlukGirisCixis.listgiriscixis.where((e) => e.cariAd == element.cariad).toList());
           if(listCustomersByDay.where((e) =>e.cariad==element.cariad ).isEmpty){
-            listCustomersByDay.add(element);}       });
+            listCustomersByDay.add(element);}
+            });
         break;
       case 5:
         hefteninGunu = "gun5";
@@ -144,7 +141,12 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
         ziyaretEdilmeyenMarketsayi = ziyaretEdilmeyenMarketsayi + 1;
       }
     }
-
+    for (var element in widget.modelGunlukGirisCixis.listgiriscixis) {
+      var contains =listCustomersByDay.map((item) => item.cariad).contains(element.cariAd);
+      if(!contains){
+        sefZiyaret=sefZiyaret+1;
+      }
+    }
     setState(() {});
   }
 
@@ -309,6 +311,16 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                                 .where((element) => element.ziyaretSayi! ==0).toList().length)}",color: Colors.white,fontWeight: FontWeight.bold,),
                           ),
                           const SizedBox(width: 5,),
+                          // Container(
+                          //   padding: const EdgeInsets.all(2),
+                          //   margin: const EdgeInsets.all(2),
+                          //   decoration:  BoxDecoration(
+                          //     borderRadius: BorderRadius.circular(5),
+                          //     color: Colors.red,
+                          //   ),
+                          //   child: CustomText(labeltext: "${"wrong".tr} - "+(widget.modelGunlukGirisCixis.listgiriscixis.length-listCustomersByDay
+                          //       .where((element) => element.ziyaretSayi! ==0).toList().length).toString(),color: Colors.white,fontWeight: FontWeight.bold),
+                          // )
                           Container(
                             padding: const EdgeInsets.all(2),
                             margin: const EdgeInsets.all(2),
@@ -316,8 +328,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.red,
                             ),
-                            child: CustomText(labeltext: "${"wrong".tr} - ${listCustomersByDay
-                                .where((element) => element.ziyaretSayi! ==0).toList().length}",color: Colors.white,fontWeight: FontWeight.bold),
+                            child: CustomText(labeltext: "${"wrong".tr} - "+sefZiyaret.toString(),color: Colors.white,fontWeight: FontWeight.bold),
                           )
                         ],
                       ),

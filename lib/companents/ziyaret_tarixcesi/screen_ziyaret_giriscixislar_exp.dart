@@ -297,7 +297,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
                           CustomText(
                               labeltext: "ziyaretSayi".tr + " : ",
                               fontWeight: FontWeight.w600),
-                          CustomText(labeltext: model.girisSayi.toString(),fontWeight: FontWeight.bold,fontsize: 16),
+                          CustomText(labeltext: widget.modelGunlukGirisCixis.listgiriscixis.length.toString(),fontWeight: FontWeight.bold,fontsize: 16),
                           const SizedBox(width: 15,),
                           Container(
                             padding: const EdgeInsets.all(2),
@@ -306,8 +306,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.blue,
                             ),
-                            child: CustomText(labeltext: "${"right".tr} - ${(listCustomersByDay.length-listCustomersByDay
-                                .where((element) => element.ziyaretSayi! ==0).toList().length)}",color: Colors.white,fontWeight: FontWeight.bold,),
+                            child: CustomText(labeltext: "${"right".tr}-${widget.modelGunlukGirisCixis.listgiriscixis.where((element) => element.rutUygunluq=="Duz").length}",color: Colors.white,fontWeight: FontWeight.bold,),
                           ),
                           const SizedBox(width: 5,),
                           Container(
@@ -317,8 +316,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.red,
                             ),
-                            child: CustomText(labeltext: "${"wrong".tr} - ${listCustomersByDay
-                                .where((element) => element.ziyaretSayi! ==0).toList().length}",color: Colors.white,fontWeight: FontWeight.bold),
+                            child: CustomText(labeltext: "${"wrong".tr}-${widget.modelGunlukGirisCixis.listgiriscixis.where((element) => element.rutUygunluq=="Sef").length}",color: Colors.white,fontWeight: FontWeight.bold),
                           )
                         ],
                       ),
@@ -568,21 +566,17 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
               decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(
-                      color: model.rutUygunluq == "Sef"
+                      color: model.rutUygunluq =="wrong".tr
                           ? Colors.red
                           : Colors.green,
                       width: 0.4),
                   borderRadius: BorderRadius.circular(5)),
               child: CustomText(
                 fontsize: 12,
-                labeltext: listCustomersByDay
-                        .where((element) => element.name == model.cariAd)
-                        .isEmpty
+                labeltext:  model.rutUygunluq =="wrong".tr
                     ? "wrong".tr
                     : "right".tr,
-                color: listCustomersByDay
-                        .where((element) => element.name == model.cariAd)
-                        .isEmpty
+                color:  model.rutUygunluq =="wrong".tr
                     ? Colors.red
                     : Colors.green,
               ),
