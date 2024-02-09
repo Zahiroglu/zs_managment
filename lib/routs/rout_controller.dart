@@ -4,6 +4,7 @@ import 'package:zs_managment/companents/anbar/screen_anbarrapor.dart';
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/edit_screens/dart_edit_musteri_dayail.dart';
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_screens/screen_users_rout_perform.dart';
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_screens/screen_users_rout_perform_map.dart';
+import 'package:zs_managment/companents/connected_users/exp_rout_datail/screen_rutsirasi_edit_exp.dart';
 import 'package:zs_managment/companents/giris_cixis/companents/screen_musteridetail.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';
@@ -14,6 +15,7 @@ import 'package:zs_managment/companents/mercendaizer/merc_routdatail_screen.dart
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifariselave_et.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifarisler.dart';
 import 'package:zs_managment/companents/splashandwelcome/welcome_screen.dart';
+import 'package:zs_managment/companents/ziyaret_tarixcesi/screen_ziyaret_giriscixislar_exp.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import '../companents/base_downloads/screen_download_base.dart';
 import '../companents/setting_panel/screen_maps_setting.dart';
@@ -22,7 +24,7 @@ import '../companents/login/desktop/login_desktop_screen.dart';
 import '../companents/login/mobile/login_mobile_first_screen.dart';
 import '../companents/login/mobile/mobile_lisance_screen.dart';
 import '../companents/main_screen/mobile/base_screen_mobile.dart';
-import '../companents/ziyaret_tarixcesi/screen_ziyaret_giriscixislar.dart';
+import '../companents/ziyaret_tarixcesi/screen_ziyaret_giriscixislar_merc.dart';
 
 class RouteHelper {
   /////////////////constants
@@ -51,9 +53,11 @@ class RouteHelper {
   static const String screenEditMusteriDetailScreen = '/screenEditMusteriDetailScreen';
   static const String screenMercRoutDatail = '/screenMercRoutDatail';
   static const String screenZiyaretGirisCixis = '/screenZiyaretGirisCixis';
+  static const String screenZiyaretGirisCixisExp = '/screenZiyaretGirisCixisExp';
   static const String screenMercMusteriDetail = '/screenMercMusteriDetail';
   static const String screenEditMercMusteri = '/screenEditMercMusteri';
   static const String screenMercRutSiraEdit = '/screenMercRutSiraEdit';
+  static const String screenExpRutSiraEdit = '/screenExpRutSiraEdit';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
@@ -80,9 +84,11 @@ class RouteHelper {
   static String getscreenEditMusteriDetailScreen() => screenEditMusteriDetailScreen;
   static String getScreenMercRoutDatail() => screenMercRoutDatail;
   static String getScreenZiyaretGirisCixis() => screenZiyaretGirisCixis;
+  static String getScreenZiyaretGirisCixisExp() => screenZiyaretGirisCixisExp;
   static String getScreenMercMusteriDetail() => screenMercMusteriDetail;
   static String getScreenEditMercMusteri() => screenEditMercMusteri;
   static String getScreenMercRutSiraEdit() => screenMercRutSiraEdit;
+  static String getScreenExpRutSiraEdit() => screenExpRutSiraEdit;
 
   static List<GetPage> routes = [
     GetPage(
@@ -250,6 +256,13 @@ class RouteHelper {
       return  Container();
     }),
     GetPage(
+        transition: Transition.upToDown,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenZiyaretGirisCixisExp, page: () {
+      return   ScreenZiyaretGirisCixisExp(modelGunlukGirisCixis: Get.arguments[0],adSoyad: Get.arguments[1],modelCariler: Get.arguments[2],);
+      return  Container();
+    }),
+    GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenEditMercMusteri, page: () {
@@ -261,6 +274,13 @@ class RouteHelper {
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercRutSiraEdit, page: () {
       return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenExpRutSiraEdit, page: () {
+      return   ScreenExpRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],);
       return  Container();
     }),
   ];

@@ -826,7 +826,7 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
     );
   }
   void _intentRutSirasiScreen(String rutGunu) {
-    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri.value,rutGunu]);
+    Get.toNamed(RouteHelper.getScreenExpRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri.value,rutGunu]);
   }
 
   /// ziyaretEdilmeyenler menu
@@ -920,7 +920,7 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
   Widget itemZiyaretGunluk(ModelGunlukGirisCixis model) {
     return InkWell(
       onTap: (){
-       // Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,widget.modelMercBaza.first.mercadi,widget.modelMercBaza]);
+        Get.toNamed(RouteHelper.screenZiyaretGirisCixisExp,arguments: [model,controllerRoutDetailUser.listSelectedExpBaza.first.forwarderCode,controllerRoutDetailUser.listSelectedExpBaza]);
       },
       child: Padding(
         padding: const EdgeInsets.all(5.0).copyWith(left: 10,right: 10),
