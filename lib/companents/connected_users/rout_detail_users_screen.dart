@@ -113,7 +113,7 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
   Widget _filteredListUsersItems(UserModel element) {
     return InkWell(
       onTap: (){
-        controllerRoutDetailUser.temsilciMelumatlariniGetir(element.code!);
+        controllerRoutDetailUser.temsilciMelumatlariniGetir(element);
       },
       child: Stack(
         children: [

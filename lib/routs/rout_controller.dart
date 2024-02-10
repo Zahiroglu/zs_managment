@@ -9,6 +9,7 @@ import 'package:zs_managment/companents/giris_cixis/companents/screen_musteridet
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';
 import 'package:zs_managment/companents/mercendaizer/info_mercmusteri_datail.dart';
+import 'package:zs_managment/companents/mercendaizer/merc_adina_dukan_atmaq.dart';
 import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/merc_cari_edit.dart';
 import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/screen_rutsirasi_edit.dart';
 import 'package:zs_managment/companents/mercendaizer/merc_routdatail_screen.dart';
@@ -58,6 +59,7 @@ class RouteHelper {
   static const String screenEditMercMusteri = '/screenEditMercMusteri';
   static const String screenMercRutSiraEdit = '/screenMercRutSiraEdit';
   static const String screenExpRutSiraEdit = '/screenExpRutSiraEdit';
+  static const String screenMercAdinaMusteriAt = '/screenMercAdinaMusteriAt';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
@@ -89,6 +91,7 @@ class RouteHelper {
   static String getScreenEditMercMusteri() => screenEditMercMusteri;
   static String getScreenMercRutSiraEdit() => screenMercRutSiraEdit;
   static String getScreenExpRutSiraEdit() => screenExpRutSiraEdit;
+  static String getScreenMercAdinaMusteriAt() => screenMercAdinaMusteriAt;
 
   static List<GetPage> routes = [
     GetPage(
@@ -217,7 +220,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenExpRoutDetail, page: () {
-      return   ScreenUserRoutPerform(controllerRoutDetailUser: Get.arguments);
+      return   ScreenUserRoutPerform(controllerRoutDetailUser: Get.arguments[0],userModel: Get.arguments[1], listUsers: [],);
       return  Container();
     }),
     GetPage(
@@ -281,6 +284,13 @@ class RouteHelper {
         transitionDuration: const Duration(milliseconds: 500),
         name: screenExpRutSiraEdit, page: () {
       return   ScreenExpRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenMercAdinaMusteriAt, page: () {
+      return   ScreenMercAdinaMusteriEalveEtme(modelCari:  Get.arguments[0],listUsers: Get.arguments[1],);
       return  Container();
     }),
   ];

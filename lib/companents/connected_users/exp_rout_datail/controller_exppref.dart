@@ -10,6 +10,7 @@ import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.d
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
+import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
@@ -56,6 +57,8 @@ class ControllerExpPref extends GetxController {
   final RxSet<map.Marker> markers = <map.Marker>{}.obs;
   final RxSet<map.Circle> circles = <map.Circle>{}.obs;
   late Rx<ModelCariler> selectedCariModel = ModelCariler().obs;
+  RxList<UserModel> listMercs = List<UserModel>.empty(growable: true).obs;
+
   @override
   void onInit() {
     getAppSetting();
@@ -97,7 +100,6 @@ class ControllerExpPref extends GetxController {
 
   }
 
-
   Future<void> getAppSetting() async {
     await userService.init();
     await appSetting.init();
@@ -116,9 +118,8 @@ class ControllerExpPref extends GetxController {
     update();
   }
 
-
   ////umumi cariler hissesi
-  void getAllCariler(List<ModelCariler> listMercBaza, List<ModelGirisCixis> listGirisCixis) {
+  void getAllCariler(List<ModelCariler> listMercBaza, List<ModelGirisCixis> listGirisCixis, List<UserModel> listmercendaizers) {
     for (var element in listMercBaza) {
       element.ziyaretSayi = listGirisCixis.where((e) => e.cariKod == element.code).toList().length;
      element.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariKod == element.code).toList());
@@ -149,15 +150,18 @@ class ControllerExpPref extends GetxController {
           selected: false,
           keyText: "zem"));
     }
-    listTabItems.add(ModelTamItemsGiris(
-        icon: Icons.share_arrival_time,
-        color: Colors.green,
-        label: "ziyaretTarixcesi".tr,
-        selected: false,
-        keyText: "um"
-    ));
+    if(listGirisCixis.isNotEmpty) {
+      listTabItems.add(ModelTamItemsGiris(
+          icon: Icons.share_arrival_time,
+          color: Colors.green,
+          label: "ziyaretTarixcesi".tr,
+          selected: false,
+          keyText: "um"
+      ));
+    }
     ziyaretTarixcesiTablesini(listGirisCixis);
     melumatlariGuneGoreDoldur();
+    listMercs.value=listmercendaizers;
     update();
   }
   
@@ -369,12 +373,13 @@ class ControllerExpPref extends GetxController {
   }
 
   void intentEditCustomers(ModelCariler element) async {
-    await Get.toNamed(RouteHelper.screenEditMusteriDetailScreen,
-        arguments: [this, RouteHelper.screenExpRoutDetailMap, element]);
+    await Get.toNamed(RouteHelper.screenEditMusteriDetailScreen, arguments: [this, RouteHelper.screenExpRoutDetailMap, element]);
     update();
   }
 
-  void _intentAdToMercRut(ModelCariler element) {}
+  void _intentAdToMercRut(ModelCariler element) {
+    Get.toNamed(RouteHelper.screenMercAdinaMusteriAt,arguments: [element,listMercs.where((p0) => p0.roleId==23).toList()]);
+  }
 
   void showEditDialog(ModelCariler element, BuildContext context) {
     Get.dialog(
@@ -592,6 +597,8 @@ class ControllerExpPref extends GetxController {
       await Future.delayed(Duration(seconds: 2));
       DialogHelper.hideLoading();
     }
+    changeRutGunu(DateTime.now().weekday);
+
     update();
   }
 
