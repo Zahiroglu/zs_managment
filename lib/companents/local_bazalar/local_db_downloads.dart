@@ -106,10 +106,15 @@ class LocalBaseDownloads {
   }
 
   bool checkIfUserMustDonwloadsBase(int? roleId) {
+    int deyer=0;
     List<ModelDownloads> listustDown = getAllDownLoadBaseList();
-    int deyer = listustDown.where((element) => element.musteDonwload == true).length;
-    print('Endirilmeli baza sayi :' + deyer.toString());
-    return deyer == 0 ? true : false;
+    if(listustDown.isEmpty){
+      deyer==5;
+    }else{
+      deyer = listustDown.where((element) => element.musteDonwload == true).length;
+      print('Endirilmeli baza sayi :' + deyer.toString());
+    }
+    return deyer==0?false:true;
   }
 
 //////Umumi Rut gostericilerini Doldur//////

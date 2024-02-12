@@ -35,14 +35,7 @@ class ControllerBaseDownloads extends GetxController {
   late CheckDviceType checkDviceType = CheckDviceType();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   LocalUserServices localUserServices = LocalUserServices();
-  List<ModelDownloads> listDonwloads = [
-    ModelDownloads(
-        name: "Umumi Merc Baza",
-        code: "umumimerc",
-        info: "Eraziniz daxilindeki Merclerin is fealiyyetini ve motivasiyasini gormek ucundur",
-        lastDownDay: "",
-        musteDonwload: true),
-  ];
+  List<ModelDownloads> listDonwloads = [];
   List<ModelDownloads> listDownloadsFromLocalDb = [];
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
@@ -50,7 +43,7 @@ class ControllerBaseDownloads extends GetxController {
   RxBool dataLoading = true.obs;
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
   LocalBaseSatis localBaseSatis=LocalBaseSatis();
-  RxBool davamEtButonuGorunsun=true.obs;
+  RxBool davamEtButonuGorunsun=false.obs;
   String languageIndex = "az";
 
   @override
@@ -106,6 +99,9 @@ class ControllerBaseDownloads extends GetxController {
     loggedUserModel = localUserServices.getLoggedUser();
     listDownloadsFromLocalDb = localBaseDownloads.getAllDownLoadBaseList();
     getMustDownloadBase(loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
+    if(localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!)){
+      davamEtButonuGorunsun.value=true;
+    }
     update();
   }
 
@@ -174,7 +170,7 @@ class ControllerBaseDownloads extends GetxController {
                           color: Colors.white,
                           border: Border.all(color: Colors.green, width: 1)),
                       child: SizedBox(
-                        height: listDownloadsFromLocalDb.length * 100,
+                        height: listDownloadsFromLocalDb.length * 110,
                         child: ListView(
                           physics: NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.all(0),
@@ -332,7 +328,6 @@ class ControllerBaseDownloads extends GetxController {
         }
         break;
       case "enter":
-       // List<ModelCariler> data = await getDataFromServerUmumiCariler(loggedUserModel.userModel!.code!);
         List<ModelCariler> data = await getAllCustomers();
         await localBaseDownloads.addCariBaza(data);
         if (data.isNotEmpty) {
@@ -367,6 +362,7 @@ class ControllerBaseDownloads extends GetxController {
 
         break;
     }
+    callLocalBases();
     DialogHelper.hideLoading();
     update();
   }
@@ -487,11 +483,20 @@ class ControllerBaseDownloads extends GetxController {
   }
   ///Get cari Baza From Serviz
   Future<List<ModelCariler>> getAllCustomers() async {
+    List<String> secilmisTemsilciler=[];
     List<ModelCariler> listUsers=[];
     languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     loggedUserModel=localUserServices.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    await localBaseDownloads.init();
+    List<UserModel> listUsersSelected=localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==17).toList();
+    if(listUsersSelected.isEmpty){secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
+    }else {
+      for (var element in listUsersSelected) {
+        secilmisTemsilciler.add(element.code!);
+      }
+    }
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
@@ -501,7 +506,8 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().get("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-user-code?userCode="+loggedUserModel.userModel!.code!,
+        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
+          data:jsonEncode(secilmisTemsilciler),
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
             headers: {
@@ -515,7 +521,6 @@ class ControllerBaseDownloads extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,

@@ -146,6 +146,7 @@
     "anbar": "Anbar",
     "expeditor": "Satis Temsilcisi",
     "merc": "Mercendaizer",
+    "mercler": "Mercendaizerler",
     "plan": "Plan",
     "zaymal": "Zaymal",
     "marketSayi": "Market sayi",
@@ -170,8 +171,11 @@
     "time": "Vaxt",
     "rutKod": "Rut kodu",
     "mercBaglanti": "Merc baglanti",
+    "mercTeyinet": "Merc teyin edin",
     "msirasi": "musteriler sirasi",
     "cmendirilir": "Cari melumatlar endirilir...",
+    "cariMelumatlar": "Cari melumatlar",
     "temsilciler": "Temsilciler",
-    "temsilciSec": "Temsilci Sec"
+    "temsilciSec": "Temsilci Sec",
+    "cayPlan": "Cari ay plan"
 }

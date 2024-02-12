@@ -220,7 +220,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenExpRoutDetail, page: () {
-      return   ScreenUserRoutPerform(controllerRoutDetailUser: Get.arguments[0],userModel: Get.arguments[1], listUsers: [],);
+      return   ScreenUserRoutPerform(controllerRoutDetailUser: Get.arguments[0],userModel: Get.arguments[1], listUsers:Get.arguments[2],);
       return  Container();
     }),
     GetPage(
@@ -290,7 +290,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercAdinaMusteriAt, page: () {
-      return   ScreenMercAdinaMusteriEalveEtme(modelCari:  Get.arguments[0],listUsers: Get.arguments[1],);
+      return   ScreenMercAdinaMusteriEalveEtme(modelCari:  Get.arguments[0],listUsers: Get.arguments[1],availableMap: Get.arguments[2],);
       return  Container();
     }),
   ];

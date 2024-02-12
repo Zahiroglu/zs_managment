@@ -130,16 +130,20 @@ class ControllerGirisCixisYeni extends GetxController {
 
   Future<void> getRutPerformToday() async {
     modelRutPerform.value = await localBaseDownloads.getRutDatail();
-    listSelectedMusteriler.value = modelRutPerform.value.listGunlukRut!;
-    listTabItems.value = [
-      ModelTamItemsGiris(
+    if(loggedUserModel.userModel!.roleId==17){
+      listSelectedMusteriler.value = modelRutPerform.value.listGunlukRut!;
+      listTabItems.add(ModelTamItemsGiris(
           icon: Icons.people_outline_outlined,
           label: "Gunluk Rut",
           girisSayi: modelRutPerform.value.duzgunZiya,
           keyText: "Grut",
           marketSayi: modelRutPerform.value.rutSayi,
           selected: true,
-          color: Colors.blue),
+          color: Colors.blue));
+    }else{
+      listSelectedMusteriler.value = listCariler;
+    }
+    listTabItems.value = [
       ModelTamItemsGiris(
           icon: Icons.people_outline_outlined,
           label: "Umumi Musteriler",
@@ -147,16 +151,8 @@ class ControllerGirisCixisYeni extends GetxController {
               modelRutPerform.value.rutkenarZiya!,
           keyText: "Gumumi",
           marketSayi: modelRutPerform.value.snSayi,
-          selected: false,
+          selected: true,
           color: Colors.deepPurple),
-      ModelTamItemsGiris(
-          icon: Icons.person_off_outlined,
-          label: "Ziyaret Edilmeyenler",
-          girisSayi: 0,
-          keyText: "z",
-          marketSayi: modelRutPerform.value.ziyaretEdilmeyen,
-          selected: false,
-          color: Colors.orange),
       ModelTamItemsGiris(
           icon: Icons.verified_user_outlined,
           label: "Ziyaretler",
@@ -166,6 +162,19 @@ class ControllerGirisCixisYeni extends GetxController {
           selected: false,
           color: Colors.green),
     ];
+    if(loggedUserModel.userModel!.roleId==17){
+      listTabItems.insert(2, ModelTamItemsGiris(
+          icon: Icons.person_off_outlined,
+          label: "Ziyaret Edilmeyenler",
+          girisSayi: 0,
+          keyText: "z",
+          marketSayi: modelRutPerform.value.ziyaretEdilmeyen,
+          selected: false,
+          color: Colors.orange));
+    }
+
+
+
     update();
   }
 
@@ -281,6 +290,10 @@ class ControllerGirisCixisYeni extends GetxController {
 
   Future<void> getAllDataFormLocale() async {
     listCariler.value = localBase.getAllCariBaza();
+    // ModelCariler modelSirket=ModelCariler(
+    //   name: loggedUserModel.userModel!.regionName!,
+    //   code: loggedUserModel.userModel!.regionCode!,
+    // );
     dataLoading = false.obs;
     update();
   }
@@ -1189,6 +1202,7 @@ class ControllerGirisCixisYeni extends GetxController {
         element2.selected = false;
       }
     }
+    if(loggedUserModel.userModel!.roleId==17){
     switch (listTabItems.indexOf(element)) {
       case 0:
         listSelectedMusteriler.value = carculateDistanceList(
@@ -1202,6 +1216,13 @@ class ControllerGirisCixisYeni extends GetxController {
         listSelectedMusteriler.value = carculateDistanceList(
             modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
         break;
+    }}else{
+      switch (listTabItems.indexOf(element)) {
+        case 0:
+          listSelectedMusteriler.value =
+              carculateDistanceList(listCariler, currentLocation);
+          break;
+      }
     }
     update();
   }

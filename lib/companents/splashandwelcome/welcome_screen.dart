@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
@@ -26,7 +27,7 @@ class _WellCameScreenState extends State<WellCameScreen>
   bool isLoading = true;
   late LocalUserServices localUserServices = LocalUserServices();
   late CheckDviceType checkDviceType = CheckDviceType();
-
+  LocalBaseDownloads localBaseDownloads=LocalBaseDownloads();
   @override
   void dispose() {
     // TODO: implement dispose
@@ -38,6 +39,7 @@ class _WellCameScreenState extends State<WellCameScreen>
   void initState() {
     super.initState();
     localUserServices.init();
+    localBaseDownloads.init();
     checkDviceType = CheckDviceType();
     animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 2))
@@ -68,9 +70,10 @@ class _WellCameScreenState extends State<WellCameScreen>
           Get.offNamed(RouteHelper.getMobileLisanceScreen());
         }
       } else {
-        if (await localUserServices.getIfAppOpenFistOrNot()==false) {
-          Get.offNamed(RouteHelper.getMobileMainScreen());
-          // Get.offNamed(RouteHelper.getLoginMobileFirstScreen());
+        bool base=localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!);
+        print("bazalar endirilmelidir :"+base.toString());
+        if (base) {
+          Get.offNamed(RouteHelper.getbazaDownloadMobile());
         } else {
           Get.offNamed(RouteHelper.getMobileMainScreen());
         }

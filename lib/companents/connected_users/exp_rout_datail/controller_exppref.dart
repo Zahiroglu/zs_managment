@@ -161,7 +161,9 @@ class ControllerExpPref extends GetxController {
     }
     ziyaretTarixcesiTablesini(listGirisCixis);
     melumatlariGuneGoreDoldur();
-    listMercs.value=listmercendaizers;
+    for (var element in listmercendaizers) {
+      listMercs.add(element);
+    }
     update();
   }
   
@@ -378,7 +380,8 @@ class ControllerExpPref extends GetxController {
   }
 
   void _intentAdToMercRut(ModelCariler element) {
-    Get.toNamed(RouteHelper.screenMercAdinaMusteriAt,arguments: [element,listMercs.where((p0) => p0.roleId==23).toList()]);
+    print("list merc count :"+listMercs.length.toString());
+    Get.toNamed(RouteHelper.screenMercAdinaMusteriAt,arguments: [element,listMercs.where((p0) => p0.roleId==23).toList(),availableMap.value]);
   }
 
   void showEditDialog(ModelCariler element, BuildContext context) {

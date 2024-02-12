@@ -9,10 +9,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/anbar/screan_anbar_esas.dart';
 import 'package:zs_managment/companents/connected_users/rout_detail_users_screen.dart';
+import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_umumilist.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/dashbourd_screen_mobile.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
-import 'package:zs_managment/companents/giris_cixis/sceens/yeni_girisCixisSon.dart';
+import 'package:zs_managment/companents/giris_cixis/sceens/yeni_giriscixis_map.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
@@ -41,10 +42,8 @@ import 'package:zs_managment/language/utils/dep.dart' as dep;
 class DrawerMenuController extends getx.GetxController {
   getx.RxList<SelectionButtonData> drawerMenus = List<SelectionButtonData>.empty(growable: true).obs;
   getx.RxInt selectedIndex = 0.obs;
-
   getSelectedIndex() => selectedIndex;
   dynamic pageView = const DashborudScreenMobile();
-
   Widget getCurrentPage() => pageView;
   LocalUserServices userServices = LocalUserServices();
   getx.RxBool isMenuExpended = true.obs;
@@ -473,7 +472,12 @@ class DrawerMenuController extends getx.GetxController {
           if (modelAppSetting.girisCixisType == "map") {
             pageView = const YeniGirisCixisSon();
           } else {
-            pageView = const ScreenGirisCixisList();
+            if(userServices.getLoggedUser().userModel!.roleId==17){
+              pageView = const ScreenGirisCixisList();
+
+            }else{
+              pageView = const ScreenGirisCixisUmumiList();
+            }
           }
         } else {
           Get.dialog(ShowInfoDialog(

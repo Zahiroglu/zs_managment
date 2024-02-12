@@ -850,6 +850,7 @@ class NewUserController extends GetxController {
                 responseType: ResponseType.json,
               ),
             );
+
         if (response.statusCode == 200) {
           acceptRecistredUser(response.data['result'],registerData.value);
           succes=true;

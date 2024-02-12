@@ -81,11 +81,11 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
           getSelectedUse:  (selectedUser) {
             setState(() {
               modelMerc.rutadi=selectedUser.code;
-              modelMerc.mercadi=selectedUser.fullName;
+              modelMerc.mercadi=selectedUser.name;
             });
           },
-          listUsers: listUsers,
-          vezifeAdi: "Mercendaizerler",
+          listUsers: widget.listUsers,
+          vezifeAdi: "mercler".tr,
         ));
       },
       child: Padding(
@@ -152,11 +152,11 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                       getSelectedUse:  (selectedUser) {
                         setState(() {
                           modelMerc.rutadi=selectedUser.code;
-                          modelMerc.mercadi=selectedUser.fullName;
+                          modelMerc.mercadi=selectedUser.name;
                         });
                       },
-                      listUsers: listUsers,
-                      vezifeAdi: "Mercendaizerler",
+                      listUsers: widget.listUsers,
+                      vezifeAdi: "mercler".tr
                     ));
                   },
                   icon: const Icon(Icons.change_circle,color: Colors.green,),

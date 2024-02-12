@@ -275,7 +275,7 @@ class ControllerRoutDetailUser extends GetxController {
       if (listSelectedCustomers.isNotEmpty) {
         tabMelumatlariYukle();
         changeSelectedTabItems(listTabSifarisler.first);
-        Get.toNamed(RouteHelper.screenExpRoutDetail, arguments: [this,model]);
+        Get.toNamed(RouteHelper.screenExpRoutDetail, arguments: [this,model,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
             messaje: "mtapilmadi".tr,
@@ -467,6 +467,8 @@ class ControllerRoutDetailUser extends GetxController {
   Future<List<ModelCariler>> getAllCustomers(String temKod) async {
     List<ModelCariler> listUsers=[];
     languageIndex = await getLanguageIndex();
+    List<String> secilmisTemsilciler=[];
+    secilmisTemsilciler.add(temKod);
     int dviceType = checkDviceType.getDviceType();
     LoggedUserModel loggedUserModel=userService.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -479,7 +481,8 @@ class ControllerRoutDetailUser extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().get("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-user-code?userCode="+temKod,
+        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
+          data:jsonEncode(secilmisTemsilciler),
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
             headers: {

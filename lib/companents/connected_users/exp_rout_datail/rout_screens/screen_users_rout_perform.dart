@@ -217,6 +217,7 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
   }
 
   /// umumi CarilerHissesi
+
   Widget _pageViewUmumiCariler() {
     return Obx(() => ListView.builder(
         padding: const EdgeInsets.all(0),
@@ -226,7 +227,6 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
               controllerRoutDetailUser.listFilteredUmumiBaza.elementAt(index));
         }));
   }
-
   Widget customersListItems(ModelCariler element) {
     int valuMore = 0;
     if (element.day1.toString() == "1") {
@@ -442,7 +442,6 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
           )),
     );
   }
-
   Widget _infoUmumiCariler(ModelCariler element) {
     return SingleChildScrollView(
       child: Stack(
@@ -520,7 +519,6 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
       ),
     );
   }
-
   Widget searchField(BuildContext context) {
     return SizedBox(
         height: 40,
@@ -546,7 +544,6 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
           ),
         ));
   }
-
   _widgetUmumiCariTapItems(String s, int tip, Color color) {
     int customersCount = 0;
     if (tip == 0) {
@@ -651,11 +648,11 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
           )),
     );
   }
-
   _changeUmumiTabItem(int tip) {
     controllerRoutDetailUser.changeSelectedUmumiMusteriler(tip);
     setState(() {});
   }
+
   /// rut gunleri baza
   Widget _pageViewUmumiRutGunleri() {
     return Obx(() => ListView.builder(
@@ -918,7 +915,6 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
               controllerRoutDetailUser.listTarixlerRx.elementAt(index));
         });
   }
-
   Widget itemZiyaretGunluk(ModelGunlukGirisCixis model) {
     return InkWell(
       onTap: (){
@@ -1012,7 +1008,6 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
       ),
     );
   }
-
   Widget infoZiyaretTarixcesi() {
     return SingleChildScrollView(
       child: Column(

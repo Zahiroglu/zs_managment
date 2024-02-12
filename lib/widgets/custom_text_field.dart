@@ -134,13 +134,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     fillColor: Colors.white,
-                    hintText: widget.hindtext,
-                    //make hint text
+                    hintText: widget.isImportant ? widget.hindtext + "*" : widget
+                        .hindtext,                    //make hint text
                     hintStyle: TextStyle(
-                      color: widget.hintTextColor,
+                      color: widget.isImportant ? Colors.red : widget.hintTextColor,
                       fontSize: widget.fontsize,
                       fontFamily: "verdana_regular",
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.normal,
                     ),
 
                     //create lable
@@ -186,7 +186,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               },
               decoration:widget.hasBourder!?InputDecoration(
                 labelText: widget.hasLabel==true?widget.hindtext:"",
-                floatingLabelBehavior: FloatingLabelBehavior.never,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
                 contentPadding: EdgeInsets.symmetric(
                     vertical: 5.0, horizontal: widget.updizayn ? 5 : 10),
                 focusColor: Colors.grey,
