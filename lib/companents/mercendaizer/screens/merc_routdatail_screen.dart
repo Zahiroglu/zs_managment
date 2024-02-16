@@ -4,12 +4,12 @@ import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/mercendaizer/controller_mercpref.dart';
-import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_gunluk_giriscixis.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
-import '../login/services/api_services/users_controller_mobile.dart';
+import '../../login/services/api_services/users_controller_mobile.dart';
 
 class ScreenMercRoutDatail extends StatefulWidget {
   List<ModelMercBaza> modelMercBaza;
@@ -991,7 +991,9 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                 .where((p0) => p0.gun5 == "1")
                                 .toList()
                                 .length,5),
-                        _itemIndoMenuRutGunu(
+                        controllerRoutDetailUser.listSelectedMercBaza
+                            .where((p0) => p0.gun6 == "1")
+                            .toList().isEmpty?SizedBox():_itemIndoMenuRutGunu(
                             "gun6".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
                                 .where((p0) => p0.gun6 == "1")

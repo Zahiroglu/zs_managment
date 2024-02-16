@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
-import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_dialog/dialog_select_user_connections.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';

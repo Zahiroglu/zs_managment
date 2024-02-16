@@ -3,7 +3,7 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
-import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 

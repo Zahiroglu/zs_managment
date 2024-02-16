@@ -14,7 +14,7 @@ import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
-import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_gunluk_giriscixis.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
@@ -392,6 +392,11 @@ class ControllerExpPref extends GetxController {
   }
 
   Widget _dialogEditCustomers(ModelCariler element, BuildContext context) {
+    userService.getLoggedUser().userModel!.permissions!.forEach((element) {
+      print("per :"+element.toString());
+    });
+    bool canEditCari=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canEditExpCari");
+    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canAdCariToMercBase");
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -433,7 +438,7 @@ class ControllerExpPref extends GetxController {
                   const SizedBox(
                     height: 30,
                   ),
-                  CustomElevetedButton(
+                  canEditCari? CustomElevetedButton(
                       icon: Icons.edit,
                       elevation: 10,
                       fontWeight: FontWeight.w600,
@@ -447,11 +452,11 @@ class ControllerExpPref extends GetxController {
                         fromIntentPage.value = "list";
                         intentEditCustomers(element);
                       },
-                      label: "Musteri melumatlarini duzelt"),
-                  const SizedBox(
+                      label: "Musteri melumatlarini duzelt"):SizedBox(),
+                  canEditCari?const SizedBox(
                     height: 20,
-                  ),
-                  CustomElevetedButton(
+                  ):SizedBox(),
+                  canAddMercToBase?CustomElevetedButton(
                       icon: Icons.add_business,
                       elevation: 10,
                       fontWeight: FontWeight.w600,
@@ -464,10 +469,10 @@ class ControllerExpPref extends GetxController {
                         Get.back();
                         _intentAdToMercRut(element);
                       },
-                      label: "Mercendaizer rutuna elave et"),
-                  const SizedBox(
+                      label: "Mercendaizer rutuna elave et"):SizedBox(),
+                  canAddMercToBase?const SizedBox(
                     height: 20,
-                  ),
+                  ):SizedBox(),
                 ],
               ),
             ),

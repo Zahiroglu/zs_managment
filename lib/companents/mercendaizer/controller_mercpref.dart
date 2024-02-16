@@ -4,7 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
-import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 

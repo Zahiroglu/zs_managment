@@ -8,7 +8,7 @@ import 'package:zs_managment/widgets/custom_text_field.dart';
 import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
-import '../login/services/api_services/users_controller_mobile.dart';
+import '../../login/services/api_services/users_controller_mobile.dart';
 
 class ScreenMercAdinaMusteriEalveEtme extends StatefulWidget {
   ModelCariler modelCari;

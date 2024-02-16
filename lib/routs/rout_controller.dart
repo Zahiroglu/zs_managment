@@ -9,11 +9,11 @@ import 'package:zs_managment/companents/connected_users/exp_rout_datail/screen_r
 import 'package:zs_managment/companents/giris_cixis/companents/screen_musteridetail.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';
-import 'package:zs_managment/companents/mercendaizer/info_mercmusteri_datail.dart';
-import 'package:zs_managment/companents/mercendaizer/merc_adina_dukan_atmaq.dart';
+import 'package:zs_managment/companents/mercendaizer/screens/info_mercmusteri_datail.dart';
+import 'package:zs_managment/companents/mercendaizer/screens/merc_adina_dukan_atmaq.dart';
 import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/merc_cari_edit.dart';
 import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/screen_rutsirasi_edit.dart';
-import 'package:zs_managment/companents/mercendaizer/merc_routdatail_screen.dart';
+import 'package:zs_managment/companents/mercendaizer/screens/merc_routdatail_screen.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifariselave_et.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifarisler.dart';
 import 'package:zs_managment/companents/splashandwelcome/welcome_screen.dart';

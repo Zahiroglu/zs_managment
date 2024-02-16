@@ -100,7 +100,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   decoration: InputDecoration(
                     labelText: widget.hasLabel==true?widget.hindtext:"",
 
-                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
                     contentPadding: EdgeInsets.symmetric(
                         vertical: 5.0, horizontal: widget.updizayn ? 5 : 10),
                     focusColor: widget.borderColor,
@@ -134,7 +134,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     fillColor: Colors.white,
-                    hintText: widget.isImportant ? widget.hindtext + "*" : widget
+                    hintText: widget.isImportant ? widget.hindtext : widget
                         .hindtext,                    //make hint text
                     hintStyle: TextStyle(
                       color: widget.isImportant ? Colors.red : widget.hintTextColor,

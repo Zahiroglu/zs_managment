@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_gunluk_giriscixis.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';

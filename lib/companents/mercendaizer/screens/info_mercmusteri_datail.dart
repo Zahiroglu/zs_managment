@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/routs/rout_controller.dart';

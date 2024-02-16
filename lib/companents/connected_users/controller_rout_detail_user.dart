@@ -16,11 +16,8 @@ import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.d
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/mercendaizer/model_mercbaza.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
-import 'package:zs_managment/global_models/model_appsetting.dart';
-import 'package:zs_managment/global_models/model_maptypeapp.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
@@ -31,6 +28,8 @@ import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
+
+import '../mercendaizer/data_models/model_mercbaza.dart';
 
 class ControllerRoutDetailUser extends GetxController {
   LocalUserServices userService = LocalUserServices();
@@ -262,6 +261,7 @@ class ControllerRoutDetailUser extends GetxController {
       }
     }
   }
+
   Future<void> temsilciMelumatlariniGetir(UserModel model) async {
     selectedUser.value=model;
     listSelectedCustomers.clear();
@@ -541,8 +541,7 @@ class ControllerRoutDetailUser extends GetxController {
     return listUsers;
   }
 
-  Future<List<ModelMercBaza>> getDataFromServerMercBaza(
-      String temsilcikodu) async {
+  Future<List<ModelMercBaza>> getDataFromServerMercBaza(String temsilcikodu) async {
     String temp = "'" + temsilcikodu + "'";
     String audit = "";
     String supervaizer = "";
