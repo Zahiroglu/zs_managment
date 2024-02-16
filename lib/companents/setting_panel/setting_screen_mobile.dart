@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
+import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/setting_panel/screen_user_connections.dart';
 import 'package:zs_managment/companents/setting_panel/screen_user_permisions.dart';
 import 'package:zs_managment/companents/setting_panel/setting_panel_controller.dart';
@@ -16,7 +17,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zs_managment/widgets/custom_switch.dart';
 
 class SettingScreenMobile extends StatefulWidget {
-  const SettingScreenMobile({super.key});
+  DrawerMenuController drawerMenuController;
+   SettingScreenMobile({required this.drawerMenuController,super.key});
 
   @override
   State<SettingScreenMobile> createState() => _SettingScreenMobileState();
@@ -25,12 +27,69 @@ class SettingScreenMobile extends StatefulWidget {
 class _SettingScreenMobileState extends State<SettingScreenMobile> {
   SettingPanelController settingPanelController = Get.put(SettingPanelController());
   ThemaController themaController = Get.put(ThemaController());
+  var _scrollControllerNested;
 
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context);
     return Material(child:
         GetBuilder<LocalizationController>(builder: (localizationController) {
+      return  Scaffold(
+        body: NestedScrollView(
+          controller: _scrollControllerNested,
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              SliverSafeArea(
+                sliver: SliverAppBar(
+                  elevation: 0,
+                  backgroundColor: Colors.white,
+                  centerTitle: false,
+                  expandedHeight: 300,
+                  pinned: true,
+                  floating: false,
+                  stretch: true,
+                  actions: [],
+                  title: SizedBox(),
+                  leading: IconButton(
+                    icon: Icon(Icons.menu),onPressed:_openDrawer,
+                  ),
+                  flexibleSpace: FlexibleSpaceBar(
+                    stretchModes: const [StretchMode.blurBackground],
+                    background:  Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      width: MediaQuery.of(context).size.width,
+                      height: 300,
+                      decoration:  BoxDecoration(
+                          color: Colors.blue.withOpacity(0.5),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.blue.withOpacity(0.4),
+                                offset: const Offset(2,2),
+                                blurRadius: 10,
+                                spreadRadius: 2,
+                                blurStyle: BlurStyle.normal
+                            )
+                          ],
+                          borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
+                      ),
+                      child:  widgetHeaderFull(localizationController),
+                    ),
+                    collapseMode: CollapseMode.values[0],
+                    centerTitle: true,
+                  ),
+                  // bottom: PreferredSize(
+                  //     preferredSize: const Size.fromHeight(70),
+                  //     child: ColoredBox(
+                  //       color: Colors.white,
+                  //       child:  contoller.widgetHesabatlar(context),
+                  //     )),
+                ),
+              )
+            ];
+          },
+          body:  widgetSettingPart(settingPanelController.modelModule.value, themaController),
+        ),
+      );
       return Scaffold(
           body: Obx(() => Column(
             children: [
@@ -40,7 +99,11 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
           )));
     }));
   }
-
+  void _openDrawer() {
+    widget.drawerMenuController.openDrawer();
+    setState(() {
+    });
+  }
   Widget widgetHeaderFull(LocalizationController localizationController) {
     return SizedBox(
       child: Container(

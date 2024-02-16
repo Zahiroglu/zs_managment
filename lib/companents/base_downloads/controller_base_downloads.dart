@@ -170,7 +170,7 @@ class ControllerBaseDownloads extends GetxController {
                           color: Colors.white,
                           border: Border.all(color: Colors.green, width: 1)),
                       child: SizedBox(
-                        height: listDownloadsFromLocalDb.length * 110,
+                        height: listDownloadsFromLocalDb.length * 100,
                         child: ListView(
                           physics: NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.all(0),

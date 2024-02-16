@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -43,9 +44,10 @@ class DrawerMenuController extends getx.GetxController {
   getx.RxList<SelectionButtonData> drawerMenus = List<SelectionButtonData>.empty(growable: true).obs;
   getx.RxInt selectedIndex = 0.obs;
   getSelectedIndex() => selectedIndex;
-  dynamic pageView = const DashborudScreenMobile();
+  dynamic pageView =  SizedBox();
   Widget getCurrentPage() => pageView;
   LocalUserServices userServices = LocalUserServices();
+  getx.RxBool drawerCloused = true.obs;
   getx.RxBool isMenuExpended = true.obs;
   getx.RxBool aktivateHover = true.obs;
   CheckDviceType checkDviceType = CheckDviceType();
@@ -56,12 +58,38 @@ class DrawerMenuController extends getx.GetxController {
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   LocalBaseSatis localBaseSatis=LocalBaseSatis();
   late Rx<ModelSatisEmeliyyati> modelSatisEmeliyyat = ModelSatisEmeliyyati().obs;
+  GlobalKey<ScaffoldState> keyScaff = GlobalKey(); // Create a key
+
 
   @override
   void onInit() {
+    pageView =  DashborudScreenMobile(drawerMenuController: this);
     initAllValues();
     super.onInit();
   }
+
+
+
+  void clousDrawer(){
+    keyScaff.currentState!.closeDrawer();
+    update();
+  }
+  void openDrawer(){
+    keyScaff.currentState!.openDrawer();
+    update();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  void initKeyForScafold(GlobalKey<ScaffoldState> key) {
+    keyScaff=key;
+    update();
+  }
+
 
   List<SelectionButtonData> addPermisionsInDrawerMenu(LoggedUserModel loggedUser) {
     dviceType = checkDviceType.getDviceType();
@@ -123,8 +151,7 @@ class DrawerMenuController extends getx.GetxController {
         statickField: true,
         isSelected: false,
         codename: "logout");
-    drawerMenus.add(buttonstaticAboudAs);
-    drawerMenus.add(buttonstaticPrivansyPolisy);
+
     if (dviceType == 3 || dviceType == 2) {
       drawerMenus.add(buttonUsers);
     } else {
@@ -143,10 +170,8 @@ class DrawerMenuController extends getx.GetxController {
         drawerMenus.insert(2,buttonSatis);
       }
     }
-    drawerMenus.add(buttonLogOut);
     if (loggedUser.userModel != null) {
-      for (var element in loggedUser.userModel!.permissions!
-          .where((element) => element.category == 1)) {
+      for (var element in loggedUser.userModel!.permissions!.where((element) => element.category == 1)) {
         IconData icon = IconData(element.icon!, fontFamily: 'MaterialIcons');
         IconData iconSelected = IconData(element.selectIcon!, fontFamily: 'MaterialIcons');
         SelectionButtonData buttonData = SelectionButtonData(
@@ -160,6 +185,9 @@ class DrawerMenuController extends getx.GetxController {
         drawerMenus.add(buttonData);
       }
     }
+    drawerMenus.add(buttonstaticAboudAs);
+    drawerMenus.add(buttonstaticPrivansyPolisy);
+    drawerMenus.add(buttonLogOut);
     update();
     return drawerMenus;
   }
@@ -186,7 +214,8 @@ class DrawerMenuController extends getx.GetxController {
     update();
   }
 
-  Widget getItemsMenu(Function(bool clouse) closeDrawer, bool isDesk) {
+  Widget getItemsMenu(Function(bool clouse) closeDrawer, bool isDesk, GlobalKey<ScaffoldState> scaffoldkey) {
+    keyScaff=scaffoldkey;
     if (!isDesk) {
       isMenuExpended = false.obs;
     }
@@ -246,9 +275,9 @@ class DrawerMenuController extends getx.GetxController {
                         .map((model) => InkWell(
                               onTap: () {
                                 changeExpendedOrNot();
-                                changeSelectedIndex(
-                                    drawerMenus.indexOf(model), model, isDesk);
+                                changeSelectedIndex(drawerMenus.indexOf(model), model, isDesk);
                                 closeDrawer.call(true);
+                                scaffoldkey.currentState!.closeDrawer();
                               },
                               child: getx.Obx(() => itemsDrawer(model)),
                             ))
@@ -269,8 +298,7 @@ class DrawerMenuController extends getx.GetxController {
                         .map((model) => InkWell(
                               onTap: () {
                                 changeExpendedOrNot();
-                                changeSelectedIndex(
-                                    drawerMenus.indexOf(model), model, isDesk);
+                                changeSelectedIndex(drawerMenus.indexOf(model), model, isDesk);
                                 closeDrawer.call(true);
                               },
                               child: getx.Obx(() => itemsDrawer(model)),
@@ -299,7 +327,7 @@ class DrawerMenuController extends getx.GetxController {
                       bottomLeft: Radius.circular(20))
                   : null,
               color: selectedIndex.value == drawerMenus.indexOf(model)
-                  ? Colors.blueAccent.withOpacity(0.2)
+                  ? Colors.blue.withOpacity(0.5)
                   : Colors.transparent,
               border: selectedIndex.value == drawerMenus.indexOf(model)
                   ? Border.all(color: Colors.black26, width: 0.2)
@@ -310,8 +338,10 @@ class DrawerMenuController extends getx.GetxController {
                       BoxShadow(
                           color: Colors.white.withOpacity(0.5),
                           offset: const Offset(-2, 2),
-                          blurRadius: 10,
-                          spreadRadius: 1)
+                          blurRadius: 20,
+                          spreadRadius: 1,
+                        blurStyle: BlurStyle.outer
+                      )
                     ]
                   : []),
       transformAlignment: Alignment.centerRight,
@@ -423,25 +453,26 @@ class DrawerMenuController extends getx.GetxController {
 
   void changeIndexWhenLanguageChange() {
     if (drawerMenus.elementAt(selectedIndex.value).codename == "users") {
-      pageView = const DashborudScreenMobile();
+      pageView =  DashborudScreenMobile(drawerMenuController: this);
       changeSelectedIndex(selectedIndex.value, drawerMenus.elementAt(selectedIndex.value), true);
     }
   }
 
   changeSelectedIndex(int index, SelectionButtonData model, bool desktop) {
+    selectedIndex.value = index;
     changeIndex(index, model, desktop);
+    print("selectedIndex : "+selectedIndex.toString());
     update();
   }
 
   Future<void> changeIndex(int drawerIndexdata, SelectionButtonData model, bool desktop) async {
-    selectedIndex.value = drawerIndexdata;
     switch (model.codename) {
       case "dashboard":
-        pageView = const DashborudScreenMobile();
+        pageView = DashborudScreenMobile(drawerMenuController: this);
         break;
       case "warehouse":
         if(localBaseDownloads.getIfAnbarBaseDownloaded()){
-          pageView = const AnbarRaporEsas();
+          pageView =  AnbarRaporEsas(drawerMenuController: this,);
         }else{
           Get.dialog(ShowInfoDialog(
               messaje: "Anbar bazasi bosdur.Zehmet olmasa yenileyin",
@@ -454,7 +485,7 @@ class DrawerMenuController extends getx.GetxController {
         }
         break;
       case "down":
-        pageView = ScreenBaseDownloads(fromFirstScreen: false,
+        pageView = ScreenBaseDownloads(fromFirstScreen: false,drawerMenuController: this,
         );
         break;
       case "users":
@@ -465,7 +496,7 @@ class DrawerMenuController extends getx.GetxController {
         }
         break;
       case "setting":
-        pageView = const SettingScreenMobile();
+        pageView =  SettingScreenMobile(drawerMenuController: this,);
       case "enter":
         if (localBaseDownloads.getIfCariBaseDownloaded()) {
           modelAppSetting = await localAppSetting.getAvaibleMap();
@@ -476,7 +507,7 @@ class DrawerMenuController extends getx.GetxController {
               pageView = const ScreenGirisCixisList();
 
             }else{
-              pageView = const ScreenGirisCixisUmumiList();
+              pageView =  ScreenGirisCixisUmumiList(drawerMenuController: this,);
             }
           }
         } else {
@@ -493,12 +524,13 @@ class DrawerMenuController extends getx.GetxController {
           pageView=const ScreenSifarislereBax();
         break;
         case "myUserRut":
-          pageView=const RoutDetailScreenUsers();
+          pageView= RoutDetailScreenUsers(drawerMenuController: this,);
         break;
       case "logout":
         logOut();
         break;
     }
+    selectedIndex.value = drawerIndexdata;
     update();
   }
 
@@ -543,5 +575,8 @@ class DrawerMenuController extends getx.GetxController {
     await localBaseDownloads.init();
     await localBaseSatis.init();
     addPermisionsInDrawerMenu(userServices.getLoggedUser());
+    update();
   }
+
+
 }

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:zs_managment/companents/connected_users/controller_rout_detail_user.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
+import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 class RoutDetailScreenUsers extends StatefulWidget {
-  const RoutDetailScreenUsers({super.key});
+  DrawerMenuController drawerMenuController;
+  RoutDetailScreenUsers({required this.drawerMenuController,super.key});
 
   @override
   State<RoutDetailScreenUsers> createState() => _RoutDetailScreenUsersState();
@@ -39,39 +41,44 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
     return Material(
       color: Colors.white,
       child: Scaffold(
-        body:  Column(
-          children: [
-            const SizedBox(
-              height: 50,
-            ),
-            _header(context),
-            Obx(
-                  () => controllerRoutDetailUser.dataLoading.isFalse
-                  ? _body(context)
-                  : const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.blue,
+        appBar: AppBar(
+          centerTitle: true,
+          title: CustomText(
+            labeltext: "temsilciler".tr,
+            textAlign: TextAlign.center,
+            fontsize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+          leading: IconButton(
+            onPressed: (){
+              widget.drawerMenuController.openDrawer();
+            },
+            icon: Icon(Icons.menu),
+          ),
+
+        ),
+        body:  SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 0,
+              ),
+              Obx(
+                    () => controllerRoutDetailUser.dataLoading.isFalse
+                    ? _body(context)
+                    : const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.blue,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _header(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CustomText(
-          labeltext: "temsilciler".tr,
-          fontWeight: FontWeight.w800,
-          fontsize: 18,
-        )
-      ],
-    );
-  }
 
   Widget _body(BuildContext context) {
     return Column(

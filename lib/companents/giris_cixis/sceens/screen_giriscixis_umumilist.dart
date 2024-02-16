@@ -12,16 +12,20 @@ import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.d
 import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/companents/widget_listitemsgiriscixis.dart';
+import 'package:zs_managment/companents/login/models/user_model.dart';
+import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
+import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ScreenGirisCixisUmumiList extends StatefulWidget {
-  const ScreenGirisCixisUmumiList({super.key});
+  DrawerMenuController drawerMenuController;
+   ScreenGirisCixisUmumiList({required this.drawerMenuController,super.key});
 
   @override
   State<ScreenGirisCixisUmumiList> createState() => _ScreenGirisCixisUmumiListState();
@@ -126,6 +130,31 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
     return Material(
       child: GetBuilder<ControllerGirisCixisYeni>(builder: (controller) {
         return Scaffold(
+          appBar: AppBar(
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 0),
+                child: IconButton(icon: Icon(Icons.supervised_user_circle_outlined,color: Colors.black,),onPressed: (){
+                  List<UserModel> listexpeditorlar= controllerGirisCixis.localBaseDownloads.getAllConnectedUserFromLocal();
+                  Get.dialog(DialogSimpleUserSelect(selectedUserCode: "",getSelectedUse: (user){
+
+                  },listUsers: listexpeditorlar,vezifeAdi: "exp".tr,));
+                }),
+              )
+            ],
+            centerTitle: true,
+            title: CustomText(
+                labeltext: "Giris-Cixis",
+                fontsize: 24,
+                fontWeight: FontWeight.w700),
+            leading: IconButton(
+              onPressed: (){
+                widget.drawerMenuController.openDrawer();
+              },
+              icon: Icon(Icons.menu),
+            ),
+
+          ),
           //  floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
           floatingActionButton: controllerGirisCixis.marketeGirisEdilib.isFalse
               ? FloatingActionButton(
@@ -167,9 +196,8 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(
-            height: 40,
+            height: 5,
           ),
-          widgetHeader(),
           controllerGirisCixis.marketeGirisEdilib.isTrue
               ? const SizedBox()
               : widgetTabBar(),
@@ -182,25 +210,6 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
     );
   }
 
-  Widget widgetHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(height: 50,width: 50),
-        Spacer(),
-        CustomText(
-            labeltext: "Giris-Cixis",
-            fontsize: 24,
-            fontWeight: FontWeight.w700),
-        Spacer(),
-        Padding(
-          padding: const EdgeInsets.only(right: 0),
-          child: IconButton(icon: Icon(Icons.supervised_user_circle_outlined),onPressed: (){}),
-        )
-      ],
-    );
-  }
 
   Widget widgetTabBar() {
     return Column(

@@ -115,6 +115,8 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
+        print("req :"+response.requestOptions.path);
+        print("res :"+response.data.toString());
 
         if (response.statusCode == 404) {
           changeLoading();
@@ -182,6 +184,8 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
+        print("req2 :"+response.requestOptions.path);
+        print("res2 :"+response.data.toString());
         if (response.statusCode == 404) {
           changeLoading();
           basVerenXeta = "baglantierror".tr;
@@ -247,6 +251,7 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
+        print("Request responce My USER INFO:" + response.data.toString());
         if (response.statusCode == 404) {
           changeLoading();
           basVerenXeta = "baglantierror".tr;
@@ -256,7 +261,6 @@ class UserApiControllerMobile extends GetxController {
             callback: () {},
           ));
         } else {
-          print("Request responce My USER INFO:" + response.data.toString());
 
           if (response.statusCode == 200) {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);

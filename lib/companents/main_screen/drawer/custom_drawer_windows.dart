@@ -66,7 +66,7 @@ class _CustomDrawerWindosState extends State<CustomDrawerWindos> {
             color: colorPramary.withOpacity(0.4),
           ),
           padding: EdgeInsets.only(top: 10.h,bottom: 10.h),
-          child: widget.drawerMenuController.getItemsMenu(widget.closeDrawer,true),
+          child: widget.drawerMenuController.getItemsMenu(widget.closeDrawer,true,widget.scaffoldkey),
         )
       ),
     );

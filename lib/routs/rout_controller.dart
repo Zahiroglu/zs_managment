@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/anbar/screen_anbarrapor.dart';
+import 'package:zs_managment/companents/base_downloads/screen_download_base_firstScreen.dart';
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/edit_screens/dart_edit_musteri_dayail.dart';
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_screens/screen_users_rout_perform.dart';
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_screens/screen_users_rout_perform_map.dart';
@@ -156,6 +157,7 @@ class RouteHelper {
     }),
     GetPage(name: mobileMainScreen, page: () {
       return  const MainScreenMobile();
+     // return  const MainScreenMobileYeni();
       return  Container();
     }),
     GetPage(name: windosMainScreen, page: () {
@@ -185,7 +187,7 @@ class RouteHelper {
     }),
     GetPage(
         name: bazaDownloadMobile, page: () {
-      return   ScreenBaseDownloads(fromFirstScreen: true,);
+      return   FirstScreenBaseDownloads(fromFirstScreen: true);
       return  Container();
     }),
     GetPage(

@@ -27,6 +27,7 @@ class ControllerDashBorudExp extends GetxController {
   List<ModelDownloads> listDonwloads=[];
   List<ModelGirisCixis> listGirisCixislar=[];
   Rx<ModelRutPerform> modelRutPerform=ModelRutPerform().obs;
+  RxList<ModelUserPermissions> listPermitions=List<ModelUserPermissions>.empty(growable: true).obs;
 
   @override
   onInit() {
@@ -39,6 +40,10 @@ class ControllerDashBorudExp extends GetxController {
     await userServices.init();
     await localGirisCixisServiz.init();
     loggedUserModel = userServices.getLoggedUser();
+    listPermitions.value = loggedUserModel
+        .userModel!.permissions!
+        .where((element) => element.category == 1)
+        .toList();
     getInfoAboudEnter();
     getInfoAboutDownloads();
     getAllGunlukGirisCixis();
@@ -338,10 +343,6 @@ class ControllerDashBorudExp extends GetxController {
   }
 
   Widget widgetHesabatlar(BuildContext context) {
-    List<ModelUserPermissions> listPermitions = loggedUserModel
-        .userModel!.permissions!
-        .where((element) => element.category == 1)
-        .toList();
     return screenLoading.isFalse
         ?listPermitions.isNotEmpty? Padding(
             padding: const EdgeInsets.all(8.0),

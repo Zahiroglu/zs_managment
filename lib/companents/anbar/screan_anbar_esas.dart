@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
+import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 
 class AnbarRaporEsas extends StatefulWidget {
-  const AnbarRaporEsas({Key? key}) : super(key: key);
+  DrawerMenuController drawerMenuController;
+   AnbarRaporEsas({required this.drawerMenuController,Key? key}) : super(key: key);
 
   @override
   _AnbarRaporEsasState createState() => _AnbarRaporEsasState();
@@ -34,6 +36,22 @@ class _AnbarRaporEsasState extends State<AnbarRaporEsas> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: CustomText(
+          labeltext: "anbar".tr,
+          textAlign: TextAlign.center,
+          fontsize: 22,
+          fontWeight: FontWeight.bold,
+        ),
+        leading: IconButton(
+          onPressed: (){
+            widget.drawerMenuController.openDrawer();
+          },
+          icon: Icon(Icons.menu),
+        ),
+
+      ),
       body: _body(context),
     );
   }
@@ -41,8 +59,7 @@ class _AnbarRaporEsasState extends State<AnbarRaporEsas> {
   Widget _body(BuildContext context) {
     return Obx(() => Column(
       children: [
-        const SizedBox(height: 50,),
-        CustomText(labeltext: "anbar".tr,fontsize: 18),
+
         const SizedBox(
           height: 5,
         ),

@@ -64,7 +64,7 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
             const Divider(thickness: 3,endIndent: 5,indent: 5),
             Expanded(
               flex: 12,
-              child: widget.drawerMenuController.getItemsMenu(widget.closeDrawer,false),
+              child: widget.drawerMenuController.getItemsMenu(widget.closeDrawer,false,widget.scaffoldkey),
             ),
             // const SizedBox(
             //   height: 50,
