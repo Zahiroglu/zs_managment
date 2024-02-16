@@ -396,7 +396,7 @@ class ControllerExpPref extends GetxController {
       print("per :"+element.toString());
     });
     bool canEditCari=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canEditExpCari");
-    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canAdCariToMercBase");
+    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canAdCariToMerchBase");
     return Material(
       color: Colors.transparent,
       child: Container(
