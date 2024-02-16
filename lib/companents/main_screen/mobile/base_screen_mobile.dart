@@ -44,14 +44,6 @@ class _MainScreenMobileState extends State<MainScreenMobile> {
       child: SafeArea(
         child: melumatYuklendi?Scaffold(
           key: _key,
-          extendBodyBehindAppBar: true,
-          // appBar: AppBar(
-          //   clipBehavior: Clip.antiAliasWithSaveLayer,
-          //   //  backgroundColor: Colors.transparent,
-          //   backgroundColor:drawerMenuController.selectedIndex.value==0?Colors.transparent:Get.isDarkMode?Colors.black.withOpacity(0.2):Colors.white.withOpacity(0.2),
-          //   foregroundColor: Get.isDarkMode?Colors.white:Colors.black,
-          //   elevation: 0.0,
-          // ),
           drawer: melumatYuklendi?Drawer(
             backgroundColor: Colors.transparent,
             width: ScreenUtil.defaultSize.width*0.8,

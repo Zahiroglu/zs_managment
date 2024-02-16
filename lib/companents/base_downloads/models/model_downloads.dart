@@ -15,6 +15,7 @@ class ModelDownloads {
   bool? musteDonwload;
   @HiveField(4)
   String? info;
+  bool? donloading;
 
   ModelDownloads({
     this.code,
@@ -22,6 +23,7 @@ class ModelDownloads {
     this.lastDownDay,
     this.musteDonwload,
     this.info,
+    this.donloading,
   });
 
   ModelDownloads copyWith({

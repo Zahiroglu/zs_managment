@@ -91,10 +91,16 @@ class LocalBaseDownloads {
   List<ModelDownloads> getAllDownLoadBaseList() {
     List<ModelDownloads> list = [];
     downloads.toMap().forEach((key, value) {
-      list.add(value);
+      if(value.code=="myUserRut"){
+        list.insert(0, value);
+      }else{
+        list.add(value);
+
+      }
     });
     for (var element in list) {
       element.musteDonwload = convertDayByLastday(element);
+      element.donloading=false;
     }
     return list;
   }
