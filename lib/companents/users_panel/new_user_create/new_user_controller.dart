@@ -1265,6 +1265,11 @@ class ModelSelectUserPermitions {
         "id": id,
         "name": name,
       };
+
+  @override
+  String toString() {
+    return 'ModelSelectUserPermitions{permissions: $permissions, id: $id, name: $name}';
+  }
 }
 
 class RegisterUserModel {

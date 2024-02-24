@@ -61,8 +61,8 @@ class UserApiControllerMobile extends GetxController {
       dviceId.value = 'Failed to get deviceId.';
     }
     if (dviceId.value.isNotEmpty) {
-      //getCompanyUrlByDivaceId();
-      loginWithMobileDviceId(AppConstands.baseUrl);
+      getCompanyUrlByDivaceId();
+      //loginWithMobileDviceId(AppConstands.baseUrlsMain);
     } else {
       Get.dialog(ShowInfoDialog(
         messaje: "Xeta bas verdi",

@@ -126,7 +126,7 @@ class ControllerExpPref extends GetxController {
       listSelectedExpBaza.add(element);
       listFilteredUmumiBaza.add(element);
     }
-    listRutGunleri.value = listSelectedExpBaza.where((p0) => p0.day1.toString() == "1").toList();
+    listRutGunleri.value = listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
     listZiyeretEdilmeyenler.value = listSelectedExpBaza.where((p0) => p0.ziyaretSayi==0).toList();
     listTabItems.value = [
       ModelTamItemsGiris(
@@ -314,27 +314,27 @@ class ControllerExpPref extends GetxController {
     listRutGunleri.clear();
     switch (tr) {
       case 1:
-        listRutGunleri.value = listSelectedExpBaza.where((p0) => p0.day1.toString() == "1").toList();
+        listRutGunleri.value = listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
         break;
       case 2:
         listRutGunleri.value =
-            listSelectedExpBaza.where((p0) => p0.day2.toString()  == "1").toList();
+            listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==2)).toList();
         break;
       case 3:
         listRutGunleri.value =
-            listSelectedExpBaza.where((p0) => p0.day3.toString()  == "1").toList();
+            listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==3)).toList();
         break;
       case 4:
         listRutGunleri.value =
-            listSelectedExpBaza.where((p0) => p0.day4.toString()  == "1").toList();
+            listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==4)).toList();
         break;
       case 5:
         listRutGunleri.value =
-            listSelectedExpBaza.where((p0) => p0.day5.toString()  == "1").toList();
+            listSelectedExpBaza.where((p0) =>p0.days!.any((element) => element.day==5)).toList();
         break;
       case 6:
         listRutGunleri.value =
-            listSelectedExpBaza.where((p0) => p0.day6.toString()  == "1").toList();
+            listSelectedExpBaza.where((p0) =>p0.days!.any((element) => element.day==6)).toList();
         break;
     }
     update();
@@ -347,10 +347,10 @@ class ControllerExpPref extends GetxController {
     }else if(tip==1){
       listFilteredUmumiBaza.value=listSelectedExpBaza.where((p0) => p0.action==false).toList();
     }else if(tip==2){
-      listFilteredUmumiBaza.value=listSelectedExpBaza.where((p0) => p0.day7.toString()=="1").toList();
+      listFilteredUmumiBaza.value=listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==7)).toList();
     }else{
-      listFilteredUmumiBaza.value=listSelectedExpBaza.where((p0) => p0.day1.toString()=="0"&&p0.day2.toString()=="0"&&
-          p0.day3.toString()=="0" &&p0.day4.toString()=="0"&&p0.day5.toString()=="0"&&p0.day6.toString()=="0"&&p0.day7.toString()=="0").toList();
+      listFilteredUmumiBaza.value=listSelectedExpBaza.where((p0) => !p0.days!.any((element) => element.day==1)&&!p0.days!.any((element) => element.day==2)&&
+          !p0.days!.any((element) => element.day==3)&&!p0.days!.any((element) => element.day==4)&&!p0.days!.any((element) => element.day==5)&&!p0.days!.any((element) => element.day==6)&&!p0.days!.any((element) => element.day==7)).toList();
 
     }
     update();
@@ -396,7 +396,7 @@ class ControllerExpPref extends GetxController {
       print("per :"+element.toString());
     });
     bool canEditCari=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canEditExpCari");
-    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canAdCariToMerchBase");
+    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canAddCariToMerchBase");
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -511,25 +511,25 @@ class ControllerExpPref extends GetxController {
   Future<map.BitmapDescriptor> getClusterBitmap2(int size,ModelCariler model) async {
     Color colors = Colors.black;
     String rutGunu = "rutsuz".tr;
-    if (model.day1 == 1) {
+    if (model.days!.any((element) => element.day==1)) {
       colors = Colors.blue;
       rutGunu = "1";
-    } else if (model.day2 == 1) {
+    } else if (model.days!.any((element) => element.day==2)) {
       colors = Colors.orange;
       rutGunu = "2";
-    } else if (model.day3 == 1) {
+    } else if (model.days!.any((element) => element.day==3)) {
       colors = Colors.green;
       rutGunu = "3";
-    } else if (model.day4 == 1) {
+    } else if (model.days!.any((element) => element.day==4)) {
       colors = Colors.deepPurple;
       rutGunu = "4";
-    } else if (model.day5 == 1) {
+    } else if (model.days!.any((element) => element.day==5)) {
       colors = Colors.lightBlueAccent;
       rutGunu = "5";
-    } else if (model.day6 == 1) {
+    } else if (model.days!.any((element) => element.day==6)) {
       colors = Colors.redAccent;
       rutGunu = "6";
-    } else if (model.day7 == 1) {
+    } else if (model.days!.any((element) => element.day==7)) {
       colors = Colors.brown;
       rutGunu = "bagli".tr;
     }

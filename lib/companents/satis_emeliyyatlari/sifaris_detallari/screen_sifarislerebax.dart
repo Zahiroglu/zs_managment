@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/sifaris_detallari/controller_sifaris_detal.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 
 class ScreenSifarislereBax extends StatefulWidget {
-  const ScreenSifarislereBax({super.key});
+  DrawerMenuController drawerMenuController;
+  ScreenSifarislereBax({required this.drawerMenuController,super.key});
 
   @override
   State<ScreenSifarislereBax> createState() => _ScreenSifarislereBaxState();
@@ -69,36 +71,39 @@ class _ScreenSifarislereBaxState extends State<ScreenSifarislereBax> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => Material(
-        child: controllerSifarisDetal.dataLoading.isTrue
-            ? Center(
-                child: LoagindAnimation(
-                    textData: "Sifarisler axtarilir...",
-                    icon: "lottie/locations_search.json",
-                    isDark: Get.isDarkMode),
-              )
-            : Column(
-                children: [
+      child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title:  CustomText(
+              labeltext: "SATIS",
+              fontWeight: FontWeight.bold,
+              fontsize: 24,
+            ),
+            leading: IconButton(
+              onPressed: (){
+                widget.drawerMenuController.openDrawer();
+              },
+              icon: Icon(Icons.menu),
+            ),
 
-                  const SizedBox(height: 30,),
-                  _header(), _body()],
-              )));
-  }
-
-  Widget _header() {
-    return SizedBox(
-      height: 70,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CustomText(
-            labeltext: "SATIS",
-            fontWeight: FontWeight.bold,
-            fontsize: 18,
           ),
-        ],
-      ),
-    );
+          body: controllerSifarisDetal.dataLoading.isTrue
+              ? Center(
+                  child: LoagindAnimation(
+                      textData: "Sifarisler axtarilir...",
+                      icon: "lottie/locations_search.json",
+                      isDark: Get.isDarkMode),
+                )
+              : SingleChildScrollView(
+                child: Column(
+                    children: [
+                      const SizedBox(height: 15,),
+                      _body()],
+                  ),
+              )),
+    ));
   }
+
 
   Widget _body() {
     return Column(

@@ -11,6 +11,7 @@ import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
@@ -44,7 +45,7 @@ class ControllerRoutDetailUser extends GetxController {
   RxList<UserModel> listUsers = List<UserModel>.empty(growable: true).obs;
   RxList<UserModel> filteredListUsers = List<UserModel>.empty(growable: true).obs;
   RxList<ModelCariler> listSelectedCustomers = List<ModelCariler>.empty(growable: true).obs;
-  RxList<ModelMercBaza> listSelectedMercBaza = List<ModelMercBaza>.empty(growable: true).obs;
+  RxList<MercCustomersDatail> listSelectedMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;
   RxList<ModelCariler> listFilteredCustomers = List<ModelCariler>.empty(growable: true).obs;
   RxList<ModelMercBaza> listFilteredMercBaza = List<ModelMercBaza>.empty(growable: true).obs;
   RxList<ModelGirisCixis> listGirisCixis = List<ModelGirisCixis>.empty(growable: true).obs;
@@ -230,7 +231,7 @@ class ControllerRoutDetailUser extends GetxController {
       UserModel userModel=UserModel(roleId: 17,code: model,name: "tapilmadi".tr);
       listSelectedCustomers.value = await getAllCustomers(model);
       listGirisCixis.value=await getDataFromServerGirisCixis(model);
-      listSelectedCustomers.value = createRandomOrdenNumber(listSelectedCustomers);
+      //listSelectedCustomers.value = createRandomOrdenNumber(listSelectedCustomers);
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
         tabMelumatlariYukle();
@@ -246,7 +247,8 @@ class ControllerRoutDetailUser extends GetxController {
       }
       tabMelumatlariYukle();
     } else {
-      listSelectedMercBaza.value = await getDataFromServerMercBaza(model);
+      MercDataModel modela = await getDataFromServerMercBaza(model);
+      listSelectedMercBaza.value = modela!.mercCustomersDatail!;
       listGirisCixis.value=await getDataFromServerGirisCixis(model);
       DialogHelper.hideLoading();
       if (listSelectedMercBaza.isNotEmpty) {
@@ -286,11 +288,11 @@ class ControllerRoutDetailUser extends GetxController {
       }
       tabMelumatlariYukle();
     } else {
-      listSelectedMercBaza.value = await getDataFromServerMercBaza(model.code!);
+      MercDataModel modela = await getDataFromServerMercBaza(model.code!);
       listGirisCixis.value=await getDataFromServerGirisCixis(model.code!);
       DialogHelper.hideLoading();
       if (listSelectedMercBaza.isNotEmpty) {
-        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
+        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
             messaje: "mtapilmadi".tr,
@@ -304,60 +306,18 @@ class ControllerRoutDetailUser extends GetxController {
 
   List<ModelCariler> createRandomOrdenNumber(List<ModelCariler> list) {
     List<ModelCariler> yeniList = [];
-    List<ModelCariler> listBir = list.where((p) => p.day1 == 1).toList();
-    List<ModelCariler> listIki = list.where((p) => p.day2 == 1).toList();
-    List<ModelCariler> listUc = list.where((p) => p.day3 == 1).toList();
-    List<ModelCariler> listDort = list.where((p) => p.day4 == 1).toList();
-    List<ModelCariler> listBes = list.where((p) => p.day5 == 1).toList();
-    List<ModelCariler> listAlti = list.where((p) => p.day6 == 1).toList();
-    for (var i = 1; i <= listBir.length; i++) {
-      ModelCariler model = listBir.elementAt(i - 1);
-      model.orderNumber = i;
-      yeniList.add(model);
-    }
-    for (var i = 1; i <= listIki.length; i++) {
-      ModelCariler model = listIki.elementAt(i - 1);
-      model.orderNumber = i;
-      //listSelectedCustomers.remove(listSelectedCustomers.where((p0) => p0.code==model.code).first);
-      yeniList.add(model);
-    }
-    for (var i = 1; i <= listUc.length; i++) {
-      ModelCariler model = listUc.elementAt(i - 1);
-      model.orderNumber = i;
-      //listSelectedCustomers.remove(listSelectedCustomers.where((p0) => p0.code==model.code).first);
-      yeniList.add(model);
-    }
-    for (var i = 1; i <= listDort.length; i++) {
-      ModelCariler model = listDort.elementAt(i - 1);
-      model.orderNumber = i;
-      // listSelectedCustomers.remove(listSelectedCustomers.where((p0) => p0.code==model.code).first);
-      yeniList.add(model);
-    }
-    for (var i = 1; i <= listBes.length; i++) {
-      ModelCariler model = listBes.elementAt(i - 1);
-      model.orderNumber = i;
-      // listSelectedCustomers.remove(listSelectedCustomers.where((p0) => p0.code==model.code).first);
-      yeniList.add(model);
-    }
-    for (var i = 1; i <= listAlti.length; i++) {
-      ModelCariler model = listAlti.elementAt(i - 1);
-      model.orderNumber = i;
-      //listSelectedCustomers.remove(listSelectedCustomers.where((p0) => p0.code==model.code).first);
-      yeniList.add(model);
-    }
-    yeniList.where((element) => element.day1 == 1).toList().sort((a, b) =>
-        a.orderNumber!.compareTo(b.orderNumber!));
-    yeniList.where((element) => element.day2 == 1).toList().sort((a, b) =>
-        a.orderNumber!.compareTo(b.orderNumber!));
-    yeniList.where((element) => element.day3 == 1).toList().sort((a, b) =>
-        a.orderNumber!.compareTo(b.orderNumber!));
-    yeniList.where((element) => element.day4 == 1).toList().sort((a, b) =>
-        a.orderNumber!.compareTo(b.orderNumber!));
-    yeniList.where((element) => element.day5 == 1).toList().sort((a, b) =>
-        a.orderNumber!.compareTo(b.orderNumber!));
-    yeniList.where((element) => element.day6 == 1).toList().sort((a, b) =>
-        a.orderNumber!.compareTo(b.orderNumber!));
-
+    List<ModelCariler> listBir = list.where((p) => p.days!=null?p.days!.any((element) => element.day==1):false).toList();
+    List<ModelCariler> listIki =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==2):false).toList();
+    List<ModelCariler> listUc =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==3):false).toList();
+    List<ModelCariler> listDort =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==4):false).toList();
+    List<ModelCariler> listBes =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==5):false).toList();
+    List<ModelCariler> listAlti =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==6):false).toList();
+    yeniList.addAll(listBir);
+    yeniList.addAll(listIki);
+    yeniList.addAll(listUc);
+    yeniList.addAll(listDort);
+    yeniList.addAll(listBes);
+    yeniList.addAll(listAlti);
     return yeniList;
   }
 
@@ -379,23 +339,24 @@ class ControllerRoutDetailUser extends GetxController {
           color: Colors.orange),
       ModelSifarislerTablesi(
           label: "Bagli cariler",
-          summa: double.tryParse(listSelectedCustomers
-              .where((p) => p.day7.toString() == "1")
-              .length
-              .toString()),
+          summa: 0,
+          // summa: double.tryParse(listSelectedCustomers
+          //     .where((p) => p.days!.any((element) => element.day==7))
+          //     .length
+          //     .toString()),
           type: "bc",
           color: Colors.red),
       ModelSifarislerTablesi(
           label: "Rutsuz cariler",
           summa: double.tryParse(listSelectedCustomers
               .where((p) =>
-          p.day1.toString() == "0" &&
-              p.day2.toString() == "0" &&
-              p.day3.toString() == "0" &&
-              p.day4.toString() == "0" &&
-              p.day5.toString() == "0" &&
-              p.day6.toString() == "0" &&
-              p.day7.toString() == "0")
+          !p.days!.any((element) => element.day==1)&&
+              !p.days!.any((element) => element.day==2)&&
+              !p.days!.any((element) => element.day==3)&&
+              !p.days!.any((element) => element.day==4)&&
+              !p.days!.any((element) => element.day==5)&&
+              !p.days!.any((element) => element.day==6) &&
+              !p.days!.any((element) => element.day==7))
               .length
               .toString()),
           type: "rc",
@@ -424,7 +385,7 @@ class ControllerRoutDetailUser extends GetxController {
         break;
       case "bc":
         listSelectedCustomers
-            .where((p) => p.day7.toString() == "1")
+            .where((p) => !p.days!.any((element) => element.day==7))
             .toList()
             .forEach((a) {
           listFilteredCustomers.add(a);
@@ -433,13 +394,13 @@ class ControllerRoutDetailUser extends GetxController {
       case "rc":
         listSelectedCustomers
             .where((p) =>
-        p.day1.toString() == "0" &&
-            p.day2.toString() == "0" &&
-            p.day3.toString() == "0" &&
-            p.day4.toString() == "0" &&
-            p.day5.toString() == "0" &&
-            p.day6.toString() == "0" &&
-            p.day7.toString() == "0")
+        !p.days!.any((element) => element.day==1)&&
+            !p.days!.any((element) => element.day==2)&&
+            !p.days!.any((element) => element.day==3)&&
+            !p.days!.any((element) => element.day==4)&&
+            !p.days!.any((element) => element.day==5)&&
+            !p.days!.any((element) => element.day==6) &&
+            !p.days!.any((element) => element.day==7))
             .toList()
             .forEach((a) {
           listFilteredCustomers.add(a);
@@ -449,7 +410,6 @@ class ControllerRoutDetailUser extends GetxController {
     routDataLoading.value = false;
     update();
   }
-
 
   void changeUsers(String s) {
     if (s == "Exp") {
@@ -461,7 +421,6 @@ class ControllerRoutDetailUser extends GetxController {
     }
     update();
   }
-
 
   ///Cari Baza endirme/////////
   Future<List<ModelCariler>> getAllCustomers(String temKod) async {
@@ -496,7 +455,7 @@ class ControllerRoutDetailUser extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-
+         print("responce kode :"+response.data.toString());
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
@@ -541,7 +500,7 @@ class ControllerRoutDetailUser extends GetxController {
     return listUsers;
   }
 
-  Future<List<ModelMercBaza>> getDataFromServerMercBaza(String temsilcikodu) async {
+  Future<MercDataModel> getDataFromServerMercBaza(String temsilcikodu) async {
     String temp = "'" + temsilcikodu + "'";
     String audit = "";
     String supervaizer = "";
@@ -586,9 +545,10 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     return _parsingCarilerMerc(rawXmlResponse);
   }
 
-  Future<List<ModelMercBaza>> _parsingCarilerMerc(var _response) async {
+  Future<MercDataModel> _parsingCarilerMerc(var _response) async {
     List<ModelMercBaza> listKodrdinar = [];
-    print("_responce :" + _response.toString());
+    List<MercCustomersDatail> listMercCustomers = [];
+    MercDataModel modelMercData = MercDataModel();
     var document = xml.parse(_response);
     Iterable<xml.XmlElement> items = document.findAllElements('Table');
     items.map((xml.XmlElement item) {
@@ -635,13 +595,52 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       listKodrdinar.add(modelKordinat);
       //  itemsList.add(_addResult);
     }).toList();
-    return listKodrdinar;
+    listKodrdinar.forEach((element) {
+      List<Day>listDays=[];
+      if(element.gun1=="1"){
+        listDays.add(Day(day: 1, orderNumber: 0));
+      }
+      if(element.gun2=="1"){
+        listDays.add(Day(day: 2, orderNumber: 0));
+      }  if(element.gun3=="1"){
+        listDays.add(Day(day: 3, orderNumber: 0));
+      }  if(element.gun4=="1"){
+        listDays.add(Day(day: 4, orderNumber: 0));
+      }  if(element.gun5=="1"){
+        listDays.add(Day(day: 5, orderNumber: 0));
+      }  if(element.gun6=="1"){
+        listDays.add(Day(day: 6, orderNumber: 0));
+      }
+      listMercCustomers.add(MercCustomersDatail(
+          name: element.cariad!,
+          code: element.carikod!,
+          longitude: element.gpsUzunluq!,
+          latitude: element.gpsEynilik!,
+          district: "",
+          category: "",
+          area: "",
+          action: double.tryParse(element.netsatis!)!>0?true:false,
+          days: listDays,
+          fullAddress: "",
+          plans: double.tryParse(element.plan!.toString())!,
+          refund: double.tryParse(element.qaytarma!.toString()),
+          selling: double.tryParse(element.netsatis!.toString()),
+          forwarderCode: element.expeditor
+      ));
+    });
+    modelMercData=MercDataModel(totalPlans: listKodrdinar.fold(0, (sum, element) => sum!+double.tryParse(element.plan!)!.round()),
+        totalSelling: listKodrdinar.fold(0, (sum, element) => sum!+double.tryParse(element.netsatis!)!.round()),
+        totalRefund: listKodrdinar.fold(0, (sum, element) => sum!+double.tryParse(element.qaytarma!)!.round()),
+        code: listKodrdinar.first.rutadi!,
+        name: listKodrdinar.first.mercadi!,
+        mercCustomersDatail: listMercCustomers);
+
+    return modelMercData;
   }
 
 
   /////Merc baza////////////
-  Future<List<ModelCariler>> getDataFromServerUmumiCariler(
-      String temsilcikodu) async {
+  Future<List<ModelCariler>> getDataFromServerUmumiCariler(String temsilcikodu) async {
     var envelopeaUmumicariler = '''
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
@@ -684,73 +683,73 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     List<ModelCariler> listKodrdinar = [];
     var document = xml.parse(_response);
     Iterable<xml.XmlElement> items = document.findAllElements('Table');
-    items.map((xml.XmlElement item) {
-      var _kode = _getValue(item.findElements("kod"));
-      var _name = _getValue(item.findElements("ad"));
-      var _expkodu = _getValue(item.findElements("tem"));
-      var _tamunvan = _getValue(item.findElements("tamun"));
-      var _mesulsexs = _getValue(item.findElements("mesulsexs"));
-      var _voun = _getValue(item.findElements("voun"));
-      var _telefon = _getValue(item.findElements("telefon"));
-      var _sticker = _getValue(item.findElements("sticker"));
-      var _sahe = _getValue(item.findElements("sahe"));
-      var _kateq = _getValue(item.findElements("kateq"));
-      var _bolgekodu = _getValue(item.findElements("bolgekodu"));
-      var _qaliq = _getValue(item.findElements("qaliq"));
-      var _rayon = _getValue(item.findElements("rayon"));
-      var _gun1 = _getValue(item.findElements("gun1"));
-      var _gun2 = _getValue(item.findElements("gun2"));
-      var _gun3 = _getValue(item.findElements("gun3"));
-      var _gun4 = _getValue(item.findElements("gun4"));
-      var _gun5 = _getValue(item.findElements("gun5"));
-      var _gun6 = _getValue(item.findElements("gun6"));
-      var _gun7 = _getValue(item.findElements("gun7"));
-      var _hereket = _getValue(item.findElements("h1"));
-      var _anacari = _getValue(item.findElements("ana_cari"));
-      var _uzunluq = _getValue(item.findElements("uzunluq"));
-      var _eynilik = _getValue(item.findElements("eynilik"));
-      bool actions = false;
-      if (_hereket.toString() == "1") {
-        print("_hereket true :" + _hereket.toString());
-        actions = true;
-      } else {
-        print("_hereket false :" + _hereket.toString());
-        actions = false;
-      }
-      ModelCariler modelKordinat = ModelCariler(
-          forwarderCode: _expkodu,
-          code: _kode,
-          name: _name,
-          longitude: _uzunluq,
-          latitude: _eynilik,
-          fullAddress: _tamunvan,
-          ownerPerson: _mesulsexs,
-          tin: _voun,
-          phone: _telefon,
-          postalCode: _sticker,
-          area: _sahe,
-          category: _kateq,
-          regionalDirectorCode: _bolgekodu,
-          debt: double.parse(
-              _qaliq.toString() != "null" ? _qaliq.toString() : "0"),
-          district: _rayon,
-          day1: int.parse(_gun1),
-          day2: int.parse(_gun2),
-          day3: int.parse(_gun3),
-          day4: int.parse(_gun4),
-          day5: int.parse(_gun5),
-          day6: int.parse(_gun6),
-          day7: int.parse(_gun7),
-          action: actions,
-          mainCustomer: _anacari,
-          ziyaret: "0");
-      modelKordinat.rutGunu = rutDuzgunluyuYoxla(modelKordinat);
-      modelKordinat.orderNumber = 0;
-      modelKordinat.mesafeInt = 0;
-      modelKordinat.mesafe = "s";
-      listKodrdinar.add(modelKordinat);
-      //  itemsList.add(_addResult);
-    }).toList();
+    // items.map((xml.XmlElement item) {
+    //   var _kode = _getValue(item.findElements("kod"));
+    //   var _name = _getValue(item.findElements("ad"));
+    //   var _expkodu = _getValue(item.findElements("tem"));
+    //   var _tamunvan = _getValue(item.findElements("tamun"));
+    //   var _mesulsexs = _getValue(item.findElements("mesulsexs"));
+    //   var _voun = _getValue(item.findElements("voun"));
+    //   var _telefon = _getValue(item.findElements("telefon"));
+    //   var _sticker = _getValue(item.findElements("sticker"));
+    //   var _sahe = _getValue(item.findElements("sahe"));
+    //   var _kateq = _getValue(item.findElements("kateq"));
+    //   var _bolgekodu = _getValue(item.findElements("bolgekodu"));
+    //   var _qaliq = _getValue(item.findElements("qaliq"));
+    //   var _rayon = _getValue(item.findElements("rayon"));
+    //   var _gun1 = _getValue(item.findElements("gun1"));
+    //   var _gun2 = _getValue(item.findElements("gun2"));
+    //   var _gun3 = _getValue(item.findElements("gun3"));
+    //   var _gun4 = _getValue(item.findElements("gun4"));
+    //   var _gun5 = _getValue(item.findElements("gun5"));
+    //   var _gun6 = _getValue(item.findElements("gun6"));
+    //   var _gun7 = _getValue(item.findElements("gun7"));
+    //   var _hereket = _getValue(item.findElements("h1"));
+    //   var _anacari = _getValue(item.findElements("ana_cari"));
+    //   var _uzunluq = _getValue(item.findElements("uzunluq"));
+    //   var _eynilik = _getValue(item.findElements("eynilik"));
+    //   bool actions = false;
+    //   if (_hereket.toString() == "1") {
+    //     print("_hereket true :" + _hereket.toString());
+    //     actions = true;
+    //   } else {
+    //     print("_hereket false :" + _hereket.toString());
+    //     actions = false;
+    //   }
+    //   ModelCariler modelKordinat = ModelCariler(
+    //       forwarderCode: _expkodu,
+    //       code: _kode,
+    //       name: _name,
+    //       longitude: _uzunluq,
+    //       latitude: _eynilik,
+    //       fullAddress: _tamunvan,
+    //       ownerPerson: _mesulsexs,
+    //       tin: _voun,
+    //       phone: _telefon,
+    //       postalCode: _sticker,
+    //       area: _sahe,
+    //       category: _kateq,
+    //       regionalDirectorCode: _bolgekodu,
+    //       debt: double.parse(
+    //           _qaliq.toString() != "null" ? _qaliq.toString() : "0"),
+    //       district: _rayon,
+    //       day1: int.parse(_gun1),
+    //       day2: int.parse(_gun2),
+    //       day3: int.parse(_gun3),
+    //       day4: int.parse(_gun4),
+    //       day5: int.parse(_gun5),
+    //       day6: int.parse(_gun6),
+    //       day7: int.parse(_gun7),
+    //       action: actions,
+    //       mainCustomer: _anacari,
+    //       ziyaret: "0");
+    //   modelKordinat.rutGunu = rutDuzgunluyuYoxla(modelKordinat);
+    //   modelKordinat.orderNumber = 0;
+    //   modelKordinat.mesafeInt = 0;
+    //   modelKordinat.mesafe = "s";
+    //   listKodrdinar.add(modelKordinat);
+    //   //  itemsList.add(_addResult);
+    // }).toList();
     listKodrdinar.forEach((element) {
       print("element :" + element.toString());
     });
@@ -765,33 +764,6 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     return textValue;
   }
 
-  bool rutGununuYoxla(ModelCariler model) {
-    bool rutgunu = false;
-    final now = DateTime.now();
-    int day = now.weekday;
-    int irutgunu = 0;
-    if (model.day1 == "1") {
-      irutgunu = 1;
-    } else if (model.day2 == 1) {
-      irutgunu = 2;
-    } else if (model.day3 == 1) {
-      irutgunu = 3;
-    } else if (model.day4 == 1) {
-      irutgunu = 4;
-    } else if (model.day5 == 1) {
-      irutgunu = 5;
-    } else if (model.day6 == 1) {
-      irutgunu = 6;
-    } else {
-      rutgunu = false;
-    }
-    if (irutgunu == day) {
-      rutgunu = true;
-    } else {
-      false;
-    }
-    return rutgunu;
-  }
 
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
     String rutgun = "Sef";
@@ -800,32 +772,32 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
         .weekday;
     switch (hefteningunu) {
       case 1:
-        if (selectedModel.day1 == 1) {
+        if (selectedModel.days!.any((element) => element.day==1)) {
           rutgun = "Duz";
         }
         break;
       case 2:
-        if (selectedModel.day2 == 1) {
+        if (selectedModel.days!.any((element) => element.day==2)) {
           rutgun = "Duz";
         }
         break;
       case 3:
-        if (selectedModel.day3 == 1) {
+        if (selectedModel.days!.any((element) => element.day==3)) {
           rutgun = "Duz";
         }
         break;
       case 4:
-        if (selectedModel.day4 == 1) {
+        if (selectedModel.days!.any((element) => element.day==4)) {
           rutgun = "Duz";
         }
         break;
       case 5:
-        if (selectedModel.day5 == 1) {
+        if (selectedModel.days!.any((element) => element.day==5)) {
           rutgun = "Duz";
         }
         break;
       case 6:
-        if (selectedModel.day6 == 1) {
+        if (selectedModel.days!.any((element) => element.day==6)) {
           rutgun = "Duz";
         }
         break;

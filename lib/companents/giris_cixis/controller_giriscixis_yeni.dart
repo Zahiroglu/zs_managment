@@ -1,15 +1,17 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:location/location.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:ntp/ntp.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
+import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/model_cari_hesabatlar.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
@@ -20,7 +22,6 @@ import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
-import 'package:location/location.dart' as loc;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
@@ -32,11 +33,13 @@ import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
+import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
 import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/widgetHesabatListItems.dart';
 import '../../global_models/custom_enummaptype.dart';
 import '../../widgets/simple_info_dialog.dart';
 import '../local_bazalar/local_app_setting.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 
 class ControllerGirisCixisYeni extends GetxController {
   RxList<ModelCariler> listCariler =
@@ -71,25 +74,21 @@ class ControllerGirisCixisYeni extends GetxController {
   RxString selectedTabItem = "Giris-Cixislar".obs;
   Rx<ModelCariler> expandedItem = ModelCariler().obs;
   ScrollController listScrollController = ScrollController();
-  RxList<ModelTamItemsGiris> listTabItems =
-      List<ModelTamItemsGiris>.empty(growable: true).obs;
-  RxList<ModelCariler> listSelectedMusteriler =
-      List<ModelCariler>.empty(growable: true).obs;
-  RxList<ModelSifarislerTablesi> listTabSifarisler =
-      List<ModelSifarislerTablesi>.empty(growable: true).obs;
+  RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
+  RxList<ModelCariler> listSelectedMusteriler = List<ModelCariler>.empty(growable: true).obs;
+  RxList<ModelSifarislerTablesi> listTabSifarisler = List<ModelSifarislerTablesi>.empty(growable: true).obs;
   RxString snQalmaVaxti = "".obs;
   Timer? _timer;
   TextEditingController ctCixisQeyd = TextEditingController();
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
-  RxList<ModelCariHereket> listSifarisler =
-      List<ModelCariHereket>.empty(growable: true).obs;
-  RxList<ModelCariHereket> listIadeler =
-      List<ModelCariHereket>.empty(growable: true).obs;
+  RxList<ModelCariHereket> listSifarisler = List<ModelCariHereket>.empty(growable: true).obs;
+  RxList<ModelCariHereket> listIadeler = List<ModelCariHereket>.empty(growable: true).obs;
   RxList<ModelCariKassa> listKassa =
       List<ModelCariKassa>.empty(growable: true).obs;
   RxList<ModelCariKassa> selectedlistKassa =
       List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
+  Rx<UserModel> selectedTemsilci=UserModel(code: "u",name: "Butun cariler").obs;
 
   @override
   Future<void> onInit() async {
@@ -217,35 +216,38 @@ class ControllerGirisCixisYeni extends GetxController {
     listTabSifarisler.clear();
     listIadeler.clear();
     listKassa.clear();
-    listSifarisler.value =
-        localBaseSatis.getAllHereketbyCariKod(modelgirisEdilmis.value.ckod!);
-    listIadeler.value =
-        localBaseSatis.getAllIadelerbyCariKod(modelgirisEdilmis.value.ckod!);
-    listKassa.value =
-        localBaseSatis.getAllKassabyCariKod(modelgirisEdilmis.value.ckod!);
-    listTabSifarisler.value = [
-      ModelSifarislerTablesi(
-          label: "Satis",
+    listSifarisler.value = localBaseSatis.getAllHereketbyCariKod(modelgirisEdilmis.value.ckod!);
+    listIadeler.value = localBaseSatis.getAllIadelerbyCariKod(modelgirisEdilmis.value.ckod!);
+    listKassa.value = localBaseSatis.getAllKassabyCariKod(modelgirisEdilmis.value.ckod!);
+    bool canSell= loggedUserModel.userModel!.permissions!.any((element) => element.code=="canSell");
+    bool canCash= loggedUserModel.userModel!.permissions!.any((element) => element.code=="canCash");
+    bool canReturn= loggedUserModel.userModel!.permissions!.any((element) => element.code=="canReturn");
+    if(canSell){
+      listTabSifarisler.add(ModelSifarislerTablesi(
+          label: "satis".tr,
           icon: "images/sales.png",
           summa: listSifarisler.fold(
               0, (sum, element) => sum! + element.netSatis!),
           type: "s",
-          color: Colors.blue),
-      ModelSifarislerTablesi(
-          label: "Iade",
+          color: Colors.blue));
+    }
+    if(canCash){
+      listTabSifarisler.add(ModelSifarislerTablesi(
+          label: "iade".tr,
           icon: "images/dollar.png",
           summa:
-              listIadeler.fold(0, (sum, element) => sum! + element.netSatis!),
+          listIadeler.fold(0, (sum, element) => sum! + element.netSatis!),
           type: "i",
-          color: Colors.deepPurple),
-      ModelSifarislerTablesi(
-          label: "Kassa",
+          color: Colors.deepPurple));
+    }
+    if(canReturn){
+      listTabSifarisler.add(ModelSifarislerTablesi(
+          label: "kassa".tr,
           icon: "images/payment.png",
-          summa:
-              listKassa.fold(0, (sum, element) => sum! + element.kassaMebleg!),
+          summa: listKassa.fold(0, (sum, element) => sum! + element.kassaMebleg!),
           type: "k",
-          color: Colors.green),
-    ];
+          color: Colors.green));
+    }
     update();
   }
 
@@ -311,12 +313,11 @@ class ControllerGirisCixisYeni extends GetxController {
     };
   }
 
-  void addMarkersAndPlygane(
-      String latitude, String longitude, LocationData currentLocation) {
+  void addMarkersAndPlygane(String latitude, String longitude, Position currentLocation) {
     polygon.clear();
     pointsPoly.clear();
     pointsPoly
-        .add(map.LatLng(currentLocation.latitude!, currentLocation.longitude!));
+        .add(map.LatLng(currentLocation.latitude, currentLocation.longitude));
     pointsPoly.add(map.LatLng(double.parse(latitude), double.parse(longitude)));
     polygon.add(map.Polygon(
       polygonId: const map.PolygonId('1'),
@@ -331,20 +332,21 @@ class ControllerGirisCixisYeni extends GetxController {
 
   bool rutGununuYoxla(ModelCariler model) {
     bool rutgunu = false;
+    if(model.days!=null){
     final now = DateTime.now();
     int day = now.weekday;
     int irutgunu = 0;
-    if (model.day1.toString() == "1") {
+    if (model.days!.any((element) => element.day==1)) {
       irutgunu = 1;
-    } else if (model.day2.toString() == "1") {
+    } else if (model.days!.any((element) => element.day==2)) {
       irutgunu = 2;
-    } else if (model.day3.toString() == "1") {
+    } else if (model.days!.any((element) => element.day==3)) {
       irutgunu = 3;
-    } else if (model.day4.toString() == "1") {
+    } else if (model.days!.any((element) => element.day==4)) {
       irutgunu = 4;
-    } else if (model.day5.toString() == "1") {
+    } else if (model.days!.any((element) => element.day==5)) {
       irutgunu = 5;
-    } else if (model.day6.toString() == "1") {
+    } else if (model.days!.any((element) => element.day==6)) {
       irutgunu = 6;
     } else {
       rutgunu = false;
@@ -353,12 +355,11 @@ class ControllerGirisCixisYeni extends GetxController {
       rutgunu = true;
     } else {
       rutgunu = false;
-    }
+    }}
     return rutgunu;
   }
 
-  Future<void> pripareForEnter(loc.LocationData? currentLocation,
-      ModelCariler selectedModel, String uzaqliq) async {
+  Future<void> pripareForEnter(Position currentLocation, ModelCariler selectedModel, String uzaqliq) async {
     DialogHelper.showLoading("Giris edilir...");
     await localDbGirisCixis.init();
     String lookupAddress = "time.google.com";
@@ -390,7 +391,7 @@ class ControllerGirisCixisYeni extends GetxController {
             }),
       );
     } else {
-      if (currentLocation!.isMock!) {
+      if (currentLocation.isMocked) {
         Get.dialog(
           ShowInfoDialog(
               messaje: "Telefonda fake location aktivdir.Sondurun!",
@@ -419,9 +420,7 @@ class ControllerGirisCixisYeni extends GetxController {
             await localDbGirisCixis.init();
             await localDbGirisCixis.deleteItem(modelgirisEdilmis.value.ckod!,
                 modelgirisEdilmis.value.girisvaxt!);
-            ModelCariler modelCari = listCariler
-                .where((a) => a.code == modelgirisEdilmis.value.ckod)
-                .first;
+            ModelCariler modelCari = listCariler.where((a) => a.code == modelgirisEdilmis.value.ckod).first;
             modelCari.ziyaret = "0";
             await localBase.updateModelCari(modelCari);
             marketeGirisEdilib.value = false;
@@ -435,10 +434,8 @@ class ControllerGirisCixisYeni extends GetxController {
         }));
   }
 
-  Future<void> girisEt(loc.LocationData currentLocation,
-      ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
-    createCircles(
-        selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
+  Future<void> girisEt(Position currentLocation, ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
+    createCircles(selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
     ModelGirisCixis modela = ModelGirisCixis(
         cariad: selectedModel.name,
         ckod: selectedModel.code,
@@ -464,18 +461,17 @@ class ControllerGirisCixisYeni extends GetxController {
     await localBase.updateModelCari(modelCari);
     marketeGirisEdilib.value = true;
     modelgirisEdilmis.value = modela;
-    addMarkersAndPlygane(
-        selectedModel.longitude!, selectedModel.latitude!, currentLocation);
+    addMarkersAndPlygane(selectedModel.longitude!, selectedModel.latitude!, currentLocation);
     slidePanelVisible.value = false;
     leftSideMenuVisible.value = true;
     rightSideMenuVisible.value = true;
     sndeQalmaVaxtiniHesabla();
     getSatisMelumatlariByCary();
-
+   // startconfigBacgroundService();
     update();
   }
 
-  cixisUcunHazirliq(loc.LocationData currentLocation, String uzaqliq, String qeyd) async {
+  cixisUcunHazirliq(Position currentLocation, String uzaqliq, String qeyd) async {
     await localDbGirisCixis.init();
     DialogHelper.showLoading("Cixis edilir...");
     String lookupAddress = "time.google.com";
@@ -507,7 +503,7 @@ class ControllerGirisCixisYeni extends GetxController {
             }),
       );
     } else {
-      if (currentLocation.isMock!) {
+      if (currentLocation.isMocked) {
         Get.dialog(
           ShowInfoDialog(
               messaje: "Telefonda Fake Location aktivdir.Sondurun!",
@@ -523,8 +519,7 @@ class ControllerGirisCixisYeni extends GetxController {
     }
   }
 
-  Future<void> cixisEt(loc.LocationData currentLocation, String uzaqliq,
-      DateTime myTime, String qeyd) async {
+  Future<void> cixisEt(Position currentLocation, String uzaqliq, DateTime myTime, String qeyd) async {
     circles.clear();
     modelgirisEdilmis.value.cixisvaxt = myTime.toString();
     modelgirisEdilmis.value.cixisgps = "${currentLocation.longitude},${currentLocation.latitude}";
@@ -556,7 +551,7 @@ class ControllerGirisCixisYeni extends GetxController {
 
   //widgetss
   Widget widgetMusteriHesabatlari(ModelCariler selectedCariModel) {
-    return WidgetCarihesabatlar(cad:selectedCariModel.name! , ckod: selectedCariModel.code!, height: 100);
+    return WidgetCarihesabatlar(cad:selectedCariModel.name??"" , ckod: selectedCariModel.code??"", height: 100);
   }
 
   Widget widgetGunlukGirisCixislar(BuildContext context) {
@@ -1008,25 +1003,25 @@ class ControllerGirisCixisYeni extends GetxController {
               ),
               Wrap(
                 children: [
-                  e.day1.toString() == "1"
+                  e.days!.any((a) => a.day==1)
                       ? widgetRutGunuItems("gun1".tr)
                       : const SizedBox(),
-                  e.day2.toString() == "1"
+                  e.days!.any((a) => a.day==2)
                       ? widgetRutGunuItems("gun2".tr)
                       : const SizedBox(),
-                  e.day3.toString() == "1"
+                  e.days!.any((a) => a.day==3)
                       ? widgetRutGunuItems("gun3".tr)
                       : const SizedBox(),
-                  e.day4.toString() == "1"
+                  e.days!.any((a) => a.day==4)
                       ? widgetRutGunuItems("gun4".tr)
                       : const SizedBox(),
-                  e.day5.toString() == "1"
+                  e.days!.any((a) => a.day==5)
                       ? widgetRutGunuItems("gun5".tr)
                       : const SizedBox(),
-                  e.day6.toString() == "1"
+                  e.days!.any((a) => a.day==6)
                       ? widgetRutGunuItems("gun6".tr)
                       : const SizedBox(),
-                  e.day7.toString() == "1"
+                  e.days!.any((a) => a.day==7)
                       ? widgetRutGunuItems("bagli".tr)
                       : const SizedBox(),
                 ],
@@ -1193,8 +1188,7 @@ class ControllerGirisCixisYeni extends GetxController {
     );
   }
 
-  void changeTabItemsValue(
-      ModelTamItemsGiris element, LocationData currentLocation) {
+  void changeTabItemsValue(ModelTamItemsGiris element, Position currentLocation) {
     for (var element2 in listTabItems) {
       if (element2.label == element.label) {
         element2.selected = true;
@@ -1227,8 +1221,7 @@ class ControllerGirisCixisYeni extends GetxController {
     update();
   }
 
-  List<ModelCariler> carculateDistanceList(
-      List<ModelCariler> listMusteriler, LocationData event) {
+  List<ModelCariler> carculateDistanceList(List<ModelCariler> listMusteriler, Position event) {
     List<ModelCariler> list = [];
     for (ModelCariler element in listMusteriler) {
       String listmesafe = "0m";
@@ -1338,8 +1331,7 @@ class ControllerGirisCixisYeni extends GetxController {
     );
   }
 
-  Widget widgetListItemsSifarisler(
-      ModelSifarislerTablesi elementAt, BuildContext context) {
+  Widget widgetListItemsSifarisler(ModelSifarislerTablesi elementAt, BuildContext context) {
     return InkWell(
       onTap: () async {
         switch (elementAt.type) {
@@ -1448,7 +1440,6 @@ class ControllerGirisCixisYeni extends GetxController {
       ),
     );
   }
-
   ////Satis emeliyyatlari////
   Widget musteriZiyaretDetail(ModelCariler e){
     double sumSatis=listSifarisler.where((element) => element.cariKod==e.code).toList().fold(0.0, (sum, element) => sum+element.netSatis!);
@@ -1660,11 +1651,13 @@ class ControllerGirisCixisYeni extends GetxController {
   }
 
   Widget cardSifarisler(BuildContext context) {
-    ModelUserPermissions permition = loggedUserModel.userModel!.permissions!
-            .where((element) => element.code == "createUser")
-            .firstOrNull ??
-        ModelUserPermissions();
-    return permition.val == 1
+    loggedUserModel.userModel!.permissions!.forEach((element) {
+      print("permitions :"+element.toString());
+    });
+    bool canSell= loggedUserModel.userModel!.permissions!.any((element) => element.code=="canSell");
+    bool canCash= loggedUserModel.userModel!.permissions!.any((element) => element.code=="canCash");
+    bool canReturn= loggedUserModel.userModel!.permissions!.any((element) => element.code=="canReturn");
+    return canSell||canCash||canReturn
         ? Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1676,7 +1669,7 @@ class ControllerGirisCixisYeni extends GetxController {
               Padding(
                 padding: const EdgeInsets.all(0.0).copyWith(left: 10),
                 child: CustomText(
-                    labeltext: "Sifarisler",
+                    labeltext: "sifarisler".tr,
                     fontsize: 18,
                     fontWeight: FontWeight.bold),
               ),
@@ -1854,7 +1847,65 @@ class ControllerGirisCixisYeni extends GetxController {
   String prettify(double d) {
     return d.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0*$'), '');
   }
+
+  void getExpList() {
+    List<UserModel> listexpeditorlar= localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==17).toList();
+    listexpeditorlar.insert(0, UserModel(code: "u",name: "Butun cariler"));
+   Get.dialog(DialogSimpleUserSelect(selectedUserCode: "",getSelectedUse: (user){
+     print("selected user :"+user.toString());
+     selectedTemsilci.value=user;
+     changeSelectedUsersCari(user);
+   },listUsers: listexpeditorlar,vezifeAdi: "expeditors",));
+  }
+
+  void changeSelectedUsersCari(UserModel model) {
+    if(model.code=="u"){
+      listSelectedMusteriler.value = listCariler;
+    }else{
+      String temkodu=model.code!;
+      print("secilen temsilci cari say :"+listCariler.where((p0) => p0.forwarderCode==temkodu).toList().length.toString());
+      listSelectedMusteriler.value=listCariler.where((p0) => p0.forwarderCode==temkodu).toList();
+    }
+    update();
+  }
+  ////live locations configrations
+   startconfigBacgroundService(){
+    bg.BackgroundGeolocation.ready(bg.Config(
+      notification: bg.Notification(
+        title: "ZS-CONTROLL",
+        text: "Giris etmisiniz"
+      )
+    ));
+     bg.BackgroundGeolocation.onLocation((bg.Location location) {
+       print('[location] - $location');
+     });
+     // bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
+     //   print('[motionchange] - $location');
+     // });
+     // bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) {
+     //   print('[providerchange] - $event');
+     // });
+     bg.BackgroundGeolocation.ready(bg.Config(
+         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+         distanceFilter: 1.0,
+         stopOnTerminate: false,
+         startOnBoot: true,
+         debug: true,
+         logLevel: bg.Config.LOG_LEVEL_VERBOSE
+     )).then((bg.State state) {
+       if (!state.enabled) {
+         ////
+         // 3.  Start the plugin.
+         //
+         bg.BackgroundGeolocation.start();
+       }
+     });
+   }
+
+
+
 }
+
 
 class ModelSifarislerTablesi {
   String? label;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
@@ -11,9 +12,9 @@ import 'package:zs_managment/widgets/widget_rutgunu.dart';
 import '../ziyaret_tarixcesi/model_gunluk_giriscixis.dart';
 
 class ControllerMercPref extends GetxController {
-  RxList<ModelMercBaza> listSelectedMercBaza = List<ModelMercBaza>.empty(growable: true).obs;
-  RxList<ModelMercBaza> listRutGunleri = List<ModelMercBaza>.empty(growable: true).obs;
-  RxList<ModelMercBaza> listZiyeretEdilmeyenler = List<ModelMercBaza>.empty(growable: true).obs;
+  RxList<MercCustomersDatail> listSelectedMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;
+  RxList<MercCustomersDatail> listRutGunleri = List<MercCustomersDatail>.empty(growable: true).obs;
+  RxList<MercCustomersDatail> listZiyeretEdilmeyenler = List<MercCustomersDatail>.empty(growable: true).obs;
   double satisIndex = 0.003;
   double planFizi = 0;
   double zaymalFaizi = 0;
@@ -70,14 +71,14 @@ class ControllerMercPref extends GetxController {
 
 
   ////umumi cariler hissesi
-  void getAllCariler(List<ModelMercBaza> listMercBaza, List<ModelGirisCixis> listGirisCixis) {
-    for (var element in listMercBaza) {
-      element.ziyaretSayi = listGirisCixis.where((e) => e.cariAd == element.cariad).toList().length;
-      element.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariAd == element.cariad).toList());
-      listSelectedMercBaza.add(element);
+  void getAllCariler(MercDataModel listMercBaza, List<ModelGirisCixis> listGirisCixis) {
+    for (MercCustomersDatail model in listMercBaza.mercCustomersDatail!) {
+      model.ziyaretSayi = listGirisCixis.where((e) => e.cariAd == model.name).toList().length;
+      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariAd == model.name!).toList());
+      listSelectedMercBaza.add(model);
     }
     circulateMotivasion();
-    listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.gun1.toString() == "1").toList();
+    listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
     listZiyeretEdilmeyenler.value = listSelectedMercBaza.where((p0) => p0.ziyaretSayi==0).toList();
     listTabItems.value = [
       ModelTamItemsGiris(
@@ -93,6 +94,7 @@ class ControllerMercPref extends GetxController {
           selected: false,
           keyText: "rh"),
     ];
+    if(listGirisCixis.isNotEmpty){
     if(listZiyeretEdilmeyenler.isNotEmpty){
       listTabItems.add(ModelTamItemsGiris(
           icon: Icons.visibility_off_outlined,
@@ -108,7 +110,7 @@ class ControllerMercPref extends GetxController {
         selected: false,
         keyText: "um"
     ));
-    ziyaretTarixcesiTablesini(listGirisCixis);
+    ziyaretTarixcesiTablesini(listGirisCixis);}
     melumatlariGuneGoreDoldur();
     update();
   }
@@ -252,11 +254,11 @@ class ControllerMercPref extends GetxController {
 
   void circulateMotivasion() {
     double totalSatis = listSelectedMercBaza.fold(
-        0.0, (sum, element) => sum + double.parse(element.netsatis!));
+        0.0, (sum, element) => sum + element.selling!);
     double totalPlan = listSelectedMercBaza.fold(
-        0.0, (sum, element) => sum + double.parse(element.plan!));
+        0.0, (sum, element) => sum + element.plans!);
     double totalZaymal = listSelectedMercBaza.fold(
-        0.0, (sum, element) => sum + double.parse(element.qaytarma!));
+        0.0, (sum, element) => sum + element.refund!);
     netSatisdanPul = totalSatis * satisIndex;
     planFizi = (totalSatis / totalPlan) * 100;
     zaymalFaizi = (totalZaymal / totalSatis) * 100;
@@ -300,27 +302,27 @@ class ControllerMercPref extends GetxController {
     listRutGunleri.clear();
     switch (tr) {
       case 1:
-        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.gun1 == "1").toList();
+        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
         break;
       case 2:
         listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.gun2 == "1").toList();
+            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==2)).toList();
         break;
       case 3:
         listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.gun3 == "1").toList();
+            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==3)).toList();
         break;
       case 4:
         listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.gun4 == "1").toList();
+            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==4)).toList();
         break;
       case 5:
         listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.gun5 == "1").toList();
+            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==5)).toList();
         break;
       case 6:
         listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.gun6 == "1").toList();
+            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==6)).toList();
         break;
     }
     update();

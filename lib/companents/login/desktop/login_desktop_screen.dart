@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zs_managment/companents/login/mobile/login_mobile_first_screen.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
+import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/language/localization_controller.dart';
 import 'package:zs_managment/language/utils/dilsecimi_dropdown.dart';
 import 'package:zs_managment/thema/thema_controller.dart';
@@ -345,8 +346,8 @@ class _LoginDesktopScreenState extends State<LoginDesktopScreen> {
   }
 
   Future<void> _login() async {
-    serverWithGet.getCompanyUrlByDivaceId();
-   // serverWithGet.loginWithUsername();
+    //serverWithGet.getCompanyUrlByDivaceId();
+    serverWithGet.loginWithUsername(AppConstands.baseUrlsMainForWindos);
   }
 }
 

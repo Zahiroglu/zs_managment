@@ -45,7 +45,7 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
     ScreenUtil.init(context);
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.only(top: 5),
         alignment: Alignment.topCenter,
         decoration: BoxDecoration(
           borderRadius:  const BorderRadius.only(
@@ -63,7 +63,7 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
                 child: widgetHeader()),
             const Divider(thickness: 3,endIndent: 5,indent: 5),
             Expanded(
-              flex: 12,
+              flex: 13,
               child: widget.drawerMenuController.getItemsMenu(widget.closeDrawer,false,widget.scaffoldkey),
             ),
             // const SizedBox(

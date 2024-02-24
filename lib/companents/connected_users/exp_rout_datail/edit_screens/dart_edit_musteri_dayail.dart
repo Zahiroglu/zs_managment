@@ -59,13 +59,13 @@ class _EditMusteriDetailScreenState extends State<EditMusteriDetailScreen> {
   @override
   void initState() {
     cariModel = widget.cariModel;
-    marketBaglidir = cariModel.day7 == 1;
-    rutGunuBir = cariModel.day1 == 1;
-    rutGunuIki = cariModel.day2 == 1;
-    rutGunuUc = cariModel.day3 == 1;
-    rutGunuDort = cariModel.day4 == 1;
-    rutGunuBes = cariModel.day5 == 1;
-    rutGunuAlti = cariModel.day6 == 1;
+    marketBaglidir = cariModel.days!.any((element) => element.day==7);
+    rutGunuBir = cariModel.days!.any((element) => element.day==1);
+    rutGunuIki = cariModel.days!.any((element) => element.day==2);
+    rutGunuUc = cariModel.days!.any((element) => element.day==3);
+    rutGunuDort = cariModel.days!.any((element) => element.day==4);
+    rutGunuBes = cariModel.days!.any((element) => element.day==5);
+    rutGunuAlti = cariModel.days!.any((element) => element.day==6);
     ctSahe.text = cariModel.area!;
     ctKateq.text=cariModel.category!;
     ctReion.text=cariModel.district!;
@@ -672,37 +672,36 @@ class _EditMusteriDetailScreenState extends State<EditMusteriDetailScreen> {
       rutGunuAlti=false;
     }
     setState(() {
-      ModelCariler model=ModelCariler(
-        debt: cariModel.debt,
-          forwarderCode: cariModel.forwarderCode,
-          fullAddress: cariModel.fullAddress,
-          mainCustomer: cariModel.mainCustomer,
-          mesafe: cariModel.mesafe,
-          orderNumber: cariModel.orderNumber,
-          ownerPerson: cariModel.ownerPerson,
-          phone: cariModel.phone,
-          postalCode: cariModel.postalCode,
-          regionalDirectorCode: cariModel.regionalDirectorCode,
-          salesDirectorCode: cariModel.salesDirectorCode,
-          tin: cariModel.tin,
-          ziyaret: cariModel.ziyaret,
-          day1: rutGunuBir?1:0,
-          day2: rutGunuIki?1:0,
-          day3: rutGunuUc?1:0,
-          day4: rutGunuDort?1:0,
-          day5: rutGunuBes?1:0,
-          day6: rutGunuAlti?1:0,
-          day7: marketBaglidir?1:0,
-          code: cariModel.code!,
-          name: cariModel.name!,
-          action: cariModel.action!,
-          area: ctSahe.text,
-          category: ctKateq.text,
-          latitude: cariModel.latitude,
-          longitude: cariModel.longitude,
-          district: ctReion.text
-      );
-      widget.controllerRoutDetailUser.changeCustomersInfo(model);
+      // ModelCariler model=ModelCariler(
+      //   debt: cariModel.debt,
+      //     forwarderCode: cariModel.forwarderCode,
+      //     fullAddress: cariModel.fullAddress,
+      //     mainCustomer: cariModel.mainCustomer,
+      //     mesafe: cariModel.mesafe,
+      //     ownerPerson: cariModel.ownerPerson,
+      //     phone: cariModel.phone,
+      //     postalCode: cariModel.postalCode,
+      //     regionalDirectorCode: cariModel.regionalDirectorCode,
+      //     salesDirectorCode: cariModel.salesDirectorCode,
+      //     tin: cariModel.tin,
+      //     ziyaret: cariModel.ziyaret,
+      //     day1: rutGunuBir?1:0,
+      //     day2: rutGunuIki?1:0,
+      //     day3: rutGunuUc?1:0,
+      //     day4: rutGunuDort?1:0,
+      //     day5: rutGunuBes?1:0,
+      //     day6: rutGunuAlti?1:0,
+      //     day7: marketBaglidir?1:0,
+      //     code: cariModel.code!,
+      //     name: cariModel.name!,
+      //     action: cariModel.action!,
+      //     area: ctSahe.text,
+      //     category: ctKateq.text,
+      //     latitude: cariModel.latitude,
+      //     longitude: cariModel.longitude,
+      //     district: ctReion.text
+      // );
+      //widget.controllerRoutDetailUser.changeCustomersInfo(model);
     });
   }
 }

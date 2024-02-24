@@ -21,6 +21,8 @@ import 'package:zs_managment/companents/login/services/api_services/users_contro
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/main_screen/drawer/model_drawerItems.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
+import 'package:zs_managment/companents/mercendaizer/screens/merc_routdatail_screen.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/sifaris_detallari/screen_sifarislerebax.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/setting_panel/setting_panel_controller.dart';
@@ -74,6 +76,7 @@ class DrawerMenuController extends getx.GetxController {
     keyScaff.currentState!.closeDrawer();
     update();
   }
+
   void openDrawer(){
     keyScaff.currentState!.openDrawer();
     update();
@@ -151,7 +154,6 @@ class DrawerMenuController extends getx.GetxController {
         statickField: true,
         isSelected: false,
         codename: "logout");
-
     if (dviceType == 3 || dviceType == 2) {
       drawerMenus.add(buttonUsers);
     } else {
@@ -265,7 +267,7 @@ class DrawerMenuController extends getx.GetxController {
                 )
               : const SizedBox(),
           Expanded(
-            flex: dviceType == 3 || dviceType == 2 ? 14 : 8,
+            flex: dviceType == 3 || dviceType == 2 ? 14 : 10,
             child: SingleChildScrollView(
               child: getx.Obx(() => Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -521,11 +523,16 @@ class DrawerMenuController extends getx.GetxController {
         }
         break;
         case "sellDetal":
-          pageView=const ScreenSifarislereBax();
+          pageView= ScreenSifarislereBax(drawerMenuController: this,);
         break;
         case "myUserRut":
           pageView= RoutDetailScreenUsers(drawerMenuController: this,);
         break;
+        case "myRut":
+          if(userServices.getLoggedUser().userModel!.roleId==23) {
+            MercDataModel model=await localBaseDownloads.getMercDatail(userServices.getLoggedUser().userModel!.code!);
+            pageView = ScreenMercRoutDatail(listGirisCixis: [],listUsers: [],modelMercBaza: model,isMenumRutum: true,drawerMenuController: this,);
+          }break;
       case "logout":
         logOut();
         break;

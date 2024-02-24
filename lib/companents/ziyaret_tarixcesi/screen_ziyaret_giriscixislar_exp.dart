@@ -49,7 +49,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
     switch (dateTime.weekday) {
       case 1:
         hefteninGunu = "gun1";
-        widget.modelCariler.where((element) => element.day1.toString() == "1").toList().forEach((element) {
+        widget.modelCariler.where((element) => element.days!.any((element) => element.day==1).toString() == "1").toList().forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.listgiriscixis.where((e) => e.cariAd == element.name).length;
           element.sndeQalmaVaxti = curculateTimeDistanceForVisit(widget.modelGunlukGirisCixis.listgiriscixis.where((e) => e.cariAd == element.name).toList());
           if(listCustomersByDay.where((e) =>e.name==element.name ).isEmpty){
@@ -59,7 +59,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
       case 2:
         hefteninGunu = "gun2";
         widget.modelCariler
-            .where((element) => element.day2.toString() == "1")
+            .where((element) => element.days!.any((element) => element.day==2))
             .toList()
             .forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.listgiriscixis
@@ -75,7 +75,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
       case 3:
         hefteninGunu = "gun3";
         widget.modelCariler
-            .where((element) => element.day3.toString() == "1")
+            .where((element) => element.days!.any((element) => element.day==3))
             .toList()
             .forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.listgiriscixis
@@ -91,7 +91,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
       case 4:
         hefteninGunu = "gun4";
         widget.modelCariler
-            .where((element) => element.day4.toString() == "1")
+            .where((element) => element.days!.any((element) => element.day==4))
             .toList()
             .forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.listgiriscixis
@@ -107,7 +107,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
       case 5:
         hefteninGunu = "gun5";
         widget.modelCariler
-            .where((element) => element.day5.toString() == "1")
+            .where((element) => element.days!.any((element) => element.day==5))
             .toList()
             .forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.listgiriscixis
@@ -123,7 +123,7 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
       case 6:
         hefteninGunu = "gun6";
         widget.modelCariler
-            .where((element) => element.day6.toString() == "1")
+            .where((element) => element.days!.any((element) => element.day==6))
             .toList()
             .forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.listgiriscixis
@@ -651,11 +651,11 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
                         color: element.ziyaretSayi==0
                             ? Colors.red
                             : Colors.green),
-                    child: element.orderNumber.toString() == "null"
+                    child: element.days!.first.orderNumber.toString() == "null"
                         ? SizedBox()
                         : Center(
                             child: CustomText(
-                                labeltext: element.orderNumber.toString())),
+                                labeltext: element.days!.first.orderNumber.toString())),
                   ),
                 )),
             Positioned(
@@ -675,50 +675,48 @@ class _ScreenZiyaretGirisCixisExpState extends State<ScreenZiyaretGirisCixisExp>
 
   Widget _infoMarketRout(ModelCariler element) {
     int valuMore = 0;
-    if (element.day1.toString() == "1") {
+    if (element.days!.any((e) => e.day==1)) {
       valuMore = valuMore + 1;
     }
-    if (element.day2.toString() == "1") {
+    if (element.days!.any((e) => e.day==2)) {
       valuMore = valuMore + 1;
     }
-    if (element.day3.toString() == "1") {
+    if (element.days!.any((e) => e.day==3)) {
       valuMore = valuMore + 1;
     }
-    if (element.day4.toString() == "1") {
+    if (element.days!.any((e) => e.day==4)) {
       valuMore = valuMore + 1;
     }
-    if (element.day5.toString() == "1") {
+    if (element.days!.any((e) => e.day==5)) {
       valuMore = valuMore + 1;
     }
-    if (element.day6.toString() == "1") {
+    if (element.days!.any((e) => e.day==1)) {
       valuMore = valuMore + 1;
     }
     return SizedBox(
       height: valuMore > 4 ? 60 : 28,
       width: 250,
       child: Wrap(
-        direction: Axis.horizontal,
-        alignment: WrapAlignment.start,
         children: [
-          element.day1.toString() == "1"
+          element.days!.any((a) => a.day==1)
               ? WidgetRutGunu(rutGunu: "gun1".tr)
               : const SizedBox(),
-          element.day2.toString() == "1"
+          element.days!.any((a) => a.day==2)
               ? WidgetRutGunu(rutGunu: "gun2".tr)
               : const SizedBox(),
-          element.day3.toString() == "1"
+          element.days!.any((a) => a.day==3)
               ? WidgetRutGunu(rutGunu: "gun3".tr)
               : const SizedBox(),
-          element.day4.toString() == "1"
+          element.days!.any((a) => a.day==4)
               ? WidgetRutGunu(rutGunu: "gun4".tr)
               : const SizedBox(),
-          element.day5.toString() == "1"
+          element.days!.any((a) => a.day==5)
               ? WidgetRutGunu(rutGunu: "gun5".tr)
               : const SizedBox(),
-          element.day6.toString() == "1"
+          element.days!.any((a) => a.day==6)
               ? WidgetRutGunu(rutGunu: "gun6".tr)
               : const SizedBox(),
-          element.day7.toString() == "1"
+          element.days!.any((a) => a.day==7)
               ? WidgetRutGunu(rutGunu: "bagli".tr)
               : const SizedBox(),
         ],

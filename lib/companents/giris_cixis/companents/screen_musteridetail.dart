@@ -517,25 +517,25 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
                             const SizedBox(width: 5,),
                             Wrap(
                               children: [
-                                widget.modelCariler.day1.toString() == "1"
+                                widget.modelCariler.days!.any((a) => a.day==1)
                                     ? widgetRutGunuItems("gun1".tr)
                                     : const SizedBox(),
-                                widget.modelCariler.day2.toString() == "1"
+                                widget.modelCariler.days!.any((a) => a.day==2)
                                     ? widgetRutGunuItems("gun2".tr)
                                     : const SizedBox(),
-                                widget.modelCariler.day3.toString() == "1"
+                                widget.modelCariler.days!.any((a) => a.day==3)
                                     ? widgetRutGunuItems("gun3".tr)
                                     : const SizedBox(),
-                                widget.modelCariler.day4.toString() == "1"
+                                widget.modelCariler.days!.any((a) => a.day==4)
                                     ? widgetRutGunuItems("gun4".tr)
                                     : const SizedBox(),
-                                widget.modelCariler.day5.toString() == "1"
+                                widget.modelCariler.days!.any((a) => a.day==5)
                                     ? widgetRutGunuItems("gun5".tr)
                                     : const SizedBox(),
-                                widget.modelCariler.day6.toString() == "1"
+                                widget.modelCariler.days!.any((a) => a.day==6)
                                     ? widgetRutGunuItems("gun6".tr)
                                     : const SizedBox(),
-                                widget.modelCariler.day7.toString() == "1"
+                                widget.modelCariler.days!.any((a) => a.day==7)
                                     ? widgetRutGunuItems("bagli".tr)
                                     : const SizedBox(),
                               ],

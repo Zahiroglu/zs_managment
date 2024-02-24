@@ -16,6 +16,7 @@ class CustomElevetedButton extends StatelessWidget {
       this.isSvcFile = false,
       this.svcFile = '',
       this.elevation = 2,
+      this.clicble = true,
       this.width = 100,
       this.height = 60,
       this.textsize = 14,
@@ -39,7 +40,7 @@ class CustomElevetedButton extends StatelessWidget {
   Color? textColor;
   IconData? icon;
   FontWeight fontWeight;
-
+  bool clicble;
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context);
@@ -50,13 +51,12 @@ class CustomElevetedButton extends StatelessWidget {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
           side: BorderSide(color: borderColor),
           foregroundColor: borderColor.withOpacity(.2),
-          backgroundColor:
-              surfaceColor ?? (Get.isDarkMode ? Colors.black : Colors.white),
-          shadowColor: Colors.grey,
-          elevation: elevation,
+          backgroundColor: surfaceColor ?? (Get.isDarkMode ? Colors.black : Colors.white),
+          shadowColor:clicble? Colors.grey:Colors.black,
+          elevation:clicble? elevation:0,
         ),
         onPressed: () {
-          cllback();
+          clicble? cllback():null;
         },
         child: SizedBox(
           height: height,

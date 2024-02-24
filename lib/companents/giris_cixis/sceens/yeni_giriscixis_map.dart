@@ -761,10 +761,10 @@ class _YeniGirisCixisSonState extends State<YeniGirisCixisSon> {
               double.parse(model.longitude!), double.parse(model.latitude!))));
     }
     if (controllerGirisCixis.marketeGirisEdilib.isTrue) {
-      controllerGirisCixis.addMarkersAndPlygane(
-          controllerGirisCixis.modelgirisEdilmis.value.marketgpsUzunluq!,
-          controllerGirisCixis.modelgirisEdilmis.value.marketgpsEynilik!,
-          _currentLocation);
+      // controllerGirisCixis.addMarkersAndPlygane(
+      //     controllerGirisCixis.modelgirisEdilmis.value.marketgpsUzunluq!,
+      //     controllerGirisCixis.modelgirisEdilmis.value.marketgpsEynilik!,
+      //     _currentLocation);
     }
     DialogHelper.hideLoading();
     if (mounted) {
@@ -1150,10 +1150,10 @@ class _YeniGirisCixisSonState extends State<YeniGirisCixisSon> {
   void changeZoomLevel(bool bool) {}
 
   void girisEt(ModelCariler selectedModel, String uzaqliq) async {
-    await controllerGirisCixis.pripareForEnter(
-        _currentLocation, selectedModel, uzaqliq);
-    cixisXeritesiniQur(
-        selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
+    // await controllerGirisCixis.pripareForEnter(
+    //     _currentLocation, selectedModel, uzaqliq);
+    // cixisXeritesiniQur(
+    //     selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
   }
 
   /////////////Cixis Et hissesi//////////////
@@ -1177,8 +1177,8 @@ class _YeniGirisCixisSonState extends State<YeniGirisCixisSon> {
   }
 
   Future<void> cixisEt(ModelCariler selectedModel, String uzaqliq) async {
-    await controllerGirisCixis.cixisUcunHazirliq(
-        _currentLocation, uzaqliq, "QEYD");
+    // await controllerGirisCixis.cixisUcunHazirliq(
+    //     _currentLocation, uzaqliq, "QEYD");
     updateMarkers();
     setState(() {});
   }

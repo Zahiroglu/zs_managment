@@ -67,7 +67,7 @@ class _DialogSimpleUserSelectState
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: CustomText(
-                          labeltext: widget.vezifeAdi,
+                          labeltext: widget.vezifeAdi.tr,
                           fontWeight: FontWeight.w800,
                           overflow: TextOverflow.ellipsis,
                           fontsize: 18),

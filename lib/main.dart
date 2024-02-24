@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
@@ -50,6 +51,9 @@ Future<void>  main() async{
   Hive.registerAdapter(ModelDownloadsAdapter());
   Hive.registerAdapter(ModelCariHereketAdapter());
   Hive.registerAdapter(ModelCariKassaAdapter());
+  Hive.registerAdapter(DayAdapter());
+  Hive.registerAdapter(MercDataModelAdapter());
+  Hive.registerAdapter(MercCustomersDatailAdapter());
 
 }
 class MyApp extends StatefulWidget {

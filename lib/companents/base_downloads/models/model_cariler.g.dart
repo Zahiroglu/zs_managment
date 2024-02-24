@@ -19,89 +19,68 @@ class ModelCarilerAdapter extends TypeAdapter<ModelCariler> {
     return ModelCariler(
       code: fields[1] as String?,
       name: fields[2] as String?,
-      forwarderCode: fields[3] as String?,
-      fullAddress: fields[4] as String?,
-      ownerPerson: fields[5] as String?,
-      phone: fields[6] as String?,
-      postalCode: fields[7] as String?,
-      area: fields[8] as String?,
-      category: fields[9] as String?,
-      regionalDirectorCode: fields[10] as String?,
-      salesDirectorCode: fields[11] as String?,
-      latitude: fields[12] as String?,
-      longitude: fields[13] as String?,
-      district: fields[14] as String?,
-      tin: fields[15] as String?,
-      mainCustomer: fields[16] as String?,
-      debt: fields[17] as double?,
-      day1: fields[18] as int?,
-      day2: fields[19] as int?,
-      day3: fields[20] as int?,
-      day4: fields[21] as int?,
-      day5: fields[22] as int?,
-      day6: fields[23] as int?,
-      day7: fields[24] as int?,
-      action: fields[25] as bool?,
-      orderNumber: fields[26] as int?,
+      fullAddress: fields[3] as String?,
+      ownerPerson: fields[4] as String?,
+      phone: fields[5] as String?,
+      postalCode: fields[6] as String?,
+      area: fields[7] as String?,
+      category: fields[8] as String?,
+      regionalDirectorCode: fields[9] as String?,
+      salesDirectorCode: fields[10] as String?,
+      latitude: fields[11] as String?,
+      longitude: fields[12] as String?,
+      district: fields[13] as String?,
+      tin: fields[14] as String?,
+      mainCustomer: fields[15] as String?,
+      debt: fields[16] as double?,
+      action: fields[17] as bool?,
+      days: (fields[18] as List?)?.cast<Day>(),
+      forwarderCode: fields[19] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelCariler obj) {
     writer
-      ..writeByte(26)
+      ..writeByte(19)
       ..writeByte(1)
       ..write(obj.code)
       ..writeByte(2)
       ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.forwarderCode)
-      ..writeByte(4)
       ..write(obj.fullAddress)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.ownerPerson)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj.phone)
-      ..writeByte(7)
+      ..writeByte(6)
       ..write(obj.postalCode)
-      ..writeByte(8)
+      ..writeByte(7)
       ..write(obj.area)
-      ..writeByte(9)
+      ..writeByte(8)
       ..write(obj.category)
-      ..writeByte(10)
+      ..writeByte(9)
       ..write(obj.regionalDirectorCode)
-      ..writeByte(11)
+      ..writeByte(10)
       ..write(obj.salesDirectorCode)
-      ..writeByte(12)
+      ..writeByte(11)
       ..write(obj.latitude)
-      ..writeByte(13)
+      ..writeByte(12)
       ..write(obj.longitude)
-      ..writeByte(14)
+      ..writeByte(13)
       ..write(obj.district)
-      ..writeByte(15)
+      ..writeByte(14)
       ..write(obj.tin)
-      ..writeByte(16)
+      ..writeByte(15)
       ..write(obj.mainCustomer)
-      ..writeByte(17)
+      ..writeByte(16)
       ..write(obj.debt)
-      ..writeByte(18)
-      ..write(obj.day1)
-      ..writeByte(19)
-      ..write(obj.day2)
-      ..writeByte(20)
-      ..write(obj.day3)
-      ..writeByte(21)
-      ..write(obj.day4)
-      ..writeByte(22)
-      ..write(obj.day5)
-      ..writeByte(23)
-      ..write(obj.day6)
-      ..writeByte(24)
-      ..write(obj.day7)
-      ..writeByte(25)
+      ..writeByte(17)
       ..write(obj.action)
-      ..writeByte(26)
-      ..write(obj.orderNumber);
+      ..writeByte(18)
+      ..write(obj.days)
+      ..writeByte(19)
+      ..write(obj.forwarderCode);
   }
 
   @override
@@ -111,6 +90,43 @@ class ModelCarilerAdapter extends TypeAdapter<ModelCariler> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ModelCarilerAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class DayAdapter extends TypeAdapter<Day> {
+  @override
+  final int typeId = 26;
+
+  @override
+  Day read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return Day(
+      day: fields[1] as int,
+      orderNumber: fields[2] as int,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, Day obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(1)
+      ..write(obj.day)
+      ..writeByte(2)
+      ..write(obj.orderNumber);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DayAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

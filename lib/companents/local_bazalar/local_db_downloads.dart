@@ -9,12 +9,14 @@ import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 
 class LocalBaseDownloads {
   late Box downloads = Hive.box<ModelDownloads>("baseDownloads");
  late Box boxCariBaza = Hive.box<ModelCariler>("CariBaza");
   late Box boxAnbarBaza = Hive.box<ModelAnbarRapor>("AnbarBaza");
   late Box boxListConnectedUsers = Hive.box<UserModel>("listConnectedUsers");
+  late Box boxListMercBaza = Hive.box<MercDataModel>("listMercDataModel");
   LocalGirisCixisServiz localGirisCixisServiz=LocalGirisCixisServiz();
 
   Future<void> init() async {
@@ -22,6 +24,7 @@ class LocalBaseDownloads {
     boxCariBaza = await Hive.openBox<ModelCariler>("CariBaza");
     boxAnbarBaza = await Hive.openBox<ModelAnbarRapor>("AnbarBaza");
     boxListConnectedUsers = await Hive.openBox<UserModel>("listConnectedUsers");
+    boxListMercBaza = await Hive.openBox<MercDataModel>("listMercDataModel");
     await localGirisCixisServiz.init();
   }
 
@@ -163,41 +166,44 @@ class LocalBaseDownloads {
 
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
     String rutgun = "Sef";
-    int hefteningunu = DateTime.now().weekday;
+    int hefteningunu = DateTime
+        .now()
+        .weekday;
+    if(selectedModel.days!=null){
     switch (hefteningunu) {
       case 1:
-        if (selectedModel.day1 == 1) {
+        if (selectedModel.days!.any((element) => element.day==1)) {
           rutgun = "Duz";
         }
         break;
       case 2:
-        if (selectedModel.day2 == 1) {
+        if (selectedModel.days!.any((element) => element.day==2)) {
           rutgun = "Duz";
         }
         break;
       case 3:
-        if (selectedModel.day3 == 1) {
+        if (selectedModel.days!.any((element) => element.day==3)) {
           rutgun = "Duz";
         }
         break;
       case 4:
-        if (selectedModel.day4 == 1) {
+        if (selectedModel.days!.any((element) => element.day==4)) {
           rutgun = "Duz";
         }
         break;
       case 5:
-        if (selectedModel.day5 == 1) {
+        if (selectedModel.days!.any((element) => element.day==5)) {
           rutgun = "Duz";
         }
         break;
       case 6:
-        if (selectedModel.day6 == 1) {
+        if (selectedModel.days!.any((element) => element.day==6)) {
           rutgun = "Duz";
         }
         break;
       default:
         rutgun = "Sef";
-    }
+    }}
     return rutgun;
   }
 
@@ -281,6 +287,14 @@ class LocalBaseDownloads {
     });
 
     return list;
+  }
+  /// list mercBaza
+  Future<void> addCariToMercBaza(MercDataModel model) async {
+    await boxListMercBaza.clear();
+    await boxListMercBaza.put(model.code!, model);
+  }
+  Future<MercDataModel> getMercDatail(String code) async {
+   return await boxListMercBaza.get(code);
   }
 
 

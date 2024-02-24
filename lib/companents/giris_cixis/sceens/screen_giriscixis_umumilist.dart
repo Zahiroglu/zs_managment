@@ -1,25 +1,17 @@
 import 'dart:async';
-import 'dart:math';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hive/hive.dart';
-import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/companents/widget_listitemsgiriscixis.dart';
-import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
-import 'package:zs_managment/widgets/custom_text_field.dart';
-import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -32,10 +24,12 @@ class ScreenGirisCixisUmumiList extends StatefulWidget {
 }
 
 class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
-  late LocationData _currentLocation;
-  final _location = Location();
   ControllerGirisCixisYeni controllerGirisCixis =
   Get.put(ControllerGirisCixisYeni());
+  late Position _currentLocation;
+  late LocationSettings locationSettings;
+  int defaultTargetPlatform=0;
+
   bool followMe = false;
   bool dataLoading = true;
   String selectedItemsLabel = "Gunluk Rut";
@@ -50,27 +44,145 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
   bool marketeCixisIcazesi = false;
   ScrollController scrollController = ScrollController();
   ModelTamItemsGiris selectedTabItem = ModelTamItemsGiris();
+  final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+  StreamSubscription<Position>? _positionStreamSubscription;
+  bool positionStreamStarted = false;
 
   @override
   void initState() {
-    _location.changeSettings(
-      accuracy: LocationAccuracy.reduced,
-      distanceFilter: 0,
-      interval: 5// Minimum distance (in meters) between location updates
-    );
-    _getStartingLocation().then((value) {
+    confiqGeolocatior();
+    _determinePosition().then((value) {
       setState(() {
         controllerGirisCixis.changeTabItemsValue(
             controllerGirisCixis.listTabItems
                 .where((p) => p.selected == true)
                 .first,
             value);
+        _currentLocation=value;
         dataLoading = false;
       });
     });
-    _getFollowingTrack();
+    _toggleListening();
     // TODO: implement initState
     super.initState();
+  }
+
+
+  confiqGeolocatior(){
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      locationSettings = AndroidSettings(
+          accuracy: LocationAccuracy.best,
+          distanceFilter: 100,
+          forceLocationManager: true,
+          intervalDuration: const Duration(seconds: 10),
+          //(Optional) Set foreground notification config to keep the app alive
+          //when going to the background
+          foregroundNotificationConfig: const ForegroundNotificationConfig(
+            notificationText:
+            "Example app will continue to receive your location even when you aren't using it",
+            notificationTitle: "Running in Background",
+            enableWakeLock: true,
+          )
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.high,
+        activityType: ActivityType.fitness,
+        distanceFilter: 100,
+        pauseLocationUpdatesAutomatically: true,
+        // Only set to true if our app will be started up in the background.
+        showBackgroundLocationIndicator: false,
+      );
+    } else {
+      locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
+      );
+    }
+  }
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
+  }
+
+  void _toggleListening() {
+    if (_positionStreamSubscription == null) {
+      final positionStream = _geolocatorPlatform.getPositionStream();
+      _positionStreamSubscription = positionStream.handleError((error) {
+        _positionStreamSubscription?.cancel();
+        _positionStreamSubscription = null;
+      }).listen((position) {
+        if (followMe) {
+          _currentLocation == position;
+          controllerGirisCixis.changeTabItemsValue(
+              controllerGirisCixis.listTabItems
+                  .where((p) => p.selected == true)
+                  .first,
+              position);
+          funFlutterToast("Cureent loc :" +
+              _currentLocation.longitude.toString() +
+              _currentLocation.latitude.toString());
+        }});
+      _positionStreamSubscription?.pause();
+    }
+
+    setState(() {
+      if (_positionStreamSubscription == null) {
+        return;
+      }
+
+      String statusDisplayValue;
+      if (_positionStreamSubscription!.isPaused) {
+        _positionStreamSubscription!.resume();
+        statusDisplayValue = 'resumed';
+      } else {
+        _positionStreamSubscription!.pause();
+        statusDisplayValue = 'paused';
+      }
+
+      _updatePositionList(
+        PositionItemType.log,
+        'Listening for position updates $statusDisplayValue',
+      );
+    });
+  }
+
+  void _updatePositionList(PositionItemType type, String displayValue) {
+    print("positions :"+displayValue);
+    setState(() {});
   }
 
   @override
@@ -97,34 +209,6 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
     }
   }
 
-  void _getFollowingTrack() async {
-    try {
-      _location.onLocationChanged.listen((event) async {
-        if (followMe) {
-          _currentLocation = event;
-          controllerGirisCixis.changeTabItemsValue(
-              controllerGirisCixis.listTabItems
-                  .where((p) => p.selected == true)
-                  .first,
-              event);
-          funFlutterToast("Cureent loc :" +
-              _currentLocation.longitude.toString() +
-              _currentLocation.latitude.toString());
-        }
-      });
-    } on Exception {
-      print("xeta bas verdi");
-    }
-    setState(() {});
-  }
-
-  Future<LocationData> _getStartingLocation() async {
-    _currentLocation = await _location.getLocation();
-    setState(() {});
-    print("Location : ${_currentLocation.latitude}|${_currentLocation.longitude}");
-    return _currentLocation;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -132,15 +216,12 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
         return Scaffold(
           appBar: AppBar(
             actions: [
-              Padding(
+              controllerGirisCixis.marketeGirisEdilib.isFalse?Padding(
                 padding: const EdgeInsets.only(right: 0),
                 child: IconButton(icon: Icon(Icons.supervised_user_circle_outlined,color: Colors.black,),onPressed: (){
-                  List<UserModel> listexpeditorlar= controllerGirisCixis.localBaseDownloads.getAllConnectedUserFromLocal();
-                  Get.dialog(DialogSimpleUserSelect(selectedUserCode: "",getSelectedUse: (user){
-
-                  },listUsers: listexpeditorlar,vezifeAdi: "exp".tr,));
+               controllerGirisCixis.getExpList();
                 }),
-              )
+              ):SizedBox()
             ],
             centerTitle: true,
             title: CustomText(
@@ -378,9 +459,10 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
             ? Padding(
           padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
           child: CustomText(
-              labeltext:
+              labeltext:controllerGirisCixis.selectedTemsilci.value.code=="u"?
               "$selectedItemsLabel (${controllerGirisCixis
-                  .listSelectedMusteriler.length})",
+                  .listSelectedMusteriler.length})":"${controllerGirisCixis.selectedTemsilci.value.name!} ( ${controllerGirisCixis
+                  .listSelectedMusteriler.length} )",
               fontsize: 18,
               fontWeight: FontWeight.bold,
               textAlign: TextAlign.start),
@@ -513,14 +595,11 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
           if (selectedCariModel == e) {
             selectedCariModel = ModelCariler();
           } else {
-            scrollController.animateTo(
-                double.parse(controllerGirisCixis.listSelectedMusteriler
-                    .indexOf(e)
-                    .toString()) *
-                    90,
+            scrollController.animateTo(double.parse(controllerGirisCixis.listSelectedMusteriler.indexOf(e).toString()) * 90,
                 duration: const Duration(milliseconds: 1000),
                 curve: Curves.bounceOut);
             setState(() {
+              selectedCariModel = e;
               _onMarkerClick(e);
             });
           }
@@ -861,7 +940,7 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
 
   Future<void> showGirisDialog(ModelCariler model) async {
     DialogHelper.showLoading("mesHesablanir".tr);
-    _getStartingLocation().then((value) =>
+    _determinePosition().then((value) =>
     {
       selectedCariModel = model,
       secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model),
@@ -1209,7 +1288,7 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
 
   Future<void> showCixisDialog() async {
     DialogHelper.showLoading("Mesafe hesablanir...");
-    _getStartingLocation().then((value) =>
+    _determinePosition().then((value) =>
     {
       secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(controllerGirisCixis.modelgirisEdilmis.value.marketgpsUzunluq!), double.parse(controllerGirisCixis.modelgirisEdilmis.value.marketgpsEynilik!)),
       if (secilenMarketdenUzaqliq > 1)

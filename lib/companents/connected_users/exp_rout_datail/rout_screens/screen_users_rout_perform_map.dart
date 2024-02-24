@@ -369,25 +369,25 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
                               ),
                               Wrap(
                                 children: [
-                                  element.day1.toString() == "1"
+                                  element.days!.any((a) => a.day==1)
                                       ? widgetRutGunuItems("gun1".tr)
                                       : const SizedBox(),
-                                  element.day2.toString() == "1"
+                                  element.days!.any((a) => a.day==2)
                                       ? widgetRutGunuItems("gun2".tr)
                                       : const SizedBox(),
-                                  element.day3.toString() == "1"
+                                  element.days!.any((a) => a.day==3)
                                       ? widgetRutGunuItems("gun3".tr)
                                       : const SizedBox(),
-                                  element.day4.toString() == "1"
+                                  element.days!.any((a) => a.day==4)
                                       ? widgetRutGunuItems("gun4".tr)
                                       : const SizedBox(),
-                                  element.day5.toString() == "1"
+                                  element.days!.any((a) => a.day==5)
                                       ? widgetRutGunuItems("gun5".tr)
                                       : const SizedBox(),
-                                  element.day6.toString() == "1"
+                                  element.days!.any((a) => a.day==6)
                                       ? widgetRutGunuItems("gun6".tr)
                                       : const SizedBox(),
-                                  element.day7.toString() == "1"
+                                  element.days!.any((a) => a.day==7)
                                       ? widgetRutGunuItems("bagli".tr)
                                       : const SizedBox(),
                                 ],
@@ -487,8 +487,8 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
       );
 
   Widget _rutHesabati() {
-    int rutsuzMusteriSayi=widget.controllerRoutDetailUser.listSelectedExpBaza.where((p) => p.day1==0
-        && p.day2==0&& p.day3==0&& p.day4==0&& p.day4==0&& p.day6==0).toList().length;
+    int rutsuzMusteriSayi=widget.controllerRoutDetailUser.listSelectedExpBaza.where((p) => p.days!.any((element) => element.day!=1)
+        && p.days!.any((element) => element.day!=2)&&p.days!.any((element) => element.day!=3)&&p.days!.any((element) => element.day!=4)&&p.days!.any((element) => element.day!=5)&&p.days!.any((element) => element.day!=6)).toList().length;
     return Padding(
       padding: const EdgeInsets.all(5.0).copyWith(left: 15),
       child: SingleChildScrollView(
@@ -552,7 +552,7 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
                       Row(
                         children: [
                           CustomText(labeltext: "${"bagliMusteri".tr} : ",fontWeight: FontWeight.normal),
-                          CustomText(labeltext: "${widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day7.toString()=="1").length} ${"musteri".tr}",fontWeight: FontWeight.normal,fontsize: 16,),
+                          CustomText(labeltext: "${widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day!=7)).length} ${"musteri".tr}",fontWeight: FontWeight.normal,fontsize: 16,),
                         ],
                       ),
                       Row(
@@ -576,19 +576,19 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun1".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day1.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day!=1)).length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun2".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day2.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day!=2)).length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun3".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day3.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day!=3)).length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
           
@@ -600,19 +600,19 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun4".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day4.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day!=4)).length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun5".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day5.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day!=5)).length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       CustomText(labeltext: "${"gun6".tr} : ",fontWeight: FontWeight.w800),
-                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day6.toString()=="1").length.toString(),fontWeight: FontWeight.w600),
+                                      CustomText(labeltext: widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day!=6)).length.toString(),fontWeight: FontWeight.w600),
                                     ],
                                   ),
           
@@ -639,7 +639,7 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
   void createPoly(){
     List<List<map.LatLng>> listmap=[];
     List<map.LatLng> listmapP=[];
-    widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.day1==1).toList().forEach((element) {
+    widget.controllerRoutDetailUser.listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList().forEach((element) {
       listmap.add([map.LatLng(double.parse(element.longitude.toString()), double.parse(element.latitude.toString()))]);
       listmapP.add(map.LatLng(double.parse(element.longitude.toString()), double.parse(element.latitude.toString())));
     });

@@ -229,22 +229,22 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
   }
   Widget customersListItems(ModelCariler element) {
     int valuMore = 0;
-    if (element.day1.toString() == "1") {
+    if (element.days!.any((element) => element.day==1)) {
       valuMore = valuMore + 1;
     }
-    if (element.day2.toString() == "1") {
+    if (element.days!.any((element) => element.day==2)) {
       valuMore = valuMore + 1;
     }
-    if (element.day3.toString() == "1") {
+    if (element.days!.any((element) => element.day==3)) {
       valuMore = valuMore + 1;
     }
-    if (element.day4.toString() == "1") {
+    if (element.days!.any((element) => element.day==4)) {
       valuMore = valuMore + 1;
     }
-    if (element.day5.toString() == "1") {
+    if (element.days!.any((element) => element.day==5)) {
       valuMore = valuMore + 1;
     }
-    if (element.day6.toString() == "1") {
+    if (element.days!.any((element) => element.day==6)) {
       valuMore = valuMore + 1;
     }
     return InkWell(
@@ -310,25 +310,25 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
                             direction: Axis.horizontal,
                             alignment: WrapAlignment.start,
                             children: [
-                              element.day1.toString() == "1"
+                              element.days!.any((e) => e.day==1)
                                   ? WidgetRutGunu(rutGunu: "gun1".tr)
                                   : const SizedBox(),
-                              element.day2.toString() == "1"
+                              element.days!.any((e) => e.day==2)
                                   ? WidgetRutGunu(rutGunu: "gun2".tr)
                                   : const SizedBox(),
-                              element.day3.toString() == "1"
+                              element.days!.any((e) => e.day==3)
                                   ? WidgetRutGunu(rutGunu: "gun3".tr)
                                   : const SizedBox(),
-                              element.day4.toString() == "1"
+                              element.days!.any((e) => e.day==4)
                                   ? WidgetRutGunu(rutGunu: "gun4".tr)
                                   : const SizedBox(),
-                              element.day5.toString() == "1"
+                              element.days!.any((e) => e.day==5)
                                   ? WidgetRutGunu(rutGunu: "gun5".tr)
                                   : const SizedBox(),
-                              element.day6.toString() == "1"
+                              element.days!.any((e) => e.day==6)
                                   ? WidgetRutGunu(rutGunu: "gun6".tr)
                                   : const SizedBox(),
-                              element.day7.toString() == "1"
+                              element.days!.any((e) => e.day==7)
                                   ? WidgetRutGunu(rutGunu: "bagli".tr)
                                   : const SizedBox(),
                             ],
@@ -407,11 +407,11 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
                         color: element.action == false
                             ? Colors.red
                             : Colors.green),
-                    child: element.orderNumber == 0
+                    child: element.days!.any((e) => e.orderNumber==0)
                         ? const SizedBox()
                         : Center(
                             child: CustomText(
-                            labeltext: element.orderNumber.toString() ?? "0",
+                            labeltext: element.days!.first.orderNumber.toString() ?? "0",
                             color: Colors.white,
                           )),
                   )),
@@ -554,18 +554,18 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
           .length;
     } else if (tip == 2) {
       customersCount = controllerRoutDetailUser.listSelectedExpBaza
-          .where((p0) => p0.day7.toString() == "1")
+          .where((p0) => p0.days!.any((element) => element.day==7))
           .length;
     } else {
       customersCount = controllerRoutDetailUser.listSelectedExpBaza
           .where((p0) =>
-              p0.day1.toString() == "0" &&
-              p0.day2.toString() == "0" &&
-              p0.day3.toString() == "0" &&
-              p0.day4.toString() == "0" &&
-              p0.day5.toString() == "0" &&
-              p0.day6.toString() == "0" &&
-              p0.day7.toString() == "0")
+      !p0.days!.any((element) => element.day==1)&&
+          !p0.days!.any((element) => element.day==2)&&
+          !p0.days!.any((element) => element.day==3)&&
+          !p0.days!.any((element) => element.day==4)&&
+          !p0.days!.any((element) => element.day==5)&&
+          !p0.days!.any((element) => element.day==6)&&
+          !p0.days!.any((element) => element.day==7))
           .length;
     }
     return InkWell(
@@ -696,19 +696,19 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
                        _itemIndoMenuRutGunu(
                            "gun1".tr.toString(),
                            controllerRoutDetailUser.listSelectedExpBaza
-                               .where((p0) => p0.day1.toString() == "1")
+                               .where((p0) => !p0.days!.any((element) => element.day==1))
                                .toList()
                                .length,1),
                        _itemIndoMenuRutGunu(
                            "gun2".tr.toString(),
                            controllerRoutDetailUser.listSelectedExpBaza
-                               .where((p0) => p0.day2.toString() == "1")
+                               .where((p0) => !p0.days!.any((element) => element.day==2))
                                .toList()
                                .length,2),
                        _itemIndoMenuRutGunu(
                            "gun3".tr.toString(),
                            controllerRoutDetailUser.listSelectedExpBaza
-                               .where((p0) => p0.day3.toString() == "1")
+                               .where((p0) => !p0.days!.any((element) => element.day==3))
                                .toList()
                                .length,3),
                      ],
@@ -721,19 +721,19 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
                        _itemIndoMenuRutGunu(
                            "gun4".tr.toString(),
                            controllerRoutDetailUser.listSelectedExpBaza
-                               .where((p0) => p0.day4.toString() == "1")
+                               .where((p0) => !p0.days!.any((element) => element.day==4))
                                .toList()
                                .length,4),
                        _itemIndoMenuRutGunu(
                            "gun5".tr.toString(),
                            controllerRoutDetailUser.listSelectedExpBaza
-                               .where((p0) => p0.day5.toString() == "1")
+                               .where((p0) => !p0.days!.any((element) => element.day==5))
                                .toList()
                                .length,5),
                        _itemIndoMenuRutGunu(
                            "gun6".tr.toString(),
                            controllerRoutDetailUser.listSelectedExpBaza
-                               .where((p0) => p0.day6.toString() == "1")
+                               .where((p0) => !p0.days!.any((element) => element.day==6))
                                .toList()
                                .length,6),
                      ],

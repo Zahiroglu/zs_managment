@@ -664,10 +664,12 @@ class UpdateUserController extends GetxController {
   }
 
   Future<RegisterUserModel> updateUserEndpoint() async {
-    for (var element in listModelSelectUserPermitions) {
-      for (var element in element.permissions!) {
-        listPermisions.add(element);
-      }
+    for (ModelSelectUserPermitions modelP in listModelSelectUserPermitions) {
+      print("listModelSelectUserPermitions element :"+modelP.toString());
+      for (var e in modelP.permissions!) {
+        if(!listPermisions.contains(e)) {
+          listPermisions.add(e);
+        }}
     }
     DialogHelper.showLoading("Melumatlar deyisdirilir...");
     List<ConnectionRegister> listcon = [];

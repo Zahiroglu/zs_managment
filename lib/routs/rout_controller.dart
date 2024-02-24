@@ -8,6 +8,7 @@ import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_scr
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/screen_rutsirasi_edit_exp.dart';
 import 'package:zs_managment/companents/giris_cixis/companents/screen_musteridetail.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
+import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';
 import 'package:zs_managment/companents/mercendaizer/screens/info_mercmusteri_datail.dart';
 import 'package:zs_managment/companents/mercendaizer/screens/merc_adina_dukan_atmaq.dart';
@@ -243,7 +244,7 @@ class RouteHelper {
         transition: Transition.upToDown,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercRoutDatail, page: () {
-      return   ScreenMercRoutDatail(modelMercBaza: Get.arguments[0],listGirisCixis: Get.arguments[1],listUsers: Get.arguments[2],);
+      return   ScreenMercRoutDatail(modelMercBaza: Get.arguments[0],listGirisCixis: Get.arguments[1],listUsers: Get.arguments[2],isMenumRutum: false,drawerMenuController: DrawerMenuController(),);
       return  Container();
     }),
     GetPage(

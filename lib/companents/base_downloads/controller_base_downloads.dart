@@ -18,6 +18,8 @@ import 'package:zs_managment/companents/login/models/model_token.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
@@ -85,6 +87,14 @@ class ControllerBaseDownloads extends GetxController {
             code: "enter",
             info:
                 "Satis Temsilcilerinin erazi uzre cari musteri bazasini gormesi ucun lazimdir.",
+            lastDownDay: "",
+            musteDonwload: true));
+      }else if (element.code == "myRut") {
+        listDonwloads.add(ModelDownloads(
+            name: "Menim rutum",
+            donloading: false,
+            code: "myRut",
+            info: "Rut melumatlari ve motivasiya melumatlari ucun lazimdir",
             lastDownDay: "",
             musteDonwload: true));
       }
@@ -310,12 +320,10 @@ class ControllerBaseDownloads extends GetxController {
     );
   }
 
-  getMustDownloadBase(
-      int roleId, List<ModelDownloads> listDownloadsFromLocalDb) {
+  getMustDownloadBase(int roleId, List<ModelDownloads> listDownloadsFromLocalDb) {
     for (var e in listDownloadsFromLocalDb) {
       if (listDonwloads.any((element) => element.code == e.code)) {
-        listDonwloads
-            .remove(listDonwloads.where((a) => a.code == e.code).first);
+        listDonwloads.remove(listDonwloads.where((a) => a.code == e.code).first);
       }
     }
     dataLoading = false.obs;
@@ -360,7 +368,7 @@ class ControllerBaseDownloads extends GetxController {
         }
         break;
       case "enter":
-        List<ModelCariler> data = await getAllCustomers();
+        List<ModelCariler> data = await getAllExpCustomers();
         await localBaseDownloads.addCariBaza(data);
         if (data.isNotEmpty) {
           listDonwloads.remove(model);
@@ -374,7 +382,27 @@ class ControllerBaseDownloads extends GetxController {
           } else {
             listDownloadsFromLocalDb.add(model);
           }
-        }
+        }  
+        case "myRut":
+          if(loggedUserModel.userModel!.roleId==23)//merc cari baza endirmek ucundur
+          {
+            MercDataModel data = await getDataFromServerMercBaza(loggedUserModel.userModel!.code!);
+            if (data.code!=null) {
+              listDonwloads.remove(model);
+              model.lastDownDay = DateTime.now().toIso8601String();
+              model.musteDonwload = false;
+              localBaseDownloads.addDownloadedBaseInfo(model);
+              localBaseDownloads.addCariToMercBaza(data);
+              if (guncelle) {
+                listDownloadsFromLocalDb.remove(model);
+                listDownloadsFromLocalDb.add(model);
+              } else {
+                listDownloadsFromLocalDb.add(model);
+              }
+            }
+            
+          }
+
         break;
     }
     callLocalBases();
@@ -499,8 +527,8 @@ class ControllerBaseDownloads extends GetxController {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
 
-  ///Get cari Baza From Serviz
-  Future<List<ModelCariler>> getAllCustomers() async {
+  ///Get Exp cari Baza From Serviz
+  Future<List<ModelCariler>> getAllExpCustomers() async {
     List<String> secilmisTemsilciler = [];
     List<ModelCariler> listUsers = [];
     languageIndex = await getLanguageIndex();
@@ -587,34 +615,114 @@ class ControllerBaseDownloads extends GetxController {
     return listUsers;
   }
 
-  ///Cari Baza endirme/////////
-  Future<List<ModelCariler>> getDataFromServerUmumiCariler(
-      String temsilcikodu) async {
+  ///Cari Merc Baza endirme/////////
+  Future<List<ModelMercBaza>> getAllMercCariBaza() async {
+    List<ModelMercBaza> listUsers = [];
+    languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    loggedUserModel = localUserServices.getLoggedUser();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio().get(
+          "${loggedUserModel.baseUrl}/api/v1/User/my-connected-users",
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+        if (response.statusCode == 404) {
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "baglantierror".tr,
+            callback: () {},
+          ));
+        } else {
+          // print("Request responce My USER INFO:" + response.data.toString());
+          if (response.statusCode == 200) {
+            var userlist = json.encode(response.data['result']);
+            List listuser = jsonDecode(userlist);
+            print("list :" + listuser.length.toString());
+            for (var i in listuser) {
+            //  listUsers.add(ModelMercBaza);
+            }
+          } else {
+            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {},
+            ));
+          }
+        }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
+    }
+    return listUsers;
+  }
+
+  Future<MercDataModel> getDataFromServerMercBaza(String temsilcikodu) async {
+    String temp = "'" + temsilcikodu + "'";
+    String audit = "";
+    String supervaizer = "";
+    String ay = "01";
     var envelopeaUmumicariler = '''
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
-    <Umumi_list xmlns="http://tempuri.org/">
-      <tem>$temsilcikodu</tem>
-    </Umumi_list>
+    <mercler xmlns="http://tempuri.org/">
+      <ay>$ay</ay>
+      <audit>$audit</audit>
+      <merc>$temp</merc>
+      <srv>$supervaizer</srv>
+    </mercler>
   </soap:Body>
 </soap:Envelope>
 ''';
     var url = Uri.parse(soapadress);
-    http.Response response = await http.post(url,
-        headers: {
-          "Content-Type": "text/xml; charset=utf-8",
-          "SOAPAction": "http://tempuri.org/Umumi_list",
-          // "Host": "85.132.97.2"
-          "Host": soaphost
-          //"Accept": "text/xml"
-        },
-        body: envelopeaUmumicariler);
+    http.Response response = await http.post(url, headers: {
+      "Content-Type": "text/xml; charset=utf-8",
+      "SOAPAction": "http://tempuri.org/mercler",
+      // "Host": "85.132.97.2"
+      "Host": soaphost
+      //"Accept": "text/xml"
+    }, body: envelopeaUmumicariler);
     var rawXmlResponse = "";
     if (response.statusCode == 200) {
       rawXmlResponse = response.body;
+      print(" response.body :" + response.body.toString());
     } else {
       Get.dialog(ShowInfoDialog(
         messaje: "Xeta BAs Verdi",
@@ -625,70 +733,99 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       ));
     }
     update();
-    return _parsingCariler(rawXmlResponse);
+    return _parsingCarilerMerc(rawXmlResponse);
   }
-
-  Future<List<ModelCariler>> _parsingCariler(var _response) async {
-    List<ModelCariler> listKodrdinar = [];
+  Future<MercDataModel> _parsingCarilerMerc(var _response) async {
+    List<ModelMercBaza> listKodrdinar = [];
+    List<MercCustomersDatail> listMercCustomers = [];
+    MercDataModel modelMercData = MercDataModel();
     var document = xml.parse(_response);
     Iterable<xml.XmlElement> items = document.findAllElements('Table');
     items.map((xml.XmlElement item) {
-      var _kode = _getValue(item.findElements("kod"));
-      var _name = _getValue(item.findElements("ad"));
-      var _expkodu = _getValue(item.findElements("tem"));
-      var _tamunvan = _getValue(item.findElements("tamun"));
-      var _mesulsexs = _getValue(item.findElements("mesulsexs"));
-      var _voun = _getValue(item.findElements("voun"));
-      var _telefon = _getValue(item.findElements("telefon"));
-      var _sticker = _getValue(item.findElements("sticker"));
-      var _sahe = _getValue(item.findElements("sahe"));
-      var _kateq = _getValue(item.findElements("kateq"));
-      var _bolgekodu = _getValue(item.findElements("bolgekodu"));
-      var _qaliq = _getValue(item.findElements("qaliq"));
-      var _rayon = _getValue(item.findElements("rayon"));
-      var _gun1 = _getValue(item.findElements("gun1"));
-      var _gun2 = _getValue(item.findElements("gun2"));
-      var _gun3 = _getValue(item.findElements("gun3"));
-      var _gun4 = _getValue(item.findElements("gun4"));
-      var _gun5 = _getValue(item.findElements("gun5"));
-      var _gun6 = _getValue(item.findElements("gun6"));
-      var _gun7 = _getValue(item.findElements("gun7"));
-      var _hereket = _getValue(item.findElements("h1"));
-      var _anacari = _getValue(item.findElements("ana_cari"));
-      var _uzunluq = _getValue(item.findElements("uzunluq"));
-      var _eynilik = _getValue(item.findElements("eynilik"));
-      ModelCariler modelKordinat = ModelCariler(
-          forwarderCode: _expkodu,
-          code: _kode,
-          name: _name,
-          longitude: _uzunluq,
-          latitude: _eynilik,
-          fullAddress: _tamunvan,
-          ownerPerson: _mesulsexs,
-          tin: _voun,
-          phone: _telefon,
-          postalCode: _sticker,
-          area: _sahe,
-          category: _kateq,
-          regionalDirectorCode: _bolgekodu,
-          debt: double.parse(_qaliq.toString()),
-          district: _rayon,
-          day1: int.parse(_gun1),
-          day2: int.parse(_gun2),
-          day3: int.parse(_gun3),
-          day4: int.parse(_gun4),
-          day5: int.parse(_gun5),
-          day6: int.parse(_gun6),
-          day7: int.parse(_gun7),
-          action: _hereket == "1" ? true : false,
-          mainCustomer: _anacari,
-          ziyaret: "0");
-      modelKordinat.rutGunu = rutDuzgunluyuYoxla(modelKordinat);
-      modelKordinat.orderNumber = 0;
+      var _kode = _getValue(item.findElements("merc_cari_kod"));
+      var _name = _getValue(item.findElements("cari_ad"));
+      var _rutadi = _getValue(item.findElements("merc_kod"));
+      var mercAdi = _getValue(item.findElements("merc_ad"));
+      var _audit = _getValue(item.findElements("merc_audit"));
+      var _gun1 = _getValue(item.findElements("merc_gun1"));
+      var _gun2 = _getValue(item.findElements("merc_gun2"));
+      var _gun3 = _getValue(item.findElements("merc_gun3"));
+      var _gun4 = _getValue(item.findElements("merc_gun4"));
+      var _gun5 = _getValue(item.findElements("merc_gun5"));
+      var _gun6 = _getValue(item.findElements("merc_gun6"));
+      var _gun7 = _getValue(item.findElements("merc_gun7"));
+      var _uzunluq = _getValue(item.findElements("merc_gps_uz"));
+      var _eynilik = _getValue(item.findElements("merc_gps_en"));
+      var _netsatis = _getValue(item.findElements("NET_SATIS"));
+      var _plan = _getValue(item.findElements("merc_plan"));
+      var _qaytarma = _getValue(item.findElements("ZAY_QAYTARMA"));
+      var _expkodu = _getValue(item.findElements("merc_tem_kod"));
+      var _spr = _getValue(item.findElements("merc_srv_kod"));
+      ModelMercBaza modelKordinat = ModelMercBaza(
+          supervaizer: _spr,
+          expeditor: _expkodu,
+          carikod: _kode,
+          mercadi: mercAdi,
+          gpsUzunluq: _uzunluq,
+          gpsEynilik: _eynilik,
+          audit: _audit,
+          cariad: _name,
+          gun1: _gun1,
+          gun2: _gun2,
+          gun3: _gun3,
+          gun4: _gun4,
+          gun5: _gun5,
+          gun6: _gun6,
+          gun7: _gun7,
+          netsatis: _netsatis,
+          plan: _plan,
+          qaytarma: _qaytarma,
+          rutadi: _rutadi
+      );
       listKodrdinar.add(modelKordinat);
       //  itemsList.add(_addResult);
     }).toList();
-    return listKodrdinar;
+    listKodrdinar.forEach((element) {
+      List<Day>listDays=[];
+      if(element.gun1=="1"){
+        listDays.add(Day(day: 1, orderNumber: 0));
+      }
+      if(element.gun2=="1"){
+        listDays.add(Day(day: 2, orderNumber: 0));
+      }  if(element.gun3=="1"){
+        listDays.add(Day(day: 3, orderNumber: 0));
+      }  if(element.gun4=="1"){
+        listDays.add(Day(day: 4, orderNumber: 0));
+      }  if(element.gun5=="1"){
+        listDays.add(Day(day: 5, orderNumber: 0));
+      }  if(element.gun6=="1"){
+        listDays.add(Day(day: 6, orderNumber: 0));
+      }
+      listMercCustomers.add(MercCustomersDatail(
+        name: element.cariad!,
+        code: element.carikod!,
+        longitude: element.gpsUzunluq!,
+        latitude: element.gpsEynilik!,
+        district: "",
+        category: "",
+        area: "",
+        action: double.parse(element.netsatis!)>0?true:false,
+        days: listDays,
+        fullAddress: "",
+        plans: double.parse(element.plan!),
+        refund: double.parse(element.qaytarma!),
+        selling: double.parse(element.netsatis!),
+        forwarderCode: element.expeditor
+      ));
+    });
+    modelMercData=MercDataModel(totalPlans: listKodrdinar.fold(0, (sum, element) => sum!+double.parse(element.plan!)),
+        totalSelling: listKodrdinar.fold(0, (sum, element) => sum!+double.parse(element.netsatis!)),
+        totalRefund: listKodrdinar.fold(0, (sum, element) => sum!+double.parse(element.qaytarma!)),
+        code: listKodrdinar.first.rutadi!,
+        name: listKodrdinar.first.mercadi!,
+        mercCustomersDatail: listMercCustomers);
+
+    return modelMercData;
   }
 
   _getValue(Iterable<xml.XmlElement> items) {
@@ -699,65 +836,39 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     return textValue;
   }
 
-  bool rutGununuYoxla(ModelCariler model) {
-    bool rutgunu = false;
-    final now = DateTime.now();
-    int day = now.weekday;
-    int irutgunu = 0;
-    if (model.day1 == "1") {
-      irutgunu = 1;
-    } else if (model.day2 == 1) {
-      irutgunu = 2;
-    } else if (model.day3 == 1) {
-      irutgunu = 3;
-    } else if (model.day4 == 1) {
-      irutgunu = 4;
-    } else if (model.day5 == 1) {
-      irutgunu = 5;
-    } else if (model.day6 == 1) {
-      irutgunu = 6;
-    } else {
-      rutgunu = false;
-    }
-    if (irutgunu == day) {
-      rutgunu = true;
-    } else {
-      false;
-    }
-    return rutgunu;
-  }
-
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
     String rutgun = "Sef";
-    int hefteningunu = DateTime.now().weekday;
+    int hefteningunu = DateTime
+        .now()
+        .weekday;
     switch (hefteningunu) {
       case 1:
-        if (selectedModel.day1 == 1) {
+        if (selectedModel.days!.any((element) => element.day==1)) {
           rutgun = "Duz";
         }
         break;
       case 2:
-        if (selectedModel.day2 == 1) {
+        if (selectedModel.days!.any((element) => element.day==2)) {
           rutgun = "Duz";
         }
         break;
       case 3:
-        if (selectedModel.day3 == 1) {
+        if (selectedModel.days!.any((element) => element.day==3)) {
           rutgun = "Duz";
         }
         break;
       case 4:
-        if (selectedModel.day4 == 1) {
+        if (selectedModel.days!.any((element) => element.day==4)) {
           rutgun = "Duz";
         }
         break;
       case 5:
-        if (selectedModel.day5 == 1) {
+        if (selectedModel.days!.any((element) => element.day==5)) {
           rutgun = "Duz";
         }
         break;
       case 6:
-        if (selectedModel.day6 == 1) {
+        if (selectedModel.days!.any((element) => element.day==6)) {
           rutgun = "Duz";
         }
         break;

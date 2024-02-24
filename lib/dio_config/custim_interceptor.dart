@@ -48,17 +48,6 @@ class CustomInterceptor extends Interceptor {
         int statusrefresh = await refreshAccessToken();
         if (statusrefresh == 200) {
           return handler.resolve(await _retry(response.requestOptions));
-        }else{
-          Get.dialog(ShowInfoDialog(
-            color:Colors.red,
-            icon: Icons.error_outline,
-            messaje:"Istifadeci tapilmadi.Yeniden giris edin!",
-            callback: () {
-              localUserServices.init();
-              localUserServices.clearALLdata();
-              getxt.Get.offNamed(RouteHelper.wellcome);
-            },
-          ));
         }
       }
       else if(response.statusCode==404){
@@ -135,7 +124,7 @@ class CustomInterceptor extends Interceptor {
   Future<int> refreshAccessToken() async {
     print("refresh token cagrildi");
     int succes = 0;
-    localUserServices.init();
+    await localUserServices.init();
     loggedUserModel = localUserServices.getLoggedUser();
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();

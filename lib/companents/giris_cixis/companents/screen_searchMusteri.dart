@@ -248,25 +248,25 @@ class _ScreenSearchMusteriState extends State<ScreenSearchMusteri> {
               ),
               Wrap(
                 children: [
-                  e.day1.toString() == "1"
+                  e.days!.any((a) => a.day==1)
                       ? widgetRutGunuItems("gun1".tr)
                       : const SizedBox(),
-                  e.day2.toString() == "1"
+                  e.days!.any((a) => a.day==2)
                       ? widgetRutGunuItems("gun2".tr)
                       : const SizedBox(),
-                  e.day3.toString() == "1"
+                  e.days!.any((a) => a.day==3)
                       ? widgetRutGunuItems("gun3".tr)
                       : const SizedBox(),
-                  e.day4.toString() == "1"
+                  e.days!.any((a) => a.day==4)
                       ? widgetRutGunuItems("gun4".tr)
                       : const SizedBox(),
-                  e.day5.toString() == "1"
+                  e.days!.any((a) => a.day==5)
                       ? widgetRutGunuItems("gun5".tr)
                       : const SizedBox(),
-                  e.day6.toString() == "1"
+                  e.days!.any((a) => a.day==6)
                       ? widgetRutGunuItems("gun6".tr)
                       : const SizedBox(),
-                  e.day7.toString() == "1"
+                  e.days!.any((a) => a.day==7)
                       ? widgetRutGunuItems("bagli".tr)
                       : const SizedBox(),
                 ],

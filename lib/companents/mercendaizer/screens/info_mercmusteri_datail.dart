@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
@@ -11,7 +12,7 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
 class ScreenMercMusteriDetail extends StatefulWidget {
-  ModelMercBaza modelMerc;
+  MercCustomersDatail modelMerc;
   List<ModelGirisCixis> listGirisCixis;
   List<UserModel> listUsers;
 
@@ -38,7 +39,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
       appBar: AppBar(
         centerTitle: true,
         title: CustomText(
-          labeltext: widget.modelMerc.cariad!,
+          labeltext: widget.modelMerc.name!,
         ),
       ),
       backgroundColor: Colors.white,
@@ -101,7 +102,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${widget.modelMerc.plan} ${"manatSimbol".tr}",
+                                              "${widget.modelMerc.plans} ${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -114,7 +115,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${prettify(double.parse(widget.modelMerc.netsatis!).round() * 1)}${"manatSimbol".tr}",
+                                              "${prettify(widget.modelMerc.selling!.round() * 1)}${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -127,7 +128,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                                       ),
                                       CustomText(
                                           labeltext:
-                                              widget.modelMerc.qaytarma.toString() +
+                                              widget.modelMerc.refund!.round().toString() +
                                                   "${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
@@ -190,7 +191,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                               )),
                           ),
                           const SizedBox(width: 10,),
-                          Center(child:CustomText(textAlign: TextAlign.center,labeltext: "Exp : ${widget.modelMerc.expeditor!}"))
+                          Center(child:CustomText(textAlign: TextAlign.center,labeltext: "Exp : ${widget.modelMerc.forwarderCode!}"))
                         ],
                       )
                     ],
@@ -209,55 +210,55 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
   }
 
   widgetInfoHesabatlar(BuildContext context){
-      return WidgetCarihesabatlar(cad:widget.modelMerc.cariad! , ckod: widget.modelMerc.carikod!, height: 100);
+      return WidgetCarihesabatlar(cad:widget.modelMerc.name! , ckod: widget.modelMerc.code!, height: 100);
   }
 
-  Widget _infoMarketRout(ModelMercBaza element) {
+  Widget _infoMarketRout(MercCustomersDatail element) {
     int valuMore = 0;
-    if (element.gun1.toString() == "1") {
+    if (element.days!.any((element) => element.day==1)) {
       valuMore = valuMore + 1;
     }
-    if (element.gun2.toString() == "1") {
+    if (element.days!.any((element) => element.day==2)) {
       valuMore = valuMore + 1;
     }
-    if (element.gun3.toString() == "1") {
+    if (element.days!.any((element) => element.day==3)) {
       valuMore = valuMore + 1;
     }
-    if (element.gun4.toString() == "1") {
+    if (element.days!.any((element) => element.day==4)) {
       valuMore = valuMore + 1;
     }
-    if (element.gun5.toString() == "1") {
+    if (element.days!.any((element) => element.day==5)) {
       valuMore = valuMore + 1;
     }
-    if (element.gun6.toString() == "1") {
+    if (element.days!.any((element) => element.day==6)) {
       valuMore = valuMore + 1;
     }
     return SizedBox(
       height: valuMore > 4 ? 60 : 28,
-      width: MediaQuery.of(context).size.width*0.70,
+      width: 250,
       child: Wrap(
         direction: Axis.horizontal,
         alignment: WrapAlignment.start,
         children: [
-          element.gun1.toString() == "1"
+          element.days!.any((element) => element.day==1)
               ? WidgetRutGunu(rutGunu: "gun1".tr)
               : const SizedBox(),
-          element.gun2.toString() == "1"
+          element.days!.any((element) => element.day==2)
               ? WidgetRutGunu(rutGunu: "gun2".tr)
               : const SizedBox(),
-          element.gun3.toString() == "1"
+          element.days!.any((element) => element.day==3)
               ? WidgetRutGunu(rutGunu: "gun3".tr)
               : const SizedBox(),
-          element.gun4.toString() == "1"
+          element.days!.any((element) => element.day==4)
               ? WidgetRutGunu(rutGunu: "gun4".tr)
               : const SizedBox(),
-          element.gun5.toString() == "1"
+          element.days!.any((element) => element.day==5)
               ? WidgetRutGunu(rutGunu: "gun5".tr)
               : const SizedBox(),
-          element.gun6.toString() == "1"
+          element.days!.any((element) => element.day==6)
               ? WidgetRutGunu(rutGunu: "gun6".tr)
               : const SizedBox(),
-          element.gun7.toString() == "1"
+          element.days!.any((element) => element.day==7)
               ? WidgetRutGunu(rutGunu: "bagli".tr)
               : const SizedBox(),
         ],
@@ -283,40 +284,21 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
     }
   }
 
-  Widget chartWidget(ModelMercBaza element) {
-    bool satiskecib = double.parse(element.netsatis!).round() >
-        double.parse(element.plan!).round();
+  Widget chartWidget(MercCustomersDatail element) {
+    bool satiskecib = element.selling!.round() >
+       element.plans!.round();
     final List<ChartData> chartData = [
       ChartData(
-          "plan".tr, double.parse(element.netsatis!).round(), Colors.green),
+          "plan".tr,element.selling!.round(), Colors.green),
       ChartData(
           'satis'.tr,
           satiskecib
               ? 0
-              : double.parse(element.plan!).round() -
-                  double.parse(element.netsatis!).round(),
+              : element.plans!.round() -
+                  element.selling!.round(),
           Colors.red),
     ];
     return SimpleChart(listCharts: chartData, height: 135, width: 150);
-    return !satiskecib
-        ? SimpleChart(listCharts: chartData, height: 60, width: 60)
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.verified,
-                color: Colors.green,
-              ),
-              element.plan == "0"
-                  ? const SizedBox()
-                  : CustomText(
-                      labeltext:
-                          "${prettify(double.parse(element.netsatis!).round() / double.parse(element.plan!) * 100)} %",
-                      fontsize: 12,
-                    )
-            ],
-          );
   }
 
   String prettify(double d) {
