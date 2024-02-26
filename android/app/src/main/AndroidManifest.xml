@@ -43,6 +43,5 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyALHmqGzyWm1Y2D0zGRFbhNUh_pJOApTc0" />
-        <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="YOUR_LICENCE_KEY_HERE" />
     </application>
 </manifest>

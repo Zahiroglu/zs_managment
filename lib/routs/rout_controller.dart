@@ -7,6 +7,8 @@ import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_scr
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_screens/screen_users_rout_perform_map.dart';
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/screen_rutsirasi_edit_exp.dart';
 import 'package:zs_managment/companents/giris_cixis/companents/screen_musteridetail.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_cari_hereket.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_faktura.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';
@@ -44,7 +46,8 @@ class RouteHelper {
   static const String mobileScreenMusteriDetail = '/mobileScreenMusteriDetail';
   static const String cariZiyaretHesabatlari = '/cariZiyaretHesabatlari';
   static const String cariSatisHesabati = '/cariSatisHesabati';
-  static const String cariMuqavilelerHesabati = '/cariSatisHesabati';
+  static const String fackturaHesabati = '/fackturaHesabati';
+  static const String cariMuqavilelerHesabati = '/cariMuqavilelerHesabati';
   static const String cariTaninanMallarHesabati = '/cariTaninanMallarHesabati';
   static const String cariQaytarmaRaporu = '/cariQaytarmaRaporu';
   static const String cariSatilanCesidRaporu = '/cariSatilanCesidRaporu';
@@ -76,6 +79,7 @@ class RouteHelper {
   static String getMobileGirisCixisHesabGunluk() => mobileGirisCixisHesabGunluk;
   static String getCariZiyaretHesabatlari() => cariZiyaretHesabatlari;
   static String getCariSatisHesabati() => cariSatisHesabati;
+  static String getfackturaHesabati() => fackturaHesabati;
   static String getCariMuqavilelerHesabati() => cariMuqavilelerHesabati;
   static String getCariTaninanMallarHesabati() => cariTaninanMallarHesabati;
   static String getCariQaytarmaRaporu() => cariQaytarmaRaporu;
@@ -135,7 +139,14 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariSatisHesabati, page: () {
-      return   Center(child: CustomText(labeltext: "cariSatisHesabati"),);
+      return   ScreenCariHereket(tarixIlk: Get.arguments[0],tarixSon: Get.arguments[1],cariKod: Get.arguments[2],);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: fackturaHesabati, page: () {
+      return   ScreenFaktura(recNom: Get.arguments[0],senedTipi: Get.arguments[1],);
       return  Container();
     }),
     GetPage(name: wellcome, page: () {
@@ -223,7 +234,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenExpRoutDetail, page: () {
-      return   ScreenUserRoutPerform(controllerRoutDetailUser: Get.arguments[0],userModel: Get.arguments[1], listUsers:Get.arguments[2],);
+      return   ScreenExpRoutPerform(controllerRoutDetailUser: Get.arguments[0],userModel: Get.arguments[1], listUsers:Get.arguments[2],);
       return  Container();
     }),
     GetPage(

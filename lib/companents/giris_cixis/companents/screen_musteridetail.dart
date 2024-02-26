@@ -4,14 +4,13 @@ import 'package:get/get.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/marketuzre_hesabatlar.dart';
-import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/model_cari_hesabatlar.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesabatlar.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/widgetHesabatListItems.dart';
 
 import '../../../widgets/simple_info_dialog.dart';
 

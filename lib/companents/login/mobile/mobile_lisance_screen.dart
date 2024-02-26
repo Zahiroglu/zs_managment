@@ -33,7 +33,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    widgetLogoHisse(),
+                    widgetLogoHisse(context),
                     SizedBox(
                       height: 60.h,
                     ),
@@ -146,7 +146,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
     );
   }
 
-  Column widgetDeviceIdhisse() {
+  Column widgetDeviceIdhisse(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +155,22 @@ class ScreenRequestCheckMobile extends StatelessWidget {
           children: [
             CustomText(labeltext: "ID : ", fontsize: 16,color: Colors.blue,fontWeight: FontWeight.w700),
             SizedBox(height: 5.h,),
-            Obx(() =>CustomText(labeltext: apiController.dviceId.value.toString(), fontsize: 16,color: Colors.blue,fontWeight: FontWeight.w600),)
+            Obx(() =>InkWell(
+                onTap: (){
+                  Clipboard.setData(ClipboardData(text: apiController.dviceId.value.toString()));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: CustomText(labeltext: "copyId".tr),
+                    ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    CustomText(labeltext: apiController.dviceId.value.toString(), fontsize: 16,color: Colors.blue,fontWeight: FontWeight.w600),
+                    SizedBox(width: 5,),
+                    Icon(Icons.copy,color: Colors.grey,)
+                  ],
+                )),)
           ],
         ),
         Container(width: 200.w, height: 0.2, color: Colors.blue,)
@@ -163,7 +178,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
     );
   }
 
-  Row widgetLogoHisse() {
+  Row widgetLogoHisse(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -199,7 +214,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
             SizedBox(
               height: 10.h,
             ),
-            Obx(() => apiController.deviceIdMustvisible.isTrue? widgetDeviceIdhisse():const SizedBox(),),
+            Obx(() => apiController.deviceIdMustvisible.isTrue? widgetDeviceIdhisse(context):const SizedBox(),),
             SizedBox(
               height: 5.h,
             ),

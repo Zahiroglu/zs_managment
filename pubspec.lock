@@ -65,14 +65,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  background_fetch:
-    dependency: transitive
-    description:
-      name: background_fetch
-      sha256: "34550cf9b383e5a1844e7d22119aa500508c7df9421fa967c9fb4430d6cb2878"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.2"
   background_locator_2:
     dependency: "direct main"
     description:
@@ -310,14 +302,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_background_geolocation:
-    dependency: "direct main"
-    description:
-      name: flutter_background_geolocation
-      sha256: "39653827792d73df370a549d5146876f8b47ea040469e4431ae1715b3ba2c6bd"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.13.7"
   flutter_custom_clippers:
     dependency: "direct main"
     description:

@@ -9,11 +9,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:ntp/ntp.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/marketuzre_hesabatlar.dart';
-import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/model_cari_hesabatlar.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
@@ -35,11 +34,9 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
-import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/widgetHesabatListItems.dart';
 import '../../global_models/custom_enummaptype.dart';
 import '../../widgets/simple_info_dialog.dart';
 import '../local_bazalar/local_app_setting.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 
 class ControllerGirisCixisYeni extends GetxController {
   RxList<ModelCariler> listCariler =
@@ -1869,38 +1866,6 @@ class ControllerGirisCixisYeni extends GetxController {
     update();
   }
   ////live locations configrations
-   startconfigBacgroundService(){
-    bg.BackgroundGeolocation.ready(bg.Config(
-      notification: bg.Notification(
-        title: "ZS-CONTROLL",
-        text: "Giris etmisiniz"
-      )
-    ));
-     bg.BackgroundGeolocation.onLocation((bg.Location location) {
-       print('[location] - $location');
-     });
-     // bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
-     //   print('[motionchange] - $location');
-     // });
-     // bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) {
-     //   print('[providerchange] - $event');
-     // });
-     bg.BackgroundGeolocation.ready(bg.Config(
-         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-         distanceFilter: 1.0,
-         stopOnTerminate: false,
-         startOnBoot: true,
-         debug: true,
-         logLevel: bg.Config.LOG_LEVEL_VERBOSE
-     )).then((bg.State state) {
-       if (!state.enabled) {
-         ////
-         // 3.  Start the plugin.
-         //
-         bg.BackgroundGeolocation.start();
-       }
-     });
-   }
 
 
 

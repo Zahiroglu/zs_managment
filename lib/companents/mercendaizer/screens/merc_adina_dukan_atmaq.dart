@@ -282,13 +282,13 @@ class _ScreenMercAdinaMusteriEalveEtmeState
                       shape: BoxShape.circle,
                       color:
                           element.action == false ? Colors.red : Colors.green),
-                  child: element.days!.first.orderNumber == 0
-                      ? const SizedBox()
-                      : Center(
-                          child: CustomText(
-                          labeltext: element.days!.first.orderNumber.toString() ?? "0",
-                          color: Colors.white,
-                        )),
+                  // child: element.days!.first.orderNumber == 0
+                  //     ? const SizedBox()
+                  //     : Center(
+                  //         child: CustomText(
+                  //         labeltext: element.days!.first.orderNumber.toString() ?? "0",
+                  //         color: Colors.white,
+                  //       )),
                 )),
             Positioned(
                 right: 5,

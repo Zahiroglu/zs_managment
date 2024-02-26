@@ -122,6 +122,11 @@ class ModelCariler {
     "action": action,
     "days": List<dynamic>.from(days!.map((x) => x.toJson())),
   };
+
+  @override
+  String toString() {
+    return 'ModelCariler{code: $code, name: $name, fullAddress: $fullAddress, ownerPerson: $ownerPerson, phone: $phone, postalCode: $postalCode, area: $area, category: $category, regionalDirectorCode: $regionalDirectorCode, salesDirectorCode: $salesDirectorCode, latitude: $latitude, longitude: $longitude, district: $district, tin: $tin, mainCustomer: $mainCustomer, debt: $debt, action: $action, days: $days, forwarderCode: $forwarderCode, ziyaretSayi: $ziyaretSayi, sndeQalmaVaxti: $sndeQalmaVaxti, rutGunu: $rutGunu, mesafe: $mesafe, mesafeInt: $mesafeInt, ziyaret: $ziyaret}';
+  }
 }
 
 @HiveType(typeId: 26)
@@ -149,4 +154,5 @@ class Day {
     "day": day,
     "orderNumber": orderNumber,
   };
+
 }

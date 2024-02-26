@@ -191,7 +191,7 @@ class ControllerRoutDetailUser extends GetxController {
                   CustomElevetedButton(
                     cllback: () {
                       Get.back();
-                      temsilciMelumatlariniGetirElave(ctTemsilciKodu.text);
+                      temsilciMelumatlariniGetirElevetedButton(ctTemsilciKodu.text);
                       ctTemsilciKodu.clear();
                     },
                     label: "Tesdiqle",
@@ -223,15 +223,15 @@ class ControllerRoutDetailUser extends GetxController {
     );
   }
 
-  Future<void> temsilciMelumatlariniGetirElave(String model) async {
+  Future<void> temsilciMelumatlariniGetirElevetedButton(String model) async {
     listSelectedCustomers.clear();
     listFilteredCustomers.clear();
     DialogHelper.showLoading("cmendirilir".tr);
     if (fistTabSelected.value == "Exp") {
       UserModel userModel=UserModel(roleId: 17,code: model,name: "tapilmadi".tr);
       listSelectedCustomers.value = await getAllCustomers(model);
+      print("list selected customers :"+listSelectedCustomers.length.toString());
       listGirisCixis.value=await getDataFromServerGirisCixis(model);
-      //listSelectedCustomers.value = createRandomOrdenNumber(listSelectedCustomers);
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
         tabMelumatlariYukle();
@@ -248,10 +248,10 @@ class ControllerRoutDetailUser extends GetxController {
       tabMelumatlariYukle();
     } else {
       MercDataModel modela = await getDataFromServerMercBaza(model);
-      listSelectedMercBaza.value = modela!.mercCustomersDatail!;
+      listSelectedMercBaza.value = modela.mercCustomersDatail!;
       listGirisCixis.value=await getDataFromServerGirisCixis(model);
       DialogHelper.hideLoading();
-      if (listSelectedMercBaza.isNotEmpty) {
+      if (modela.code!.isNotEmpty) {
         Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
@@ -291,7 +291,7 @@ class ControllerRoutDetailUser extends GetxController {
       MercDataModel modela = await getDataFromServerMercBaza(model.code!);
       listGirisCixis.value=await getDataFromServerGirisCixis(model.code!);
       DialogHelper.hideLoading();
-      if (listSelectedMercBaza.isNotEmpty) {
+      if (modela.code!.isNotEmpty) {
         Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
@@ -348,7 +348,7 @@ class ControllerRoutDetailUser extends GetxController {
           color: Colors.red),
       ModelSifarislerTablesi(
           label: "Rutsuz cariler",
-          summa: double.tryParse(listSelectedCustomers
+          summa: listSelectedCustomers.any((element) => element.days!=null)?double.tryParse(listSelectedCustomers
               .where((p) =>
           !p.days!.any((element) => element.day==1)&&
               !p.days!.any((element) => element.day==2)&&
@@ -358,7 +358,7 @@ class ControllerRoutDetailUser extends GetxController {
               !p.days!.any((element) => element.day==6) &&
               !p.days!.any((element) => element.day==7))
               .length
-              .toString()),
+              .toString()):0,
           type: "rc",
           color: Colors.deepPurple),
     ];
@@ -424,6 +424,7 @@ class ControllerRoutDetailUser extends GetxController {
 
   ///Cari Baza endirme/////////
   Future<List<ModelCariler>> getAllCustomers(String temKod) async {
+    print("temsilci Kodu :"+temKod.toString());
     List<ModelCariler> listUsers=[];
     languageIndex = await getLanguageIndex();
     List<String> secilmisTemsilciler=[];
@@ -463,12 +464,23 @@ class ControllerRoutDetailUser extends GetxController {
             callback: () {},
           ));
         } else {
-          // print("Request responce My USER INFO:" + response.data.toString());
           if (response.statusCode == 200) {
-            var userlist = json.encode(response.data['result']);
-            List listuser = jsonDecode(userlist);
+            var dataModel = json.encode(response.data['result']);
+            print("dataModel :"+dataModel.toString());
+            List listuser = jsonDecode(dataModel);
             for(var i in listuser){
-              listUsers.add(ModelCariler.fromJson(i));
+              var dataCus = json.encode(i['customers']);
+              var temsilciKodu=i['user']['code'];
+              print("temsilciKodu :"+temsilciKodu.toString());
+
+              List listDataCustomers = jsonDecode(dataCus);
+              for(var a in listDataCustomers){
+                ModelCariler model=ModelCariler.fromJson(a);
+                model.forwarderCode=temsilciKodu;
+                print("a custim :"+a.toString());
+                listUsers.add(model);
+
+              }
             }
 
           } else {
@@ -596,6 +608,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       //  itemsList.add(_addResult);
     }).toList();
     listKodrdinar.forEach((element) {
+      print("element cari :"+element.cariad.toString());
       List<Day>listDays=[];
       if(element.gun1=="1"){
         listDays.add(Day(day: 1, orderNumber: 0));

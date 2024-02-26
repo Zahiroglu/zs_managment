@@ -126,7 +126,7 @@ class ControllerExpPref extends GetxController {
       listSelectedExpBaza.add(element);
       listFilteredUmumiBaza.add(element);
     }
-    listRutGunleri.value = listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
+    listRutGunleri.value = listSelectedExpBaza.any((element) => element.days!=null)?listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList():[];
     listZiyeretEdilmeyenler.value = listSelectedExpBaza.where((p0) => p0.ziyaretSayi==0).toList();
     listTabItems.value = [
       ModelTamItemsGiris(
@@ -312,6 +312,7 @@ class ControllerExpPref extends GetxController {
 
   void changeRutGunu(int tr) {
     listRutGunleri.clear();
+    if(listSelectedExpBaza.any((element) => element.days!=null)){
     switch (tr) {
       case 1:
         listRutGunleri.value = listSelectedExpBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
@@ -336,7 +337,7 @@ class ControllerExpPref extends GetxController {
         listRutGunleri.value =
             listSelectedExpBaza.where((p0) =>p0.days!.any((element) => element.day==6)).toList();
         break;
-    }
+    }}
     update();
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/model_cari_hesabatlar.dart';
-import 'package:zs_managment/companents/umumi_widgetler/cari_hesabat/widgetHesabatListItems.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesabatlar.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/widgetHesabatListItems.dart';
 
 class WidgetCarihesabatlar extends StatefulWidget {
   String ckod;
@@ -30,6 +30,9 @@ class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
         children: modelCariHesabatlar
             .getAllHesabatlarListy()
             .map((e) => WidgetHesabatListItems(
+          cAd: widget.cad,
+          ckod: widget.ckod,
+          context: context,
           modelCariHesabatlar: e,
         ))
             .toList(),

@@ -10,18 +10,18 @@ import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
-class ScreenUserRoutPerform extends StatefulWidget {
+class ScreenExpRoutPerform extends StatefulWidget {
   ControllerRoutDetailUser controllerRoutDetailUser;
   UserModel userModel;
   List<UserModel> listUsers;
 
-  ScreenUserRoutPerform({required this.controllerRoutDetailUser,required this.userModel,required this.listUsers, super.key});
+  ScreenExpRoutPerform({required this.controllerRoutDetailUser,required this.userModel,required this.listUsers, super.key});
 
   @override
-  State<ScreenUserRoutPerform> createState() => _ScreenUserRoutPerformState();
+  State<ScreenExpRoutPerform> createState() => _ScreenExpRoutPerformState();
 }
 
-class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
+class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
     with TickerProviderStateMixin {
   ControllerExpPref controllerRoutDetailUser = Get.put(ControllerExpPref());
   bool mustSearch = false;
@@ -229,23 +229,25 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
   }
   Widget customersListItems(ModelCariler element) {
     int valuMore = 0;
-    if (element.days!.any((element) => element.day==1)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==2)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==3)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==4)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==5)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==6)) {
-      valuMore = valuMore + 1;
+    if(element.days!=null){
+      if (element.days!.any((element) => element.day==1)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day==2)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day==3)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day==4)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day==5)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day==6)) {
+        valuMore = valuMore + 1;
+      }
     }
     return InkWell(
       onTap: () {
@@ -266,7 +268,7 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomText(
-                      labeltext: element.name!,
+                      labeltext: element.name!??"0",
                       fontWeight: FontWeight.w600,
                       maxline: 2,
                     ),
@@ -407,13 +409,13 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
                         color: element.action == false
                             ? Colors.red
                             : Colors.green),
-                    child: element.days!.any((e) => e.orderNumber==0)
-                        ? const SizedBox()
-                        : Center(
-                            child: CustomText(
-                            labeltext: element.days!.first.orderNumber.toString() ?? "0",
-                            color: Colors.white,
-                          )),
+                    // child: element.days!.any((e) => e.orderNumber==0)
+                    //     ? const SizedBox()
+                    //     : Center(
+                    //         child: CustomText(
+                    //         labeltext: element.days!.first.orderNumber.toString() ?? "0",
+                    //         color: Colors.white,
+                    //       )),
                   )),
               Positioned(
                   right: 2,
@@ -481,7 +483,7 @@ class _ScreenUserRoutPerformState extends State<ScreenUserRoutPerform>
                           width: 10,
                         ),
                         CustomText(
-                          labeltext: element.forwarderCode!,
+                          labeltext: element.forwarderCode??"0",
                           fontsize: 12,
                           fontWeight: FontWeight.bold,
                         ),
