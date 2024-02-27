@@ -200,5 +200,10 @@
     "tekQiymet": "Tek qiymet",
     "brutMebleg": "Brut mebleg",
     "endirim": "Endirim",
-    "netSatis": "Net satis"
+    "netSatis": "Net satis",
+    "hamisi": "Hamisi",
+    "totalCesidSay": "Total cesid say",
+    "cesidSay": "Cesid say",
+    "totalMebleg": "Total mebleg",
+    "miqdar": "Miqdar"
 }

@@ -7,6 +7,8 @@ import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_scr
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/rout_screens/screen_users_rout_perform_map.dart';
 import 'package:zs_managment/companents/connected_users/exp_rout_datail/screen_rutsirasi_edit_exp.dart';
 import 'package:zs_managment/companents/giris_cixis/companents/screen_musteridetail.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_cesid_hesabati/screen_cari_cesid_hesabati.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_cesid_hesabati/screen_cari_cesid_hesabati_mal.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_cari_hereket.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_faktura.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
@@ -51,6 +53,7 @@ class RouteHelper {
   static const String cariTaninanMallarHesabati = '/cariTaninanMallarHesabati';
   static const String cariQaytarmaRaporu = '/cariQaytarmaRaporu';
   static const String cariSatilanCesidRaporu = '/cariSatilanCesidRaporu';
+  static const String cariSatilanCesidRaporuMal = '/cariSatilanCesidRaporuMal';
   static const String anbarCesidlerSehfesi = '/anbarCesidlerSehfesi';
   static const String screenSatis = '/screenSatis';
   static const String screenSifarisElaveEt = '/screenSifarisElaveEt';
@@ -84,6 +87,7 @@ class RouteHelper {
   static String getCariTaninanMallarHesabati() => cariTaninanMallarHesabati;
   static String getCariQaytarmaRaporu() => cariQaytarmaRaporu;
   static String getCariSatilanCesidRaporu() => cariSatilanCesidRaporu;
+  static String getCariSatilanCesidRaporuMal() => cariSatilanCesidRaporuMal;
   static String getAnbarCesidlerSehfesi() => anbarCesidlerSehfesi;
   static String getScreenSatis() => screenSatis;
   static String getScreenSifarisElaveEt() => screenSifarisElaveEt;
@@ -104,7 +108,14 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariSatilanCesidRaporu, page: () {
-      return   Center(child: CustomText(labeltext: "cariSatilanCesidRaporu"),);
+      return   ScreenCariCesidHesabati(tarixIlk: Get.arguments[0],tarixSon: Get.arguments[1],cariKod: Get.arguments[2],);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: cariSatilanCesidRaporuMal, page: () {
+      return   ScreenCariCesidHesabatiMal(listCesidler: Get.arguments[0],);
       return  Container();
     }),
     GetPage(

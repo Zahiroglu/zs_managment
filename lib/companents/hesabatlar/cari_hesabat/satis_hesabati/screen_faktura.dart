@@ -344,8 +344,9 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   }
 
   _widgetListItem(ModelFaktura model) {
+    double endirimmeblegi=(double.parse(model.fEndirim)/double.parse(model.fBrutmebleg))*100;
     return Card(
-      surfaceTintColor: Colors.grey,
+      surfaceTintColor: Colors.black,
       elevation: 5,
       margin: const EdgeInsets.only(bottom: 15),
       child: Padding(
@@ -360,7 +361,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 CustomText(labeltext: model.fStockod),
                 Padding(
                   padding: const EdgeInsets.all(2.0),
-                  child: CustomText(labeltext: model.fMiktar,fontWeight: FontWeight.w500,color: Colors.blueAccent,fontsize: 16),
+                  child: CustomText(labeltext: doubleRound.prettify(double.parse(model.fMiktar)),fontWeight: FontWeight.w800,fontsize: 16),
                 ),
               ],
             ),
@@ -368,7 +369,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                CustomText(labeltext: "${"tekQiymet".tr} : ${doubleRound.prettify(double.parse(model.fQiymet))} ${"manatSimbol".tr}",color: Colors.teal,),
+                CustomText(labeltext: "${"tekQiymet".tr} : ${doubleRound.prettify(double.parse(model.fQiymet))} ${"manatSimbol".tr}",color: Colors.teal,maxline: 2,),
                 const SizedBox(width: 5,),
               ],
             ),
@@ -380,21 +381,21 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                     flex: 5,
                     child: Column(children: [
                       CustomText(labeltext: "brutMebleg".tr),
-                      CustomText(labeltext: "${model.fBrutmebleg} ${"manatSimbol".tr}",fontsize: 16,fontWeight: FontWeight.w600,)
+                      CustomText(labeltext: "${doubleRound.prettify(double.parse(model.fBrutmebleg))} ${"manatSimbol".tr}",fontsize: 16,fontWeight: FontWeight.w600,)
 
                     ],)),
                 Expanded(
                     flex: 5,
                     child: Column(children: [
                       CustomText(labeltext: "endirim".tr),
-                      CustomText(labeltext: "${model.fBrutmebleg} ${"manatSimbol".tr}",fontsize: 16,fontWeight: FontWeight.w600,)
+                      CustomText(labeltext: "${doubleRound.prettify(double.parse(model.fEndirim))} ${"manatSimbol".tr} - ${doubleRound.prettify(endirimmeblegi)} %",fontsize: 16,fontWeight: FontWeight.w600,)
 
                     ],)),
                 Expanded(
                     flex: 5,
                     child: Column(children: [
                       CustomText(labeltext: "netSatis".tr,fontWeight: FontWeight.w600,color: Colors.blue,fontsize: 16),
-                      CustomText(labeltext: "${model.fNetmebleg} ${"manatSimbol".tr}",fontWeight: FontWeight.w600,fontsize: 16,color: Colors.blue)
+                      CustomText(labeltext: "${doubleRound.prettify(double.parse(model.fNetmebleg))} ${"manatSimbol".tr}",fontWeight: FontWeight.w600,fontsize: 16,color: Colors.blue)
 
                     ],))
               ],

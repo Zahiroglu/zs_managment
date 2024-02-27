@@ -32,6 +32,8 @@ class _ScreenCariHereketState extends State<ScreenCariHereket> {
   List<ModelCariHereket> listDataFitred = [];
   DoubleRoundHelper doubleRound = DoubleRoundHelper();
   List<String> listFiler = [];
+  bool totalFooterVisible=false;
+  String selectedFilter="Hamisi";
 
   @override
   void initState() {
@@ -41,15 +43,11 @@ class _ScreenCariHereketState extends State<ScreenCariHereket> {
   }
 
   getDataFromServer() async {
-    listData = await getDataFromServerUmumiCariler(
-        widget.cariKod, widget.tarixIlk, widget.tarixSon);
-    setState(() {
-      listDataFitred = listData;
-    });
+    listData = await getDataFromServerUmumiCariler(widget.cariKod, widget.tarixIlk, widget.tarixSon);
   }
 
-  Future<List<ModelCariHereket>> getDataFromServerUmumiCariler(String cari,
-      String tarixIlk, String tarixSon) async {
+  Future<List<ModelCariHereket>> getDataFromServerUmumiCariler(String cari, String tarixIlk, String tarixSon) async {
+    print("serviz yeniden ise dusdu");
     listData.clear();
     listDataFitred.clear();
     setState(() {
@@ -120,7 +118,10 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       var sira = _getValue(item.findElements("SIRA"));
       var mLimit = _getValue(item.findElements("MUSTERI_LIMIT"));
       var recNom = _getValue(item.findElements("RECno"));
-      listFiler.add(senedTipi);
+      if(!listFiler.contains(senedTipi)){
+        if(senedTipi!="İLKİN QALIQ"){
+          listFiler.add(senedTipi);}
+        }
       ModelCariHereket modelHereketrapor = ModelCariHereket(
           hLimit: mLimit,
           hAlacaqmeblegi: alacaqMebleg,
@@ -136,6 +137,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           hTemsilciadi: expAd,
           hTemsilcikodu: expKod);
       listKodrdinar.add(modelHereketrapor);
+      listDataFitred.add(modelHereketrapor);
     }).toList();
 
     return listKodrdinar;
@@ -183,7 +185,6 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                         MenuItemButton(
                           onPressed: () =>
                               setState(() => _filterList(listFiler[index])),
-                          //child: CustomText(labeltext: listFiler.elementAt(index).toString()),
                           child: Text(listFiler.elementAt(index)),
                         ),
                   ),
@@ -192,7 +193,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
             ),
             backgroundColor: Colors.white,
             body: isLoading
-                ? Center(
+                ? const Center(
                 child: CircularProgressIndicator(
                   color: Colors.green,
                 ))
@@ -207,7 +208,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
         Expanded(
             flex: 2,
             child: Container(
-              padding: EdgeInsets.only(left: 5, top: 10),
+              padding: const EdgeInsets.only(left: 5, top: 10),
               color: Colors.black,
               child: _widgetHeader(context),
             )),
@@ -217,6 +218,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
               color: Colors.white,
               child: _widgetList(context),
             )),
+        totalFooterVisible?_widgetTotalFooter(context):SizedBox()
       ],
     );
   }
@@ -449,7 +451,9 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     }
     return InkWell(
       onTap: (){
+        if(model.hSeri.isNotEmpty){
         Get.toNamed(RouteHelper.fackturaHesabati,arguments: [model.hRecno,model.hSenedtipi]);
+        }
       },
       child: Card(
         surfaceTintColor: Colors.grey,
@@ -539,12 +543,40 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     );
   }
 
+  _widgetTotalFooter(BuildContext context){
+    double summaFilter=0;
+    if(selectedFilter=="SATIŞ FAKTURASI"){
+      summaFilter=listDataFitred.fold(0.0, (sum, element) => sum+double.parse(element.hBorcmeblegi));
+    }else{
+      summaFilter=listDataFitred.fold(0.0, (sum, element) => sum+double.parse(element.hAlacaqmeblegi));
+    }
+    return Padding(
+      padding: const EdgeInsets.all(0.0).copyWith(right: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+        CustomText(labeltext: "TOTAL "+selectedFilter+" : ",fontWeight: FontWeight.w700),
+        CustomText(labeltext: doubleRound.prettify(summaFilter)+ "manatSimbol".tr,fontWeight: FontWeight.w700),
+
+      ],),
+    );
+  }
+
   _filterList(String data) {
-    listData.forEach((element) {
-      if (element.hSenedtipi == data) {
-        listDataFitred.add(element);
-      }
-    });
-    setState(() {});
+    selectedFilter=data;
+    listDataFitred.clear();
+    setState(() {
+      if(data==listFiler.first.toString()){
+        totalFooterVisible=false;
+       listData.forEach((element) {listDataFitred.add(element);});
+      }else {
+        totalFooterVisible=true;
+        for (var element in listData) {
+          if (element.hSenedtipi == data) {
+            listDataFitred.add(element);
+          }
+        }
+      }});
   }
 }
