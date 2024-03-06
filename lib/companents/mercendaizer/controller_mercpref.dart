@@ -254,11 +254,11 @@ class ControllerMercPref extends GetxController {
 
   void circulateMotivasion() {
     double totalSatis = listSelectedMercBaza.fold(
-        0.0, (sum, element) => sum + element.selling!);
+        0.0, (sum, element) => sum + element.totalSelling);
     double totalPlan = listSelectedMercBaza.fold(
-        0.0, (sum, element) => sum + element.plans!);
+        0.0, (sum, element) => sum + element.totalPlan);
     double totalZaymal = listSelectedMercBaza.fold(
-        0.0, (sum, element) => sum + element.refund!);
+        0.0, (sum, element) => sum + element.totalRefund);
     netSatisdanPul = totalSatis * satisIndex;
     planFizi = (totalSatis / totalPlan) * 100;
     zaymalFaizi = (totalZaymal / totalSatis) * 100;

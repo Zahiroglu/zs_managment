@@ -152,7 +152,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                             icon: Icon(Icons.menu),
                           ):null,
                           title: CustomText(
-                              labeltext: widget.modelMercBaza.name!),
+                              labeltext: widget.modelMercBaza.user!.name),
                           flexibleSpace: FlexibleSpaceBar(
                             stretchModes: const [StretchMode.blurBackground],
                             background: pagetViewInfo(),
@@ -246,9 +246,9 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomText(
-                        labeltext: element.name!,
+                        labeltext: element.name,
                         fontWeight: FontWeight.w600,
-                        maxline: 3,
+                        maxline: 2,
                         fontsize: 16),
                     const SizedBox(
                       height: 2,
@@ -270,8 +270,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       width: 10,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: element.plans! <
-                                  element.selling!
+                          color: element.totalPlan <
+                                  element.totalSelling
                               ? Colors.green
                               : Colors.red),
                       // child: element.rutSirasi.toString() == "null"
@@ -305,100 +305,103 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
             color: Colors.grey.withOpacity(0.2)),
         child: Padding(
           padding: const EdgeInsets.all(2.0),
-          child: Column(
+          child: Stack(
             children: [
-              Row(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    flex: 6,
-                    child: Padding(
-                      padding: const EdgeInsets.all(3.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 7,
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CustomText(
-                                  labeltext: "${"temKod".tr} : ", fontsize: 12),
-                              CustomText(
-                                  labeltext: element.forwarderCode!, fontsize: 12),
+                              Row(
+                                children: [
+                                  CustomText(
+                                      labeltext: "${"Ziyaret sayi".tr} : ",
+                                      fontsize: 12),
+                                  CustomText(
+                                      labeltext: element.ziyaretSayi.toString(),
+                                      fontsize: 12),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  CustomText(
+                                      labeltext: "${"Vaxt".tr} : ", fontsize: 12),
+                                  CustomText(
+                                      labeltext: element.sndeQalmaVaxti!,
+                                      fontsize: 12),
+                                ],
+                              )
                             ],
                           ),
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"Ziyaret sayi".tr} : ",
-                                  fontsize: 12),
-                              CustomText(
-                                  labeltext: element.ziyaretSayi.toString(),
-                                  fontsize: 12),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"Vaxt".tr} : ", fontsize: 12),
-                              CustomText(
-                                  labeltext: element.sndeQalmaVaxti!,
-                                  fontsize: 12),
-                            ],
-                          )
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                  Container(
-                    height: 50,
-                    color: Colors.black,
-                    width: 1,
-                    margin: EdgeInsets.only(left: 5, right: 5),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(3.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"plan".tr} : ", fontsize: 12),
-                              CustomText(
-                                  labeltext:
-                                      "${controllerRoutDetailUser.prettify(element.plans!)} ${"manatSimbol".tr}",
-                                  fontsize: 12),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"satis".tr} : ", fontsize: 12),
-                              CustomText(
-                                  labeltext:
-                                      "${controllerRoutDetailUser.prettify(element.selling!)} ${"manatSimbol".tr}",
-                                  fontsize: 12),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"zaymal".tr} : ", fontsize: 12),
-                              CustomText(
-                                  labeltext:
-                                      "${controllerRoutDetailUser.prettify(element.refund!)} ${"manatSimbol".tr}",
-                                  fontsize: 12),
-                            ],
-                          )
-                        ],
+                      Container(
+                        height: 65,
+                        color: Colors.black,
+                        width: 1,
+                        margin: const EdgeInsets.only(left: 5, right: 5),
                       ),
-                    ),
-                  ),
-                  Expanded(flex: 3, child: chartWidget(element)),
+                      Expanded(
+                        flex: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CustomText(
+                                      labeltext: "${"plan".tr} : ", fontsize: 12),
+                                  CustomText(
+                                      labeltext:
+                                          "${element.totalPlan} ${"manatSimbol".tr}",
+                                      fontsize: 12),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  CustomText(
+                                      labeltext: "${"satis".tr} : ", fontsize: 12),
+                                  CustomText(
+                                      labeltext:
+                                          "${element.totalSelling} ${"manatSimbol".tr}",
+                                      fontsize: 12),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  CustomText(
+                                      labeltext: "${"zaymal".tr} : ", fontsize: 12),
+                                  CustomText(
+                                      labeltext:
+                                          "${element.totalRefund} ${"manatSimbol".tr}",
+                                      fontsize: 12),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      Expanded(flex: 5, child: chartWidget(element)),
+                    ],
+                  )
                 ],
-              )
+              ),
+             element.sellingDatas.length>1?const Positioned(
+                  bottom: -2,
+                  right: -2,
+                  child: Icon(Icons.expand_circle_down,color: Colors.blue,)):SizedBox()
             ],
           ),
         ));
@@ -496,7 +499,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           width: 10,
                         ),
                         CustomText(
-                          labeltext: widget.modelMercBaza.code!,
+                          labeltext: widget.modelMercBaza.user!.name,
                           fontsize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -579,7 +582,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                     fontsize: 18,
                                     latteSpacer: 1,
                                     labeltext:
-                                        "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listSelectedMercBaza.fold(0.0, (sum, element) => sum + element.plans!))} ${"manatSimbol".tr}",
+                                        "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listSelectedMercBaza.fold(0.0, (sum, element) => sum + element.totalPlan))} ${"manatSimbol".tr}",
                                     color: Colors.orange,
                                   )
                                 ],
@@ -645,7 +648,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                           fontsize: 16,
                                           latteSpacer: 1,
                                           labeltext:
-                                              "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listSelectedMercBaza.fold(0.0, (sum, element) => sum + element.selling!))} ${"manatSimbol".tr}",
+                                              "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listSelectedMercBaza.fold(0.0, (sum, element) => sum + element.totalSelling))} ${"manatSimbol".tr}",
                                           color: Colors.blue,
                                         ),
                                       ],
@@ -712,7 +715,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                     fontsize: 16,
                                     latteSpacer: 1,
                                     labeltext:
-                                        "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listSelectedMercBaza.fold(0.0, (sum, element) => sum + element.refund!))} ${"manatSimbol".tr}",
+                                        "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listSelectedMercBaza.fold(0.0, (sum, element) => sum + element.totalRefund))} ${"manatSimbol".tr}",
                                     color: Colors.red,
                                   )
                                 ],
@@ -890,18 +893,19 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   }
 
   Widget chartWidget(MercCustomersDatail element) {
-    bool satiskecib = double.parse(element.selling.toString()).round() >
-        double.parse(element.plans.toString()).round();
+    bool satiskecib = double.parse(element.totalSelling.toString()).round() >
+        double.parse(element.totalPlan.toString()).round();
     final List<ChartData> chartData = [
       ChartData(
-          "plan".tr, element.selling!.round(), Colors.green),
+          "plan".tr, element.totalSelling.round(), Colors.green),
       ChartData(
           'satis'.tr,
           satiskecib
               ? 0
-              : element.plans!.round() -
-                  element.selling!.round(),
+              : element.totalPlan.round() -
+                  element.totalPlan.round(),
           Colors.red),
+
     ];
     return !satiskecib
         ? SimpleChart(listCharts: chartData, height: 60, width: 60)
@@ -913,11 +917,11 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                 Icons.verified,
                 color: Colors.green,
               ),
-              element.plans ==0
+              element.totalPlan ==0
                   ? const SizedBox()
                   : CustomText(
                       labeltext:
-                          "${controllerRoutDetailUser.prettify(element.selling!.round() / element.plans!.round() * 100)} %",
+                          "${controllerRoutDetailUser.prettify(element.totalSelling.round() / element.totalPlan.round() * 100)} %",
                       fontsize: 12,
                     )
             ],
@@ -1158,7 +1162,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "${"plan".tr} : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.plans!))} ${"manatSimbol".tr}"),
+                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalPlan))} ${"manatSimbol".tr}"),
                         ],
                       ),
                       Row(
@@ -1166,7 +1170,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "satis".tr + " : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.selling!))} ${"manatSimbol".tr}"),
+                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalSelling))} ${"manatSimbol".tr}"),
                         ],
                       ),
                       Row(
@@ -1174,7 +1178,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "zaymal".tr + " : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.refund!))} ${"manatSimbol".tr}"),
+                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalRefund))} ${"manatSimbol".tr}"),
                         ],
                       )
                     ],
@@ -1228,7 +1232,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   Widget itemZiyaretGunluk(ModelGunlukGirisCixis model) {
     return InkWell(
       onTap: (){
-        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,widget.modelMercBaza.name!,widget.modelMercBaza]);
+        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,widget.modelMercBaza.user!.name!,widget.modelMercBaza]);
       },
       child: Padding(
         padding: const EdgeInsets.all(5.0).copyWith(left: 10,right: 10),

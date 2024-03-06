@@ -50,12 +50,6 @@ class CustomInterceptor extends Interceptor {
           return handler.resolve(await _retry(response.requestOptions));
         }
       }
-      else if(response.statusCode==404){
-        Get.toNamed(RouteHelper.mobileLisanceScreen);
-      }
-      else if(response.statusCode != 200){
-        exeptionHandler(response);
-      }
     super.onResponse(response, handler);
   }
 
@@ -168,10 +162,11 @@ class CustomInterceptor extends Interceptor {
           localUserServices.init();
           localUserServices.clearALLdata();
           getxt.Get.offNamed(RouteHelper.wellcome);
+          succes==response.statusCode;
         }
       } on DioException catch (e) {
         localUserServices.clearALLdata();
-        getxt.Get.offNamed(RouteHelper.wellcome);
+        getxt.Get.offNamed(RouteHelper.mobileLoginFistScreen);
       }
     }
     return succes;

@@ -29,7 +29,6 @@ import 'package:hive/hive.dart';
 
 
 Future<void>  main() async{
-
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Map<String, Map<String, String>> languages = await dep.init();
@@ -54,7 +53,7 @@ Future<void>  main() async{
   Hive.registerAdapter(DayAdapter());
   Hive.registerAdapter(MercDataModelAdapter());
   Hive.registerAdapter(MercCustomersDatailAdapter());
-
+  Hive.registerAdapter(UserMercAdapter());
 }
 class MyApp extends StatefulWidget {
   final Map<String, Map<String, String>> languages;
@@ -62,6 +61,7 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
+
 
 class _MyAppState extends State<MyApp> {
   @override
@@ -73,8 +73,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
   }
-
-
 
   @override
   Widget build(BuildContext context) {

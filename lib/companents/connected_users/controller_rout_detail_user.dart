@@ -71,6 +71,13 @@ class ControllerRoutDetailUser extends GetxController {
     await localBaseDownloads.init();
     dataLoading.value = true;
     listUsers.value=localBaseDownloads.getAllConnectedUserFromLocal();
+    listUsers.add(UserModel(
+      code: "174",
+      name: "Test MERC",
+      roleId: 23,
+      gender: 0,
+      roleName: "Mercendaizer"
+    ));
     if(listUsers.isEmpty){
       listUsers.value = [
         UserModel(
@@ -231,7 +238,7 @@ class ControllerRoutDetailUser extends GetxController {
       UserModel userModel=UserModel(roleId: 17,code: model,name: "tapilmadi".tr);
       listSelectedCustomers.value = await getAllCustomers(model);
       print("list selected customers :"+listSelectedCustomers.length.toString());
-      listGirisCixis.value=await getDataFromServerGirisCixis(model);
+      //listGirisCixis.value=await getDataFromServerGirisCixis(model);
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
         tabMelumatlariYukle();
@@ -247,11 +254,11 @@ class ControllerRoutDetailUser extends GetxController {
       }
       tabMelumatlariYukle();
     } else {
-      MercDataModel modela = await getDataFromServerMercBaza(model);
+      MercDataModel modela = await getAllCustomersMerc(model);
       listSelectedMercBaza.value = modela.mercCustomersDatail!;
-      listGirisCixis.value=await getDataFromServerGirisCixis(model);
+      //listGirisCixis.value=await getDataFromServerGirisCixis(model);
       DialogHelper.hideLoading();
-      if (modela.code!.isNotEmpty) {
+      if (modela.user!=null) {
         Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
@@ -271,7 +278,7 @@ class ControllerRoutDetailUser extends GetxController {
     DialogHelper.showLoading("cmendirilir".tr);
     if (fistTabSelected.value == "Exp") {
       listSelectedCustomers.value = await getAllCustomers(model.code!);
-      listGirisCixis.value=await getDataFromServerGirisCixis(model.code!);
+     // listGirisCixis.value=await getDataFromServerGirisCixis(model.code!);
       listSelectedCustomers.value = createRandomOrdenNumber(listSelectedCustomers);
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
@@ -288,10 +295,10 @@ class ControllerRoutDetailUser extends GetxController {
       }
       tabMelumatlariYukle();
     } else {
-      MercDataModel modela = await getDataFromServerMercBaza(model.code!);
-      listGirisCixis.value=await getDataFromServerGirisCixis(model.code!);
+      MercDataModel modela = await getAllCustomersMerc(model.code!);
+      //listGirisCixis.value=await getDataFromServerGirisCixis(model.code!);
       DialogHelper.hideLoading();
-      if (modela.code!.isNotEmpty) {
+      if (modela.user!=null) {
         Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
@@ -511,271 +518,84 @@ class ControllerRoutDetailUser extends GetxController {
     }
     return listUsers;
   }
-
-  Future<MercDataModel> getDataFromServerMercBaza(String temsilcikodu) async {
-    String temp = "'" + temsilcikodu + "'";
-    String audit = "";
-    String supervaizer = "";
-    String ay = "01";
-    var envelopeaUmumicariler = '''
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-<soap:Body>
-    <mercler xmlns="http://tempuri.org/">
-      <ay>$ay</ay>
-      <audit>$audit</audit>
-      <merc>$temp</merc>
-      <srv>$supervaizer</srv>
-    </mercler>
-  </soap:Body>
-</soap:Envelope>
-''';
-    var url = Uri.parse(soapadress);
-    http.Response response = await http.post(url, headers: {
-      "Content-Type": "text/xml; charset=utf-8",
-      "SOAPAction": "http://tempuri.org/mercler",
-      // "Host": "85.132.97.2"
-      "Host": soaphost
-      //"Accept": "text/xml"
-    }, body: envelopeaUmumicariler);
-    var rawXmlResponse = "";
-    if (response.statusCode == 200) {
-      rawXmlResponse = response.body;
-      print(" response.body :" + response.body.toString());
-    } else {
+  ///Get MercBaza
+  Future<MercDataModel> getAllCustomersMerc(String temKod) async {
+    MercDataModel listUsers=MercDataModel();
+    languageIndex = await getLanguageIndex();
+    List<String> secilmisTemsilciler=[];
+    secilmisTemsilciler.add(temKod);
+    int dviceType = checkDviceType.getDviceType();
+    LoggedUserModel loggedUserModel=userService.getLoggedUser();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
-        messaje: "Xeta BAs Verdi",
-        icon: Icons.error,
-        callback: () {
-          DialogHelper.hideLoading();
-        },
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
       ));
-    }
-    update();
-    return _parsingCarilerMerc(rawXmlResponse);
-  }
-
-  Future<MercDataModel> _parsingCarilerMerc(var _response) async {
-    List<ModelMercBaza> listKodrdinar = [];
-    List<MercCustomersDatail> listMercCustomers = [];
-    MercDataModel modelMercData = MercDataModel();
-    var document = xml.parse(_response);
-    Iterable<xml.XmlElement> items = document.findAllElements('Table');
-    items.map((xml.XmlElement item) {
-      var _kode = _getValue(item.findElements("merc_cari_kod"));
-      var _name = _getValue(item.findElements("cari_ad"));
-      var _rutadi = _getValue(item.findElements("merc_kod"));
-      var mercAdi = _getValue(item.findElements("merc_ad"));
-      var _audit = _getValue(item.findElements("merc_audit"));
-      var _gun1 = _getValue(item.findElements("merc_gun1"));
-      var _gun2 = _getValue(item.findElements("merc_gun2"));
-      var _gun3 = _getValue(item.findElements("merc_gun3"));
-      var _gun4 = _getValue(item.findElements("merc_gun4"));
-      var _gun5 = _getValue(item.findElements("merc_gun5"));
-      var _gun6 = _getValue(item.findElements("merc_gun6"));
-      var _gun7 = _getValue(item.findElements("merc_gun7"));
-      var _uzunluq = _getValue(item.findElements("merc_gps_uz"));
-      var _eynilik = _getValue(item.findElements("merc_gps_en"));
-      var _netsatis = _getValue(item.findElements("NET_SATIS"));
-      var _plan = _getValue(item.findElements("merc_plan"));
-      var _qaytarma = _getValue(item.findElements("ZAY_QAYTARMA"));
-      var _expkodu = _getValue(item.findElements("merc_tem_kod"));
-      var _spr = _getValue(item.findElements("merc_srv_kod"));
-      ModelMercBaza modelKordinat = ModelMercBaza(
-          supervaizer: _spr,
-          expeditor: _expkodu,
-          carikod: _kode,
-          mercadi: mercAdi,
-          gpsUzunluq: _uzunluq,
-          gpsEynilik: _eynilik,
-          audit: _audit,
-          cariad: _name,
-          gun1: _gun1,
-          gun2: _gun2,
-          gun3: _gun3,
-          gun4: _gun4,
-          gun5: _gun5,
-          gun6: _gun6,
-          gun7: _gun7,
-          netsatis: _netsatis,
-          plan: _plan,
-          qaytarma: _qaytarma,
-          rutadi: _rutadi
-      );
-      listKodrdinar.add(modelKordinat);
-      //  itemsList.add(_addResult);
-    }).toList();
-    listKodrdinar.forEach((element) {
-      print("element cari :"+element.cariad.toString());
-      List<Day>listDays=[];
-      if(element.gun1=="1"){
-        listDays.add(Day(day: 1, orderNumber: 0));
-      }
-      if(element.gun2=="1"){
-        listDays.add(Day(day: 2, orderNumber: 0));
-      }  if(element.gun3=="1"){
-        listDays.add(Day(day: 3, orderNumber: 0));
-      }  if(element.gun4=="1"){
-        listDays.add(Day(day: 4, orderNumber: 0));
-      }  if(element.gun5=="1"){
-        listDays.add(Day(day: 5, orderNumber: 0));
-      }  if(element.gun6=="1"){
-        listDays.add(Day(day: 6, orderNumber: 0));
-      }
-      listMercCustomers.add(MercCustomersDatail(
-          name: element.cariad!,
-          code: element.carikod!,
-          longitude: element.gpsUzunluq!,
-          latitude: element.gpsEynilik!,
-          district: "",
-          category: "",
-          area: "",
-          action: double.tryParse(element.netsatis!)!>0?true:false,
-          days: listDays,
-          fullAddress: "",
-          plans: double.tryParse(element.plan!.toString())!,
-          refund: double.tryParse(element.qaytarma!.toString()),
-          selling: double.tryParse(element.netsatis!.toString()),
-          forwarderCode: element.expeditor
-      ));
-    });
-    modelMercData=MercDataModel(totalPlans: listKodrdinar.fold(0, (sum, element) => sum!+double.tryParse(element.plan!)!.round()),
-        totalSelling: listKodrdinar.fold(0, (sum, element) => sum!+double.tryParse(element.netsatis!)!.round()),
-        totalRefund: listKodrdinar.fold(0, (sum, element) => sum!+double.tryParse(element.qaytarma!)!.round()),
-        code: listKodrdinar.first.rutadi!,
-        name: listKodrdinar.first.mercadi!,
-        mercCustomersDatail: listMercCustomers);
-
-    return modelMercData;
-  }
-
-
-  /////Merc baza////////////
-  Future<List<ModelCariler>> getDataFromServerUmumiCariler(String temsilcikodu) async {
-    var envelopeaUmumicariler = '''
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-<soap:Body>
-    <Umumi_list xmlns="http://tempuri.org/">
-      <tem>$temsilcikodu</tem>
-    </Umumi_list>
-  </soap:Body>
-</soap:Envelope>
-''';
-    var url = Uri.parse(soapadress);
-    http.Response response = await http.post(url,
-        headers: {
-          "Content-Type": "text/xml; charset=utf-8",
-          "SOAPAction": "http://tempuri.org/Umumi_list",
-          // "Host": "85.132.97.2"
-          "Host": soaphost
-          //"Accept": "text/xml"
-        },
-        body: envelopeaUmumicariler);
-    var rawXmlResponse = "";
-    if (response.statusCode == 200) {
-      rawXmlResponse = response.body;
     } else {
-      Get.dialog(ShowInfoDialog(
-        messaje: "Xeta BAs Verdi",
-        icon: Icons.error,
-        callback: () {
-          DialogHelper.hideLoading();
-        },
-      ));
+      try {
+        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+          data:jsonEncode(secilmisTemsilciler),
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        print("responce kode :"+response.data.toString());
+        if (response.statusCode == 404) {
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "baglantierror".tr,
+            callback: () {},
+          ));
+        } else {
+          if (response.statusCode == 200) {
+            var dataModel = json.encode(response.data['result']);
+            List listuser = jsonDecode(dataModel);
+            for(var i in listuser){
+              listUsers=MercDataModel.fromJson(i);
+            }
+
+
+          } else {
+            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {},
+            ));
+          }
+        }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
     }
-    update();
-    return _parsingCariler(rawXmlResponse);
+    return listUsers;
   }
 
-  Future<List<ModelCariler>> _parsingCariler(var _response) async {
-    List<ModelCariler> listKodrdinar = [];
-    var document = xml.parse(_response);
-    Iterable<xml.XmlElement> items = document.findAllElements('Table');
-    // items.map((xml.XmlElement item) {
-    //   var _kode = _getValue(item.findElements("kod"));
-    //   var _name = _getValue(item.findElements("ad"));
-    //   var _expkodu = _getValue(item.findElements("tem"));
-    //   var _tamunvan = _getValue(item.findElements("tamun"));
-    //   var _mesulsexs = _getValue(item.findElements("mesulsexs"));
-    //   var _voun = _getValue(item.findElements("voun"));
-    //   var _telefon = _getValue(item.findElements("telefon"));
-    //   var _sticker = _getValue(item.findElements("sticker"));
-    //   var _sahe = _getValue(item.findElements("sahe"));
-    //   var _kateq = _getValue(item.findElements("kateq"));
-    //   var _bolgekodu = _getValue(item.findElements("bolgekodu"));
-    //   var _qaliq = _getValue(item.findElements("qaliq"));
-    //   var _rayon = _getValue(item.findElements("rayon"));
-    //   var _gun1 = _getValue(item.findElements("gun1"));
-    //   var _gun2 = _getValue(item.findElements("gun2"));
-    //   var _gun3 = _getValue(item.findElements("gun3"));
-    //   var _gun4 = _getValue(item.findElements("gun4"));
-    //   var _gun5 = _getValue(item.findElements("gun5"));
-    //   var _gun6 = _getValue(item.findElements("gun6"));
-    //   var _gun7 = _getValue(item.findElements("gun7"));
-    //   var _hereket = _getValue(item.findElements("h1"));
-    //   var _anacari = _getValue(item.findElements("ana_cari"));
-    //   var _uzunluq = _getValue(item.findElements("uzunluq"));
-    //   var _eynilik = _getValue(item.findElements("eynilik"));
-    //   bool actions = false;
-    //   if (_hereket.toString() == "1") {
-    //     print("_hereket true :" + _hereket.toString());
-    //     actions = true;
-    //   } else {
-    //     print("_hereket false :" + _hereket.toString());
-    //     actions = false;
-    //   }
-    //   ModelCariler modelKordinat = ModelCariler(
-    //       forwarderCode: _expkodu,
-    //       code: _kode,
-    //       name: _name,
-    //       longitude: _uzunluq,
-    //       latitude: _eynilik,
-    //       fullAddress: _tamunvan,
-    //       ownerPerson: _mesulsexs,
-    //       tin: _voun,
-    //       phone: _telefon,
-    //       postalCode: _sticker,
-    //       area: _sahe,
-    //       category: _kateq,
-    //       regionalDirectorCode: _bolgekodu,
-    //       debt: double.parse(
-    //           _qaliq.toString() != "null" ? _qaliq.toString() : "0"),
-    //       district: _rayon,
-    //       day1: int.parse(_gun1),
-    //       day2: int.parse(_gun2),
-    //       day3: int.parse(_gun3),
-    //       day4: int.parse(_gun4),
-    //       day5: int.parse(_gun5),
-    //       day6: int.parse(_gun6),
-    //       day7: int.parse(_gun7),
-    //       action: actions,
-    //       mainCustomer: _anacari,
-    //       ziyaret: "0");
-    //   modelKordinat.rutGunu = rutDuzgunluyuYoxla(modelKordinat);
-    //   modelKordinat.orderNumber = 0;
-    //   modelKordinat.mesafeInt = 0;
-    //   modelKordinat.mesafe = "s";
-    //   listKodrdinar.add(modelKordinat);
-    //   //  itemsList.add(_addResult);
-    // }).toList();
-    listKodrdinar.forEach((element) {
-      print("element :" + element.toString());
-    });
-    return listKodrdinar;
-  }
-
-  _getValue(Iterable<xml.XmlElement> items) {
-    var textValue;
-    items.map((xml.XmlElement node) {
-      textValue = node.text;
-    }).toList();
-    return textValue;
-  }
 
 
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
@@ -915,6 +735,13 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     return listKodrdinar;
   }
 
+  _getValue(Iterable<xml.XmlElement> items) {
+    var textValue;
+    items.map((xml.XmlElement node) {
+      textValue = node.text;
+    }).toList();
+    return textValue;
+  }
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }

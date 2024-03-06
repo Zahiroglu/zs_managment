@@ -146,7 +146,7 @@
     "cix": "Cix",
     "daxilOl": "Daxil ol",
     "anbar": "Anbar",
-    "expeditor": "Satis Temsilcisi",
+    "expeditor": "Satis temsilcisi",
     "expeditors": "Satis temsilcileri",
     "merc": "Mercendaizer",
     "mercler": "Mercendaizerler",
@@ -205,5 +205,6 @@
     "totalCesidSay": "Total cesid say",
     "cesidSay": "Cesid say",
     "totalMebleg": "Total mebleg",
-    "miqdar": "Miqdar"
+    "miqdar": "Miqdar",
+    "cariHesabatlar": "Cari hesabatlar"
 }

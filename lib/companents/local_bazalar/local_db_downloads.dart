@@ -291,7 +291,7 @@ class LocalBaseDownloads {
   /// list mercBaza
   Future<void> addCariToMercBaza(MercDataModel model) async {
     await boxListMercBaza.clear();
-    await boxListMercBaza.put(model.code!, model);
+    await boxListMercBaza.put(model.user!.code, model);
   }
   Future<MercDataModel> getMercDatail(String code) async {
    return await boxListMercBaza.get(code);

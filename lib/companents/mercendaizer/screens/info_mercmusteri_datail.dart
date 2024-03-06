@@ -23,10 +23,29 @@ class ScreenMercMusteriDetail extends StatefulWidget {
       _ScreenMercMusteriDetailState();
 }
 
-class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
+class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with TickerProviderStateMixin{
+  var _scrollControllerNested;
+  late TabController tabController;
+  List<String> listTabItems=[];
+  final int _initialIndex = 0;
+  int tabinitialIndex = 0;
+  late PageController _controller;
 
   @override
   void initState() {
+    listTabItems.add("Plan-Satis");
+    listTabItems.add("Ziyaretler");
+    tabController = TabController(
+      initialIndex: tabinitialIndex,
+      length: listTabItems.length,
+      vsync: this,
+    );
+    _scrollControllerNested = ScrollController();
+    _controller = PageController(initialPage: _initialIndex, viewportFraction:  1);
+    _controller.addListener(() {
+      setState(() {
+      });
+    });
     // TODO: implement initState
     super.initState();
   }
@@ -34,32 +53,81 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
   @override
   Widget build(BuildContext context) {
     return Material(
-        child: SafeArea(
-            child: Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: CustomText(
-          labeltext: widget.modelMerc.name!,
+      child: SafeArea(
+        child: Scaffold(
+          body:  NestedScrollView(
+            controller: _scrollControllerNested,
+            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                SliverSafeArea(
+                  sliver: SliverAppBar(
+                    elevation: 0,
+                    backgroundColor: Colors.white,
+                    centerTitle: false,
+                    expandedHeight: 450,
+                    pinned: true,
+                    floating: false,
+                    stretch: true,
+                    title:  CustomText(
+                        labeltext: widget.modelMerc.name),
+                    flexibleSpace: FlexibleSpaceBar(
+                      stretchModes: const [StretchMode.blurBackground],
+                      background: Column(children: [
+                        widgetSatisInfo(context),
+                        const SizedBox(height: 10,),
+                        widgetInfoHesabatlar(context)
+                      ],),
+                      collapseMode: CollapseMode.values[0],
+                      centerTitle: true,
+                    ),
+                    bottom: PreferredSize(
+                        preferredSize: const Size.fromHeight(50),
+                        child: ColoredBox(
+                          color: Colors.white,
+                          child:Container(
+                            height: 50,
+                            width: MediaQuery.of(context).size.width,
+                            color: Colors.teal,
+                            child: TabBar(
+                              physics: const NeverScrollableScrollPhysics(),
+                              onTap: (index) {
+                                setState(() {
+                                  tabinitialIndex == index;
+                                });
+                              },
+                              dividerColor: Colors.white,
+                              splashBorderRadius: BorderRadius.circular(10),
+                              indicatorColor: Colors.white,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicatorPadding: const EdgeInsets.all(0),
+                              unselectedLabelColor: Colors.black,
+                              dividerHeight: 1,
+                              labelColor: Colors.white,
+                              controller: tabController,
+                              tabs: listTabItems
+                                  .map((element) => Tab(
+                                iconMargin: const EdgeInsets.all(5),
+                                child: Text(element.toString(),
+                                    textAlign: TextAlign.center),
+                              ))
+                                  .toList(),
+                            ),
+                          ),
+                        )),
+                  ),
+                )
+              ];
+            },
+            body:pagetViewInfo(),
+          ),
         ),
       ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            widgetSatisInfo(context),
-            widgetInfoHesabatlar(context),
-            widget.listGirisCixis.isEmpty ? SizedBox() : widgetZiyaretler(context)
-          ],
-        ),
-      ),
-    )));
+    );
   }
 
   widgetSatisInfo(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5.0).copyWith(top: 0),
+      padding: const EdgeInsets.all(5.0).copyWith(top: 50),
       child: Stack(
         children: [
           Padding(
@@ -102,7 +170,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${widget.modelMerc.plans} ${"manatSimbol".tr}",
+                                              "${widget.modelMerc.totalPlan} ${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -115,7 +183,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${prettify(widget.modelMerc.selling!.round() * 1)}${"manatSimbol".tr}",
+                                              "${prettify(widget.modelMerc.totalSelling.round() * 1)}${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -128,7 +196,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                                       ),
                                       CustomText(
                                           labeltext:
-                                              widget.modelMerc.refund!.round().toString() +
+                                              widget.modelMerc.totalRefund.round().toString() +
                                                   "${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
@@ -191,7 +259,6 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                               )),
                           ),
                           const SizedBox(width: 10,),
-                          Center(child:CustomText(textAlign: TextAlign.center,labeltext: "Exp : ${widget.modelMerc.forwarderCode!}"))
                         ],
                       )
                     ],
@@ -215,22 +282,22 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
 
   Widget _infoMarketRout(MercCustomersDatail element) {
     int valuMore = 0;
-    if (element.days!.any((element) => element.day==1)) {
+    if (element.days.any((element) => element.day==1)) {
       valuMore = valuMore + 1;
     }
-    if (element.days!.any((element) => element.day==2)) {
+    if (element.days.any((element) => element.day==2)) {
       valuMore = valuMore + 1;
     }
-    if (element.days!.any((element) => element.day==3)) {
+    if (element.days.any((element) => element.day==3)) {
       valuMore = valuMore + 1;
     }
-    if (element.days!.any((element) => element.day==4)) {
+    if (element.days.any((element) => element.day==4)) {
       valuMore = valuMore + 1;
     }
-    if (element.days!.any((element) => element.day==5)) {
+    if (element.days.any((element) => element.day==5)) {
       valuMore = valuMore + 1;
     }
-    if (element.days!.any((element) => element.day==6)) {
+    if (element.days.any((element) => element.day==6)) {
       valuMore = valuMore + 1;
     }
     return SizedBox(
@@ -243,22 +310,22 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
           element.days!.any((element) => element.day==1)
               ? WidgetRutGunu(rutGunu: "gun1".tr)
               : const SizedBox(),
-          element.days!.any((element) => element.day==2)
+          element.days.any((element) => element.day==2)
               ? WidgetRutGunu(rutGunu: "gun2".tr)
               : const SizedBox(),
-          element.days!.any((element) => element.day==3)
+          element.days.any((element) => element.day==3)
               ? WidgetRutGunu(rutGunu: "gun3".tr)
               : const SizedBox(),
-          element.days!.any((element) => element.day==4)
+          element.days.any((element) => element.day==4)
               ? WidgetRutGunu(rutGunu: "gun4".tr)
               : const SizedBox(),
-          element.days!.any((element) => element.day==5)
+          element.days.any((element) => element.day==5)
               ? WidgetRutGunu(rutGunu: "gun5".tr)
               : const SizedBox(),
-          element.days!.any((element) => element.day==6)
+          element.days.any((element) => element.day==6)
               ? WidgetRutGunu(rutGunu: "gun6".tr)
               : const SizedBox(),
-          element.days!.any((element) => element.day==7)
+          element.days.any((element) => element.day==7)
               ? WidgetRutGunu(rutGunu: "bagli".tr)
               : const SizedBox(),
         ],
@@ -285,17 +352,32 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
   }
 
   Widget chartWidget(MercCustomersDatail element) {
-    bool satiskecib = element.selling!.round() >
-       element.plans!.round();
+    bool satiskecib = element.totalSelling>0;
     final List<ChartData> chartData = [
       ChartData(
-          "plan".tr,element.selling!.round(), Colors.green),
+          "plan".tr,element.totalSelling.round(), Colors.green),
       ChartData(
           'satis'.tr,
           satiskecib
               ? 0
-              : element.plans!.round() -
-                  element.selling!.round(),
+              : element.totalPlan.round() -
+                  element.totalSelling.round(),
+          Colors.red),
+    ];
+    return SimpleChart(listCharts: chartData, height: 135, width: 150);
+  }
+
+  Widget chartWidgetSimple(SellingData element) {
+    bool satiskecib = element.selling>0;
+    final List<ChartData> chartData = [
+      ChartData(
+          "plan".tr,element.selling.round(), Colors.green),
+      ChartData(
+          'satis'.tr,
+          satiskecib
+              ? 0
+              : element.plans.round() -
+                  element.selling.round(),
           Colors.red),
     ];
     return SimpleChart(listCharts: chartData, height: 135, width: 150);
@@ -304,27 +386,118 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
   String prettify(double d) {
     return d.toStringAsFixed(1).replaceFirst(RegExp(r'\.?0*$'), '');
   }
+  
+  
+  Widget pagetViewInfo() {
+    return PageView(
+      onPageChanged: _onPageViewChange,
+      physics: const ClampingScrollPhysics(),
+      controller: _controller,
+      children: [
+        widgetSatisDetail(context),
+        widgetZiyaretler(context)
+      ],
+    );
+  }
+
+  widgetSatisDetail(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: widget.modelMerc.sellingDatas.isNotEmpty?Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ListView.builder(
+                itemCount: widget.modelMerc.sellingDatas.length,
+                itemBuilder: (c, index) {
+                  return widgetSatisDetal( widget.modelMerc.sellingDatas.elementAt(index));
+                }),
+          )        ],
+      ):Center(child: CustomText(labeltext: "melumattapilmadi".tr),),
+    );
+  }
+
+  widgetSatisDetal(SellingData element) {
+    return Card(
+      margin: const EdgeInsets.all(5),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                CustomText(labeltext: "${"expeditor".tr} : ",fontWeight: FontWeight.w700),
+                CustomText(labeltext: element.forwarderCode),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10,right: 20),
+              child: Row(
+               children: [
+                 Expanded(
+                   flex: 5,
+                   child: Padding(
+                     padding: const EdgeInsets.all(3.0),
+                     child: Column(
+                       mainAxisAlignment: MainAxisAlignment.start,
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Row(
+                           children: [
+                             CustomText(
+                                 labeltext: "${"plan".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
+                             CustomText(
+                                 labeltext:
+                                 "${element.plans} ${"manatSimbol".tr}",
+                                 fontsize: 14),
+                           ],
+                         ),
+                         Row(
+                           children: [
+                             CustomText(
+                                 labeltext: "${"satis".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
+                             CustomText(
+                                 labeltext:
+                                 "${element.selling} ${"manatSimbol".tr}",
+                                 fontsize: 14),
+                           ],
+                         ),
+                         Row(
+                           children: [
+                             CustomText(
+                                 labeltext: "${"zaymal".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
+                             CustomText(
+                                 labeltext:
+                                 "${element.refund} ${"manatSimbol".tr}",
+                                 fontsize: 14),
+                           ],
+                         )
+                       ],
+                     ),
+                   ),
+                 ),
+                 Expanded(flex: 5, child: Container(
+                   height: 80,
+                     width: 80,
+                     child: chartWidgetSimple(element))),
+               ],
+                         ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 
   widgetZiyaretler(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: Column(
+      child: widget.listGirisCixis.isNotEmpty?Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomText(
-            labeltext: "giriscixis".tr,
-            fontsize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Container(
-            height: MediaQuery.of(context).size.height * 0.55,
-            decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10)),
+          Expanded(
             child: ListView.builder(
                 itemCount: widget.listGirisCixis.length,
                 itemBuilder: (c, index) {
@@ -332,7 +505,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
                 }),
           )
         ],
-      ),
+      ):Center(child: CustomText(labeltext: "melumattapilmadi".tr),),
     );
   }
 
@@ -470,6 +643,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
       ],
     );
   }
+
   String carculateTimeDistace(String? girisvaxt, String? cixisvaxt) {
     Duration difference =
     DateTime.parse(cixisvaxt!).difference(DateTime.parse(girisvaxt!));
@@ -482,8 +656,14 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> {
     }
   }
 
-
   void _editMercCari() {
     Get.toNamed(RouteHelper.getScreenEditMercMusteri(),arguments: [widget.modelMerc,widget.listUsers]);
   }
+
+  void _onPageViewChange(int value) {
+    setState(() {
+      tabController.animateTo(value);
+    });
+  }
+
 }
