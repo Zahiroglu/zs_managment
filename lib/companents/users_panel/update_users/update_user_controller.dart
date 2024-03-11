@@ -11,6 +11,7 @@ import 'package:zs_managment/companents/login/models/model_regions.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
+import 'package:zs_managment/companents/users_panel/mobile/dialog_select_user_connections_mobile.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_dialog/dialog_select_user_connections.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/models/model_roles.dart';
@@ -548,11 +549,11 @@ class UpdateUserController extends GetxController {
     return list;
   }
 
-  Future<void> getConnectionMustSelect(ModelMustConnect element) async {
-    await getUserListApiService(element);
+  Future<void> getConnectionMustSelect(ModelMustConnect element, bool isWindows) async {
+    await getUserListApiService(element,isWindows);
   }
 
-  Future<List<User>> getUserListApiService(ModelMustConnect element) async {
+  Future<List<User>> getUserListApiService(ModelMustConnect element, bool isWindows) async {
     List<User> listUsers = [];
     Map data = {
       "roleId": element.connectionRoleId,
@@ -611,16 +612,30 @@ class UpdateUserController extends GetxController {
             listUsers.add(user);
           }
           DialogHelper.hideLoading();
-          Get.dialog(DialogSelectedUserConnectins(
-            isWindows: true,
-            selectedListUsers: selectedListUserConnections,
-            addConnectin: (listSelected, listDeselected) {
-              addSelectedUserToList(listSelected, listDeselected, selectedGroupName.value.id);
-            },
-            listUsers: listUsers,
-            vezifeAdi: selectedGroupName.value.name!,
-          ));
-        }
+          if(isWindows) {
+            Get.dialog(DialogSelectedUserConnectins(
+              isWindows: isWindows,
+              selectedListUsers: selectedListUserConnections,
+              addConnectin: (listSelected, listDeselected) {
+                addSelectedUserToList(
+                    listSelected, listDeselected, selectedGroupName.value.id);
+              },
+              listUsers: listUsers,
+              vezifeAdi: selectedGroupName.value.name!,
+            ));
+          }else{
+            Get.dialog(DialogSelectedUserConnectinsMobile(
+              isWindows: isWindows,
+              selectedListUsers: selectedListUserConnections,
+              addConnectin: (listSelected, listDeselected) {
+                addSelectedUserToList(
+                    listSelected, listDeselected, selectedGroupName.value.id);
+              },
+              listUsers: listUsers,
+              vezifeAdi: selectedGroupName.value.name!,
+            ));
+
+          }}
     }
     return listUsers;
   }

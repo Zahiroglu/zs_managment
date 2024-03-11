@@ -24,6 +24,8 @@ import 'package:zs_managment/companents/local_bazalar/local_users_services.dart'
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
@@ -94,7 +96,7 @@ class ControllerGirisCixisYeni extends GetxController {
     await localBaseDownloads.init();
     getAppSetting();
     _getGirisEdilmisCari();
-    getRutPerformToday();
+    //getRutPerformToday();
     // TODO: implement onInit
     super.onInit();
   }
@@ -125,51 +127,41 @@ class ControllerGirisCixisYeni extends GetxController {
   }
 
   Future<void> getRutPerformToday() async {
-    modelRutPerform.value = await localBaseDownloads.getRutDatail();
-    if(loggedUserModel.userModel!.roleId==17){
-      listSelectedMusteriler.value = modelRutPerform.value.listGunlukRut!;
-      listTabItems.add(ModelTamItemsGiris(
-          icon: Icons.people_outline_outlined,
-          label: "Gunluk Rut",
-          girisSayi: modelRutPerform.value.duzgunZiya,
-          keyText: "Grut",
-          marketSayi: modelRutPerform.value.rutSayi,
-          selected: true,
-          color: Colors.blue));
-    }else{
-      listSelectedMusteriler.value = listCariler;
-    }
-    listTabItems.value = [
-      ModelTamItemsGiris(
-          icon: Icons.people_outline_outlined,
-          label: "Umumi Musteriler",
-          girisSayi: modelRutPerform.value.duzgunZiya! +
-              modelRutPerform.value.rutkenarZiya!,
-          keyText: "Gumumi",
-          marketSayi: modelRutPerform.value.snSayi,
-          selected: true,
-          color: Colors.deepPurple),
-      ModelTamItemsGiris(
-          icon: Icons.verified_user_outlined,
-          label: "Ziyaretler",
-          girisSayi: modelRutPerform.value.listGirisCixislar!.length,
-          keyText: "z",
-          marketSayi: modelRutPerform.value.listGirisCixislar!.length,
-          selected: false,
-          color: Colors.green),
-    ];
-    if(loggedUserModel.userModel!.roleId==17){
-      listTabItems.insert(2, ModelTamItemsGiris(
-          icon: Icons.person_off_outlined,
-          label: "Ziyaret Edilmeyenler",
-          girisSayi: 0,
-          keyText: "z",
-          marketSayi: modelRutPerform.value.ziyaretEdilmeyen,
-          selected: false,
-          color: Colors.orange));
-    }
-
-
+    modelRutPerform.value = await localBaseDownloads.getRutDatail(loggedUserModel.userModel);
+    listSelectedMusteriler.value = modelRutPerform.value.listGunlukRut!;
+    listTabItems.add(ModelTamItemsGiris(
+        icon: Icons.people_outline_outlined,
+        label: "Umumi Musteriler",
+        girisSayi: modelRutPerform.value.duzgunZiya! +
+            modelRutPerform.value.rutkenarZiya!,
+        keyText: "Gumumi",
+        marketSayi: listCariler.length,
+        selected: true,
+        color: Colors.deepPurple),);
+    listTabItems.add(ModelTamItemsGiris(
+        icon: Icons.people_outline_outlined,
+        label: "Gunluk Rut",
+        girisSayi: modelRutPerform.value.duzgunZiya,
+        keyText: "Grut",
+        marketSayi: modelRutPerform.value.rutSayi,
+        selected: true,
+        color: Colors.blue));
+    listTabItems.add( ModelTamItemsGiris(
+        icon: Icons.person_off_outlined,
+        label: "Ziyaret Edilmeyenler",
+        girisSayi: 0,
+        keyText: "Zedilmeyen",
+        marketSayi: modelRutPerform.value.ziyaretEdilmeyen,
+        selected: false,
+        color: Colors.orange));
+    listTabItems.add(  ModelTamItemsGiris(
+        icon: Icons.verified_user_outlined,
+        label: "Ziyaretler",
+        girisSayi: modelRutPerform.value.listGirisCixislar!.length,
+        keyText: "z",
+        marketSayi: modelRutPerform.value.listGirisCixislar!.length,
+        selected: false,
+        color: Colors.green));
 
     update();
   }
@@ -254,6 +246,7 @@ class ControllerGirisCixisYeni extends GetxController {
     modelgirisEdilmis.value = await localDbGirisCixis.getGirisEdilmisMarket();
     if (modelgirisEdilmis.value.girisvaxt == null) {
       getAllDataFormLocale();
+      getRutPerformToday();
       marketeGirisEdilib.value = false;
       slidePanelVisible.value = false;
     } else {
@@ -288,11 +281,46 @@ class ControllerGirisCixisYeni extends GetxController {
   }
 
   Future<void> getAllDataFormLocale() async {
-    listCariler.value = localBase.getAllCariBaza();
-    // ModelCariler modelSirket=ModelCariler(
-    //   name: loggedUserModel.userModel!.regionName!,
-    //   code: loggedUserModel.userModel!.regionCode!,
-    // );
+    listCariler.clear();
+    if(loggedUserModel.userModel!.moduleId==3){
+        List<MercDataModel> listmodel =await localBase.getAllMercDatail();
+        for(MercDataModel model in listmodel){
+          List<MercCustomersDatail> musteriler=model.mercCustomersDatail!;
+          for(MercCustomersDatail modelMerc in musteriler){
+            ModelCariler modelCari=ModelCariler(
+              name: modelMerc.name,
+              code: modelMerc.code,
+              forwarderCode: model.user!.code,
+              fullAddress: modelMerc.fullAddress,
+              days: modelMerc.days,
+              action: modelMerc.action,
+              area: modelMerc.area,
+              category: modelMerc.category,
+              district: modelMerc.district,
+              latitude: modelMerc.latitude,
+              longitude: modelMerc.longitude,
+              debt: modelMerc.debt,
+              mainCustomer: modelMerc.mainCustomer,
+              mesafe: "",
+              mesafeInt: 0,
+              ownerPerson: modelMerc.ownerPerson,
+              phone: modelMerc.phone,
+              postalCode: modelMerc.postalCode,
+              regionalDirectorCode: modelMerc.regionalDirectorCode,
+              rutGunu: "",
+              salesDirectorCode: modelMerc.salesDirectorCode,
+              tin: modelMerc.tin,
+              ziyaretSayi: 0
+
+            );
+            bool rutGunu=rutGununuYoxla(modelCari);
+            modelCari.rutGunu=rutGunu?"Duz":"Sef";
+            listCariler.add(modelCari);
+          }
+        }
+    }else{
+      listCariler.value = localBase.getAllCariBaza();
+    }
     dataLoading = false.obs;
     update();
   }
@@ -1193,23 +1221,23 @@ class ControllerGirisCixisYeni extends GetxController {
         element2.selected = false;
       }
     }
-    if(loggedUserModel.userModel!.roleId==17){
-    switch (listTabItems.indexOf(element)) {
-      case 0:
+    if(loggedUserModel.userModel!.roleId==17||loggedUserModel.userModel!.roleId==18||loggedUserModel.userModel!.roleId==23||loggedUserModel.userModel!.roleId==24){
+    switch (element.keyText) {
+      case "Grut":
         listSelectedMusteriler.value = carculateDistanceList(
             modelRutPerform.value.listGunlukRut!, currentLocation);
         break;
-      case 1:
+      case "Gumumi":
         listSelectedMusteriler.value =
             carculateDistanceList(listCariler, currentLocation);
         break;
-      case 2:
+      case "Zedilmeyen":
         listSelectedMusteriler.value = carculateDistanceList(
             modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
         break;
     }}else{
-      switch (listTabItems.indexOf(element)) {
-        case 0:
+      switch (element.keyText) {
+        case "Gumumi":
           listSelectedMusteriler.value =
               carculateDistanceList(listCariler, currentLocation);
           break;
@@ -1223,7 +1251,7 @@ class ControllerGirisCixisYeni extends GetxController {
     for (ModelCariler element in listMusteriler) {
       String listmesafe = "0m";
       double hesabMesafe = calculateDistance(event.latitude, event.longitude,
-          double.parse(element.longitude!), double.parse(element.latitude!));
+          double.parse(element.longitude??"0"), double.parse(element.latitude??"0"));
       if (hesabMesafe > 1) {
         listmesafe = "${(hesabMesafe).round()} km";
       } else {
@@ -1846,7 +1874,13 @@ class ControllerGirisCixisYeni extends GetxController {
   }
 
   void getExpList() {
-    List<UserModel> listexpeditorlar= localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==17).toList();
+    List<UserModel> listexpeditorlar=[];
+    if(loggedUserModel.userModel!.moduleId==3){
+      listexpeditorlar= localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==17).toList();
+    }else{
+      listexpeditorlar= localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==13).toList();
+
+    }
     listexpeditorlar.insert(0, UserModel(code: "u",name: "Butun cariler"));
    Get.dialog(DialogSimpleUserSelect(selectedUserCode: "",getSelectedUse: (user){
      print("selected user :"+user.toString());

@@ -29,6 +29,11 @@ class MercDataModel {
     "user": user?.toJson(),
     "mercCustomersDatail": List<dynamic>.from(mercCustomersDatail!.map((x) => x.toJson())),
   };
+
+  @override
+  String toString() {
+    return 'MercDataModel{user: $user, mercCustomersDatail: $mercCustomersDatail}';
+  }
 }
 
 @HiveType(typeId: 28)
@@ -160,6 +165,11 @@ class MercCustomersDatail {
     "totalSelling": totalSelling,
     "totalRefund": totalRefund,
   };
+
+  @override
+  String toString() {
+    return 'MercCustomersDatail{code: $code, name: $name, fullAddress: $fullAddress, ownerPerson: $ownerPerson, phone: $phone, postalCode: $postalCode, area: $area, category: $category, regionalDirectorCode: $regionalDirectorCode, salesDirectorCode: $salesDirectorCode, latitude: $latitude, longitude: $longitude, district: $district, tin: $tin, mainCustomer: $mainCustomer, debt: $debt, action: $action, days: $days, sellingDatas: $sellingDatas, totalPlan: $totalPlan, totalSelling: $totalSelling, totalRefund: $totalRefund, ziyaretSayi: $ziyaretSayi, sndeQalmaVaxti: $sndeQalmaVaxti}';
+  }
 }
 
 
@@ -205,7 +215,7 @@ class SellingData {
   };
 }
 
-@HiveType(typeId: 5)
+@HiveType(typeId: 30)
 class UserMerc {
   @HiveField(1)
   String code;
@@ -245,4 +255,9 @@ class UserMerc {
     "totalSelling": totalSelling,
     "totalRefund": totalRefund,
   };
+
+  @override
+  String toString() {
+    return 'UserMerc{code: $code, name: $name, totalPlan: $totalPlan, totalSelling: $totalSelling, totalRefund: $totalRefund}';
+  }
 }

@@ -27,17 +27,17 @@ class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(2.0).copyWith(left: 5,right: 5),
+    return Material(
+      color: Colors.transparent,
       child: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration:  BoxDecoration(
             boxShadow: [
               BoxShadow(
                   offset: Offset(2, 2),
-                  color: Colors.black,
-                  spreadRadius: 5,
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 1,
                   blurStyle: BlurStyle.outer,
-                  blurRadius: 1)
+                  blurRadius: 5)
             ]),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -56,19 +56,22 @@ class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
                 ],
               ),
             ),
-            SizedBox(
-              height: widget.height,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: modelCariHesabatlar
-                    .getAllHesabatlarListy()
-                    .map((e) => WidgetHesabatListItems(
-                          cAd: widget.cad,
-                          ckod: widget.ckod,
-                          context: context,
-                          modelCariHesabatlar: e,
-                        ))
-                    .toList(),
+            Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: SizedBox(
+                height: widget.height,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: modelCariHesabatlar
+                      .getAllHesabatlarListy()
+                      .map((e) => WidgetHesabatListItems(
+                            cAd: widget.cad,
+                            ckod: widget.ckod,
+                            context: context,
+                            modelCariHesabatlar: e,
+                          ))
+                      .toList(),
+                ),
               ),
             ),
           ],

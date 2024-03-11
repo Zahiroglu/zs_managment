@@ -42,6 +42,7 @@ class _WidgetHesabatListItemsState extends State<WidgetHesabatListItems> {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: () {
           intendByDialog();

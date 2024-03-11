@@ -39,7 +39,7 @@ import 'package:zs_managment/widgets/sual_dialog.dart';
 import '../../base_downloads/screen_download_base.dart';
 import '../../giris_cixis/sceens/yeni_girisCixis.dart';
 import '../../local_bazalar/local_bazalar.dart';
-import '../../users_panel/users_panel_mobile_screen.dart';
+import '../../users_panel/mobile/users_panel_mobile_screen.dart';
 import 'package:zs_managment/language/utils/dep.dart' as dep;
 
 class DrawerMenuController extends getx.GetxController {
@@ -97,7 +97,6 @@ class DrawerMenuController extends getx.GetxController {
   List<SelectionButtonData> addPermisionsInDrawerMenu(LoggedUserModel loggedUser) {
     dviceType = checkDviceType.getDviceType();
     drawerMenus.clear();
-
     SelectionButtonData dashboard = SelectionButtonData(
         icon: Icons.dashboard,
         label: "Dashboard",
@@ -187,6 +186,7 @@ class DrawerMenuController extends getx.GetxController {
         drawerMenus.add(buttonData);
       }
     }
+    drawerMenus.add(buttonUsers);
     drawerMenus.add(buttonstaticAboudAs);
     drawerMenus.add(buttonstaticPrivansyPolisy);
     drawerMenus.add(buttonLogOut);
@@ -494,7 +494,7 @@ class DrawerMenuController extends getx.GetxController {
         if (desktop) {
           pageView = const UserPanelWindosScreen();
         } else {
-          pageView = const UsersPanelScreenMobile();
+          pageView =  UsersPanelScreenMobile(drawerMenuController: this,);
         }
         break;
       case "setting":
@@ -505,8 +505,8 @@ class DrawerMenuController extends getx.GetxController {
           if (modelAppSetting.girisCixisType == "map") {
             pageView = const YeniGirisCixisSon();
           } else {
-            if(userServices.getLoggedUser().userModel!.roleId==17){
-              pageView = const ScreenGirisCixisList();
+            if(userServices.getLoggedUser().userModel!.roleId==17||userServices.getLoggedUser().userModel!.roleId==18||userServices.getLoggedUser().userModel!.roleId==23||userServices.getLoggedUser().userModel!.roleId==24){
+              pageView =  ScreenGirisCixisList(drawerMenuController: this,);
 
             }else{
               pageView =  ScreenGirisCixisUmumiList(drawerMenuController: this,);
@@ -530,8 +530,8 @@ class DrawerMenuController extends getx.GetxController {
         break;
         case "myRut":
           if(userServices.getLoggedUser().userModel!.roleId==23) {
-            MercDataModel model=await localBaseDownloads.getMercDatail(userServices.getLoggedUser().userModel!.code!);
-            pageView = ScreenMercRoutDatail(listGirisCixis: [],listUsers: [],modelMercBaza: model,isMenumRutum: true,drawerMenuController: this,);
+            List<MercDataModel> model=await localBaseDownloads.getAllMercDatail();
+            pageView = ScreenMercRoutDatail(listGirisCixis: [],listUsers: [],modelMercBaza: model.first,isMenumRutum: true,drawerMenuController: this,);
           }break;
       case "logout":
         logOut();

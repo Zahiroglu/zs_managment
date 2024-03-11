@@ -6,15 +6,18 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/companents/widget_listitemsgiriscixis.dart';
+import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
 class ScreenGirisCixisList extends StatefulWidget {
-  const ScreenGirisCixisList({super.key});
+  DrawerMenuController drawerMenuController;
+  ScreenGirisCixisList({required this.drawerMenuController,super.key});
 
   @override
   State<ScreenGirisCixisList> createState() => _ScreenGirisCixisListState();
@@ -54,6 +57,7 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
                 .where((p) => p.selected == true)
                 .first,
             value);
+        _currentLocation=value;
         dataLoading = false;
       });
     });
@@ -209,7 +213,19 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
     return Material(
       child: GetBuilder<ControllerGirisCixisYeni>(builder: (controller) {
         return Scaffold(
-          //  floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+          appBar: AppBar(
+            centerTitle: true,
+            title: CustomText(
+                labeltext: "Giris-Cixis",
+                fontsize: 24,
+                fontWeight: FontWeight.w700),
+            leading: IconButton(
+              onPressed: (){
+                widget.drawerMenuController.openDrawer();
+              },
+              icon: Icon(Icons.menu),
+            ),
+          ),
           floatingActionButton: controllerGirisCixis.marketeGirisEdilib.isFalse
               ? FloatingActionButton(
             onPressed: () {
@@ -237,7 +253,7 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
               child: CircularProgressIndicator(
                 color: Colors.green,
               ))
-              : _body(context, controller),
+              : dataLoading?CircularProgressIndicator(color: Colors.teal,):_body(context, controller),
         );
       }),
     );
@@ -249,10 +265,6 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(
-            height: 40,
-          ),
-          widgetHeader(),
           controllerGirisCixis.marketeGirisEdilib.isTrue
               ? const SizedBox()
               : widgetTabBar(),
@@ -444,7 +456,7 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         controllerGirisCixis.marketeGirisEdilib.isFalse&&(controllerGirisCixis.listSifarisler.isNotEmpty||controllerGirisCixis.listIadeler.isNotEmpty)?controllerGirisCixis.cardTotalSifarisler(context,false):SizedBox(),
-        controllerGirisCixis.listTabItems.indexOf(selectedTabItem) != 3
+        selectedTabItem.keyText!="z"
             ? Padding(
           padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
           child: CustomText(
@@ -461,9 +473,7 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
                 .of(context)
                 .size
                 .height * 0.70,
-            child: controllerGirisCixis.listTabItems
-                .indexOf(selectedTabItem) !=
-                3
+            child: selectedTabItem.keyText!="z"
                 ? ListView(
               controller: scrollController,
               padding: const EdgeInsets.all(0).copyWith(bottom: 25),
@@ -657,70 +667,89 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          CustomText(
-                            textAlign: TextAlign.center,
-                            labeltext: "sahib".tr,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontsize: 14,
+                          Padding(
+                            padding: const EdgeInsets.all(2.0).copyWith(left: 2,bottom: 2),
+                            child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: _infoMarketRout(e,context),
+                                )),
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Expanded(
-                            child: CustomText(
-                              fontsize: 12,
-                              maxline: 1,
-                              overflow: TextOverflow.ellipsis,
-                              labeltext: e.ownerPerson.toString().isEmpty?"mSexsTapilmadi".tr: e.ownerPerson.toString(),
-                              color: Colors.black,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.social_distance,
-                                  color: Colors.green),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              CustomText(
-                                labeltext: e.mesafe ?? "0m",
-                                color: Colors.green,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              )
-                            ],
-                          ),
+                          const SizedBox(width: 10,),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            textAlign: TextAlign.center,
-                            labeltext: "borc".tr,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontsize: 14,
-                          ),
-                          CustomText(
-                            labeltext: " ${e.debt} ₼",
-                            color: e.debt
-                                .toString()
-                                .isNotEmpty
-                                ? Colors.red
-                                : Colors.black,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     CustomText(
+                      //       textAlign: TextAlign.center,
+                      //       labeltext: "sahib".tr,
+                      //       color: Colors.black,
+                      //       fontWeight: FontWeight.bold,
+                      //       fontsize: 14,
+                      //     ),
+                      //     const SizedBox(
+                      //       width: 5,
+                      //     ),
+                      //     Expanded(
+                      //       child: CustomText(
+                      //         fontsize: 12,
+                      //         maxline: 1,
+                      //         overflow: TextOverflow.ellipsis,
+                      //         labeltext: e.ownerPerson.toString().isEmpty?"mSexsTapilmadi".tr: e.ownerPerson.toString(),
+                      //         color: Colors.black,
+                      //         fontWeight: FontWeight.normal,
+                      //       ),
+                      //     ),
+                      //     Row(
+                      //       mainAxisAlignment: MainAxisAlignment.start,
+                      //       children: [
+                      //         const Icon(Icons.social_distance,
+                      //             color: Colors.green),
+                      //         const SizedBox(
+                      //           width: 5,
+                      //         ),
+                      //         CustomText(
+                      //           labeltext: e.mesafe ?? "0m",
+                      //           color: Colors.green,
+                      //           fontWeight: FontWeight.normal,
+                      //         ),
+                      //         const SizedBox(
+                      //           width: 5,
+                      //         )
+                      //       ],
+                      //     ),
+                      //   ],
+                      // ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     CustomText(
+                      //       textAlign: TextAlign.center,
+                      //       labeltext: "borc".tr,
+                      //       color: Colors.black,
+                      //       fontWeight: FontWeight.bold,
+                      //       fontsize: 14,
+                      //     ),
+                      //     CustomText(
+                      //       labeltext: " ${e.debt} ₼",
+                      //       color: e.debt
+                      //           .toString()
+                      //           .isNotEmpty
+                      //           ? Colors.red
+                      //           : Colors.black,
+                      //       fontWeight: FontWeight.normal,
+                      //     ),
+                      //     const Spacer(),
+                      //   ],
+                      // ),
                       controllerGirisCixis.musteriZiyaretDetail(e),
                     ],
                   )
@@ -741,6 +770,57 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
                     Get.toNamed(RouteHelper.getwidgetScreenMusteriDetail(),arguments: [e,controllerGirisCixis.availableMap.value]);
                   },
                   child: const Icon(Icons.info,color: Colors.blue)))
+        ],
+      ),
+    );
+  }
+  Widget _infoMarketRout(ModelCariler element, BuildContext context) {
+    int valuMore = 0;
+    if (element.days!.any((element) => element.day==1)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==2)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==3)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==4)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==5)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==6)) {
+      valuMore = valuMore + 1;
+    }
+    return SizedBox(
+      height: valuMore > 5 ? 60 : 28,
+      child: Wrap(
+        direction: Axis.horizontal,
+        alignment: WrapAlignment.start,
+        children: [
+          element.days!.any((element) => element.day==1)
+              ? WidgetRutGunu(rutGunu: "gun1".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==2)
+              ? WidgetRutGunu(rutGunu: "gun2".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==3)
+              ? WidgetRutGunu(rutGunu: "gun3".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==4)
+              ? WidgetRutGunu(rutGunu: "gun4".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==5)
+              ? WidgetRutGunu(rutGunu: "gun5".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==6)
+              ? WidgetRutGunu(rutGunu: "gun6".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==7)
+              ? WidgetRutGunu(rutGunu: "bagli".tr)
+              : const SizedBox(),
         ],
       ),
     );
@@ -775,9 +855,8 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomText(labeltext: "Hesabtalar"),
         SizedBox(
-            height: 100,
+            height: 130,
             child: controllerGirisCixis
                 .widgetMusteriHesabatlari(selectedCariModel)),
         const SizedBox(
@@ -1235,13 +1314,6 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
                 children: [
                   const SizedBox(
                     height: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(0.0).copyWith(left: 10),
-                    child: CustomText(
-                        labeltext: "Markete aid hesabatlar",
-                        fontsize: 18,
-                        fontWeight: FontWeight.bold),
                   ),
                   controllerGirisCixis
                       .widgetMusteriHesabatlari(selectedCariModel),

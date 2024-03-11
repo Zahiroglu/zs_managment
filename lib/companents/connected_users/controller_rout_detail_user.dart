@@ -306,6 +306,7 @@ class ControllerRoutDetailUser extends GetxController {
             icon: Icons.error,
             callback: () {
               Get.back();
+              Get.back();
             }));
       }
     }

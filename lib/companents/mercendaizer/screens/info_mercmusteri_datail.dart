@@ -64,7 +64,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                     elevation: 0,
                     backgroundColor: Colors.white,
                     centerTitle: false,
-                    expandedHeight: 450,
+                    expandedHeight: 430,
                     pinned: true,
                     floating: false,
                     stretch: true,
@@ -127,7 +127,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
 
   widgetSatisInfo(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5.0).copyWith(top: 50),
+      padding: const EdgeInsets.all(5.0).copyWith(top: 40),
       child: Stack(
         children: [
           Padding(
@@ -245,7 +245,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                       Row(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(5.0).copyWith(left: 2,bottom: 2),
+                            padding: const EdgeInsets.all(2.0).copyWith(left: 2,bottom: 2),
                             child: DecoratedBox(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
@@ -255,7 +255,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                             ),
                               child: Padding(
                                 padding: const EdgeInsets.all(3.0),
-                                child: _infoMarketRout(widget.modelMerc),
+                                child: _infoMarketRout(widget.modelMerc,context),
                               )),
                           ),
                           const SizedBox(width: 10,),
@@ -280,7 +280,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
       return WidgetCarihesabatlar(cad:widget.modelMerc.name! , ckod: widget.modelMerc.code!, height: 100);
   }
 
-  Widget _infoMarketRout(MercCustomersDatail element) {
+  Widget _infoMarketRout(MercCustomersDatail element, BuildContext context) {
     int valuMore = 0;
     if (element.days.any((element) => element.day==1)) {
       valuMore = valuMore + 1;
@@ -301,8 +301,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
       valuMore = valuMore + 1;
     }
     return SizedBox(
-      height: valuMore > 4 ? 60 : 28,
-      width: 250,
+      height: valuMore > 5 ? 60 : 28,
+      width: MediaQuery.of(context).size.width*0.75,
       child: Wrap(
         direction: Axis.horizontal,
         alignment: WrapAlignment.start,
@@ -364,7 +364,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                   element.totalSelling.round(),
           Colors.red),
     ];
-    return SimpleChart(listCharts: chartData, height: 135, width: 150);
+    return SimpleChart(listCharts: chartData, height: 130, width: 150);
   }
 
   Widget chartWidgetSimple(SellingData element) {
@@ -409,6 +409,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
         children: [
           Expanded(
             child: ListView.builder(
+              padding: EdgeInsets.zero,
                 itemCount: widget.modelMerc.sellingDatas.length,
                 itemBuilder: (c, index) {
                   return widgetSatisDetal( widget.modelMerc.sellingDatas.elementAt(index));
@@ -499,6 +500,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
         children: [
           Expanded(
             child: ListView.builder(
+                padding: EdgeInsets.zero,
                 itemCount: widget.listGirisCixis.length,
                 itemBuilder: (c, index) {
                   return widgetListGirisItems(widget.listGirisCixis.elementAt(index));
@@ -657,7 +659,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
   }
 
   void _editMercCari() {
-    Get.toNamed(RouteHelper.getScreenEditMercMusteri(),arguments: [widget.modelMerc,widget.listUsers]);
+    Get.toNamed(RouteHelper.getScreenEditMercMusteri(),arguments: [widget.modelMerc,widget.listUsers,widget.modelMerc.code,widget.modelMerc.name]);
   }
 
   void _onPageViewChange(int value) {

@@ -74,11 +74,11 @@ class ControllerMercPref extends GetxController {
   void getAllCariler(MercDataModel listMercBaza, List<ModelGirisCixis> listGirisCixis) {
     for (MercCustomersDatail model in listMercBaza.mercCustomersDatail!) {
       model.ziyaretSayi = listGirisCixis.where((e) => e.cariAd == model.name).toList().length;
-      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariAd == model.name!).toList());
+      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariAd == model.name).toList());
       listSelectedMercBaza.add(model);
     }
     circulateMotivasion();
-    listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
+    listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days.any((element) => element.day==1)).toList();
     listZiyeretEdilmeyenler.value = listSelectedMercBaza.where((p0) => p0.ziyaretSayi==0).toList();
     listTabItems.value = [
       ModelTamItemsGiris(

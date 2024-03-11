@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_dialog/dialog_select_user_connections.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
+import 'package:zs_managment/widgets/custom_text_field.dart';
 import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 
 class ScreenMercCariEdit extends StatefulWidget {
-  ModelMercBaza modelMerc;
+  MercCustomersDatail modelMerc;
   List<UserModel> listUsers;
+  String mercKod;
+  String mercAd;
 
   ScreenMercCariEdit(
-      {required this.modelMerc, required this.listUsers, super.key});
+      {required this.modelMerc, required this.listUsers,required this.mercAd,required this.mercKod, super.key});
 
   @override
   State<ScreenMercCariEdit> createState() => _ScreenMercCariEditState();
@@ -21,7 +27,9 @@ class ScreenMercCariEdit extends StatefulWidget {
 
 class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   List<User> listUsers=[];
-  late ModelMercBaza modelMerc;
+  String selectedMercKod="";
+  String selectedMercAd="";
+  late MercCustomersDatail modelMerc;
   bool rutGunuBir = false;
   bool rutGunuIki = false;
   bool rutGunuUc = false;
@@ -37,19 +45,27 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
           roleId: element.roleId,
           roleName: element.roleName,
           fullName: element.name,
-        isSelected: element.code==widget.modelMerc.rutadi,
+        isSelected: element.code==widget.modelMerc.code,
       ));
 
     }
     modelMerc=widget.modelMerc;
-    rutGunuBir = modelMerc.gun1 == "1";
-    rutGunuIki = modelMerc.gun2 == "1";
-    rutGunuUc = modelMerc.gun3 == "1";
-    rutGunuDort = modelMerc.gun4 == "1";
-    rutGunuBes = modelMerc.gun5 == "1";
-    rutGunuAlti = modelMerc.gun6 == "1";
+    rutGunuBir = modelMerc.days.any((element) => element.day==1);
+    rutGunuIki = modelMerc.days.any((element) => element.day==2);
+    rutGunuUc = modelMerc.days.any((element) => element.day==3);
+    rutGunuDort = modelMerc.days.any((element) => element.day==4);
+    rutGunuBes = modelMerc.days.any((element) => element.day==5);
+    rutGunuAlti = modelMerc.days.any((element) => element.day==6);
+    selectedMercKod=widget.mercKod;
+    selectedMercAd=widget.mercAd;
     // TODO: implement initState
     super.initState();
+  }
+
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -58,7 +74,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         child: SafeArea(
             child: Scaffold(
       appBar: AppBar(
-        title: CustomText(labeltext: widget.modelMerc.cariad!),
+        title: CustomText(labeltext: widget.modelMerc.name),
       ),
       body: _body(context),
     )));
@@ -68,6 +84,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
     return Column(
       children: [
         _infoMerc(context),
+       _infoPlan(context),
         widgetRutGunleri(context),
       ],
     );
@@ -77,11 +94,11 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
     return InkWell(
       onTap: (){
         Get.dialog(DialogSimpleUserSelect(
-          selectedUserCode: widget.modelMerc.rutadi!,
+          selectedUserCode: widget.modelMerc.code,
           getSelectedUse:  (selectedUser) {
             setState(() {
-              modelMerc.rutadi=selectedUser.code;
-              modelMerc.mercadi=selectedUser.name;
+              modelMerc.code=selectedUser.code!;
+              modelMerc.name=selectedUser.name!;
             });
           },
           listUsers: widget.listUsers,
@@ -126,14 +143,14 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                     children: [
                       Row(
                         children: [
-                          CustomText(labeltext: "rutKod".tr+ " : "),
-                          CustomText(labeltext: modelMerc.rutadi!,fontWeight: FontWeight.w700,),
+                          CustomText(labeltext: "${"rutKod".tr} : "),
+                          CustomText(labeltext: modelMerc.code,fontWeight: FontWeight.w700,),
                         ],
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "merc".tr+ " : "),
-                          CustomText(labeltext: modelMerc.mercadi!,fontWeight: FontWeight.w700,),
+                          CustomText(labeltext: "${"merc".tr} : "),
+                          CustomText(labeltext: modelMerc.name,fontWeight: FontWeight.w700,),
                         ],
                       ),
                     ],
@@ -148,11 +165,11 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                   iconSize: 32,
                   onPressed: (){
                     Get.dialog(DialogSimpleUserSelect(
-                      selectedUserCode: widget.modelMerc.rutadi!,
+                      selectedUserCode: selectedMercKod,
                       getSelectedUse:  (selectedUser) {
                         setState(() {
-                          modelMerc.rutadi=selectedUser.code;
-                          modelMerc.mercadi=selectedUser.name;
+                          selectedMercKod=selectedUser.code!;
+                          selectedMercAd=selectedUser.name!;
                         });
                       },
                       listUsers: widget.listUsers,
@@ -167,6 +184,166 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       ),
     );
   }
+
+  Widget _infoPlan(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(0.0).copyWith(left: 10,top: 10,bottom: 5,right: 10),
+      child: Stack(
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(0.0).copyWith(left: 10),
+                child: CustomText(
+                  labeltext: "plan".tr,
+                  fontsize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  border: Border.all(color: Colors.grey)
+                ),
+                child: Column(
+                  children: [
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
+                        color: Colors.grey.withOpacity(0.3)
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0).copyWith(left: 10,right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                          Row(
+                            children: [
+                              CustomText(labeltext: "plan".tr+" : "),
+                              CustomText(labeltext: modelMerc.totalPlan.toString())
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              CustomText(labeltext: "satis".tr+" : "),
+                              CustomText(labeltext: modelMerc.totalSelling.toString())
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              CustomText(labeltext: "zaymal".tr+" : "),
+                              CustomText(labeltext: modelMerc.totalRefund.toString())
+                            ],
+                          )
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: modelMerc.sellingDatas.length*110,
+                      child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: modelMerc.sellingDatas.length,
+                          itemBuilder: (c, index) {
+                            return widgetSatisDetal( modelMerc.sellingDatas.elementAt(index));
+                          }),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+
+        ],
+      ),
+    );
+  }
+
+  widgetSatisDetal(SellingData element) {
+    return Card(
+      elevation: 5,
+      margin: const EdgeInsets.only(top: 5,right: 10,left: 10,bottom: 5),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"expeditor".tr} : ",fontWeight: FontWeight.w700),
+                    CustomText(labeltext: element.forwarderCode),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10,right: 20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CustomText(
+                                      labeltext: "${"plan".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
+                                  CustomText(
+                                      labeltext:
+                                      "${element.plans} ${"manatSimbol".tr}",
+                                      fontsize: 14),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  CustomText(
+                                      labeltext: "${"satis".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
+                                  CustomText(
+                                      labeltext:
+                                      "${element.selling} ${"manatSimbol".tr}",
+                                      fontsize: 14),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  CustomText(
+                                      labeltext: "${"zaymal".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
+                                  CustomText(
+                                      labeltext:
+                                      "${element.refund} ${"manatSimbol".tr}",
+                                      fontsize: 14),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Positioned(
+                top: 0,
+                right: 0,
+                height: 50,
+                child: CustomElevetedButton(
+              label: "Plan deyis",
+              cllback: (){},
+                  elevation: 5,
+              icon: Icons.edit,
+            ))
+          ],
+        ),
+      ),
+    );
+  }
+
 
   Widget widgetRutGunleri(BuildContext context) {
     return Padding(

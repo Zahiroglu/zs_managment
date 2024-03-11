@@ -805,9 +805,8 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomText(labeltext: "Hesabtalar"),
         SizedBox(
-            height: 100,
+            height: 130,
             child: controllerGirisCixis
                 .widgetMusteriHesabatlari(selectedCariModel)),
         const SizedBox(
@@ -1265,13 +1264,6 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
                 children: [
                   const SizedBox(
                     height: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(0.0).copyWith(left: 10),
-                    child: CustomText(
-                        labeltext: "Markete aid hesabatlar",
-                        fontsize: 18,
-                        fontWeight: FontWeight.bold),
                   ),
                   controllerGirisCixis.widgetMusteriHesabatlari(selectedCariModel),
                   const SizedBox(

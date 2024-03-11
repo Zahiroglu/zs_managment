@@ -80,23 +80,27 @@ class ControllerBaseDownloads extends GetxController {
             lastDownDay: "",
             donloading: false,
             musteDonwload: true));
-      } else if (element.code == "enter") {
-        listDonwloads.add(ModelDownloads(
-            name: "Cari Baza",
-            donloading: false,
-            code: "enter",
-            info:
-                "Satis Temsilcilerinin erazi uzre cari musteri bazasini gormesi ucun lazimdir.",
-            lastDownDay: "",
-            musteDonwload: true));
-      }else if (element.code == "myRut") {
-        listDonwloads.add(ModelDownloads(
-            name: "Menim rutum",
-            donloading: false,
-            code: "myRut",
-            info: "Rut melumatlari ve motivasiya melumatlari ucun lazimdir",
-            lastDownDay: "",
-            musteDonwload: true));
+      }
+      if(localUserServices.getLoggedUser().userModel!.roleId==23){
+        if (element.code == "myRut") {
+          listDonwloads.add(ModelDownloads(
+              name: "Menim rutum",
+              donloading: false,
+              code: "myRut",
+              info: "Rut melumatlari ve motivasiya melumatlari ucun lazimdir",
+              lastDownDay: "",
+              musteDonwload: true));
+        }
+      }else{
+        if (element.code == "enter") {
+          listDonwloads.add(ModelDownloads(
+              name: "Cari Baza",
+              donloading: false,
+              code: "enter",
+              info: "Satis Temsilcilerinin erazi uzre cari musteri bazasini gormesi ucun lazimdir.",
+              lastDownDay: "",
+              musteDonwload: true));
+        }
       }
     }
   }
@@ -330,10 +334,10 @@ class ControllerBaseDownloads extends GetxController {
 
   Future<void> melumatlariEndir(ModelDownloads model, bool guncelle) async {
     await localGirisCixisServiz.init();
-    loggedUserModel = localUserServices.getLoggedUser();
     DialogHelper.showLoading("${model.name!} endirilir...");
     switch (model.code) {
       case "myUserRut":
+        loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
         await localBaseDownloads.addConnectedUsers(listUser);
         if (listUser.isNotEmpty) {
@@ -350,6 +354,7 @@ class ControllerBaseDownloads extends GetxController {
         }
         break;
       case "warehouse":
+        loggedUserModel = localUserServices.getLoggedUser();
         List<ModelAnbarRapor> data = await getDataAnbar(soapadress, soaphost);
         await localBaseDownloads.addAnbarBaza(data);
         if (data.isNotEmpty) {
@@ -367,12 +372,13 @@ class ControllerBaseDownloads extends GetxController {
         }
         break;
       case "enter":
-        List<ModelCariler> data = await getAllExpCustomers();
-        await localBaseDownloads.addCariBaza(data);
+        loggedUserModel = localUserServices.getLoggedUser();
+        List<ModelCariler> data = await getAllCustomers();
         if (data.isNotEmpty) {
           listDonwloads.remove(model);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
+          await localBaseDownloads.addCariBaza(data);
           localBaseDownloads.addDownloadedBaseInfo(model);
           localGirisCixisServiz.clearAllGiris();
           if (guncelle) {
@@ -381,25 +387,26 @@ class ControllerBaseDownloads extends GetxController {
           } else {
             listDownloadsFromLocalDb.add(model);
           }
-        }  
+        }
         case "myRut":
+          loggedUserModel = localUserServices.getLoggedUser();
           if(loggedUserModel.userModel!.roleId==23)//merc cari baza endirmek ucundur
           {
-            // MercDataModel data = await getDataFromServerMercBaza(loggedUserModel.userModel!.code!);
-            // if (data.user!=null) {
-            //   listDonwloads.remove(model);
-            //   model.lastDownDay = DateTime.now().toIso8601String();
-            //   model.musteDonwload = false;
-            //   localBaseDownloads.addDownloadedBaseInfo(model);
-            //   localBaseDownloads.addCariToMercBaza(data);
-            //   if (guncelle) {
-            //     listDownloadsFromLocalDb.remove(model);
-            //     listDownloadsFromLocalDb.add(model);
-            //   } else {
-            //     listDownloadsFromLocalDb.add(model);
-            //   }
-            // }
-            //
+            MercDataModel data = await getAllMercCariBaza(loggedUserModel.userModel!.code!);
+            if (data.user!=null) {
+              listDonwloads.remove(model);
+              model.lastDownDay = DateTime.now().toIso8601String();
+              model.musteDonwload = false;
+              localBaseDownloads.addDownloadedBaseInfo(model);
+              localBaseDownloads.addCariToMercBaza(data);
+              if (guncelle) {
+                listDownloadsFromLocalDb.remove(model);
+                listDownloadsFromLocalDb.add(model);
+              } else {
+                listDownloadsFromLocalDb.add(model);
+              }
+            }
+
           }
 
         break;
@@ -527,13 +534,13 @@ class ControllerBaseDownloads extends GetxController {
   }
 
   ///Get Exp cari Baza From Serviz
-  Future<List<ModelCariler>> getAllExpCustomers() async {
-    List<String> secilmisTemsilciler = [];
-    List<ModelCariler> listUsers = [];
-    languageIndex = await getLanguageIndex();
+  Future<List<ModelCariler>> getAllCustomers() async {
+    List<ModelCariler> listUsers=[];
     int dviceType = checkDviceType.getDviceType();
-    loggedUserModel = localUserServices.getLoggedUser();
+    LoggedUserModel loggedUserModel=localUserServices.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+    List<String> secilmisTemsilciler=[];
     await localBaseDownloads.init();
     List<UserModel> listUsersSelected = localBaseDownloads
         .getAllConnectedUserFromLocal()
@@ -546,6 +553,7 @@ class ControllerBaseDownloads extends GetxController {
         secilmisTemsilciler.add(element.code!);
       }
     }
+
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
@@ -555,22 +563,22 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
-              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
-              data: jsonEncode(secilmisTemsilciler),
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
+        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
+          data:jsonEncode(secilmisTemsilciler),
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        print("responce kode :"+response.data.toString());
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
@@ -578,13 +586,25 @@ class ControllerBaseDownloads extends GetxController {
             callback: () {},
           ));
         } else {
-          // print("Request responce My USER INFO:" + response.data.toString());
           if (response.statusCode == 200) {
-            var userlist = json.encode(response.data['result']);
-            List listuser = jsonDecode(userlist);
-            for (var i in listuser) {
-              listUsers.add(ModelCariler.fromJson(i));
+            var dataModel = json.encode(response.data['result']);
+            print("dataModel :"+dataModel.toString());
+            List listuser = jsonDecode(dataModel);
+            for(var i in listuser){
+              var dataCus = json.encode(i['customers']);
+              var temsilciKodu=i['user']['code'];
+              print("temsilciKodu :"+temsilciKodu.toString());
+
+              List listDataCustomers = jsonDecode(dataCus);
+              for(var a in listDataCustomers){
+                ModelCariler model=ModelCariler.fromJson(a);
+                model.forwarderCode=temsilciKodu;
+                print("a custim :"+a.toString());
+                listUsers.add(model);
+
+              }
             }
+
           } else {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
             Get.dialog(ShowInfoDialog(
@@ -615,11 +635,13 @@ class ControllerBaseDownloads extends GetxController {
   }
 
   ///Cari Merc Baza endirme/////////
-  Future<List<ModelMercBaza>> getAllMercCariBaza() async {
-    List<ModelMercBaza> listUsers = [];
+  Future<MercDataModel> getAllMercCariBaza(String temKod) async {
+    MercDataModel listUsers=MercDataModel();
     languageIndex = await getLanguageIndex();
+    List<String> secilmisTemsilciler=[];
+    secilmisTemsilciler.add(temKod);
     int dviceType = checkDviceType.getDviceType();
-    loggedUserModel = localUserServices.getLoggedUser();
+    LoggedUserModel loggedUserModel=localUserServices.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
@@ -630,8 +652,8 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().get(
-          "${loggedUserModel.baseUrl}/api/v1/User/my-connected-users",
+        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+          data:jsonEncode(secilmisTemsilciler),
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
             headers: {
@@ -645,7 +667,7 @@ class ControllerBaseDownloads extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-
+        print("responce kode :"+response.data.toString());
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
@@ -653,14 +675,14 @@ class ControllerBaseDownloads extends GetxController {
             callback: () {},
           ));
         } else {
-          // print("Request responce My USER INFO:" + response.data.toString());
           if (response.statusCode == 200) {
-            var userlist = json.encode(response.data['result']);
-            List listuser = jsonDecode(userlist);
-            print("list :" + listuser.length.toString());
-            for (var i in listuser) {
-            //  listUsers.add(ModelMercBaza);
+            var dataModel = json.encode(response.data['result']);
+            List listuser = jsonDecode(dataModel);
+            for(var i in listuser){
+              listUsers=MercDataModel.fromJson(i);
             }
+
+
           } else {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
             Get.dialog(ShowInfoDialog(
@@ -940,12 +962,12 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     _donloadListiniDoldur();
     callLocalBases();
     listDonwloadsAll.clear();
-    listDonwloads.forEach((element) {
+    for (var element in listDonwloads) {
       listDonwloadsAll.add(element);
-    });
-    listDownloadsFromLocalDb.forEach((element) {
+    }
+    for (var element in listDownloadsFromLocalDb) {
       listDonwloadsAll.add(element);
-    });
+    }
     for (var element in listDonwloadsAll) {
       listDonwloads.remove(element);
       listDownloadsFromLocalDb.remove(element);
@@ -988,7 +1010,6 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 responseType: ResponseType.json,
               ),
             );
-        print("Request responce My USER INFO:" + response.data.toString());
         if (response.statusCode == 404) {
           DialogHelper.hideLoading();
           Get.dialog(ShowInfoDialog(
@@ -1010,6 +1031,10 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 userModel: modelUser);
             localUserServices.init();
             localUserServices.addUserToLocalDB(modelLogged);
+            DrawerMenuController controller=Get.put(DrawerMenuController());
+            controller.onInit();
+            controller.addPermisionsInDrawerMenu(loggedUserModel);
+            update();
           } else {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
             Get.dialog(ShowInfoDialog(
@@ -1032,7 +1057,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          messaje: e.message ?? "baglantierror".tr,
           callback: () {},
         ));
         DialogHelper.hideLoading();

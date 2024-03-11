@@ -1,36 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 class ScreenMercRutSirasiEdit extends StatefulWidget {
-  List<ModelMercBaza> listRutGunleri;
+  List<MercCustomersDatail> listRutGunleri;
   String rutGunu;
-  ScreenMercRutSirasiEdit({required this.listRutGunleri,required this.rutGunu,super.key});
+  int rutGunuInt;
+  ScreenMercRutSirasiEdit({required this.listRutGunleri,required this.rutGunu,required this.rutGunuInt,super.key});
 
   @override
   State<ScreenMercRutSirasiEdit> createState() => _ScreenMercRutSirasiEditState();
 }
 
 class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
-  List<ModelMercBaza> listRutGunleri=[];
+  List<MercCustomersDatail> listRutGunleri=[];
   bool deyisiklikEdildi=false;
 
 @override
   void initState() {
+
   for (var element in widget.listRutGunleri) {
       listRutGunleri.add(element);
   }
-  final Map<String, ModelMercBaza> profileMap = {};
-  for (var item in widget.listRutGunleri) {
-    profileMap[item.cariad!] = item;
-  }
-  listRutGunleri = profileMap.values.toList();
+  melumatlariFilterle( widget.listRutGunleri);
   super.initState();
   }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Material(child:  Scaffold(
@@ -63,7 +66,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     ));
   }
 
-  _body(List<ModelMercBaza> listRutGunleri) {
+  _body(List<MercCustomersDatail> listRutGunleri) {
     return SizedBox(
       height:deyisiklikEdildi?MediaQuery.of(context).size.height*0.8:MediaQuery.of(context).size.height*0.85,
       child: ReorderableListView(
@@ -74,7 +77,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
           contentPadding: const EdgeInsets.all(0).copyWith(left: 10,bottom: 5,right: 10),
           splashColor: Colors.orange,
           title: _listItem(e),
-          key: ValueKey(e.carikod),
+          key: ValueKey(e.code),
         )).toList(),
         onReorder: (oldIndex,newIndex){
           _changeListOrder(oldIndex,newIndex);
@@ -88,17 +91,19 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     if(oldIndex<newIndex){
       newIndex--;
     }
-    ModelMercBaza model=listRutGunleri.removeAt(oldIndex);
+    MercCustomersDatail model=listRutGunleri.removeAt(oldIndex);
+    model.days.where((element) => element.day==widget.rutGunuInt).first.day==newIndex;
     listRutGunleri.insert(newIndex, model);
     deyisiklikEdildi=true;
   });
+  melumatlariFilterle(listRutGunleri);
   }
 
-  _listItem(ModelMercBaza e) {
+  _listItem(MercCustomersDatail e) {
   return Container(
-    height: 60,
+    height: 120,
     decoration: BoxDecoration(
-      boxShadow:  [
+      boxShadow:  const [
         BoxShadow(
           color: Colors.black,
           offset: Offset(0,0),
@@ -138,10 +143,10 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
                       ),
 
                     ),
-                    SizedBox(width: 10,),
+                    const SizedBox(width: 10,),
                     SizedBox(
                         width: MediaQuery.of(context).size.width*0.7,
-                        child: CustomText(labeltext:  e.cariad!,maxline: 2,overflow: TextOverflow.ellipsis)),
+                        child: CustomText(labeltext:  e.name.toString(),maxline: 2,overflow: TextOverflow.ellipsis)),
                   ],
                 ),
               ],
@@ -150,19 +155,25 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
           IconButton(onPressed: (){}, icon: Icon(Icons.drag_handle_outlined))
         ],
       ),
+      Positioned(
+          bottom: 0,
+          child: SizedBox(
+              width: 300,
+              child: Expanded(child: CustomText(labeltext: e.days.toString(),maxline: 5,fontsize: 10,))))
     ]),
-    // decoration: BoxDecoration(
-    //   boxShadow: [
-    //     BoxShadow(
-    //       color: Colors.grey,
-    //       blurRadius: 1,
-    //       spreadRadius: 2,
-    //       offset: Offset(5,5)
-    //     )
-    //   ]
-    // ),
 
   );
+  }
+
+  void melumatlariFilterle(List<MercCustomersDatail> listRutGunleri) {
+    final Map<int, MercCustomersDatail> profileMap = {};
+    for (var item in listRutGunleri) {
+      profileMap[item.days.where((element) => element.day==widget.rutGunuInt).first.orderNumber] = item;
+    }
+    profileMap.keys.toList().sort(((a, b) => b.compareTo(a)));
+    listRutGunleri = profileMap.values.toList();
+    listRutGunleri = widget.listRutGunleri;
+    setState(() {});
   }
 
 }

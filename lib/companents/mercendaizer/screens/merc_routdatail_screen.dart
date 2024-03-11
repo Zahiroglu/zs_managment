@@ -1094,7 +1094,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                 right: -10,
                 child:IconButton(
                   onPressed: (){
-                    _intentRutSirasiScreen(rutGunu);
+                    _intentRutSirasiScreen(rutGunu,gunInt);
                   },
                   icon:  Icon(Icons.edit,color: Colors.red,size: 18,),
                 )):SizedBox():SizedBox(),
@@ -1397,8 +1397,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     );
   }
 
-  void _intentRutSirasiScreen(String rutGunu) {
-    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri.value,rutGunu]);
+  void _intentRutSirasiScreen(String rutGunu, int gunInt) {
+    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri,rutGunu,gunInt]);
   }
 
 }

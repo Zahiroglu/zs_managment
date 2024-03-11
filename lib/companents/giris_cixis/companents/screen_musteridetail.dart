@@ -40,187 +40,189 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: Scaffold(
-        body: Stack(
-          children: [
-            SizedBox(width: MediaQuery
-                .of(context)
-                .size
-                .width, height: MediaQuery
-                .of(context)
-                .size
-                .height,),
-            Container(
-              decoration: const BoxDecoration(boxShadow: [
-                BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 1,
-                    offset: Offset(2, 0))
-              ]),
-              height: MediaQuery
+      child: SafeArea(
+        child: Scaffold(
+          body: Stack(
+            children: [
+              SizedBox(width: MediaQuery
                   .of(context)
                   .size
-                  .height / 3,
-              width: MediaQuery
+                  .width, height: MediaQuery
                   .of(context)
                   .size
-                  .width,
-              child: myGoogleMap(),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Positioned(
-                top: (MediaQuery
+                  .height,),
+              Container(
+                decoration: const BoxDecoration(boxShadow: [
+                  BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 1,
+                      offset: Offset(2, 0))
+                ]),
+                height: MediaQuery
                     .of(context)
                     .size
-                    .height / 3) - 50,
-                child: Container(
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xaabbbbbb),
-                          Color(0xFFFFFFFF),
-                        ],
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        stops: [0.0, 1.0],
-                        tileMode: TileMode.decal,
-                      )
-                  ),
-                  height: 50,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(width: 10,),
-                      Icon(Icons.shopping_cart),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Expanded(
-                          child: CustomText(
-                            maxline: 2,
-                            overflow: TextOverflow.ellipsis,
-                            labeltext: widget.modelCariler.name!,
-                            color: Colors.black, fontWeight: FontWeight.bold,),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-            SizedBox(
-              height: 100,
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.blue,
-                  shape: CircleBorder(),
-                ),
-                child: IconButton(
-                    icon: backClicked
-                        ? Icon(Icons.arrow_downward)
-                        : Icon(Icons.arrow_upward),
-                    onPressed: () {
-                      setState(() {
-                        backClicked = true;
-                      });
-                      Get.back();
-                    }),
-              ),
-            ),
-            widget.modelCariler.mesafe!="s"?Positioned(
-                top: 10,
-                right: 10,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.blue, width: 1),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.directions, color: Colors.blue),
-                      CustomText(labeltext: widget.modelCariler.mesafe??"0"),
-                    ],
-                  ),
-                )):SizedBox(),
-            Positioned(
-                top: (MediaQuery
-                    .of(context)
-                    .size
-                    .height / 3) - 75,
-                right: 5,
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.red, width: 1),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                          'images/moneyback.png', width: 25, height: 25),
-                      SizedBox(width: 5,),
-                      CustomText(labeltext: widget.modelCariler.debt.toString()! + " ₼",
-                          fontsize: 16),
-                    ],
-                  ),
-                )),
-            Positioned(
-              top: MediaQuery
-                  .of(context)
-                  .size
-                  .height / 3.1,
-              child: Container(
-                margin: const EdgeInsets.all(5),
-                padding: const EdgeInsets.symmetric(
-                    vertical: 10, horizontal: 10),
+                    .height / 3,
                 width: MediaQuery
                     .of(context)
                     .size
                     .width,
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height - MediaQuery
-                    .of(context)
-                    .size
-                    .height / 3 ,
-                color: Colors.white12,
-                child: widgetDigerMelumatlar(),
+                child: myGoogleMap(),
               ),
-
-            ),
-            Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: CustomElevetedButton(
-                textsize: 16,
-                hasshadow: true,
-                height: 35,
-                width: MediaQuery
+              const SizedBox(
+                height: 10,
+              ),
+              Positioned(
+                  top: (MediaQuery
+                      .of(context)
+                      .size
+                      .height / 3) - 50,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xaabbbbbb),
+                            Color(0xFFFFFFFF),
+                          ],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          stops: [0.0, 1.0],
+                          tileMode: TileMode.decal,
+                        )
+                    ),
+                    height: 50,
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(width: 10,),
+                        Icon(Icons.shopping_cart),
+                        Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Expanded(
+                            child: CustomText(
+                              maxline: 2,
+                              overflow: TextOverflow.ellipsis,
+                              labeltext: widget.modelCariler.name!,
+                              color: Colors.black, fontWeight: FontWeight.bold,),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              SizedBox(
+                height: 100,
+                child: Ink(
+                  decoration: const ShapeDecoration(
+                    color: Colors.blue,
+                    shape: CircleBorder(),
+                  ),
+                  child: IconButton(
+                      icon: backClicked
+                          ? Icon(Icons.arrow_downward)
+                          : Icon(Icons.arrow_upward),
+                      onPressed: () {
+                        setState(() {
+                          backClicked = true;
+                        });
+                        Get.back();
+                      }),
+                ),
+              ),
+              widget.modelCariler.mesafe!="s"?Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.blue, width: 1),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.directions, color: Colors.blue),
+                        CustomText(labeltext: widget.modelCariler.mesafe??"0"),
+                      ],
+                    ),
+                  )):SizedBox(),
+              Positioned(
+                  top: (MediaQuery
+                      .of(context)
+                      .size
+                      .height / 3) - 75,
+                  right: 5,
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.red, width: 1),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                            'images/moneyback.png', width: 25, height: 25),
+                        SizedBox(width: 5,),
+                        CustomText(labeltext: widget.modelCariler.debt.toString()! + " ₼",
+                            fontsize: 16),
+                      ],
+                    ),
+                  )),
+              Positioned(
+                top: MediaQuery
                     .of(context)
                     .size
-                    .width - 50,
-                cllback: () {
-                  createRoutBetweenTwoPoints(widget.modelCariler);
-                },
-                label: widget.availableMap.mapName,
-                surfaceColor: Colors.white,
-                borderColor: Colors.green,
-                elevation: 10,
-                isSvcFile: true,
-                svcFile: widget.availableMap.icon,
+                    .height / 3.1,
+                child: Container(
+                  margin: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10, horizontal: 5),
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height - MediaQuery
+                      .of(context)
+                      .size
+                      .height / 3 ,
+                  color: Colors.white12,
+                  child: widgetDigerMelumatlar(),
+                ),
+        
               ),
-            ),
-
-          ],
+              Positioned(
+                bottom: 20,
+                left: 20,
+                right: 20,
+                child: CustomElevetedButton(
+                  textsize: 16,
+                  hasshadow: true,
+                  height: 35,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width - 50,
+                  cllback: () {
+                    createRoutBetweenTwoPoints(widget.modelCariler);
+                  },
+                  label: widget.availableMap.mapName,
+                  surfaceColor: Colors.white,
+                  borderColor: Colors.green,
+                  elevation: 10,
+                  isSvcFile: true,
+                  svcFile: widget.availableMap.icon,
+                ),
+              ),
+        
+            ],
+          ),
         ),
       ),
     );
@@ -288,10 +290,8 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
     return ListView(
       padding: const EdgeInsets.all(0).copyWith(top: 5),
       children: [
-        SizedBox(
-            height: 125,
-            child: widgetMusteriHesabatlari()),
-        ///sexsi bilgileri
+        widgetMusteriHesabatlari(),
+        const SizedBox(height: 10,),///sexsi bilgileri
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -670,10 +670,7 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomText(labeltext: "Hesabatlar",
-          fontWeight: FontWeight.bold,
-          fontsize: 16,),
-        WidgetCarihesabatlar(height: 100,cad: widget.modelCariler.name!,ckod: widget.modelCariler.code!),
+        WidgetCarihesabatlar(height: 110,cad: widget.modelCariler.name!,ckod: widget.modelCariler.code!),
       ],
     );
 

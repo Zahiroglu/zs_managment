@@ -294,14 +294,14 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenEditMercMusteri, page: () {
-      return   ScreenMercCariEdit(modelMerc: Get.arguments[0],listUsers: Get.arguments[1],);
+      return   ScreenMercCariEdit(modelMerc: Get.arguments[0],listUsers: Get.arguments[1],mercKod: Get.arguments[2],mercAd: Get.arguments[3],);
       return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercRutSiraEdit, page: () {
-      return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],);
+      return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],rutGunuInt: Get.arguments[2],);
       return  Container();
     }),
     GetPage(

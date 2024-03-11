@@ -570,23 +570,11 @@ class _ScreenMercAdinaMusteriEalveEtmeState
             fontWeight: FontWeight.w700,
           ),
         ),
-        Card(
+         Card(
           margin: EdgeInsets.only(left: 15, right: 10),
           child: Column(
             children: [
-              SizedBox(
-                child: CustomTextField(
-                    isImportant: true,
-                    controller: ctPlan,
-                    inputType: TextInputType.number,
-                    hindtext: "plan".tr,
-                    fontsize: 18,
-                    obscureText: false,
-                    hintTextColor: Colors.grey,
-                    align: TextAlign.center),
-                height: 60,
-                width: MediaQuery.of(context).size.width,
-              )
+              CustomTextField(controller: ctPlan, inputType: TextInputType.number, hindtext: "plan".tr, fontsize: 18,)
             ],
           ),
         ),
@@ -605,6 +593,10 @@ class _ScreenMercAdinaMusteriEalveEtmeState
   }
 
   Future<void> _callApiServiz() async {
+    double plan=0;
+    if(ctPlan.text.isNotEmpty){
+      plan= double.parse(ctPlan.text);
+    }
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     List<DayOrderNumber> listDays = [];
@@ -632,18 +624,10 @@ class _ScreenMercAdinaMusteriEalveEtmeState
         forwarderCode: widget.modelCari.forwarderCode!,
         auditCode: "",
         superviserCode: "",
-        plan: ctPlan.text,
-        days: listDays,
-        day1: rutGunuBir ? 1 : 0,
-        day2: rutGunuIki ? 1 : 0,
-        day3: rutGunuUc ? 1 : 0,
-        day4: rutGunuDort ? 1 : 0,
-        day5: rutGunuBes ? 1 : 0,
-        day6: rutGunuAlti ? 1 : 0,
-        day7: 0,
-        orderNumber: 0);
+        plan: plan,
+        days: listDays);
     DialogHelper.hideLoading();
-    DialogHelper.showLoading("Qeydiyyat tesdiqlenir...", false);
+    DialogHelper.showLoading("qeydiyyatTesdiqlenir".tr, false);
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -652,7 +636,7 @@ class _ScreenMercAdinaMusteriEalveEtmeState
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },

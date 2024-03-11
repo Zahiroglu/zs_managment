@@ -53,6 +53,7 @@ Future<void>  main() async{
   Hive.registerAdapter(DayAdapter());
   Hive.registerAdapter(MercDataModelAdapter());
   Hive.registerAdapter(MercCustomersDatailAdapter());
+  Hive.registerAdapter(SellingDataAdapter());
   Hive.registerAdapter(UserMercAdapter());
 }
 class MyApp extends StatefulWidget {

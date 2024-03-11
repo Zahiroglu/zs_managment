@@ -155,4 +155,8 @@ class Day {
     "orderNumber": orderNumber,
   };
 
+  @override
+  String toString() {
+    return 'Day{day: $day, orderNumber: $orderNumber}';
+  }
 }

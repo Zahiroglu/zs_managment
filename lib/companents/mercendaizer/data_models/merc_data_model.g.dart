@@ -188,7 +188,7 @@ class SellingDataAdapter extends TypeAdapter<SellingData> {
 
 class UserMercAdapter extends TypeAdapter<UserMerc> {
   @override
-  final int typeId = 5;
+  final int typeId = 30;
 
   @override
   UserMerc read(BinaryReader reader) {

@@ -31,10 +31,11 @@ class CustomInterceptor extends Interceptor {
   }
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print('Request[=> PATH:${options.path}] data :${options.data}');
-    localUserServices.init();
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    await localUserServices.init();
     String token = localUserServices.getLoggedUser().tokenModel!.accessToken!;
+    String refresh = localUserServices.getLoggedUser().tokenModel!.refreshToken!;
+    print('Request[=> PATH:${options.path}] data :${options.data}] refresj :${refresh}');
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     }
@@ -125,11 +126,13 @@ class CustomInterceptor extends Interceptor {
     String refreshToken = loggedUserModel.tokenModel!.refreshToken!;
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     var data = {"refreshtoken": refreshToken};
+    print("old refresh token : "+refreshToken);
+    print("old  token : "+accesToken);
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       getxt.Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           getxt.Get.back();
         },
@@ -161,7 +164,7 @@ class CustomInterceptor extends Interceptor {
         } else {
           localUserServices.init();
           localUserServices.clearALLdata();
-          getxt.Get.offNamed(RouteHelper.wellcome);
+          getxt.Get.offNamed(RouteHelper.mobileLisanceScreen);
           succes==response.statusCode;
         }
       } on DioException catch (e) {
