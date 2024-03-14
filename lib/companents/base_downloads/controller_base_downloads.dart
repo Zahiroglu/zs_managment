@@ -333,10 +333,10 @@ class ControllerBaseDownloads extends GetxController {
   }
 
   Future<void> melumatlariEndir(ModelDownloads model, bool guncelle) async {
-    await localGirisCixisServiz.init();
     DialogHelper.showLoading("${model.name!} endirilir...");
     switch (model.code) {
       case "myUserRut":
+        await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
         await localBaseDownloads.addConnectedUsers(listUser);
@@ -354,6 +354,7 @@ class ControllerBaseDownloads extends GetxController {
         }
         break;
       case "warehouse":
+        await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
         List<ModelAnbarRapor> data = await getDataAnbar(soapadress, soaphost);
         await localBaseDownloads.addAnbarBaza(data);
@@ -372,6 +373,7 @@ class ControllerBaseDownloads extends GetxController {
         }
         break;
       case "enter":
+        await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
         List<ModelCariler> data = await getAllCustomers();
         if (data.isNotEmpty) {
@@ -389,8 +391,9 @@ class ControllerBaseDownloads extends GetxController {
           }
         }
         case "myRut":
+          await localGirisCixisServiz.init();
           loggedUserModel = localUserServices.getLoggedUser();
-          if(loggedUserModel.userModel!.roleId==23)//merc cari baza endirmek ucundur
+          if(loggedUserModel.userModel!.moduleId==3)//merc cari baza endirmek ucundur
           {
             MercDataModel data = await getAllMercCariBaza(loggedUserModel.userModel!.code!);
             if (data.user!=null) {
@@ -407,6 +410,8 @@ class ControllerBaseDownloads extends GetxController {
               }
             }
 
+          }else{
+            /// expeditor giris edende rutu gorunsun
           }
 
         break;
@@ -422,8 +427,7 @@ class ControllerBaseDownloads extends GetxController {
       ModelDownloads(
           name: "Cari Baza",
           code: "expcari",
-          info:
-              "Satis Temsilcilerinin erazi uzre cari musteri bazasini gormesi ucun lazimdir.",
+          info:"Satis Temsilcilerinin erazi uzre cari musteri bazasini gormesi ucun lazimdir.",
           lastDownDay: "",
           musteDonwload: true),
       ModelDownloads(
@@ -667,7 +671,6 @@ class ControllerBaseDownloads extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        print("responce kode :"+response.data.toString());
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
@@ -712,142 +715,6 @@ class ControllerBaseDownloads extends GetxController {
     return listUsers;
   }
 
-//   Future<MercDataModel> getDataFromServerMercBaza(String temsilcikodu) async {
-//     String temp = "'" + temsilcikodu + "'";
-//     String audit = "";
-//     String supervaizer = "";
-//     String ay = "01";
-//     var envelopeaUmumicariler = '''
-// <?xml version="1.0" encoding="utf-8"?>
-// <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-// xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-// xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-// <soap:Body>
-//     <mercler xmlns="http://tempuri.org/">
-//       <ay>$ay</ay>
-//       <audit>$audit</audit>
-//       <merc>$temp</merc>
-//       <srv>$supervaizer</srv>
-//     </mercler>
-//   </soap:Body>
-// </soap:Envelope>
-// ''';
-//     var url = Uri.parse(soapadress);
-//     http.Response response = await http.post(url, headers: {
-//       "Content-Type": "text/xml; charset=utf-8",
-//       "SOAPAction": "http://tempuri.org/mercler",
-//       // "Host": "85.132.97.2"
-//       "Host": soaphost
-//       //"Accept": "text/xml"
-//     }, body: envelopeaUmumicariler);
-//     var rawXmlResponse = "";
-//     if (response.statusCode == 200) {
-//       rawXmlResponse = response.body;
-//       print(" response.body :" + response.body.toString());
-//     } else {
-//       Get.dialog(ShowInfoDialog(
-//         messaje: "Xeta BAs Verdi",
-//         icon: Icons.error,
-//         callback: () {
-//           DialogHelper.hideLoading();
-//         },
-//       ));
-//     }
-//     update();
-//     return _parsingCarilerMerc(rawXmlResponse);
-//   }
-//   Future<MercDataModel> _parsingCarilerMerc(var _response) async {
-//     List<ModelMercBaza> listKodrdinar = [];
-//     List<MercCustomersDatail> listMercCustomers = [];
-//     MercDataModel modelMercData = MercDataModel(user: null);
-//     var document = xml.parse(_response);
-//     Iterable<xml.XmlElement> items = document.findAllElements('Table');
-//     items.map((xml.XmlElement item) {
-//       var _kode = _getValue(item.findElements("merc_cari_kod"));
-//       var _name = _getValue(item.findElements("cari_ad"));
-//       var _rutadi = _getValue(item.findElements("merc_kod"));
-//       var mercAdi = _getValue(item.findElements("merc_ad"));
-//       var _audit = _getValue(item.findElements("merc_audit"));
-//       var _gun1 = _getValue(item.findElements("merc_gun1"));
-//       var _gun2 = _getValue(item.findElements("merc_gun2"));
-//       var _gun3 = _getValue(item.findElements("merc_gun3"));
-//       var _gun4 = _getValue(item.findElements("merc_gun4"));
-//       var _gun5 = _getValue(item.findElements("merc_gun5"));
-//       var _gun6 = _getValue(item.findElements("merc_gun6"));
-//       var _gun7 = _getValue(item.findElements("merc_gun7"));
-//       var _uzunluq = _getValue(item.findElements("merc_gps_uz"));
-//       var _eynilik = _getValue(item.findElements("merc_gps_en"));
-//       var _netsatis = _getValue(item.findElements("NET_SATIS"));
-//       var _plan = _getValue(item.findElements("merc_plan"));
-//       var _qaytarma = _getValue(item.findElements("ZAY_QAYTARMA"));
-//       var _expkodu = _getValue(item.findElements("merc_tem_kod"));
-//       var _spr = _getValue(item.findElements("merc_srv_kod"));
-//       ModelMercBaza modelKordinat = ModelMercBaza(
-//           supervaizer: _spr,
-//           expeditor: _expkodu,
-//           carikod: _kode,
-//           mercadi: mercAdi,
-//           gpsUzunluq: _uzunluq,
-//           gpsEynilik: _eynilik,
-//           audit: _audit,
-//           cariad: _name,
-//           gun1: _gun1,
-//           gun2: _gun2,
-//           gun3: _gun3,
-//           gun4: _gun4,
-//           gun5: _gun5,
-//           gun6: _gun6,
-//           gun7: _gun7,
-//           netsatis: _netsatis,
-//           plan: _plan,
-//           qaytarma: _qaytarma,
-//           rutadi: _rutadi
-//       );
-//       listKodrdinar.add(modelKordinat);
-//       //  itemsList.add(_addResult);
-//     }).toList();
-//     listKodrdinar.forEach((element) {
-//       List<Day>listDays=[];
-//       if(element.gun1=="1"){
-//         listDays.add(Day(day: 1, orderNumber: 0));
-//       }
-//       if(element.gun2=="1"){
-//         listDays.add(Day(day: 2, orderNumber: 0));
-//       }  if(element.gun3=="1"){
-//         listDays.add(Day(day: 3, orderNumber: 0));
-//       }  if(element.gun4=="1"){
-//         listDays.add(Day(day: 4, orderNumber: 0));
-//       }  if(element.gun5=="1"){
-//         listDays.add(Day(day: 5, orderNumber: 0));
-//       }  if(element.gun6=="1"){
-//         listDays.add(Day(day: 6, orderNumber: 0));
-//       }
-//       listMercCustomers.add(MercCustomersDatail(
-//         name: element.cariad!,
-//         code: element.carikod!,
-//         longitude: element.gpsUzunluq!,
-//         latitude: element.gpsEynilik!,
-//         district: "",
-//         category: "",
-//         area: "",
-//         action: double.parse(element.netsatis!)>0?true:false,
-//         days: listDays,
-//         fullAddress: "",
-//         plans: double.parse(element.plan!),
-//         refund: double.parse(element.qaytarma!),
-//         selling: double.parse(element.netsatis!),
-//         forwarderCode: element.expeditor
-//       ));
-//     });
-//     modelMercData=MercDataModel(totalPlans: listKodrdinar.fold(0, (sum, element) => sum!+double.parse(element.plan!)),
-//         totalSelling: listKodrdinar.fold(0, (sum, element) => sum!+double.parse(element.netsatis!)),
-//         totalRefund: listKodrdinar.fold(0, (sum, element) => sum!+double.parse(element.qaytarma!)),
-//         code: listKodrdinar.first.rutadi!,
-//         name: listKodrdinar.first.mercadi!,
-//         mercCustomersDatail: listMercCustomers);
-//
-//     return modelMercData;
-//   }
 
   _getValue(Iterable<xml.XmlElement> items) {
     var textValue;

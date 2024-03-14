@@ -89,6 +89,8 @@ dependencies:
   map_picker: ^0.0.3
   geolocator: ^11.0.0
   location: ^5.0.0
+  flutter_background_geolocation: ^4.14.0
+  background_fetch: ^1.2.4
 
 dev_dependencies:
   flutter_test:

@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:ntp/ntp.dart';
+import 'package:zs_managment/companents/giris_cixis/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
@@ -41,8 +42,7 @@ import '../../widgets/simple_info_dialog.dart';
 import '../local_bazalar/local_app_setting.dart';
 
 class ControllerGirisCixisYeni extends GetxController {
-  RxList<ModelCariler> listCariler =
-      List<ModelCariler>.empty(growable: true).obs;
+  RxList<ModelCariler> listCariler = List<ModelCariler>.empty(growable: true).obs;
   LocalUserServices userService = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   RxBool dataLoading = true.obs;
@@ -82,13 +82,11 @@ class ControllerGirisCixisYeni extends GetxController {
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
   RxList<ModelCariHereket> listSifarisler = List<ModelCariHereket>.empty(growable: true).obs;
   RxList<ModelCariHereket> listIadeler = List<ModelCariHereket>.empty(growable: true).obs;
-  RxList<ModelCariKassa> listKassa =
-      List<ModelCariKassa>.empty(growable: true).obs;
-  RxList<ModelCariKassa> selectedlistKassa =
-      List<ModelCariKassa>.empty(growable: true).obs;
+  RxList<ModelCariKassa> listKassa = List<ModelCariKassa>.empty(growable: true).obs;
+  RxList<ModelCariKassa> selectedlistKassa = List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
   Rx<UserModel> selectedTemsilci=UserModel(code: "u",name: "Butun cariler").obs;
-
+  BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
   @override
   Future<void> onInit() async {
     await userService.init();
@@ -434,8 +432,7 @@ class ControllerGirisCixisYeni extends GetxController {
 
   void girisiSil() async {
     Get.dialog(ShowSualDialog(
-        messaje:
-            "Girisi silseniz butun emeliyyatlar silinecek.Silmeye eminsiniz?",
+        messaje: "Girisi silseniz butun emeliyyatlar silinecek.Silmeye eminsiniz?",
         callBack: (va) async {
           if (va) {
             _timer!.cancel();
@@ -454,6 +451,8 @@ class ControllerGirisCixisYeni extends GetxController {
             ctKassaDialog.text = "";
             ctCixisQeyd.text = "";
             update();
+            backgroudLocationServiz.stopServiz();
+
           }
           Get.back();
         }));
@@ -492,6 +491,7 @@ class ControllerGirisCixisYeni extends GetxController {
     rightSideMenuVisible.value = true;
     sndeQalmaVaxtiniHesabla();
     getSatisMelumatlariByCary();
+    backgroudLocationServiz.startServiz();
    // startconfigBacgroundService();
     update();
   }
@@ -571,6 +571,7 @@ class ControllerGirisCixisYeni extends GetxController {
     DrawerMenuController controller=Get.put(DrawerMenuController());
     controller.onInit();
     controller.addPermisionsInDrawerMenu(loggedUserModel);
+    backgroudLocationServiz.stopServiz();
     update();
   }
 
@@ -1900,8 +1901,6 @@ class ControllerGirisCixisYeni extends GetxController {
     update();
   }
   ////live locations configrations
-
-
 
 }
 

@@ -9,9 +9,9 @@
     <uses-permission android:minSdkVersion="34" android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
-   tools:replace="android:label"
-    android:label="hello_world"
+        tools:replace="android:label"
         android:name="${applicationName}"
+        android:label="zs-controll"
         android:icon="@mipmap/ic_launcher">
         <activity
 

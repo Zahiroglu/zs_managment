@@ -18,8 +18,7 @@ class WellCameScreen extends StatefulWidget {
   State<WellCameScreen> createState() => _WellCameScreenState();
 }
 
-class _WellCameScreenState extends State<WellCameScreen>
-    with TickerProviderStateMixin {
+class _WellCameScreenState extends State<WellCameScreen> with TickerProviderStateMixin {
   late Animation<double> animation;
   late AnimationController animationController;
   late Timer timer;
@@ -55,28 +54,18 @@ class _WellCameScreenState extends State<WellCameScreen>
   getUser(ConnectivityResult connectivityResult) async {
     loggedUserModel = localUserServices.getLoggedUser();
     checkDviceType=CheckDviceType();
-    if(checkDviceType.getDviceType()==2||checkDviceType.getDviceType()==3){
-      if (loggedUserModel.isLogged == null || loggedUserModel.isLogged == false) {
-        Get.offNamed(RouteHelper.getWindosLoginScreen());
-      }
-      else {
-        Get.offNamed(RouteHelper.getWindosMainScreen(), arguments: loggedUserModel);
-      }
-    }else{
-      if (loggedUserModel.isLogged == null || loggedUserModel.isLogged == false) {
-        if (await localUserServices.getIfAppOpenFistOrNot()==false) {
-          Get.offNamed(RouteHelper.getLoginMobileFirstScreen());
-        } else {
-          Get.offNamed(RouteHelper.getMobileLisanceScreen());
-        }
+    if (loggedUserModel.isLogged == null || loggedUserModel.isLogged == false) {
+      if (await localUserServices.getIfAppOpenFistOrNot()==false) {
+        Get.offNamed(RouteHelper.getLoginMobileFirstScreen());
       } else {
-        bool base=localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!);
-        print("bazalar endirilmelidir :"+base.toString());
-        if (base) {
-          Get.offNamed(RouteHelper.getbazaDownloadMobile());
-        } else {
-          Get.offNamed(RouteHelper.getMobileMainScreen());
-        }
+        Get.offNamed(RouteHelper.getMobileLisanceScreen());
+      }
+    } else {
+      bool base=localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!);
+      if (base) {
+        Get.offNamed(RouteHelper.getbazaDownloadMobile());
+      } else {
+        Get.offNamed(RouteHelper.getMobileMainScreen());
       }
     }
     setState(() {

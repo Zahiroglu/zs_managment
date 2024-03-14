@@ -12,6 +12,7 @@ import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_cesid_hesa
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_cari_hereket.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_faktura.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
+import 'package:zs_managment/companents/login/splashandwelcome/welcome_screen.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';
 import 'package:zs_managment/companents/mercendaizer/screens/info_mercmusteri_datail.dart';
@@ -21,7 +22,6 @@ import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/screen_rutsi
 import 'package:zs_managment/companents/mercendaizer/screens/merc_routdatail_screen.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifariselave_et.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifarisler.dart';
-import 'package:zs_managment/companents/splashandwelcome/welcome_screen.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/screen_ziyaret_giriscixislar_exp.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import '../companents/base_downloads/screen_download_base.dart';
@@ -273,7 +273,7 @@ class RouteHelper {
         transition: Transition.upToDown,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercMusteriDetail, page: () {
-      return   ScreenMercMusteriDetail(modelMerc: Get.arguments[0],listGirisCixis: Get.arguments[1],listUsers: Get.arguments[2],);
+      return   ScreenMercMusteriDetail(modelMerc: Get.arguments[0],listGirisCixis: Get.arguments[1],listUsers: Get.arguments[2],userMerc: Get.arguments[3],);
       return  Container();
     }),
     GetPage(
@@ -301,7 +301,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercRutSiraEdit, page: () {
-      return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],rutGunuInt: Get.arguments[2],);
+      return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],rutGunuInt: Get.arguments[2],mercKod: Get.arguments[3],);
       return  Container();
     }),
     GetPage(

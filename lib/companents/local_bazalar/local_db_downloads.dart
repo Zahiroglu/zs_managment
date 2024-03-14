@@ -98,27 +98,27 @@ class LocalBaseDownloads {
         list.insert(0, value);
       }else{
         list.add(value);
-
       }
     });
     for (var element in list) {
       element.musteDonwload = convertDayByLastday(element);
       element.donloading=false;
+      print("Yuklemekeler :"+element.toString());
     }
     return list;
   }
 
   bool? convertDayByLastday(ModelDownloads element) {
-    DateTime lastDay = DateTime.parse(element.lastDownDay!);
-    final gun = DateTime.now().difference(lastDay).inDays;
-    return gun == 0 ? false : true;
+    String dayFerq=element.lastDownDay!.substring(0,10);
+    String day2=DateTime.now().toString().substring(0,10);
+    return dayFerq == day2 ? false : true;
   }
 
   bool checkIfUserMustDonwloadsBase(int? roleId) {
     int deyer=0;
     List<ModelDownloads> listustDown = getAllDownLoadBaseList();
     if(listustDown.isEmpty){
-      deyer==5;
+      deyer==0;
     }else{
       deyer = listustDown.where((element) => element.musteDonwload == true).length;
       print('Endirilmeli baza sayi :' + deyer.toString());

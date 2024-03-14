@@ -72,6 +72,7 @@ class ControllerMercPref extends GetxController {
 
   ////umumi cariler hissesi
   void getAllCariler(MercDataModel listMercBaza, List<ModelGirisCixis> listGirisCixis) {
+    listSelectedMercBaza.clear();
     for (MercCustomersDatail model in listMercBaza.mercCustomersDatail!) {
       model.ziyaretSayi = listGirisCixis.where((e) => e.cariAd == model.name).toList().length;
       model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariAd == model.name).toList());
@@ -302,29 +303,51 @@ class ControllerMercPref extends GetxController {
     listRutGunleri.clear();
     switch (tr) {
       case 1:
-        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
+        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days.any((element) => element.day==1)).toList();
+        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,1);
         break;
       case 2:
-        listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==2)).toList();
+        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days.any((element) => element.day==2)).toList();
+        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,2);
         break;
       case 3:
-        listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==3)).toList();
+        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days.any((element) => element.day==3)).toList();
+        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,3);
         break;
       case 4:
-        listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==4)).toList();
+        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days.any((element) => element.day==4)).toList();
+        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,4);
         break;
       case 5:
-        listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==5)).toList();
+        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days.any((element) => element.day==5)).toList();
+        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,5);
         break;
       case 6:
-        listRutGunleri.value =
-            listSelectedMercBaza.where((p0) => p0.days!.any((element) => element.day==6)).toList();
+        listRutGunleri.value = listSelectedMercBaza.where((p0) => p0.days.any((element) => element.day==6)).toList();
+        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,6);
         break;
     }
     update();
+  }
+
+  List<MercCustomersDatail> sortListByDayOrderNumber(List<MercCustomersDatail> listRutGunleri,int rutgunu) {
+    List<MercCustomersDatail> newList = [];
+    final Map<String, MercCustomersDatail> profileMap = {};
+    for (var item in listRutGunleri) {
+      profileMap[item.days
+          .where((element) => element.day == rutgunu)
+          .first
+          .orderNumber
+          .toString()] = item;
+    }
+    var mapEntries = profileMap.entries.toList()
+      ..sort(((a, b) => a.key.compareTo(b.key)));
+    profileMap
+      ..clear()
+      ..addEntries(mapEntries);
+    for (var element in profileMap.values) {
+        newList.add(element);
+    }
+    return newList;
   }
 }

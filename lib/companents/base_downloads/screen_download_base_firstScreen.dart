@@ -29,9 +29,31 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
   @override
   Widget build(BuildContext context) {
     return Material(
+
       child: SafeArea(
         child: GetBuilder<ControllerBaseDownloads>(builder: (controller) {
           return Scaffold(
+            appBar: AppBar(
+              toolbarHeight: 60,
+              centerTitle: true,
+              title: CustomText(
+                labeltext: "yuklemeler".tr,
+                textAlign: TextAlign.center,
+                fontsize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+              actions: [
+                InkWell(
+                    onTap: (){
+                      _butunMelumatlariSyncEt();
+
+                    },
+                    child: Image.asset("images/sync.png",width: 30,height: 30,)),
+                SizedBox(width: 20,),
+
+              ],
+
+            ),
             body: Obx(() => controller.dataLoading.isTrue
                 ? const Center(
               child: CircularProgressIndicator(
@@ -68,7 +90,7 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
                       children: [
                         CustomElevetedButton(
                           cllback: () {
-                            Get.toNamed(RouteHelper.mobileMainScreen);
+                            Get.offNamed(RouteHelper.mobileMainScreen);
                           },
                           label: "goAhed".tr,
                           height: 40,
@@ -89,7 +111,8 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
     );
   }
 
-  _clearAllData(){
-    controllerBaseDownloads.clearAllDataSatis();
+  void _butunMelumatlariSyncEt() {
+    controllerBaseDownloads.syncAllInfo();
   }
+
 }

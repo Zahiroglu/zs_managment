@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
@@ -9,6 +12,7 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
+import 'package:zs_managment/widgets/sual_dialog.dart';
 
 import '../drawer/custom_drawermobile.dart';
 
@@ -39,39 +43,47 @@ class _MainScreenMobileState extends State<MainScreenMobile> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context);
-    return Material(
-      color: Colors.transparent,
-      child: SafeArea(
-        child: melumatYuklendi?Scaffold(
-          key: _key,
-          drawer: melumatYuklendi?Drawer(
-            backgroundColor: Colors.transparent,
-            width: ScreenUtil.defaultSize.width*0.8,
-            child: CustomDrawerMobile(
-              drawerMenuController: drawerMenuController,
-              userModel: userServices.getLoggedUser(),
-              data: (va) {
-              },
-              scaffoldkey: _key,
-              appversion: '0.1',
-              initialSelected: 0,
-              closeDrawer: (val) {
-                _key.currentState!.closeDrawer();
-                setState(() {
-                });
-              },
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          return;
+        }
+        _cixisAlqoritmasiniQur();
+      },
+      child: Material(
+        child: SafeArea(
+          child: melumatYuklendi?Scaffold(
+            key: _key,
+            drawer: melumatYuklendi?Drawer(
+              backgroundColor: Colors.transparent,
+              width: ScreenUtil.defaultSize.width*0.8,
+              child: CustomDrawerMobile(
+                drawerMenuController: drawerMenuController,
+                userModel: userServices.getLoggedUser(),
+                data: (va) {
+                },
+                scaffoldkey: _key,
+                appversion: '0.1',
+                initialSelected: 0,
+                closeDrawer: (val) {
+                  _key.currentState!.closeDrawer();
+                  setState(() {
+                  });
+                },
+              ),
+            ):const Drawer(),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(child: drawerMenuController.getCurrentPage())
+                ],
+              ),
             ),
-          ):const Drawer(),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(child: drawerMenuController.getCurrentPage())
-              ],
-            ),
-          ),
-        ):LoagindAnimation(isDark: Get.isDarkMode,textData: "melumatyuklenir".tr,icon: "lottie/loagin_animation.json"),
+          ):LoagindAnimation(isDark: Get.isDarkMode,textData: "melumatyuklenir".tr,icon: "lottie/loagin_animation.json"),
+        ),
       ),
     );
 
@@ -84,10 +96,28 @@ class _MainScreenMobileState extends State<MainScreenMobile> {
     });
   }
 
-
   void initKeyToController() {
     if(drawerMenuController.initialized){
       drawerMenuController.initKeyForScafold(_key);
     }
   }
+
+  void _cixisAlqoritmasiniQur() {
+
+      Get.dialog(ShowSualDialog(
+          messaje: "progCmeminsiz".tr, callBack: (va){
+        if(va){
+          if (Platform.isAndroid) {
+            SystemNavigator.pop();
+          } else if (Platform.isIOS) {
+            exit(0);
+          }
+
+        }
+      }));
+
+
+
+  }
+
 }

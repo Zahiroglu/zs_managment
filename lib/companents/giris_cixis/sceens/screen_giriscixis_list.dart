@@ -52,16 +52,17 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
     confiqGeolocatior();
     _determinePosition().then((value) {
       setState(() {
-        controllerGirisCixis.changeTabItemsValue(
-            controllerGirisCixis.listTabItems
-                .where((p) => p.selected == true)
-                .first,
-            value);
+        if(controllerGirisCixis.marketeGirisEdilib.isFalse) {
+          controllerGirisCixis.changeTabItemsValue(controllerGirisCixis.listTabItems.where((p) => p.selected == true).first, value);
+        }
         _currentLocation=value;
         dataLoading = false;
       });
     });
     _toggleListening();
+    setState(() {
+      dataLoading = false;
+    });
     // TODO: implement initState
     super.initState();
   }
@@ -248,12 +249,7 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
             ),
           )
               : SizedBox(),
-          body: controller.modelRutPerform.value.snSayi == null
-              ? const Center(
-              child: CircularProgressIndicator(
-                color: Colors.green,
-              ))
-              : dataLoading?CircularProgressIndicator(color: Colors.teal,):_body(context, controller),
+          body:dataLoading?CircularProgressIndicator(color: Colors.red,):_body(context, controller),
         );
       }),
     );

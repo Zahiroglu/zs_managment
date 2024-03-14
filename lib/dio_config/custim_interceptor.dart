@@ -35,7 +35,7 @@ class CustomInterceptor extends Interceptor {
     await localUserServices.init();
     String token = localUserServices.getLoggedUser().tokenModel!.accessToken!;
     String refresh = localUserServices.getLoggedUser().tokenModel!.refreshToken!;
-    print('Request[=> PATH:${options.path}] data :${options.data}] refresj :${refresh}');
+    print('Request[=> PATH:${options.path}] data :${options.data} refresj :${refresh}');
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     }
@@ -44,7 +44,7 @@ class CustomInterceptor extends Interceptor {
 
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
-    print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + "" + " result :" + response.data.toString());
+    print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
       if (response.statusCode == 401) {
         int statusrefresh = await refreshAccessToken();
         if (statusrefresh == 200) {

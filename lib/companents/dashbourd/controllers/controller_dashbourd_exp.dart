@@ -9,6 +9,7 @@ import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
+import 'package:zs_managment/companents/umumi_widgetler/widget_rut_performans.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import '';
@@ -220,10 +221,12 @@ class ControllerDashBorudExp extends GetxController {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               CustomText(
                                 labeltext: "welcome".tr,
-                                fontsize: 28,
+                                fontsize: 32,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -246,7 +249,7 @@ class ControllerDashBorudExp extends GetxController {
                                         labeltext: DateTime.now()
                                             .toIso8601String()
                                             .substring(0, 10))),
-                              )
+                              ),
                             ],
                           ),
                           const SizedBox(
@@ -255,7 +258,7 @@ class ControllerDashBorudExp extends GetxController {
                           CustomText(
                             labeltext:
                                 "${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!.surname!}",
-                            fontsize: 16,
+                            fontsize: 18,
                             color: Colors.black,
                             fontWeight: FontWeight.normal,
                           ),
@@ -265,7 +268,7 @@ class ControllerDashBorudExp extends GetxController {
                           CustomText(
                             labeltext:
                                 "${loggedUserModel.userModel!.moduleName!} | ${loggedUserModel.userModel!.roleName!} | ${loggedUserModel.userModel!.code!}",
-                            fontsize: 12,
+                            fontsize: 14,
                             color: Colors.black,
                             fontWeight: FontWeight.normal,
                           )
@@ -312,14 +315,14 @@ class ControllerDashBorudExp extends GetxController {
                             Padding(
                               padding: const EdgeInsets.only(left: 10, top: 2),
                               child: CustomText(
-                                  labeltext: "Umumi Yenileme sayi : ${listDonwloads.length}",
-                                  fontsize: 12),
+                                  labeltext: "${"umuYensay".tr} : ${listDonwloads.length}",
+                                  fontsize: 14),
                             ),
                             Padding(
                               padding: const EdgeInsets.only(left: 10, top: 2),
                               child: CustomText(
-                                labeltext: "Yenilenmeli baza sayi : ${listDonwloads.where((element) => element.musteDonwload==true).toList().length}",
-                                fontsize: 12,
+                                labeltext: "${"umuYenmelisay".tr} : ${listDonwloads.where((element) => element.musteDonwload==true).toList().length}",
+                                fontsize: 14,
                                 color: Colors.red,
                               ),
                             ),
@@ -432,84 +435,10 @@ class ControllerDashBorudExp extends GetxController {
   }
 
   Widget widgetGunlukGirisCixislar(BuildContext context){
-    return modelRutPerform.value.snSayi!=null?Padding(
-      padding: const EdgeInsets.only(left: 10,right: 10),
-      child: InkWell(
-        onTap: () async {
-        await Get.toNamed(RouteHelper.mobileGirisCixisHesabGunluk,arguments: modelRutPerform.value);
-
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 5,bottom: 5),
-              child: CustomText(
-                labeltext: "Gunluk Giris-Cixislar",
-                fontWeight: FontWeight.bold,
-                fontsize: 18,
-              ),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                  color: Get.isDarkMode ? Colors.black : Colors.white,
-                  border: Border.all(color: Colors.grey, width: 0.5),
-                  borderRadius: const BorderRadius.all(Radius.circular(15))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    flex:2,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        widgetSimpleTextInfo("Umumi musteriler : ",modelRutPerform.value.snSayi.toString()),
-                        widgetSimpleTextInfo("Cari rut : ",modelRutPerform.value.rutSayi.toString()),
-                        widgetSimpleTextInfo("Duz ziyaret : ",modelRutPerform.value.duzgunZiya.toString()),
-                        widgetSimpleTextInfo("Sef ziyaret : ",modelRutPerform.value.rutkenarZiya.toString()),
-                        widgetSimpleTextInfo("Umumi ziyaret : ",modelRutPerform.value.listGirisCixislar!.length.toString()),
-                        widgetSimpleTextInfo("Ziyaret edilmeyen : ",modelRutPerform.value.ziyaretEdilmeyen.toString()),
-                        widgetSimpleTextInfo("Sn-lerde is vaxti : ",modelRutPerform.value.snlerdeQalma.toString()),
-                        widgetSimpleTextInfo("Umumi is vaxti : ",modelRutPerform.value.umumiIsvaxti.toString()),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        chartWidget(),
-                        CustomText(labeltext: "Ziyaret Diagrami", fontsize: 10),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-    ):const SizedBox();
+    return WidgetRutPerformans(modelRutPerform: modelRutPerform.value,);
 
   }
 
-  Widget widgetSimpleTextInfo(String lable,String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-            width: 150,
-            child: CustomText(labeltext: lable,fontWeight: FontWeight.w600)),
-        Expanded(child: CustomText(labeltext: value)),
-      ],
-    );
-  }
 
   Widget chartWidget(){
     final List<ChartData> chartData = [

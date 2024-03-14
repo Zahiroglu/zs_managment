@@ -30,7 +30,6 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ControllerDashBorudExp>(builder: (contoller){return Material(
-      color: Colors.transparent,
       child:  Scaffold(
           body: NestedScrollView(
             controller: _scrollControllerNested,
@@ -53,9 +52,9 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
                     flexibleSpace: FlexibleSpaceBar(
                       stretchModes: const [StretchMode.blurBackground],
                       background:  Container(
-                        margin: EdgeInsets.only(bottom: 20),
+                        margin: const EdgeInsets.only(bottom: 20),
                         width: MediaQuery.of(context).size.width,
-                        height: 300,
+                        height: 280,
                         decoration:  BoxDecoration(
                             color: Colors.blue.withOpacity(0.5),
                             boxShadow: [

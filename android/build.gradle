@@ -3,7 +3,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-
     }
 
     dependencies {
@@ -11,11 +10,22 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
-
+ext {
+    compileSdkVersion   = 33                // or higher / as desired
+    targetSdkVersion    = 33                // or higher / as desired
+    minSdkVersion       = 21                // Required minimum
+    appCompatVersion    = "1.4.2"           // or higher / as desired
+    playServicesLocationVersion = "21.0.1"  // or higher / as desired
+}
 allprojects {
     repositories {
         google()
         mavenCentral()
+        // [required] flutter_background_geolocation
+        maven { url "${project(':flutter_background_geolocation').projectDir}/libs" }
+        maven { url 'https://developer.huawei.com/repo/' }
+        // [required] background_fetch
+        maven { url "${project(':background_fetch').projectDir}/libs" }
     }
 }
 

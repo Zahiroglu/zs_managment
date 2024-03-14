@@ -39,6 +39,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   List<Widget> listBodyWidgets = [];
   late AnimationController _animationController;
   String selectedGunIndex = "1-ci Gun";
+  int selectedRutGunu=1;
   int t=0; //Tid
   double p=0; //Position
 
@@ -77,21 +78,27 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     switch (dateTime.weekday) {
       case 1:
         selectedGunIndex = "gun1".tr.toString();
+        selectedRutGunu=1;
         break;
       case 2:
         selectedGunIndex = "gun2".tr.toString();
+        selectedRutGunu=2;
         break;
       case 3:
         selectedGunIndex = "gun3".tr.toString();
+        selectedRutGunu=3;
         break;
       case 4:
         selectedGunIndex = "gun4".tr.toString();
+        selectedRutGunu=4;
         break;
       case 5:
         selectedGunIndex = "gun5".tr.toString();
+        selectedRutGunu=5;
         break;
       case 6:
         selectedGunIndex = "gun6".tr.toString();
+        selectedRutGunu=6;
         break;
     }
     setState(() {
@@ -220,14 +227,14 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         itemCount: controllerRoutDetailUser.listSelectedMercBaza.length,
         itemBuilder: (con, index) {
           return itemsCustomers(
-              controllerRoutDetailUser.listSelectedMercBaza.elementAt(index));
+              controllerRoutDetailUser.listSelectedMercBaza.elementAt(index),false);
         });
   }
 
-  Widget itemsCustomers(MercCustomersDatail element) {
+  Widget itemsCustomers(MercCustomersDatail element, bool rutSirasiGorunsun) {
     return InkWell(
       onTap: (){
-        Get.toNamed(RouteHelper.screenMercMusteriDetail,arguments: [element,widget.listGirisCixis.where((e) => e.cariAd==element.name).toList(),widget.listUsers]);
+        Get.toNamed(RouteHelper.screenMercMusteriDetail,arguments: [element,widget.listGirisCixis.where((e) => e.cariAd==element.name).toList(),widget.listUsers,widget.modelMercBaza.user]);
       },
       child: Card(
         surfaceTintColor: Colors.white,
@@ -266,19 +273,20 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   left: 5,
                   child: Center(
                     child: Container(
-                      height: 10,
-                      width: 10,
+                      height: rutSirasiGorunsun?15:10,
+                      width: rutSirasiGorunsun?15:10,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: element.totalPlan <
                                   element.totalSelling
                               ? Colors.green
                               : Colors.red),
-                      // child: element.rutSirasi.toString() == "null"
-                      //     ? SizedBox()
-                      //     : Center(
-                      //         child: CustomText(
-                      //             labeltext: element.rutSirasi.toString())),
+                      child:rutSirasiGorunsun
+                          ? Center(
+                              child: CustomText(
+                                color: rutSirasiGorunsun?Colors.white:Colors.black,
+                                  fontWeight: rutSirasiGorunsun?FontWeight.w700:FontWeight.normal,
+                                  labeltext:element.days.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):SizedBox(),
                     ),
                   )),
               Positioned(
@@ -935,7 +943,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         itemCount: controllerRoutDetailUser.listRutGunleri.length,
         itemBuilder: (con, index) {
           return itemsCustomers(
-              controllerRoutDetailUser.listRutGunleri.elementAt(index));
+              controllerRoutDetailUser.listRutGunleri.elementAt(index),true);
         });
   }
 
@@ -972,19 +980,19 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         _itemIndoMenuRutGunu(
                             "gun1".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
-                                .where((p0) => p0.days!.any((element) => element.day==1))
+                                .where((p0) => p0.days.any((element) => element.day==1))
                                 .toList()
                                 .length,1),
                         _itemIndoMenuRutGunu(
                             "gun2".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
-                                .where((p0) => p0.days!.any((element) => element.day==2))
+                                .where((p0) => p0.days.any((element) => element.day==2))
                                 .toList()
                                 .length,2),
                         _itemIndoMenuRutGunu(
                             "gun3".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
-                                .where((p0) => p0.days!.any((element) => element.day==3))
+                                .where((p0) => p0.days.any((element) => element.day==3))
                                 .toList()
                                 .length,3),
                       ],
@@ -997,21 +1005,21 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         _itemIndoMenuRutGunu(
                             "gun4".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
-                                .where((p0) => p0.days!.any((element) => element.day==4))
+                                .where((p0) => p0.days.any((element) => element.day==4))
                                 .toList()
                                 .length,4),
                         _itemIndoMenuRutGunu(
                             "gun5".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
-                                .where((p0) => p0.days!.any((element) => element.day==5))
+                                .where((p0) => p0.days.any((element) => element.day==5))
                                 .toList()
                                 .length,5),
                         controllerRoutDetailUser.listSelectedMercBaza
-                            .where((p0) => p0.days!.any((element) => element.day==6))
+                            .where((p0) => p0.days.any((element) => element.day==6))
                             .toList().isEmpty?SizedBox():_itemIndoMenuRutGunu(
                             "gun6".tr.toString(),
                             controllerRoutDetailUser.listSelectedMercBaza
-                                .where((p0) => p0.days!.any((element) => element.day==7))
+                                .where((p0) => p0.days.any((element) => element.day==7))
                                 .toList()
                                 .length,6),
                       ],
@@ -1029,6 +1037,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   _itemIndoMenuRutGunu(String rutGunu, int length, int gunInt) {
     return InkWell(
       onTap: () {
+        selectedRutGunu=gunInt;
         selectedGunIndex = rutGunu.toString();
         controllerRoutDetailUser.changeRutGunu(gunInt);
         fillAllPages();
@@ -1111,7 +1120,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         itemCount: controllerRoutDetailUser.listZiyeretEdilmeyenler.length,
         itemBuilder: (con, index) {
           return itemsCustomers(controllerRoutDetailUser.listZiyeretEdilmeyenler
-              .elementAt(index));
+              .elementAt(index),false);
         });
   }
 
@@ -1398,7 +1407,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   }
 
   void _intentRutSirasiScreen(String rutGunu, int gunInt) {
-    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri,rutGunu,gunInt]);
+    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri,rutGunu,gunInt,widget.modelMercBaza.user!.code]);
   }
 
 }

@@ -15,8 +15,9 @@ class ScreenMercMusteriDetail extends StatefulWidget {
   MercCustomersDatail modelMerc;
   List<ModelGirisCixis> listGirisCixis;
   List<UserModel> listUsers;
+  UserMerc userMerc;
 
-  ScreenMercMusteriDetail({required this.modelMerc, required this.listGirisCixis,required this.listUsers, super.key});
+  ScreenMercMusteriDetail({required this.modelMerc, required this.listGirisCixis,required this.listUsers,required this.userMerc, super.key});
 
   @override
   State<ScreenMercMusteriDetail> createState() =>
@@ -659,7 +660,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
   }
 
   void _editMercCari() {
-    Get.toNamed(RouteHelper.getScreenEditMercMusteri(),arguments: [widget.modelMerc,widget.listUsers,widget.modelMerc.code,widget.modelMerc.name]);
+    Get.toNamed(RouteHelper.getScreenEditMercMusteri(),arguments: [widget.modelMerc,widget.listUsers,widget.userMerc.code,widget.userMerc.name]);
   }
 
   void _onPageViewChange(int value) {
