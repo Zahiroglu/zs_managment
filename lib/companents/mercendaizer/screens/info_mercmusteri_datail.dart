@@ -177,7 +177,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${widget.controllerMercPref.selectedMercBaza.value.user!.totalPlan} ${"manatSimbol".tr}",
+                                              "${widget.controllerMercPref.selectedCustomers.value.totalPlan} ${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -190,7 +190,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${prettify(widget.controllerMercPref.selectedMercBaza.value.user!.totalSelling.round() * 1)}${"manatSimbol".tr}",
+                                              "${prettify(widget.controllerMercPref.selectedCustomers.value.totalSelling!.round() * 1)}${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -202,7 +202,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                         fontWeight: FontWeight.bold,
                                       ),
                                       CustomText(
-                                          labeltext: "${widget.controllerMercPref.selectedMercBaza.value.user!.totalRefund.round()}${"manatSimbol".tr}",
+                                          labeltext: "${widget.controllerMercPref.selectedCustomers.value.totalRefund!.round()}${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -295,8 +295,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   }
 
   widgetInfoHesabatlar(BuildContext context) {
-    return WidgetCarihesabatlar(
-        cad: widget.controllerMercPref.selectedMercBaza.value.user!.name, ckod: widget.controllerMercPref.selectedMercBaza.value.user!.code, height: 100);
+    return Obx(() => WidgetCarihesabatlar(
+        cad: widget.controllerMercPref.selectedMercBaza.value.user!.name, ckod: widget.controllerMercPref.selectedMercBaza.value.user!.code, height: 100));
   }
 
   Widget _infoMarketRout(MercCustomersDatail element, BuildContext context) {
@@ -410,28 +410,28 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   }
 
   widgetSatisDetail(BuildContext context) {
-    return Padding(
+    return Obx(() => Padding(
       padding: const EdgeInsets.all(10.0),
       child:widget.controllerMercPref.selectedCustomers.value.sellingDatas!.isNotEmpty
           ? Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length,
-                      itemBuilder: (c, index) {
-                        return widgetSatisDetal(
-                            widget.controllerMercPref.selectedCustomers.value.sellingDatas!.elementAt(index));
-                      }),
-                )
-              ],
-            )
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length,
+                itemBuilder: (c, index) {
+                  return widgetSatisDetal(
+                      widget.controllerMercPref.selectedCustomers.value.sellingDatas!.elementAt(index));
+                }),
+          )
+        ],
+      )
           : Center(
-              child: CustomText(labeltext: "melumattapilmadi".tr),
-            ),
-    );
+        child: CustomText(labeltext: "melumattapilmadi".tr),
+      ),
+    ));
   }
 
   widgetSatisDetal(SellingData element) {
@@ -469,7 +469,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                   fontWeight: FontWeight.w700),
                               CustomText(
                                   labeltext:
-                                      "${element.plans} ${"manatSimbol".tr}",
+                                  "${element.plans} ${"manatSimbol".tr}",
                                   fontsize: 14),
                             ],
                           ),
@@ -481,7 +481,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                   fontWeight: FontWeight.w700),
                               CustomText(
                                   labeltext:
-                                      "${element.selling} ${"manatSimbol".tr}",
+                                  "${element.selling} ${"manatSimbol".tr}",
                                   fontsize: 14),
                             ],
                           ),
@@ -493,7 +493,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                   fontWeight: FontWeight.w700),
                               CustomText(
                                   labeltext:
-                                      "${element.refund} ${"manatSimbol".tr}",
+                                  "${element.refund} ${"manatSimbol".tr}",
                                   fontsize: 14),
                             ],
                           )
@@ -503,7 +503,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                   ),
                   Expanded(
                       flex: 5,
-                      child: Container(
+                      child: SizedBox(
                           height: 80,
                           width: 80,
                           child: chartWidgetSimple(element))),

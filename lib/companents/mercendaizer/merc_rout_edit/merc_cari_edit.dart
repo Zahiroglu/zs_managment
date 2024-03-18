@@ -297,6 +297,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                     SizedBox(
                       height: modelMerc.sellingDatas!.length * 110,
                       child: ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.zero,
                           itemCount: modelMerc.sellingDatas!.length,
                           itemBuilder: (c, index) {
@@ -719,8 +720,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
           icon: Icons.verified,
           messaje: response.data["result"],
           callback: () {
-            widget.controllerMercPref.updateData(modelUpdateMercCustomers);
-
+            widget.controllerMercPref.updateData(modelUpdateMercCustomers,listPlanlar.length==widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length,selectedSellingDatas);
             if(listPlanlar.length==widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length){
               Get.back();
               Get.back();

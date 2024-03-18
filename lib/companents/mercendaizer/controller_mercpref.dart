@@ -79,7 +79,6 @@ class ControllerMercPref extends GetxController {
 
   ////umumi cariler hissesi
   void getAllCariler(MercDataModel model, List<ModelGirisCixis> listGirisCixis,List<UserModel> listUser) {
-    listUsers.value=listUser;
     selectedMercBaza.value=model;
     listGirisCixislar.value=listGirisCixis;
     listUsers.value=listUser;
@@ -310,5 +309,34 @@ class ControllerMercPref extends GetxController {
   update();
   }
 
-  void updateData(ModelUpdateMercCustomers modelUpdateMercCustomers) {}
+  void updateData(ModelUpdateMercCustomers modelUpdateMercCustomers, bool mustDelate, List<SellingData> selectedSellingDatas) {
+    if(mustDelate){
+      print("Market silinmelidir");
+      print("Market selectedSellingDatas :"+selectedSellingDatas.toString());
+      print("Market modelUpdateMercCustomers :"+modelUpdateMercCustomers.toString());
+      print("Market movcuddur :"+listMercBaza.any((element) => element.code==modelUpdateMercCustomers.customerCode).toString());
+      print("Market sayi : "+listMercBaza.length.toString()+" plan :"+listMercBaza.fold(0.0, (sum, e) => sum+e.totalPlan!).toString());
+      listMercBaza.removeWhere((element) => element.code==modelUpdateMercCustomers.customerCode);
+      listRutGunleri.removeWhere((element) => element.code==modelUpdateMercCustomers.customerCode);
+      print("Silindikden sora Market sayi : "+listMercBaza.length.toString()+" plan :"+listMercBaza.fold(0.0, (sum, e) => sum+e.totalPlan!).toString());
+
+    }else{
+      print("Market guncellenmelidir");
+      MercCustomersDatail model=listMercBaza.where((p) => p.code==modelUpdateMercCustomers.customerCode).first;
+      print("Secilen Market model evvel : "+model.toString());
+      print("Secilen Market selling evvel : "+model.sellingDatas.toString());
+      listMercBaza.remove(model);
+      selectedSellingDatas.forEach((element) {
+        model.sellingDatas!.removeWhere((e) => e.forwarderCode==element.forwarderCode);
+      });
+      model.totalPlan=model.sellingDatas!.fold(0, (sum, element) => sum!+element.plans);
+      model.totalSelling=model.sellingDatas!.fold(0, (sum, element) => sum!+element.selling);
+      model.totalRefund=model.sellingDatas!.fold(0, (sum, element) => sum!+element.refund);
+      print("Secilen Market model sonra : "+model.toString());
+      print("Secilen Market selling evvel : "+model.sellingDatas.toString());
+      listMercBaza.add(model);
+    }
+    update();
+  }
+
 }

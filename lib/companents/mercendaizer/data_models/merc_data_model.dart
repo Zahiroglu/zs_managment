@@ -214,6 +214,11 @@ class SellingData {
     "remainder": remainder,
     "refund": refund,
   };
+
+  @override
+  String toString() {
+    return 'SellingData{forwarderCode: $forwarderCode, plans: $plans, selling: $selling, remainder: $remainder, refund: $refund}';
+  }
 }
 
 @HiveType(typeId: 30)

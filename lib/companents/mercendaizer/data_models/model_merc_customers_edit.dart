@@ -36,6 +36,11 @@ class ModelUpdateMercCustomers {
     "days": List<dynamic>.from(days.map((x) => x.toJson())),
     "changeMerch": changeMerch.toJson(),
   };
+
+  @override
+  String toString() {
+    return 'ModelUpdateMercCustomers{merchCode: $merchCode, customerCode: $customerCode, plans: $plans, days: $days, changeMerch: $changeMerch}';
+  }
 }
 
 class ChangeMerch {
