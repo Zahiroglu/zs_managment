@@ -395,7 +395,7 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
                       ),
                     ],
                   ),
-                  element.keyText == "z"
+                  element.keyText == "zedilmeyen" ||element.keyText == "z"
                       ? const SizedBox()
                       : Container(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -403,7 +403,7 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
                     width: 1,
                     color: Colors.grey,
                   ),
-                  element.keyText == "z"
+                  element.keyText == "zedilmeyen" ||element.keyText == "z"
                       ? const SizedBox()
                       : Column(
                     mainAxisAlignment: MainAxisAlignment.center,

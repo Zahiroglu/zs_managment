@@ -266,6 +266,8 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
 
   widgetMoreDataForItems(ModelCariler e) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(
           height: 10,
@@ -278,12 +280,11 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 10, bottom: 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+          padding: const EdgeInsets.only(left: 5, bottom: 0),
+          child: Wrap(
             children: [
               CustomText(
-                labeltext: "Rut Gunu",
+                labeltext: "rutgunu".tr+" : ",
                 color: Colors.grey,
                 fontWeight: FontWeight.w700,
               ),
@@ -321,6 +322,7 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
             ],
           ),
         ),
+        const SizedBox(height: 5,),
         Padding(
           padding: const EdgeInsets.only(left: 10, bottom: 5),
           child: Row(

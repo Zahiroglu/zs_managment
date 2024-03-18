@@ -40,9 +40,12 @@ class ControllerBaseDownloads extends GetxController {
   late CheckDviceType checkDviceType = CheckDviceType();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   LocalUserServices localUserServices = LocalUserServices();
-  RxList<ModelDownloads> listDonwloads = List<ModelDownloads>.empty(growable: true).obs;
-  RxList<ModelDownloads> listDownloadsFromLocalDb = List<ModelDownloads>.empty(growable: true).obs;
-  RxList<ModelDownloads> listDonwloadsAll = List<ModelDownloads>.empty(growable: true).obs;
+  RxList<ModelDownloads> listDonwloads =
+      List<ModelDownloads>.empty(growable: true).obs;
+  RxList<ModelDownloads> listDownloadsFromLocalDb =
+      List<ModelDownloads>.empty(growable: true).obs;
+  RxList<ModelDownloads> listDonwloadsAll =
+      List<ModelDownloads>.empty(growable: true).obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
   String soaphost = "193.105.123.215";
@@ -63,44 +66,44 @@ class ControllerBaseDownloads extends GetxController {
     await localUserServices.init();
     List<ModelUserPermissions> listUsersPermitions = localUserServices.getLoggedUser().userModel!.permissions!;
     for (var element in listUsersPermitions) {
-      if (element.code == "myUserRut") {
-        listDonwloads.add(ModelDownloads(
-            name: "Baglantilarim",
-            code: "myUserRut",
-            info: "Temsilci melumatlari ve hesabtalari v.s",
-            lastDownDay: "",
-            donloading: false,
-            musteDonwload: true));
-      } else if (element.code == "warehouse") {
-        listDonwloads.add(ModelDownloads(
-            name: "Anbar Baza",
-            code: "warehouse",
-            info:
-                "Anbarda movcud stok melumatlari ve son qiymetler ucundur.Eyni zamanda Checklist etmek ucunde nezerde tutulub",
-            lastDownDay: "",
-            donloading: false,
-            musteDonwload: true));
-      }
-      if(localUserServices.getLoggedUser().userModel!.roleId==23){
-        if (element.code == "myRut") {
+      print("permiton :"+element.toString());
+      switch (element.code) {
+        case "myUserRut":
           listDonwloads.add(ModelDownloads(
-              name: "Menim rutum",
+              name: "connextedUsers".tr,
+              code: "myUserRut",
+              info: "connextedUsersExplain".tr,
+              lastDownDay: "",
+              donloading: false,
+              musteDonwload: true));
+          break;
+        case "warehouse":
+          listDonwloads.add(ModelDownloads(
+              name: "warehouse".tr,
+              code: "warehouse",
+              info: "warehouseExplain".tr,
+              lastDownDay: "",
+              donloading: false,
+              musteDonwload: true));
+          break;
+        case "myRut":
+          listDonwloads.add(ModelDownloads(
+              name: "myRut".tr,
               donloading: false,
               code: "myRut",
-              info: "Rut melumatlari ve motivasiya melumatlari ucun lazimdir",
+              info: "myRutExplain".tr,
               lastDownDay: "",
               musteDonwload: true));
-        }
-      }else{
-        if (element.code == "enter") {
+          break;
+        case "enter":
           listDonwloads.add(ModelDownloads(
-              name: "Cari Baza",
+              name: "currentBase".tr,
               donloading: false,
               code: "enter",
-              info: "Satis Temsilcilerinin erazi uzre cari musteri bazasini gormesi ucun lazimdir.",
+              info: "currentBaseExplain".tr,
               lastDownDay: "",
               musteDonwload: true));
-        }
+          break;
       }
     }
   }
@@ -121,7 +124,8 @@ class ControllerBaseDownloads extends GetxController {
     await localBaseSatis.init();
     loggedUserModel = localUserServices.getLoggedUser();
     listDownloadsFromLocalDb.value = localBaseDownloads.getAllDownLoadBaseList();
-    getMustDownloadBase(loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
+    getMustDownloadBase(
+        loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
     if (localBaseDownloads
         .checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!)) {
       davamEtButonuGorunsun.value = true;
@@ -260,7 +264,7 @@ class ControllerBaseDownloads extends GetxController {
           border: Border.all(color: Colors.blue.withOpacity(0.5)),
           borderRadius: const BorderRadius.all(Radius.circular(15))),
       child: Padding(
-        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 5, right: 10),
+        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 5, right: 5),
         child: Stack(
           children: [
             Row(
@@ -276,57 +280,72 @@ class ControllerBaseDownloads extends GetxController {
                           labeltext: model.name!,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
-                          fontsize: 14),
-                      CustomText(
-                          fontsize: 10,
-                          labeltext:
-                              "${"lastRefresh".tr}: ${model.lastDownDay!.substring(0, 10)}"),
-                      model.musteDonwload == false
-                          ? CustomText(
-                              labeltext: model.info!,
-                              maxline: 3,
-                              overflow: TextOverflow.ellipsis,
-                              color: Colors.grey,
+                          fontsize: 16),
+                      Row(
+                        children: [
+                          CustomText(
+                              color:  model.musteDonwload == true?Colors.red:Get.isDarkMode?Colors.white:Colors.black,
                               fontsize: 12,
-                            )
-                          : CustomText(
+                              labeltext:
+                              "${"lastRefresh".tr}: ${model.lastDownDay!.substring(0, 10)}"),
+                          SizedBox(width: 5,),
+                          CustomText(
+                              color:  model.musteDonwload == true?Colors.red:Get.isDarkMode?Colors.white:Colors.black,
+                              fontsize: 12,
+                              labeltext: "( ${model.lastDownDay!.substring(11, 16)} )"),
+
+                        ],
+                      ),
+                      CustomText(
+                        labeltext: model.info!,
+                        maxline: 3,
+                        overflow: TextOverflow.ellipsis,
+                        color: Colors.black,
+                        fontsize: 12,
+                      ),
+                      model.musteDonwload == true? Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Icon(
+                            size: 12,
+                            Icons.info,
+                            color: Colors.red,
+                          ),
+                          SizedBox(width: 5,),
+                          Expanded(
+                            child: CustomText(
                               labeltext: "infoRefresh".tr,
                               maxline: 3,
                               overflow: TextOverflow.ellipsis,
                               color: Colors.red,
                               fontsize: 12,
-                            )
+                            ),
+                          ),
+
+                        ],
+                      ):SizedBox()
                     ],
                   ),
                 ),
-                model.donloading!
-                    ? FlutterLogo()
-                    : InkWell(
-                        onTap: () {
-                          melumatlariEndir(model, true);
-                        },
-                        child: const Icon(Icons.refresh))
+                model.donloading!?FlutterLogo():InkWell(
+                    onTap: () {
+                      melumatlariEndir(model, true);
+                    },
+                    child: const Icon(Icons.refresh))
               ],
             ),
-            model.musteDonwload == false
-                ? const SizedBox()
-                : const Positioned(
-                    bottom: 5,
-                    right: 5,
-                    child: Icon(
-                      Icons.info,
-                      color: Colors.red,
-                    ))
           ],
         ),
       ),
     );
   }
 
-  getMustDownloadBase(int roleId, List<ModelDownloads> listDownloadsFromLocalDb) {
+  getMustDownloadBase(
+      int roleId, List<ModelDownloads> listDownloadsFromLocalDb) {
     for (var e in listDownloadsFromLocalDb) {
       if (listDonwloads.any((element) => element.code == e.code)) {
-        listDonwloads.remove(listDonwloads.where((a) => a.code == e.code).first);
+        listDonwloads
+            .remove(listDonwloads.where((a) => a.code == e.code).first);
       }
     }
     dataLoading = false.obs;
@@ -375,6 +394,22 @@ class ControllerBaseDownloads extends GetxController {
       case "enter":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
+        if(loggedUserModel.userModel!.moduleId==3){
+          List<MercDataModel> data = await getAllMercCariBaza();
+          if (data.isNotEmpty) {
+            listDonwloads.remove(model);
+            model.lastDownDay = DateTime.now().toIso8601String();
+            model.musteDonwload = false;
+            localBaseDownloads.addDownloadedBaseInfo(model);
+            localBaseDownloads.addAllToMercBase(data);
+            if (guncelle) {
+              listDownloadsFromLocalDb.remove(model);
+              listDownloadsFromLocalDb.add(model);
+            } else {
+              listDownloadsFromLocalDb.add(model);
+            }
+          }
+        } else{
         List<ModelCariler> data = await getAllCustomers();
         if (data.isNotEmpty) {
           listDonwloads.remove(model);
@@ -389,65 +424,34 @@ class ControllerBaseDownloads extends GetxController {
           } else {
             listDownloadsFromLocalDb.add(model);
           }
-        }
-        case "myRut":
-          await localGirisCixisServiz.init();
-          loggedUserModel = localUserServices.getLoggedUser();
-          if(loggedUserModel.userModel!.moduleId==3)//merc cari baza endirmek ucundur
-          {
-            MercDataModel data = await getAllMercCariBaza(loggedUserModel.userModel!.code!);
-            if (data.user!=null) {
-              listDonwloads.remove(model);
-              model.lastDownDay = DateTime.now().toIso8601String();
-              model.musteDonwload = false;
-              localBaseDownloads.addDownloadedBaseInfo(model);
-              localBaseDownloads.addCariToMercBaza(data);
-              if (guncelle) {
-                listDownloadsFromLocalDb.remove(model);
-                listDownloadsFromLocalDb.add(model);
-              } else {
-                listDownloadsFromLocalDb.add(model);
-              }
+        }}
+      case "myRut":
+        await localGirisCixisServiz.init();
+        loggedUserModel = localUserServices.getLoggedUser();
+        if (loggedUserModel.userModel!.moduleId == 3) //merc cari baza endirmek ucundur
+        {
+          List<MercDataModel> data = await getAllMercCariBaza();
+          if (data.isNotEmpty) {
+            listDonwloads.remove(model);
+            model.lastDownDay = DateTime.now().toIso8601String();
+            model.musteDonwload = false;
+            localBaseDownloads.addDownloadedBaseInfo(model);
+            localBaseDownloads.addAllToMercBase(data);
+            if (guncelle) {
+              listDownloadsFromLocalDb.remove(model);
+              listDownloadsFromLocalDb.add(model);
+            } else {
+              listDownloadsFromLocalDb.add(model);
             }
-
-          }else{
-            /// expeditor giris edende rutu gorunsun
           }
+        } else {
+          /// expeditor giris edende rutu gorunsun
+        }
 
         break;
     }
     callLocalBases();
     DialogHelper.hideLoading();
-    update();
-  }
-
-  Future<void> clearAllData() async {
-    print("clear button basildi :true");
-    listDonwloads.value = [
-      ModelDownloads(
-          name: "Cari Baza",
-          code: "expcari",
-          info:"Satis Temsilcilerinin erazi uzre cari musteri bazasini gormesi ucun lazimdir.",
-          lastDownDay: "",
-          musteDonwload: true),
-      ModelDownloads(
-          name: "Anbar Baza",
-          code: "anbar",
-          info:
-              "Anbarda movcud stok melumatlari ve son qiymetler ucundur.Eyni zamanda Checklist etmek ucunde nezerde tutulub",
-          lastDownDay: "",
-          musteDonwload: true),
-      ModelDownloads(
-          name: "Umumi Merc Baza",
-          code: "umumimerc",
-          info:
-              "Eraziniz daxilindeki Merclerin is fealiyyetini ve motivasiyasini gormek ucundur",
-          lastDownDay: "",
-          musteDonwload: true),
-    ];
-    listDownloadsFromLocalDb.clear();
-    await localBaseDownloads.clearAllData();
-    callLocalBases();
     update();
   }
 
@@ -539,12 +543,12 @@ class ControllerBaseDownloads extends GetxController {
 
   ///Get Exp cari Baza From Serviz
   Future<List<ModelCariler>> getAllCustomers() async {
-    List<ModelCariler> listUsers=[];
+    List<ModelCariler> listUsers = [];
     int dviceType = checkDviceType.getDviceType();
-    LoggedUserModel loggedUserModel=localUserServices.getLoggedUser();
+    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();
-    List<String> secilmisTemsilciler=[];
+    List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
     List<UserModel> listUsersSelected = localBaseDownloads
         .getAllConnectedUserFromLocal()
@@ -567,22 +571,23 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
-          data:jsonEncode(secilmisTemsilciler),
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        print("responce kode :"+response.data.toString());
+        final response = await ApiClient().dio().post(
+              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
+              data: jsonEncode(secilmisTemsilciler),
+              options: Options(
+                receiveTimeout: const Duration(seconds: 60),
+                headers: {
+                  'Lang': languageIndex,
+                  'Device': dviceType,
+                  'abs': '123456',
+                  "Authorization": "Bearer $accesToken"
+                },
+                validateStatus: (_) => true,
+                contentType: Headers.jsonContentType,
+                responseType: ResponseType.json,
+              ),
+            );
+        print("responce kode :" + response.data.toString());
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
@@ -592,23 +597,21 @@ class ControllerBaseDownloads extends GetxController {
         } else {
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
-            print("dataModel :"+dataModel.toString());
+            print("dataModel :" + dataModel.toString());
             List listuser = jsonDecode(dataModel);
-            for(var i in listuser){
+            for (var i in listuser) {
               var dataCus = json.encode(i['customers']);
-              var temsilciKodu=i['user']['code'];
-              print("temsilciKodu :"+temsilciKodu.toString());
+              var temsilciKodu = i['user']['code'];
+              print("temsilciKodu :" + temsilciKodu.toString());
 
               List listDataCustomers = jsonDecode(dataCus);
-              for(var a in listDataCustomers){
-                ModelCariler model=ModelCariler.fromJson(a);
-                model.forwarderCode=temsilciKodu;
-                print("a custim :"+a.toString());
+              for (var a in listDataCustomers) {
+                ModelCariler model = ModelCariler.fromJson(a);
+                model.forwarderCode = temsilciKodu;
+                print("a custim :" + a.toString());
                 listUsers.add(model);
-
               }
             }
-
           } else {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
             Get.dialog(ShowInfoDialog(
@@ -639,13 +642,24 @@ class ControllerBaseDownloads extends GetxController {
   }
 
   ///Cari Merc Baza endirme/////////
-  Future<MercDataModel> getAllMercCariBaza(String temKod) async {
-    MercDataModel listUsers=MercDataModel();
+  Future< List<MercDataModel>> getAllMercCariBaza() async {
+    List<MercDataModel> listUsers = [];
     languageIndex = await getLanguageIndex();
-    List<String> secilmisTemsilciler=[];
-    secilmisTemsilciler.add(temKod);
+    List<String> secilmisTemsilciler = [];
+    await localBaseDownloads.init();
+    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
+    List<UserModel> listUsersSelected = localBaseDownloads
+        .getAllConnectedUserFromLocal()
+        .where((element) => element.roleId == 23)
+        .toList();
+    if (listUsersSelected.isEmpty) {
+      secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
+    } else {
+      for (var element in listUsersSelected) {
+        secilmisTemsilciler.add(element.code!);
+      }
+    }
     int dviceType = checkDviceType.getDviceType();
-    LoggedUserModel loggedUserModel=localUserServices.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
@@ -656,21 +670,22 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
-          data:jsonEncode(secilmisTemsilciler),
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
+        final response = await ApiClient().dio().post(
+              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+              data: jsonEncode(secilmisTemsilciler),
+              options: Options(
+                receiveTimeout: const Duration(seconds: 60),
+                headers: {
+                  'Lang': languageIndex,
+                  'Device': dviceType,
+                  'abs': '123456',
+                  "Authorization": "Bearer $accesToken"
+                },
+                validateStatus: (_) => true,
+                contentType: Headers.jsonContentType,
+                responseType: ResponseType.json,
+              ),
+            );
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
@@ -681,11 +696,9 @@ class ControllerBaseDownloads extends GetxController {
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
             List listuser = jsonDecode(dataModel);
-            for(var i in listuser){
-              listUsers=MercDataModel.fromJson(i);
+            for (var i in listuser) {
+              listUsers.add(MercDataModel.fromJson(i));
             }
-
-
           } else {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
             Get.dialog(ShowInfoDialog(
@@ -715,7 +728,6 @@ class ControllerBaseDownloads extends GetxController {
     return listUsers;
   }
 
-
   _getValue(Iterable<xml.XmlElement> items) {
     var textValue;
     items.map((xml.XmlElement node) {
@@ -726,37 +738,35 @@ class ControllerBaseDownloads extends GetxController {
 
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
     String rutgun = "Sef";
-    int hefteningunu = DateTime
-        .now()
-        .weekday;
+    int hefteningunu = DateTime.now().weekday;
     switch (hefteningunu) {
       case 1:
-        if (selectedModel.days!.any((element) => element.day==1)) {
+        if (selectedModel.days!.any((element) => element.day == 1)) {
           rutgun = "Duz";
         }
         break;
       case 2:
-        if (selectedModel.days!.any((element) => element.day==2)) {
+        if (selectedModel.days!.any((element) => element.day == 2)) {
           rutgun = "Duz";
         }
         break;
       case 3:
-        if (selectedModel.days!.any((element) => element.day==3)) {
+        if (selectedModel.days!.any((element) => element.day == 3)) {
           rutgun = "Duz";
         }
         break;
       case 4:
-        if (selectedModel.days!.any((element) => element.day==4)) {
+        if (selectedModel.days!.any((element) => element.day == 4)) {
           rutgun = "Duz";
         }
         break;
       case 5:
-        if (selectedModel.days!.any((element) => element.day==5)) {
+        if (selectedModel.days!.any((element) => element.day == 5)) {
           rutgun = "Duz";
         }
         break;
       case 6:
-        if (selectedModel.days!.any((element) => element.day==6)) {
+        if (selectedModel.days!.any((element) => element.day == 6)) {
           rutgun = "Duz";
         }
         break;
@@ -825,7 +835,8 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   }
 
   void syncAllInfo() async {
-    await getLoggedUserInfo(loggedUserModel.tokenModel!, loggedUserModel.baseUrl!);
+    await getLoggedUserInfo(
+        loggedUserModel.tokenModel!, loggedUserModel.baseUrl!);
     _donloadListiniDoldur();
     callLocalBases();
     listDonwloadsAll.clear();
@@ -840,11 +851,11 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       listDownloadsFromLocalDb.remove(element);
       element.donloading == true;
       listDownloadsFromLocalDb.add(element);
-     await melumatlariEndir(element, true).whenComplete(() => {
-       listDownloadsFromLocalDb.remove(element),
-          element.donloading == false,
-       listDownloadsFromLocalDb.add(element)
-      });
+      await melumatlariEndir(element, true).whenComplete(() => {
+            listDownloadsFromLocalDb.remove(element),
+            element.donloading == false,
+            listDownloadsFromLocalDb.add(element)
+          });
     }
     update();
   }
@@ -888,8 +899,10 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           if (response.statusCode == 200) {
             DialogHelper.hideLoading();
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
-            CompanyModel modelCompany = CompanyModel.fromJson(baseResponce.result['company']);
+            UserModel modelUser =
+                UserModel.fromJson(baseResponce.result['user']);
+            CompanyModel modelCompany =
+                CompanyModel.fromJson(baseResponce.result['company']);
             LoggedUserModel modelLogged = LoggedUserModel(
                 baseUrl: baseUrl,
                 isLogged: true,
@@ -898,7 +911,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 userModel: modelUser);
             localUserServices.init();
             localUserServices.addUserToLocalDB(modelLogged);
-            DrawerMenuController controller=Get.put(DrawerMenuController());
+            DrawerMenuController controller = Get.put(DrawerMenuController());
             controller.onInit();
             controller.addPermisionsInDrawerMenu(loggedUserModel);
             update();

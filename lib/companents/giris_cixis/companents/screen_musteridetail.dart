@@ -500,8 +500,7 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 10, bottom: 5),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                    child: Wrap(
                       children: [
                         CustomText(
                           labeltext: "${"Rut gunu".tr} : ",

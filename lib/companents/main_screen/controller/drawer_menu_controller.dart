@@ -99,7 +99,7 @@ class DrawerMenuController extends getx.GetxController {
     drawerMenus.clear();
     SelectionButtonData dashboard = SelectionButtonData(
         icon: Icons.dashboard,
-        label: "Dashboard",
+        label: "dashboard".tr,
         activeIcon: Icons.dashboard_outlined,
         totalNotif: 0,
         statickField: false,
@@ -107,7 +107,7 @@ class DrawerMenuController extends getx.GetxController {
         codename: "dashboard");
     SelectionButtonData buttondownloads = SelectionButtonData(
         icon: Icons.upcoming,
-        label: "Yuklemeler",
+        label: "dovnloads",
         activeIcon: Icons.upcoming_outlined,
         totalNotif: 0,
         statickField: false,
@@ -115,7 +115,7 @@ class DrawerMenuController extends getx.GetxController {
         codename: "down");
     SelectionButtonData buttonUsers = SelectionButtonData(
         icon: Icons.update,
-        label: "Istifadeciler",
+        label: "users".tr,
         activeIcon: Icons.update_outlined,
         totalNotif: 0,
         statickField: false,
@@ -500,7 +500,7 @@ class DrawerMenuController extends getx.GetxController {
       case "setting":
         pageView =  SettingScreenMobile(drawerMenuController: this,);
       case "enter":
-        if (localBaseDownloads.getIfCariBaseDownloaded()) {
+        if (localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!)) {
           modelAppSetting = await localAppSetting.getAvaibleMap();
           if (modelAppSetting.girisCixisType == "map") {
             pageView = const YeniGirisCixisSon();
@@ -514,7 +514,7 @@ class DrawerMenuController extends getx.GetxController {
           }
         } else {
           Get.dialog(ShowInfoDialog(
-              messaje: "Cari baza bosdur.Zehmet olmasa yenileyin",
+              messaje: "baseEmptyCari".tr,
               icon: Icons.mobiledata_off,
               callback: () {
                 Get.back();

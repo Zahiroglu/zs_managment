@@ -40,10 +40,8 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
   void initState() {
     melumatlariGuneGoreDoldur();
     _scrollControllerNested = ScrollController();
-    _controller =
-        PageController(initialPage: _initialIndex, viewportFraction: 1);
-    _controllerIki =
-        PageController(initialPage: _initialIndex, viewportFraction: 1);
+    _controller = PageController(initialPage: _initialIndex, viewportFraction: 1);
+    _controllerIki = PageController(initialPage: _initialIndex, viewportFraction: 1);
     _controllerIki.addListener(() {
       setState(() {});
     });

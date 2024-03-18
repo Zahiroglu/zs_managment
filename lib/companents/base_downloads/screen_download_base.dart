@@ -163,14 +163,11 @@ class _ScreenBaseDownloadsState extends State<ScreenBaseDownloads> {
                 child: SizedBox(
                   height: controllerBaseDownloads.listDownloadsFromLocalDb.length * 100,
                   child: ListView(
-                    physics: NeverScrollableScrollPhysics(),
+                   // physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(0),
                     scrollDirection: Axis.vertical,
-                    children: controllerBaseDownloads.listDownloadsFromLocalDb
-                        .map((e) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child:
-                      itemsGuncellenmeliBazalar(e, context),
+                    children: controllerBaseDownloads.listDownloadsFromLocalDb.map((e) => Padding(padding: const EdgeInsets.all(8.0),
+                      child: itemsGuncellenmeliBazalar(e, context),
                     ))
                         .toList(),
                   ),
@@ -189,7 +186,7 @@ class _ScreenBaseDownloadsState extends State<ScreenBaseDownloads> {
           border: Border.all(color: Colors.blue.withOpacity(0.5)),
           borderRadius: const BorderRadius.all(Radius.circular(15))),
       child: Padding(
-        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 5, right: 10),
+        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 5, right: 5),
         child: Stack(
           children: [
             Row(
@@ -205,26 +202,50 @@ class _ScreenBaseDownloadsState extends State<ScreenBaseDownloads> {
                           labeltext: model.name!,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
-                          fontsize: 14),
+                          fontsize: 16),
+                      Row(
+                        children: [
+                          CustomText(
+                              color:  model.musteDonwload == true?Colors.red:Get.isDarkMode?Colors.white:Colors.black,
+                              fontsize: 12,
+                              labeltext:
+                              "${"lastRefresh".tr}: ${model.lastDownDay!.substring(0, 10)}"),
+                          SizedBox(width: 5,),
+                          CustomText(
+                            color:  model.musteDonwload == true?Colors.red:Get.isDarkMode?Colors.white:Colors.black,
+                              fontsize: 12,
+                              labeltext: "( ${model.lastDownDay!.substring(11, 16)} )"),
+
+                        ],
+                      ),
                       CustomText(
-                          fontsize: 10,
-                          labeltext:
-                          "${"lastRefresh".tr}: ${model.lastDownDay!.substring(0, 10)}"),
-                      model.musteDonwload == false
-                          ? CustomText(
                         labeltext: model.info!,
                         maxline: 3,
                         overflow: TextOverflow.ellipsis,
-                        color: Colors.grey,
+                        color: Colors.black,
                         fontsize: 12,
-                      )
-                          : CustomText(
-                        labeltext: "infoRefresh".tr,
-                        maxline: 3,
-                        overflow: TextOverflow.ellipsis,
-                        color: Colors.red,
-                        fontsize: 12,
-                      )
+                      ),
+                      model.musteDonwload == true? Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Icon(
+                            size: 12,
+                            Icons.info,
+                            color: Colors.red,
+                          ),
+                          SizedBox(width: 5,),
+                          Expanded(
+                            child: CustomText(
+                              labeltext: "infoRefresh".tr,
+                              maxline: 3,
+                              overflow: TextOverflow.ellipsis,
+                              color: Colors.red,
+                              fontsize: 12,
+                            ),
+                          ),
+
+                        ],
+                      ):SizedBox()
                     ],
                   ),
                 ),
@@ -235,15 +256,6 @@ class _ScreenBaseDownloadsState extends State<ScreenBaseDownloads> {
                     child: const Icon(Icons.refresh))
               ],
             ),
-            model.musteDonwload == false
-                ? const SizedBox()
-                : const Positioned(
-                bottom: 5,
-                right: 5,
-                child: Icon(
-                  Icons.info,
-                  color: Colors.red,
-                ))
           ],
         ),
       ),

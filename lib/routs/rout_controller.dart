@@ -273,7 +273,7 @@ class RouteHelper {
         transition: Transition.upToDown,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercMusteriDetail, page: () {
-      return   ScreenMercMusteriDetail(modelMerc: Get.arguments[0],listGirisCixis: Get.arguments[1],listUsers: Get.arguments[2],userMerc: Get.arguments[3],);
+      return   ScreenMercMusteriDetail(controllerMercPref: Get.arguments[0]);
       return  Container();
     }),
     GetPage(
@@ -294,7 +294,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenEditMercMusteri, page: () {
-      return   ScreenMercCariEdit(modelMerc: Get.arguments[0],listUsers: Get.arguments[1],mercKod: Get.arguments[2],mercAd: Get.arguments[3],);
+      return   ScreenMercCariEdit(controllerMercPref: Get.arguments[0]);
       return  Container();
     }),
     GetPage(

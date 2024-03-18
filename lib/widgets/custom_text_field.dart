@@ -17,7 +17,7 @@ class CustomTextField extends StatefulWidget {
       required this.hindtext,
       required this.fontsize,
       this.valdateText,
-      this.obscureText,
+      this.obscureText=false,
       this.updizayn = true,
       this.align=TextAlign.start,
       this.isvalid,
@@ -38,7 +38,7 @@ class CustomTextField extends StatefulWidget {
   String? valdateText;
   bool? isvalid;
   bool? hasBourder;
-  bool? obscureText=false;
+  bool obscureText=false;
   double? containerHeight;
   bool updizayn;
   Function(String txt)? onTextChange;

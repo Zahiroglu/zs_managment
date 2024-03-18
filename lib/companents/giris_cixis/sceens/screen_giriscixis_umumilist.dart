@@ -14,6 +14,7 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
 class ScreenGirisCixisUmumiList extends StatefulWidget {
   DrawerMenuController drawerMenuController;
@@ -50,14 +51,11 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
 
   @override
   void initState() {
+    print("list olaraq burdatam umumi list");
     confiqGeolocatior();
     _determinePosition().then((value) {
       setState(() {
-        controllerGirisCixis.changeTabItemsValue(
-            controllerGirisCixis.listTabItems
-                .where((p) => p.selected == true)
-                .first,
-            value);
+        controllerGirisCixis.changeTabItemsValue(controllerGirisCixis.listTabItems.where((p) => p.selected == true).first, value);
         _currentLocation=value;
         dataLoading = false;
       });
@@ -291,7 +289,6 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
     );
   }
 
-
   Widget widgetTabBar() {
     return Column(
       children: [
@@ -398,7 +395,7 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
                       ),
                     ],
                   ),
-                  element.keyText == "z"
+                  element.keyText == "z"|| element.keyText == "zedilmeyen"
                       ? const SizedBox()
                       : Container(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -406,7 +403,7 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
                     width: 1,
                     color: Colors.grey,
                   ),
-                  element.keyText == "z"
+                  element.keyText == "z"|| element.keyText == "zedilmeyen"
                       ? const SizedBox()
                       : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -455,7 +452,7 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         controllerGirisCixis.marketeGirisEdilib.isFalse&&(controllerGirisCixis.listSifarisler.isNotEmpty||controllerGirisCixis.listIadeler.isNotEmpty)?controllerGirisCixis.cardTotalSifarisler(context,false):SizedBox(),
-        controllerGirisCixis.listTabItems.indexOf(selectedTabItem) != 1
+        selectedTabItem.keyText!="z"
             ? Padding(
           padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
           child: CustomText(
@@ -470,8 +467,8 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
             : const SizedBox(),
         SizedBox(
             height: MediaQuery.of(context).size.height * 0.70,
-            child: controllerGirisCixis.listTabItems.indexOf(selectedTabItem) !=
-               1
+            child:         selectedTabItem.keyText!="z"
+
                 ? ListView(
               controller: scrollController,
               padding: const EdgeInsets.all(0).copyWith(bottom: 25),
@@ -629,7 +626,7 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(2.0).copyWith(left: 8,top: 15),
+                    padding: const EdgeInsets.all(2.0).copyWith(left: 8,top: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -639,7 +636,7 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
                             labeltext: e.name!,
                             color: Colors.blueAccent,
                             fontWeight: FontWeight.w700,
-                            fontsize: selectedCariModel == e ? 18 : 14,
+                            fontsize: selectedCariModel == e ? 18 : 16,
                           ),
                         ),
                         CustomText(
@@ -666,49 +663,6 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
                         children: [
                           CustomText(
                             textAlign: TextAlign.center,
-                            labeltext: "sahib".tr,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontsize: 14,
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Expanded(
-                            child: CustomText(
-                              fontsize: 12,
-                              maxline: 1,
-                              overflow: TextOverflow.ellipsis,
-                              labeltext: e.ownerPerson.toString().isEmpty?"mSexsTapilmadi".tr: e.ownerPerson.toString(),
-                              color: Colors.black,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.social_distance,
-                                  color: Colors.green),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              CustomText(
-                                labeltext: e.mesafe ?? "0m",
-                                color: Colors.green,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            textAlign: TextAlign.center,
                             labeltext: "temKod".tr+" : ",
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -730,25 +684,22 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
                         ],
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          CustomText(
-                            textAlign: TextAlign.center,
-                            labeltext: "borc".tr,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontsize: 14,
+                          Padding(
+                            padding: const EdgeInsets.all(2.0).copyWith(left: 2,bottom: 2),
+                            child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: _infoMarketRout(e,context),
+                                )),
                           ),
-                          CustomText(
-                            labeltext: " ${e.debt} ₼",
-                            color: e.debt
-                                .toString()
-                                .isNotEmpty
-                                ? Colors.red
-                                : Colors.black,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          const Spacer(),
+                          const SizedBox(width: 10,),
                         ],
                       ),
                       controllerGirisCixis.musteriZiyaretDetail(e),
@@ -770,7 +721,60 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
                   onTap: (){
                     Get.toNamed(RouteHelper.getwidgetScreenMusteriDetail(),arguments: [e,controllerGirisCixis.availableMap.value]);
                   },
-                  child: const Icon(Icons.info,color: Colors.blue)))
+                  child: const Icon(
+                      size: 18,
+                      Icons.info,color: Colors.blue)))
+        ],
+      ),
+    );
+  }
+  Widget _infoMarketRout(ModelCariler element, BuildContext context) {
+    int valuMore = 0;
+    if (element.days!.any((element) => element.day==1)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==2)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==3)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==4)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==5)) {
+      valuMore = valuMore + 1;
+    }
+    if (element.days!.any((element) => element.day==6)) {
+      valuMore = valuMore + 1;
+    }
+    return SizedBox(
+      height: valuMore > 5 ? 28 : 28,
+      child: Wrap(
+        direction: Axis.horizontal,
+        alignment: WrapAlignment.start,
+        children: [
+          element.days!.any((element) => element.day==1)
+              ? WidgetRutGunu(rutGunu: "gun1".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==2)
+              ? WidgetRutGunu(rutGunu: "gun2".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==3)
+              ? WidgetRutGunu(rutGunu: "gun3".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==4)
+              ? WidgetRutGunu(rutGunu: "gun4".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==5)
+              ? WidgetRutGunu(rutGunu: "gun5".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==6)
+              ? WidgetRutGunu(rutGunu: "gun6".tr)
+              : const SizedBox(),
+          element.days!.any((element) => element.day==7)
+              ? WidgetRutGunu(rutGunu: "bagli".tr)
+              : const SizedBox(),
         ],
       ),
     );

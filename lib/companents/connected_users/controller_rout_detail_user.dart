@@ -25,6 +25,7 @@ import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
+//import 'package:zs_managment/widgets/custom_text_field.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:http/http.dart' as http;
@@ -66,6 +67,12 @@ class ControllerRoutDetailUser extends GetxController {
     super.onInit();
   }
 
+
+  @override
+  void dispose() {
+    Get.delete<ControllerRoutDetailUser>;
+    super.dispose();
+  }
 
   Future<void> getAllUsers() async {
     await localBaseDownloads.init();
@@ -192,7 +199,7 @@ class ControllerRoutDetailUser extends GetxController {
                             align: TextAlign.center,
                             controller: ctTemsilciKodu,
                             inputType: TextInputType.text,
-                            hindtext: "Temsilci kodu...",
+                            hindtext: "temsilciSec".tr,
                             fontsize: 14)),
                   ),
                   CustomElevetedButton(
@@ -201,7 +208,7 @@ class ControllerRoutDetailUser extends GetxController {
                       temsilciMelumatlariniGetirElevetedButton(ctTemsilciKodu.text);
                       ctTemsilciKodu.clear();
                     },
-                    label: "Tesdiqle",
+                    label: "tesdiqle".tr,
                     fontWeight: FontWeight.w700,
                     borderColor: Colors.grey,
                     elevation: 5,
@@ -236,13 +243,14 @@ class ControllerRoutDetailUser extends GetxController {
     DialogHelper.showLoading("cmendirilir".tr);
     if (fistTabSelected.value == "Exp") {
       UserModel userModel=UserModel(roleId: 17,code: model,name: "tapilmadi".tr);
+      print("Evvel listSelectedCustomers : "+listSelectedCustomers.length.toString());
+      print("Evvel listFilteredCustomers : "+listFilteredCustomers.length.toString());
       listSelectedCustomers.value = await getAllCustomers(model);
-      print("list selected customers :"+listSelectedCustomers.length.toString());
-      //listGirisCixis.value=await getDataFromServerGirisCixis(model);
+      print("Evvel listSelectedCustomers : "+listSelectedCustomers.length.toString());
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
-        tabMelumatlariYukle();
         changeSelectedTabItems(listTabSifarisler.first);
+        print("Evvel listFilteredCustomers : "+listFilteredCustomers.length.toString());
         Get.toNamed(RouteHelper.screenExpRoutDetail, arguments: [this,userModel,listUsers]);
       } else {
         Get.dialog(ShowInfoDialog(
@@ -278,8 +286,6 @@ class ControllerRoutDetailUser extends GetxController {
     DialogHelper.showLoading("cmendirilir".tr);
     if (fistTabSelected.value == "Exp") {
       listSelectedCustomers.value = await getAllCustomers(model.code!);
-     // listGirisCixis.value=await getDataFromServerGirisCixis(model.code!);
-      listSelectedCustomers.value = createRandomOrdenNumber(listSelectedCustomers);
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
         tabMelumatlariYukle();
@@ -432,11 +438,12 @@ class ControllerRoutDetailUser extends GetxController {
 
   ///Cari Baza endirme/////////
   Future<List<ModelCariler>> getAllCustomers(String temKod) async {
-    print("temsilci Kodu :"+temKod.toString());
     List<ModelCariler> listUsers=[];
     languageIndex = await getLanguageIndex();
     List<String> secilmisTemsilciler=[];
     secilmisTemsilciler.add(temKod);
+    print("temsilci Kodu :"+secilmisTemsilciler.toString());
+
     int dviceType = checkDviceType.getDviceType();
     LoggedUserModel loggedUserModel=userService.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -464,7 +471,6 @@ class ControllerRoutDetailUser extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-         print("responce kode :"+response.data.toString());
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
@@ -474,7 +480,6 @@ class ControllerRoutDetailUser extends GetxController {
         } else {
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
-            print("dataModel :"+dataModel.toString());
             List listuser = jsonDecode(dataModel);
             for(var i in listuser){
               var dataCus = json.encode(i['customers']);
@@ -485,7 +490,6 @@ class ControllerRoutDetailUser extends GetxController {
               for(var a in listDataCustomers){
                 ModelCariler model=ModelCariler.fromJson(a);
                 model.forwarderCode=temsilciKodu;
-                print("a custim :"+a.toString());
                 listUsers.add(model);
 
               }
@@ -517,6 +521,7 @@ class ControllerRoutDetailUser extends GetxController {
         ));
       }
     }
+
     return listUsers;
   }
   ///Get MercBaza

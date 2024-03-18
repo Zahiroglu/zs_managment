@@ -61,8 +61,8 @@ class UserApiControllerMobile extends GetxController {
       dviceId.value = 'Failed to get deviceId.';
     }
     if (dviceId.value.isNotEmpty) {
-      getCompanyUrlByDivaceId();
-      //loginWithMobileDviceId(AppConstands.baseUrlsMain);
+      //getCompanyUrlByDivaceId();
+      loginWithMobileDviceId(AppConstands.baseUrlsMain);
     } else {
       Get.dialog(ShowInfoDialog(
         messaje: "Xeta bas verdi",
@@ -136,7 +136,9 @@ class UserApiControllerMobile extends GetxController {
             Get.dialog(ShowInfoDialog(
               icon: Icons.error_outline,
               messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
+              callback: () {
+                changeLoading();
+              },
             ));
             if (baseResponce.code == 400) {
               deviceIdMustvisible.value = true;
@@ -145,12 +147,14 @@ class UserApiControllerMobile extends GetxController {
           }
         }
       } on DioException catch (e) {
+        changeLoading();
         if (e.response != null) {
         } else {}
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
           messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
+          callback: () {
+          },
         ));
       }
     }
@@ -158,6 +162,7 @@ class UserApiControllerMobile extends GetxController {
 
 
   Future<void> loginWithMobileDviceId(String baseUrl) async {
+    changeLoading();
     languageIndex = await getLanguageIndex();
     dviceType = checkDviceType.getDviceType();
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -184,15 +189,16 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        print("req2 :"+response.requestOptions.path);
-        print("res2 :"+response.data.toString());
+        print("request:"+response.requestOptions.path);
+        print("responce:"+response.statusCode.toString());
         if (response.statusCode == 404) {
-          changeLoading();
           basVerenXeta = "baglantierror".tr;
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
             messaje: "baglantierror".tr,
-            callback: () {},
+            callback: () {
+              changeLoading();
+            },
           ));
         } else {
           if (response.statusCode == 200) {
@@ -204,23 +210,28 @@ class UserApiControllerMobile extends GetxController {
             Get.dialog(ShowInfoDialog(
               icon: Icons.error_outline,
               messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
+              callback: () {
+                changeLoading();
+              },
             ));
             if (baseResponce.code == 400) {
               deviceIdMustvisible.value = true;
             }
-            changeLoading();
           }
         }
       } on DioException catch (e) {
         if (e.response != null) {
-        } else {}
+          changeLoading();
+        } else {
+          changeLoading();
+        }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
           messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
+          callback: () {
+            changeLoading();
+          },
         ));
-        changeLoading();
       }
     }
   }
@@ -288,7 +299,9 @@ class UserApiControllerMobile extends GetxController {
             Get.dialog(ShowInfoDialog(
               icon: Icons.error_outline,
               messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
+              callback: () {
+                changeLoading();
+              },
             ));
             changeLoading();
           }
@@ -305,8 +318,10 @@ class UserApiControllerMobile extends GetxController {
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
+          messaje: e.message ?? "baglantierror".tr,
+          callback: () {
+            changeLoading();
+          },
         ));
         changeLoading();
       }
@@ -352,8 +367,6 @@ class UserApiControllerMobile extends GetxController {
               ),
             );
         if (response.statusCode == 200) {
-          print("Request responce :" + response.data.toString());
-
           BaseResponce baseResponce = BaseResponce.fromJson(response.data);
           UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
           CompanyModel modelCompany = CompanyModel.fromJson(baseResponce.result['company']);
@@ -377,6 +390,7 @@ class UserApiControllerMobile extends GetxController {
             icon: Icons.error_outline,
             messaje: "baglantierror".tr,
             callback: () {
+              DialogHelper.hideLoading();
               isSucces = false;
             },
           ));
@@ -396,8 +410,7 @@ class UserApiControllerMobile extends GetxController {
         }
       } on DioException catch (e) {
         DialogHelper.hideLoading();
-        if (e.type ==
-            DioException.connectionTimeout(
+        if (e.type == DioException.connectionTimeout(
                 timeout: const Duration(milliseconds: 15),
                 requestOptions: e.requestOptions)) {
           Get.dialog(ShowInfoDialog(
@@ -405,7 +418,7 @@ class UserApiControllerMobile extends GetxController {
             messaje: e.message!,
             callback: () {
               isSucces = false;
-              changeLoading();
+              DialogHelper.hideLoading();
             },
           ));
         } else {
@@ -414,6 +427,7 @@ class UserApiControllerMobile extends GetxController {
             messaje: e.message! ?? "xeta".tr,
             callback: () {
               isSucces = false;
+              DialogHelper.hideLoading();
             },
           ));
         }

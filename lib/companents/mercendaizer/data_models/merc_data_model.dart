@@ -39,75 +39,76 @@ class MercDataModel {
 @HiveType(typeId: 28)
 class MercCustomersDatail {
   @HiveField(1)
-  String code;
+  String? code;
   @HiveField(2)
-  String name;
+  String? name;
   @HiveField(3)
-  String fullAddress;
+  String? fullAddress;
   @HiveField(4)
-  String ownerPerson;
+  String? ownerPerson;
   @HiveField(5)
-  String phone;
+  String? phone;
   @HiveField(6)
-  String postalCode;
+  String? postalCode;
   @HiveField(7)
-  String area;
+  String? area;
   @HiveField(8)
-  String category;
+  String? category;
   @HiveField(9)
-  String regionalDirectorCode;
+  String? regionalDirectorCode;
   @HiveField(10)
-  String salesDirectorCode;
+  String? salesDirectorCode;
   @HiveField(11)
-  String latitude;
+  String? latitude;
   @HiveField(12)
-  String longitude;
+  String? longitude;
   @HiveField(13)
-  String district;
+  String? district;
   @HiveField(14)
-  String tin;
+  String? tin;
   @HiveField(15)
-  String mainCustomer;
+  String? mainCustomer;
   @HiveField(16)
-  double debt;
+  double? debt;
   @HiveField(17)
-  bool action;
+  bool? action;
   @HiveField(18)
-  List<Day> days;
+  List<Day>? days;
   @HiveField(19)
-  List<SellingData> sellingDatas;
+  List<SellingData>? sellingDatas;
   @HiveField(20)
-  double totalPlan;
+  double? totalPlan;
   @HiveField(21)
-  double totalSelling;
+  double? totalSelling;
   @HiveField(22)
-  double totalRefund;
+  double? totalRefund;
   int? ziyaretSayi;
   String? sndeQalmaVaxti;
 
+
   MercCustomersDatail({
-    required this.code,
-    required this.name,
-    required this.fullAddress,
-    required this.ownerPerson,
-    required this.phone,
-    required this.postalCode,
-    required this.area,
-    required this.category,
-    required this.regionalDirectorCode,
-    required this.salesDirectorCode,
-    required this.latitude,
-    required this.longitude,
-    required this.district,
-    required this.tin,
-    required this.mainCustomer,
-    required this.debt,
-    required this.action,
-    required this.days,
-    required this.sellingDatas,
-    required this.totalPlan,
-    required this.totalSelling,
-    required this.totalRefund,
+    this.code,
+    this.name,
+    this.fullAddress,
+    this.ownerPerson,
+    this.phone,
+    this.postalCode,
+    this.area,
+    this.category,
+    this.regionalDirectorCode,
+    this.salesDirectorCode,
+    this.latitude,
+    this.longitude,
+    this.district,
+    this.tin,
+    this.mainCustomer,
+    this.debt,
+    this.action,
+    this.days,
+    this.sellingDatas,
+    this.totalPlan,
+    this.totalSelling,
+    this.totalRefund,
     this.ziyaretSayi,
     this.sndeQalmaVaxti,
   });
@@ -159,8 +160,8 @@ class MercCustomersDatail {
     "mainCustomer": mainCustomer,
     "debt": debt,
     "action": action,
-    "days": List<dynamic>.from(days.map((x) => x.toJson())),
-    "sellingDatas": List<dynamic>.from(sellingDatas.map((x) => x.toJson())),
+    "days": List<dynamic>.from(days!.map((x) => x.toJson())),
+    "sellingDatas": List<dynamic>.from(sellingDatas!.map((x) => x.toJson())),
     "totalPlan": totalPlan,
     "totalSelling": totalSelling,
     "totalRefund": totalRefund,

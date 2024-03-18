@@ -54,13 +54,16 @@ class _WellCameScreenState extends State<WellCameScreen> with TickerProviderStat
   getUser(ConnectivityResult connectivityResult) async {
     loggedUserModel = localUserServices.getLoggedUser();
     checkDviceType=CheckDviceType();
+    //Get.offNamed(RouteHelper.getWindosLoginScreen());
+
     if (loggedUserModel.isLogged == null || loggedUserModel.isLogged == false) {
       if (await localUserServices.getIfAppOpenFistOrNot()==false) {
         Get.offNamed(RouteHelper.getLoginMobileFirstScreen());
       } else {
         Get.offNamed(RouteHelper.getMobileLisanceScreen());
       }
-    } else {
+    }
+    else {
       bool base=localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!);
       if (base) {
         Get.offNamed(RouteHelper.getbazaDownloadMobile());

@@ -66,11 +66,11 @@ class ControllerGirisCixisYeni extends GetxController {
   Rx<ModelRutPerform> modelRutPerform = ModelRutPerform().obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   List<String> listTab = [
-    "Giris-Cixislar",
-    "Gunluk Rut",
-    "Ziyaret Edilmeyenler"
+    "girisCixislar".tr,
+    "todeyRut".tr,
+    "unVisited".tr
   ];
-  RxString selectedTabItem = "Giris-Cixislar".obs;
+  RxString selectedTabItem = "girisCixislar".tr.obs;
   Rx<ModelCariler> expandedItem = ModelCariler().obs;
   ScrollController listScrollController = ScrollController();
   RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
@@ -85,7 +85,7 @@ class ControllerGirisCixisYeni extends GetxController {
   RxList<ModelCariKassa> listKassa = List<ModelCariKassa>.empty(growable: true).obs;
   RxList<ModelCariKassa> selectedlistKassa = List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
-  Rx<UserModel> selectedTemsilci=UserModel(code: "u",name: "Butun cariler").obs;
+  Rx<UserModel> selectedTemsilci=UserModel(code: "",name: "hamisi".tr).obs;
   BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
   @override
   Future<void> onInit() async {
@@ -124,42 +124,65 @@ class ControllerGirisCixisYeni extends GetxController {
     update();
   }
 
-  Future<void> getRutPerformToday() async {
-    modelRutPerform.value = await localBaseDownloads.getRutDatail(loggedUserModel.userModel);
-    listSelectedMusteriler.value = modelRutPerform.value.listGunlukRut!;
-    listTabItems.add(ModelTamItemsGiris(
-        icon: Icons.people_outline_outlined,
-        label: "Umumi Musteriler",
-        girisSayi: modelRutPerform.value.duzgunZiya! +
-            modelRutPerform.value.rutkenarZiya!,
-        keyText: "Gumumi",
-        marketSayi: listCariler.length,
-        selected: true,
-        color: Colors.deepPurple),);
-    listTabItems.add(ModelTamItemsGiris(
-        icon: Icons.people_outline_outlined,
-        label: "Gunluk Rut",
-        girisSayi: modelRutPerform.value.duzgunZiya,
-        keyText: "Grut",
-        marketSayi: modelRutPerform.value.rutSayi,
-        selected: true,
-        color: Colors.blue));
-    listTabItems.add( ModelTamItemsGiris(
-        icon: Icons.person_off_outlined,
-        label: "Ziyaret Edilmeyenler",
-        girisSayi: 0,
-        keyText: "Zedilmeyen",
-        marketSayi: modelRutPerform.value.ziyaretEdilmeyen,
-        selected: false,
-        color: Colors.orange));
-    listTabItems.add(  ModelTamItemsGiris(
-        icon: Icons.verified_user_outlined,
-        label: "Ziyaretler",
-        girisSayi: modelRutPerform.value.listGirisCixislar!.length,
-        keyText: "z",
-        marketSayi: modelRutPerform.value.listGirisCixislar!.length,
-        selected: false,
-        color: Colors.green));
+  Future<void> getRutPerformToday(bool butunCariler,UserModel selected) async {
+    print("getRutPerformToday cagildi");
+    listTabItems.clear();
+    if(butunCariler){
+      modelRutPerform.value = await localBaseDownloads.getRutDatail(loggedUserModel.userModel!.moduleId!);
+      listTabItems.add(ModelTamItemsGiris(
+          icon: Icons.people_outline_outlined,
+          label: "Umumi Musteriler",
+          girisSayi: modelRutPerform.value.duzgunZiya! +
+              modelRutPerform.value.rutkenarZiya!,
+          keyText: "Gumumi",
+          marketSayi: listCariler.length,
+          selected: true,
+          color: Colors.deepPurple),);
+      listTabItems.add(  ModelTamItemsGiris(
+          icon: Icons.verified_user_outlined,
+          label: "Ziyaretler",
+          girisSayi: modelRutPerform.value.listGirisCixislar!.length,
+          keyText: "z",
+          marketSayi: modelRutPerform.value.listGirisCixislar!.length,
+          selected: false,
+          color: Colors.green));
+    }else{
+      modelRutPerform.value = await localBaseDownloads.getRutDatail(loggedUserModel.userModel!.moduleId!);
+      listTabItems.add(ModelTamItemsGiris(
+          icon: Icons.people_outline_outlined,
+          label: "Umumi Musteriler",
+          girisSayi: modelRutPerform.value.duzgunZiya! +
+              modelRutPerform.value.rutkenarZiya!,
+          keyText: "Gumumi",
+          marketSayi: listCariler.length,
+          selected: true,
+          color: Colors.deepPurple),);
+      listTabItems.add(ModelTamItemsGiris(
+          icon: Icons.people_outline_outlined,
+          label: "todeyRut".tr,
+          girisSayi: modelRutPerform.value.duzgunZiya,
+          keyText: "Grut",
+          marketSayi: modelRutPerform.value.rutSayi,
+          selected: false,
+          color: Colors.blue));
+      listTabItems.add( ModelTamItemsGiris(
+          icon: Icons.person_off_outlined,
+          label: "unVisited".tr,
+          girisSayi: 0,
+          keyText: "zedilmeyen",
+          marketSayi: modelRutPerform.value.ziyaretEdilmeyen,
+          selected: false,
+          color: Colors.orange));
+      listTabItems.add(  ModelTamItemsGiris(
+          icon: Icons.verified_user_outlined,
+          label: "Ziyaretler",
+          girisSayi: modelRutPerform.value.listGirisCixislar!.length,
+          keyText: "z",
+          marketSayi: modelRutPerform.value.listGirisCixislar!.length,
+          selected: false,
+          color: Colors.green));
+    }
+
 
     update();
   }
@@ -244,7 +267,7 @@ class ControllerGirisCixisYeni extends GetxController {
     modelgirisEdilmis.value = await localDbGirisCixis.getGirisEdilmisMarket();
     if (modelgirisEdilmis.value.girisvaxt == null) {
       getAllDataFormLocale();
-      getRutPerformToday();
+      await getRutPerformToday(true,selectedTemsilci.value);
       marketeGirisEdilib.value = false;
       slidePanelVisible.value = false;
     } else {
@@ -561,7 +584,7 @@ class ControllerGirisCixisYeni extends GetxController {
     _timer!.cancel();
     polygon.clear();
     pointsPoly.clear();
-    getRutPerformToday();
+    await getRutPerformToday(false,selectedTemsilci.value);
     getSatisMelumatlari();
     ctKassaDialog.text="";
     ctCixisQeyd.text="";
@@ -1214,7 +1237,7 @@ class ControllerGirisCixisYeni extends GetxController {
     );
   }
 
-  void changeTabItemsValue(ModelTamItemsGiris element, Position currentLocation) {
+  Future<void> changeTabItemsValue(ModelTamItemsGiris element, Position currentLocation) async {
     for (var element2 in listTabItems) {
       if (element2.label == element.label) {
         element2.selected = true;
@@ -1222,28 +1245,51 @@ class ControllerGirisCixisYeni extends GetxController {
         element2.selected = false;
       }
     }
-    if(loggedUserModel.userModel!.roleId==17||loggedUserModel.userModel!.roleId==18||loggedUserModel.userModel!.roleId==23||loggedUserModel.userModel!.roleId==24){
-    switch (element.keyText) {
-      case "Grut":
-        listSelectedMusteriler.value = carculateDistanceList(
-            modelRutPerform.value.listGunlukRut!, currentLocation);
-        break;
-      case "Gumumi":
-        listSelectedMusteriler.value =
-            carculateDistanceList(listCariler, currentLocation);
-        break;
-      case "Zedilmeyen":
-        listSelectedMusteriler.value = carculateDistanceList(
-            modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
-        break;
-    }}else{
+    if(selectedTemsilci.value.code==""){
+      //getRutPerformToday(true,selectedTemsilci.value);
       switch (element.keyText) {
+        case "Grut":
+          listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listGunlukRut!, currentLocation);
+          break;
         case "Gumumi":
-          listSelectedMusteriler.value =
-              carculateDistanceList(listCariler, currentLocation);
+          listSelectedMusteriler.value = carculateDistanceList(listCariler, currentLocation);
+          break;
+        case "zedilmeyen":
+          listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
           break;
       }
+    }else{
+      await getRutPerformToday(false,selectedTemsilci.value);
+      switch (element.keyText) {
+        case "Grut":
+          listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listGunlukRut!.where((element) => element.forwarderCode==selectedTemsilci.value.code).toList(), currentLocation);
+          break;
+        case "Gumumi":
+          listSelectedMusteriler.value = carculateDistanceList(listCariler.where((element) => element.forwarderCode==selectedTemsilci.value.code).toList(), currentLocation);
+          break;
+        case "zedilmeyen":
+          listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listZiyaretEdilmeyen!.where((element) => element.forwarderCode==selectedTemsilci.value.code).toList(), currentLocation);
+          break;    }
+
     }
+    // if(loggedUserModel.userModel!.roleId==17||loggedUserModel.userModel!.roleId==18||loggedUserModel.userModel!.roleId==23||loggedUserModel.userModel!.roleId==24){
+    // switch (element.keyText) {
+    //   case "Grut":
+    //     listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listGunlukRut!, currentLocation);
+    //     break;
+    //   case "Gumumi":
+    //     listSelectedMusteriler.value = carculateDistanceList(listCariler, currentLocation);
+    //     break;
+    //   case "zedilmeyen":
+    //     listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
+    //     break;
+    // }}else{
+    //   switch (element.keyText) {
+    //     case "Gumumi":
+    //       listSelectedMusteriler.value = carculateDistanceList(listCariler, currentLocation);
+    //       break;
+    //   }
+    // }
     update();
   }
 
@@ -1877,25 +1923,25 @@ class ControllerGirisCixisYeni extends GetxController {
   void getExpList() {
     List<UserModel> listexpeditorlar=[];
     if(loggedUserModel.userModel!.moduleId==3){
-      listexpeditorlar= localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==17).toList();
+      listexpeditorlar= localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==23).toList();
     }else{
-      listexpeditorlar= localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==13).toList();
+      listexpeditorlar= localBaseDownloads.getAllConnectedUserFromLocal().where((element) => element.roleId==17).toList();
 
     }
-    listexpeditorlar.insert(0, UserModel(code: "u",name: "Butun cariler"));
-   Get.dialog(DialogSimpleUserSelect(selectedUserCode: "",getSelectedUse: (user){
-     print("selected user :"+user.toString());
+    listexpeditorlar.insert(0, UserModel(code: "",name: "hamisi".tr));
+   Get.dialog(DialogSimpleUserSelect(selectedUserCode: selectedTemsilci.value.code!,getSelectedUse: (user){
      selectedTemsilci.value=user;
      changeSelectedUsersCari(user);
    },listUsers: listexpeditorlar,vezifeAdi: "expeditors",));
   }
 
-  void changeSelectedUsersCari(UserModel model) {
-    if(model.code=="u"){
+  Future<void> changeSelectedUsersCari(UserModel model) async {
+    if(model.code==""){
+      await getRutPerformToday(true,model);
       listSelectedMusteriler.value = listCariler;
     }else{
+      await getRutPerformToday(false,model);
       String temkodu=model.code!;
-      print("secilen temsilci cari say :"+listCariler.where((p0) => p0.forwarderCode==temkodu).toList().length.toString());
       listSelectedMusteriler.value=listCariler.where((p0) => p0.forwarderCode==temkodu).toList();
     }
     update();

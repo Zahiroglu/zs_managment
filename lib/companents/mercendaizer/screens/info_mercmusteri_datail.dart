@@ -4,6 +4,7 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
+import 'package:zs_managment/companents/mercendaizer/controller_mercpref.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
@@ -12,22 +13,23 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
 class ScreenMercMusteriDetail extends StatefulWidget {
-  MercCustomersDatail modelMerc;
-  List<ModelGirisCixis> listGirisCixis;
-  List<UserModel> listUsers;
-  UserMerc userMerc;
+  ControllerMercPref controllerMercPref;
 
-  ScreenMercMusteriDetail({required this.modelMerc, required this.listGirisCixis,required this.listUsers,required this.userMerc, super.key});
+
+  ScreenMercMusteriDetail(
+      {required this.controllerMercPref,
+      super.key});
 
   @override
   State<ScreenMercMusteriDetail> createState() =>
       _ScreenMercMusteriDetailState();
 }
 
-class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with TickerProviderStateMixin{
+class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
+    with TickerProviderStateMixin {
   var _scrollControllerNested;
   late TabController tabController;
-  List<String> listTabItems=[];
+  List<String> listTabItems = [];
   final int _initialIndex = 0;
   int tabinitialIndex = 0;
   late PageController _controller;
@@ -42,10 +44,10 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
       vsync: this,
     );
     _scrollControllerNested = ScrollController();
-    _controller = PageController(initialPage: _initialIndex, viewportFraction:  1);
+    _controller =
+        PageController(initialPage: _initialIndex, viewportFraction: 1);
     _controller.addListener(() {
-      setState(() {
-      });
+      setState(() {});
     });
     // TODO: implement initState
     super.initState();
@@ -56,9 +58,10 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
     return Material(
       child: SafeArea(
         child: Scaffold(
-          body:  NestedScrollView(
+          body: NestedScrollView(
             controller: _scrollControllerNested,
-            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
                 SliverSafeArea(
                   sliver: SliverAppBar(
@@ -69,15 +72,18 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                     pinned: true,
                     floating: false,
                     stretch: true,
-                    title:  CustomText(
-                        labeltext: widget.modelMerc.name),
+                    title: CustomText(labeltext: widget.controllerMercPref.selectedMercBaza.value.user!.name),
                     flexibleSpace: FlexibleSpaceBar(
                       stretchModes: const [StretchMode.blurBackground],
-                      background: Column(children: [
-                        widgetSatisInfo(context),
-                        const SizedBox(height: 10,),
-                        widgetInfoHesabatlar(context)
-                      ],),
+                      background: Column(
+                        children: [
+                          widgetSatisInfo(context),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          widgetInfoHesabatlar(context)
+                        ],
+                      ),
                       collapseMode: CollapseMode.values[0],
                       centerTitle: true,
                     ),
@@ -85,7 +91,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                         preferredSize: const Size.fromHeight(50),
                         child: ColoredBox(
                           color: Colors.white,
-                          child:Container(
+                          child: Container(
                             height: 50,
                             width: MediaQuery.of(context).size.width,
                             color: Colors.teal,
@@ -107,10 +113,10 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                               controller: tabController,
                               tabs: listTabItems
                                   .map((element) => Tab(
-                                iconMargin: const EdgeInsets.all(5),
-                                child: Text(element.toString(),
-                                    textAlign: TextAlign.center),
-                              ))
+                                        iconMargin: const EdgeInsets.all(5),
+                                        child: Text(element.toString(),
+                                            textAlign: TextAlign.center),
+                                      ))
                                   .toList(),
                             ),
                           ),
@@ -119,7 +125,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                 )
               ];
             },
-            body:pagetViewInfo(),
+            body: pagetViewInfo(),
           ),
         ),
       ),
@@ -132,7 +138,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(0.0).copyWith(top: 7,right: 5),
+            padding: const EdgeInsets.all(0.0).copyWith(top: 7, right: 5),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,8 +155,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding:
-                            const EdgeInsets.all(0.0).copyWith(left: 5, right: 5),
+                        padding: const EdgeInsets.all(0.0)
+                            .copyWith(left: 5, right: 5),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +177,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${widget.modelMerc.totalPlan} ${"manatSimbol".tr}",
+                                              "${widget.controllerMercPref.selectedMercBaza.value.user!.totalPlan} ${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -184,7 +190,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${prettify(widget.modelMerc.totalSelling.round() * 1)}${"manatSimbol".tr}",
+                                              "${prettify(widget.controllerMercPref.selectedMercBaza.value.user!.totalSelling.round() * 1)}${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -196,9 +202,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                                         fontWeight: FontWeight.bold,
                                       ),
                                       CustomText(
-                                          labeltext:
-                                              widget.modelMerc.totalRefund.round().toString() +
-                                                  "${"manatSimbol".tr}",
+                                          labeltext: "${widget.controllerMercPref.selectedMercBaza.value.user!.totalRefund.round()}${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -215,8 +219,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                                         fontWeight: FontWeight.bold,
                                       ),
                                       CustomText(
-                                          labeltext:
-                                              widget.listGirisCixis.length.toString(),
+                                          labeltext: widget.controllerMercPref.listGirisCixislar.length
+                                              .toString(),
                                           fontsize: 16),
                                     ],
                                   ),
@@ -228,8 +232,9 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                                         fontWeight: FontWeight.bold,
                                       ),
                                       CustomText(
-                                          labeltext: curculateTimeDistanceForVisit(
-                                              widget.listGirisCixis),
+                                          labeltext:
+                                              curculateTimeDistanceForVisit(
+                                                  widget.controllerMercPref.listGirisCixislar),
                                           fontsize: 16),
                                     ],
                                   ),
@@ -239,27 +244,31 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                             const SizedBox(
                               width: 5,
                             ),
-                            chartWidget(widget.modelMerc),
+                            chartWidget(widget.controllerMercPref.selectedCustomers.value),
                           ],
                         ),
                       ),
                       Row(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(2.0).copyWith(left: 2,bottom: 2),
+                            padding: const EdgeInsets.all(2.0)
+                                .copyWith(left: 2, bottom: 2),
                             child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                              border: Border.all(
-                                color: Colors.white,
-                              ),
-                            ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(3.0),
-                                child: _infoMarketRout(widget.modelMerc,context),
-                              )),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: _infoMarketRout(
+                                      widget.controllerMercPref.selectedCustomers.value, context),
+                                )),
                           ),
-                          const SizedBox(width: 10,),
+                          const SizedBox(
+                            width: 10,
+                          ),
                         ],
                       )
                     ],
@@ -271,62 +280,71 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
           Positioned(
               top: -8,
               right: -5,
-              child: IconButton.filled(onPressed:_editMercCari, icon: const Icon(Icons.edit_note,),padding: const EdgeInsets.all(0),constraints: BoxConstraints(maxHeight: 50,minHeight: 30,maxWidth: 50,minWidth: 30),))
+              child: IconButton.filled(
+                onPressed: _editMercCari,
+                icon: const Icon(
+                  Icons.edit_note,
+                ),
+                padding: const EdgeInsets.all(0),
+                constraints: const BoxConstraints(
+                    maxHeight: 50, minHeight: 30, maxWidth: 50, minWidth: 30),
+              ))
         ],
       ),
     );
   }
 
-  widgetInfoHesabatlar(BuildContext context){
-      return WidgetCarihesabatlar(cad:widget.modelMerc.name! , ckod: widget.modelMerc.code!, height: 100);
+  widgetInfoHesabatlar(BuildContext context) {
+    return WidgetCarihesabatlar(
+        cad: widget.controllerMercPref.selectedMercBaza.value.user!.name, ckod: widget.controllerMercPref.selectedMercBaza.value.user!.code, height: 100);
   }
 
   Widget _infoMarketRout(MercCustomersDatail element, BuildContext context) {
     int valuMore = 0;
-    if (element.days.any((element) => element.day==1)) {
+    if (element.days!.any((element) => element.day == 1)) {
       valuMore = valuMore + 1;
     }
-    if (element.days.any((element) => element.day==2)) {
+    if (element.days!.any((element) => element.day == 2)) {
       valuMore = valuMore + 1;
     }
-    if (element.days.any((element) => element.day==3)) {
+    if (element.days!.any((element) => element.day == 3)) {
       valuMore = valuMore + 1;
     }
-    if (element.days.any((element) => element.day==4)) {
+    if (element.days!.any((element) => element.day == 4)) {
       valuMore = valuMore + 1;
     }
-    if (element.days.any((element) => element.day==5)) {
+    if (element.days!.any((element) => element.day == 5)) {
       valuMore = valuMore + 1;
     }
-    if (element.days.any((element) => element.day==6)) {
+    if (element.days!.any((element) => element.day == 6)) {
       valuMore = valuMore + 1;
     }
     return SizedBox(
       height: valuMore > 5 ? 60 : 28,
-      width: MediaQuery.of(context).size.width*0.75,
+      width: MediaQuery.of(context).size.width * 0.75,
       child: Wrap(
         direction: Axis.horizontal,
         alignment: WrapAlignment.start,
         children: [
-          element.days!.any((element) => element.day==1)
+          element.days!.any((element) => element.day == 1)
               ? WidgetRutGunu(rutGunu: "gun1".tr)
               : const SizedBox(),
-          element.days.any((element) => element.day==2)
+          element.days!.any((element) => element.day == 2)
               ? WidgetRutGunu(rutGunu: "gun2".tr)
               : const SizedBox(),
-          element.days.any((element) => element.day==3)
+          element.days!.any((element) => element.day == 3)
               ? WidgetRutGunu(rutGunu: "gun3".tr)
               : const SizedBox(),
-          element.days.any((element) => element.day==4)
+          element.days!.any((element) => element.day == 4)
               ? WidgetRutGunu(rutGunu: "gun4".tr)
               : const SizedBox(),
-          element.days.any((element) => element.day==5)
+          element.days!.any((element) => element.day == 5)
               ? WidgetRutGunu(rutGunu: "gun5".tr)
               : const SizedBox(),
-          element.days.any((element) => element.day==6)
+          element.days!.any((element) => element.day == 6)
               ? WidgetRutGunu(rutGunu: "gun6".tr)
               : const SizedBox(),
-          element.days.any((element) => element.day==7)
+          element.days!.any((element) => element.day == 7)
               ? WidgetRutGunu(rutGunu: "bagli".tr)
               : const SizedBox(),
         ],
@@ -353,32 +371,26 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
   }
 
   Widget chartWidget(MercCustomersDatail element) {
-    bool satiskecib = element.totalSelling>0;
+    bool satiskecib = element.totalSelling! > 0;
     final List<ChartData> chartData = [
-      ChartData(
-          "plan".tr,element.totalSelling.round(), Colors.green),
+      ChartData("plan".tr, element.totalSelling!.round(), Colors.green),
       ChartData(
           'satis'.tr,
           satiskecib
               ? 0
-              : element.totalPlan.round() -
-                  element.totalSelling.round(),
+              : element.totalPlan!.round() - element.totalSelling!.round(),
           Colors.red),
     ];
     return SimpleChart(listCharts: chartData, height: 130, width: 150);
   }
 
   Widget chartWidgetSimple(SellingData element) {
-    bool satiskecib = element.selling>0;
+    bool satiskecib = element.selling > 0;
     final List<ChartData> chartData = [
-      ChartData(
-          "plan".tr,element.selling.round(), Colors.green),
+      ChartData("plan".tr, element.selling.round(), Colors.green),
       ChartData(
           'satis'.tr,
-          satiskecib
-              ? 0
-              : element.plans.round() -
-                  element.selling.round(),
+          satiskecib ? 0 : element.plans.round() - element.selling.round(),
           Colors.red),
     ];
     return SimpleChart(listCharts: chartData, height: 135, width: 150);
@@ -387,36 +399,38 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
   String prettify(double d) {
     return d.toStringAsFixed(1).replaceFirst(RegExp(r'\.?0*$'), '');
   }
-  
-  
+
   Widget pagetViewInfo() {
     return PageView(
       onPageChanged: _onPageViewChange,
       physics: const ClampingScrollPhysics(),
       controller: _controller,
-      children: [
-        widgetSatisDetail(context),
-        widgetZiyaretler(context)
-      ],
+      children: [widgetSatisDetail(context), widgetZiyaretler(context)],
     );
   }
 
   widgetSatisDetail(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: widget.modelMerc.sellingDatas.isNotEmpty?Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-                itemCount: widget.modelMerc.sellingDatas.length,
-                itemBuilder: (c, index) {
-                  return widgetSatisDetal( widget.modelMerc.sellingDatas.elementAt(index));
-                }),
-          )        ],
-      ):Center(child: CustomText(labeltext: "melumattapilmadi".tr),),
+      child:widget.controllerMercPref.selectedCustomers.value.sellingDatas!.isNotEmpty
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length,
+                      itemBuilder: (c, index) {
+                        return widgetSatisDetal(
+                            widget.controllerMercPref.selectedCustomers.value.sellingDatas!.elementAt(index));
+                      }),
+                )
+              ],
+            )
+          : Center(
+              child: CustomText(labeltext: "melumattapilmadi".tr),
+            ),
     );
   }
 
@@ -429,62 +443,72 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
           children: [
             Row(
               children: [
-                CustomText(labeltext: "${"expeditor".tr} : ",fontWeight: FontWeight.w700),
+                CustomText(
+                    labeltext: "${"expeditor".tr} : ",
+                    fontWeight: FontWeight.w700),
                 CustomText(labeltext: element.forwarderCode),
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 10,right: 20),
+              padding: const EdgeInsets.only(left: 10, right: 20),
               child: Row(
-               children: [
-                 Expanded(
-                   flex: 5,
-                   child: Padding(
-                     padding: const EdgeInsets.all(3.0),
-                     child: Column(
-                       mainAxisAlignment: MainAxisAlignment.start,
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Row(
-                           children: [
-                             CustomText(
-                                 labeltext: "${"plan".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
-                             CustomText(
-                                 labeltext:
-                                 "${element.plans} ${"manatSimbol".tr}",
-                                 fontsize: 14),
-                           ],
-                         ),
-                         Row(
-                           children: [
-                             CustomText(
-                                 labeltext: "${"satis".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
-                             CustomText(
-                                 labeltext:
-                                 "${element.selling} ${"manatSimbol".tr}",
-                                 fontsize: 14),
-                           ],
-                         ),
-                         Row(
-                           children: [
-                             CustomText(
-                                 labeltext: "${"zaymal".tr} : ", fontsize: 14,fontWeight: FontWeight.w700),
-                             CustomText(
-                                 labeltext:
-                                 "${element.refund} ${"manatSimbol".tr}",
-                                 fontsize: 14),
-                           ],
-                         )
-                       ],
-                     ),
-                   ),
-                 ),
-                 Expanded(flex: 5, child: Container(
-                   height: 80,
-                     width: 80,
-                     child: chartWidgetSimple(element))),
-               ],
-                         ),
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CustomText(
+                                  labeltext: "${"plan".tr} : ",
+                                  fontsize: 14,
+                                  fontWeight: FontWeight.w700),
+                              CustomText(
+                                  labeltext:
+                                      "${element.plans} ${"manatSimbol".tr}",
+                                  fontsize: 14),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              CustomText(
+                                  labeltext: "${"satis".tr} : ",
+                                  fontsize: 14,
+                                  fontWeight: FontWeight.w700),
+                              CustomText(
+                                  labeltext:
+                                      "${element.selling} ${"manatSimbol".tr}",
+                                  fontsize: 14),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              CustomText(
+                                  labeltext: "${"zaymal".tr} : ",
+                                  fontsize: 14,
+                                  fontWeight: FontWeight.w700),
+                              CustomText(
+                                  labeltext:
+                                      "${element.refund} ${"manatSimbol".tr}",
+                                  fontsize: 14),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                      flex: 5,
+                      child: Container(
+                          height: 80,
+                          width: 80,
+                          child: chartWidgetSimple(element))),
+                ],
+              ),
             )
           ],
         ),
@@ -495,20 +519,25 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
   widgetZiyaretler(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: widget.listGirisCixis.isNotEmpty?Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: widget.listGirisCixis.length,
-                itemBuilder: (c, index) {
-                  return widgetListGirisItems(widget.listGirisCixis.elementAt(index));
-                }),
-          )
-        ],
-      ):Center(child: CustomText(labeltext: "melumattapilmadi".tr),),
+      child:  widget.controllerMercPref.listGirisCixislar.isNotEmpty
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount:  widget.controllerMercPref.listGirisCixislar.length,
+                      itemBuilder: (c, index) {
+                        return widgetListGirisItems(
+                            widget.controllerMercPref.listGirisCixislar.elementAt(index));
+                      }),
+                )
+              ],
+            )
+          : Center(
+              child: CustomText(labeltext: "melumattapilmadi".tr),
+            ),
     );
   }
 
@@ -530,13 +559,13 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                   children: [
                     Expanded(
                         child: CustomText(
-                          labeltext: model.cariAd,
-                          fontsize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue,
-                          overflow: TextOverflow.ellipsis,
-                          maxline: 2,
-                        )),
+                      labeltext: model.cariAd,
+                      fontsize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blue,
+                      overflow: TextOverflow.ellipsis,
+                      maxline: 2,
+                    )),
                   ],
                 ),
                 const SizedBox(
@@ -550,7 +579,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                       height: 20,
                       color: Colors.blue,
                     ),
-                    CustomText(labeltext: "girisVaxt".tr+" : "),
+                    CustomText(labeltext: "girisVaxt".tr + " : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -568,7 +597,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                       height: 20,
                       color: Colors.red,
                     ),
-                    CustomText(labeltext: "cixisVaxt".tr+" : "),
+                    CustomText(labeltext: "cixisVaxt".tr + " : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -587,7 +616,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: "time".tr+" : "),
+                    CustomText(labeltext: "time".tr + " : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -600,17 +629,17 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Expanded(
-                      flex:8,
+                      flex: 8,
                       child: Padding(
                         padding: const EdgeInsets.all(3.0),
                         child: CustomText(
                             maxline: 3,
                             fontsize: 12,
-                            labeltext:"qeyd".tr+" : "+ model.ziyaretQeyd),
+                            labeltext: "qeyd".tr + " : " + model.ziyaretQeyd),
                       ),
                     ),
                     Expanded(
-                      flex:2,
+                      flex: 2,
                       child: CustomText(
                           labeltext: "${model.girisTarix.substring(0, 10)}"),
                     ),
@@ -635,12 +664,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
                   borderRadius: BorderRadius.circular(5)),
               child: CustomText(
                 fontsize: 12,
-                labeltext:  model.rutUygunluq == "Sef"
-                    ? "wrong".tr
-                    : "right".tr,
-                color:  model.rutUygunluq == "Sef"
-                    ? Colors.red
-                    : Colors.green,
+                labeltext: model.rutUygunluq == "Sef" ? "wrong".tr : "right".tr,
+                color: model.rutUygunluq == "Sef" ? Colors.red : Colors.green,
               ),
             ))
       ],
@@ -649,7 +674,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
 
   String carculateTimeDistace(String? girisvaxt, String? cixisvaxt) {
     Duration difference =
-    DateTime.parse(cixisvaxt!).difference(DateTime.parse(girisvaxt!));
+        DateTime.parse(cixisvaxt!).difference(DateTime.parse(girisvaxt!));
     int hours = difference.inHours % 24;
     int minutes = difference.inMinutes % 60;
     if (hours < 1) {
@@ -660,7 +685,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
   }
 
   void _editMercCari() {
-    Get.toNamed(RouteHelper.getScreenEditMercMusteri(),arguments: [widget.modelMerc,widget.listUsers,widget.userMerc.code,widget.userMerc.name]);
+    Get.toNamed(RouteHelper.getScreenEditMercMusteri(), arguments: [widget.controllerMercPref]);
   }
 
   void _onPageViewChange(int value) {
@@ -668,5 +693,4 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail> with 
       tabController.animateTo(value);
     });
   }
-
 }

@@ -3,13 +3,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
+import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
+import 'package:zs_managment/companents/mercendaizer/controller_mercpref.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
+import 'package:zs_managment/companents/mercendaizer/data_models/model_merc_customers_edit.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
+import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/dialog_select_expeditor.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_dialog/dialog_select_user_connections.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
@@ -22,17 +26,15 @@ import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 
 class ScreenMercCariEdit extends StatefulWidget {
-  MercCustomersDatail modelMerc;
-  List<UserModel> listUsers;
-  String mercKod;
-  String mercAd;
+  ControllerMercPref controllerMercPref;
+
+  // MercCustomersDatail modelMerc;
+  // List<UserModel> listUsers;
+  // String mercKod;
+  // String mercAd;
 
   ScreenMercCariEdit(
-      {required this.modelMerc,
-      required this.listUsers,
-      required this.mercAd,
-      required this.mercKod,
-      super.key});
+      {required this.controllerMercPref,super.key});
 
   @override
   State<ScreenMercCariEdit> createState() => _ScreenMercCariEditState();
@@ -53,27 +55,29 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   bool buttonClicble = true;
   LocalUserServices userService = LocalUserServices();
   late CheckDviceType checkDviceType = CheckDviceType();
+  List<SellingData> selectedSellingDatas=[];
+  List<Day> selectedDays=[];
 
   @override
   void initState() {
-    for (var element in widget.listUsers) {
+    for (var element in widget.controllerMercPref.listUsers.value) {
       listUsers.add(User(
         code: element.code,
         roleId: element.roleId,
         roleName: element.roleName,
         fullName: element.name,
-        isSelected: element.code == widget.modelMerc.code,
+        isSelected: element.code == widget.controllerMercPref.selectedMercBaza.value.user!.code,
       ));
     }
-    modelMerc = widget.modelMerc;
-    rutGunuBir = modelMerc.days.any((element) => element.day == 1);
-    rutGunuIki = modelMerc.days.any((element) => element.day == 2);
-    rutGunuUc = modelMerc.days.any((element) => element.day == 3);
-    rutGunuDort = modelMerc.days.any((element) => element.day == 4);
-    rutGunuBes = modelMerc.days.any((element) => element.day == 5);
-    rutGunuAlti = modelMerc.days.any((element) => element.day == 6);
-    selectedMercKod = widget.mercKod;
-    selectedMercAd = widget.mercAd;
+    modelMerc =widget.controllerMercPref.selectedCustomers.value;
+    rutGunuBir = modelMerc.days!.any((element) => element.day == 1);
+    rutGunuIki = modelMerc.days!.any((element) => element.day == 2);
+    rutGunuUc = modelMerc.days!.any((element) => element.day == 3);
+    rutGunuDort = modelMerc.days!.any((element) => element.day == 4);
+    rutGunuBes = modelMerc.days!.any((element) => element.day == 5);
+    rutGunuAlti = modelMerc.days!.any((element) => element.day == 6);
+    selectedMercKod =widget.controllerMercPref.selectedMercBaza.value.user!.code;
+    selectedMercAd =widget.controllerMercPref.selectedMercBaza.value.user!.name;
     // TODO: implement initState
     super.initState();
   }
@@ -90,7 +94,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         child: SafeArea(
             child: Scaffold(
       appBar: AppBar(
-        title: CustomText(labeltext: widget.modelMerc.name),
+        title: CustomText(labeltext: widget.controllerMercPref.selectedMercBaza.value.user!.name),
       ),
       body: _body(context),
     )));
@@ -105,20 +109,22 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
           widgetRutGunleri(context),
           Align(
             alignment: Alignment.bottomCenter,
-            child: CustomElevetedButton(
-              clicble: buttonClicble,
-              width: MediaQuery.of(context).size.width / 2,
-              height: 40,
-              elevation: 10,
-              borderColor: Colors.green,
-              surfaceColor: Colors.white,
-              textColor: Colors.green,
-              fontWeight: FontWeight.bold,
-              label: "change".tr,
-              cllback: () async {
-                print("Button basoldi :true");
-                await _sendDataToBase();
-              },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: CustomElevetedButton(
+                clicble: buttonClicble,
+                width: MediaQuery.of(context).size.width / 2,
+                height: 40,
+                elevation: 10,
+                borderColor: Colors.green,
+                surfaceColor: Colors.white,
+                textColor: Colors.green,
+                fontWeight: FontWeight.bold,
+                label: "change".tr,
+                cllback: () async {
+                  await _sendDataToBase();
+                },
+              ),
             ),
           )
         ],
@@ -130,14 +136,14 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
     return InkWell(
       onTap: () {
         Get.dialog(DialogSimpleUserSelect(
-          selectedUserCode: widget.modelMerc.code,
+          selectedUserCode: widget.controllerMercPref.selectedMercBaza.value.user!.code,
           getSelectedUse: (selectedUser) {
             setState(() {
-              modelMerc.code = selectedUser.code!;
-              modelMerc.name = selectedUser.name!;
+              selectedMercKod = selectedUser.code!;
+              selectedMercAd = selectedUser.name!;
             });
           },
-          listUsers: widget.listUsers,
+          listUsers:  widget.controllerMercPref.listUsers,
           vezifeAdi: "mercler".tr,
         ));
       },
@@ -212,7 +218,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                             selectedMercAd = selectedUser.name!;
                           });
                         },
-                        listUsers: widget.listUsers,
+                        listUsers:  widget.controllerMercPref.listUsers,
                         vezifeAdi: "mercler".tr));
                   },
                   icon: const Icon(
@@ -289,13 +295,13 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                       ),
                     ),
                     SizedBox(
-                      height: modelMerc.sellingDatas.length * 110,
+                      height: modelMerc.sellingDatas!.length * 110,
                       child: ListView.builder(
                           padding: EdgeInsets.zero,
-                          itemCount: modelMerc.sellingDatas.length,
+                          itemCount: modelMerc.sellingDatas!.length,
                           itemBuilder: (c, index) {
                             return widgetSatisDetal(
-                                modelMerc.sellingDatas.elementAt(index));
+                                modelMerc.sellingDatas!.elementAt(index));
                           }),
                     ),
                   ],
@@ -571,26 +577,29 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                         obscureText: false),
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 15,
                   ),
                   Align(
                     alignment: Alignment.bottomRight,
-                    child: CustomElevetedButton(
-                        height: 35,
-                        width: 120,
-                        elevation: 10,
-                        fontWeight: FontWeight.w800,
-                        borderColor: Colors.black,
-                        surfaceColor: Colors.teal,
-                        textColor: Colors.white,
-                        cllback: () {
-                          if(ctNewPlan.text.isNotEmpty){
-                          _btnPlandeyis(element);
-                          }else{
-                            Fluttertoast.showToast(msg: "yeniPlanError".tr,gravity: ToastGravity.TOP,backgroundColor: Colors.red);
-                          }
-                        },
-                        label:"tesdiqle".tr),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: CustomElevetedButton(
+                          height: 35,
+                          width: 120,
+                          elevation: 10,
+                          fontWeight: FontWeight.w800,
+                          borderColor: Colors.black,
+                          surfaceColor: Colors.teal,
+                          textColor: Colors.white,
+                          cllback: () {
+                            if(ctNewPlan.text.isNotEmpty){
+                            _btnPlandeyis(element);
+                            }else{
+                              Fluttertoast.showToast(msg: "yeniPlanError".tr,gravity: ToastGravity.TOP,backgroundColor: Colors.red);
+                            }
+                          },
+                          label:"tesdiqle".tr),
+                    ),
                   )
                 ],
               ),
@@ -613,25 +622,64 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   void _btnPlandeyis(SellingData element) {
     SellingData newPlan=element;
     newPlan.plans=double.parse(ctNewPlan.text);
-    modelMerc.sellingDatas.remove(element);
-    modelMerc.sellingDatas.insert(0,newPlan);
-    modelMerc.totalPlan=modelMerc.sellingDatas.fold(0.0, (sum, e) => sum+e.plans);
+    modelMerc.sellingDatas!.remove(element);
+    modelMerc.sellingDatas!.insert(0,newPlan);
+    modelMerc.totalPlan=modelMerc.sellingDatas!.fold(0.0, (sum, e) => sum!+e.plans);
     ctNewPlan.clear();
     setState(() {});
     Get.back();
   }
 
   Future<void> _sendDataToBase() async {
-    setState(() {
-      buttonClicble = false;
-    });
-    await _callApiServiz();
-    setState(() {
-      buttonClicble = true;
-    });
-  }
+    if(modelMerc.sellingDatas!.length>1){
+      Get.dialog(DialogSelectExpeditor(sellingDatas:modelMerc.sellingDatas!,getDataBack: (listSelectedExp){
+        selectedSellingDatas=listSelectedExp;
+        Get.back();
+        _callApiServiz();
+      },));
+
+    }else {
+      selectedSellingDatas.add(modelMerc.sellingDatas!.first);
+      setState(() {
+        buttonClicble = false;
+      });
+      await _callApiServiz();
+      setState(() {
+        buttonClicble = true;
+      });
+    }}
 
   Future<void> _callApiServiz() async {
+    if(rutGunuBir){
+      selectedDays.add(Day(day: 1, orderNumber: 0));
+    }if(rutGunuIki){
+      selectedDays.add(Day(day: 2, orderNumber: 0));
+    }if(rutGunuUc){
+      selectedDays.add(Day(day: 3, orderNumber: 0));
+    }if(rutGunuDort){
+      selectedDays.add(Day(day: 4, orderNumber: 0));
+    }if(rutGunuBes){
+      selectedDays.add(Day(day: 5, orderNumber: 0));
+    }if(rutGunuAlti){
+      selectedDays.add(Day(day: 6, orderNumber: 0));
+    }
+    List<String> lisexpeditorlar=[];
+    List<Plan> listPlanlar=[];
+    for (var element in selectedSellingDatas) {
+      lisexpeditorlar.add(element.forwarderCode);
+      listPlanlar.add(Plan(forwarderCode: element.forwarderCode, plan: element.plans));
+    }
+    ChangeMerch changeMerch=ChangeMerch(
+      newMerchCode: selectedMercKod,
+      forwarderCodes: lisexpeditorlar
+    );
+    ModelUpdateMercCustomers modelUpdateMercCustomers=ModelUpdateMercCustomers(
+      merchCode:  widget.controllerMercPref.selectedMercBaza.value.user!.code,
+      days: selectedDays,
+      changeMerch: changeMerch,
+      customerCode: modelMerc.code!,
+      plans:listPlanlar
+    );
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     DialogHelper.showLoading("mDeyisdirilir".tr, false);
@@ -650,8 +698,8 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       ));
     } else {
       final response = await ApiClient().dio().put(
-        "${loggedUserModel.baseUrl}/api/v1/Sales/edit-merch-customer-day-order",
-        //data: modelDataSent.toJson(),
+        "${loggedUserModel.baseUrl}/api/v1/Sales/edit-merch-customer",
+        data: modelUpdateMercCustomers.toJson(),
         options: Options(
           receiveTimeout: const Duration(seconds: 60),
           headers: {
@@ -671,7 +719,16 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
           icon: Icons.verified,
           messaje: response.data["result"],
           callback: () {
-            Get.back();
+            widget.controllerMercPref.updateData(modelUpdateMercCustomers);
+
+            if(listPlanlar.length==widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length){
+              Get.back();
+              Get.back();
+              Get.back();
+            }else{
+              Get.back();
+              Get.back();
+            }
           },
         ));
       }
@@ -681,4 +738,6 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
+
+
 }

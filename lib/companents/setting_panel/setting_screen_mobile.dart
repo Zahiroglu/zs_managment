@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zs_managment/companents/anbar/controller_anbar.dart';
+import 'package:zs_managment/companents/local_bazalar/local_bazalar.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
@@ -28,6 +30,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
   SettingPanelController settingPanelController = Get.put(SettingPanelController());
   ThemaController themaController = Get.put(ThemaController());
   var _scrollControllerNested;
+  LocalBazalar localBazalar = LocalBazalar();
+
 
   @override
   Widget build(BuildContext context) {
@@ -443,6 +447,31 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(5),
+            child: InkWell(
+              onTap: () {
+                _sistemiYenidenBaslat();
+              },
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.refresh_outlined,
+                    color: Colors.blue,
+                  ),
+                  SizedBox(
+                    width: 5.w,
+                  ),
+                  CustomText(
+                    color: Colors.blue,
+                    labeltext: "sistemyenidenBaslat".tr.toUpperCase(),
+                    fontWeight: FontWeight.w500,
+                    fontsize: 14,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -489,6 +518,16 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
   }
   void appsettionFormunaBax(UserModel model) {
     Get.toNamed(RouteHelper.mobileMapSettingMobile);
+
+  }
+
+  void _sistemiYenidenBaslat() {
+    Get.delete<DrawerMenuController>();
+    Get.delete<UsersApiController>();
+    Get.delete<UserApiControllerMobile>();
+    Get.delete<SettingPanelController>();
+    Get.delete<ControllerAnbar>();
+    Get.offAllNamed(RouteHelper.getWellComeScreen());
 
   }
 }

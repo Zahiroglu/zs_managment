@@ -32,8 +32,7 @@ class ControllerExpPref extends GetxController {
   late Rx<AvailableMap> availableMap = AvailableMap(
       mapName: CustomMapType.google.name,
       mapType: MapType.google,
-      icon:
-      'packages/map_launcher/assets/icons/${CustomMapType.google}.svg').obs;
+      icon: 'packages/map_launcher/assets/icons/${CustomMapType.google}.svg').obs;
   RxList<ModelCariler> listFilteredUmumiBaza = List<ModelCariler>.empty(growable: true).obs;
   RxList<ModelCariler> listSelectedExpBaza = List<ModelCariler>.empty(growable: true).obs;
   RxList<ModelCariler> listRutGunleri = List<ModelCariler>.empty(growable: true).obs;
@@ -68,7 +67,6 @@ class ControllerExpPref extends GetxController {
 
   @override
   void dispose() {
-    Get.delete<ControllerExpPref>();
     // TODO: implement dispose
     super.dispose();
   }
@@ -120,6 +118,12 @@ class ControllerExpPref extends GetxController {
 
   ////umumi cariler hissesi
   void getAllCariler(List<ModelCariler> listMercBaza, List<ModelGirisCixis> listGirisCixis, List<UserModel> listmercendaizers) {
+    listSelectedExpBaza.clear();
+    listFilteredUmumiBaza.clear();
+    listRutGunleri.clear();
+    listZiyeretEdilmeyenler.clear();
+    listTabItems.clear();
+    listMercs.clear();
     for (var element in listMercBaza) {
       element.ziyaretSayi = listGirisCixis.where((e) => e.cariKod == element.code).toList().length;
      element.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariKod == element.code).toList());

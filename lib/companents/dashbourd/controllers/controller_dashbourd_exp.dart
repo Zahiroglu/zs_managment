@@ -69,7 +69,7 @@ class ControllerDashBorudExp extends GetxController {
   }
 
   Future<void> getRutPerformToday() async{
-    modelRutPerform.value=await localBaseDownloads.getRutDatail(loggedUserModel.userModel);
+    modelRutPerform.value=await localBaseDownloads.getRutDatail(loggedUserModel.userModel!.moduleId!);
     update();
   }
 

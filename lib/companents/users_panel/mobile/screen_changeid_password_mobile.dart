@@ -267,6 +267,8 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
                 responseType: ResponseType.json,
               ),
             );
+        print("chage id status code:"+response.statusCode.toString());
+
         if (response.statusCode == 200) {
           DialogHelper.hideLoading();
           Get.dialog(ShowInfoDialog(
@@ -277,7 +279,7 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
           ));
 
         } else {
-          DialogHelper.hideLoading();
+          //DialogHelper.hideLoading();
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
             messaje: response.data.toString()??"Xeta Bas verdi",

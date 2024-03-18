@@ -167,7 +167,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
                             color: Colors.green, shape: BoxShape.circle),
                         child: Center(
                           child: CustomText(
-                              labeltext: (e.days
+                              labeltext: (e.days!
                                   .where((element) =>
                                       element.day == widget.rutGunuInt)
                                   .first
@@ -201,7 +201,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     List<MercCustomersDatail> newList = [];
     final Map<String, MercCustomersDatail> profileMap = {};
     for (var item in listRutGunleri) {
-      profileMap[item.days
+      profileMap[item.days!
           .where((element) => element.day == widget.rutGunuInt)
           .first
           .orderNumber
@@ -225,7 +225,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
 
   void changeListDayOrderByListIndex(List<MercCustomersDatail> listRutGunleri) {
     for (var element in listRutGunleri) {
-      element.days.firstWhere((e) => e.day == widget.rutGunuInt).orderNumber =
+      element.days!.firstWhere((e) => e.day == widget.rutGunuInt).orderNumber =
           listRutGunleri.indexOf(element) + 1;
     }
     setState(() {
@@ -247,8 +247,8 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     List<OrderCustomer> orderCusoms = [];
     for (var element in listRutGunleri) {
       orderCusoms.add(OrderCustomer(
-          customerCode: element.code,
-          orderNumber: element.days
+          customerCode: element.code!,
+          orderNumber: element.days!
               .firstWhere((e) => e.day == widget.rutGunuInt)
               .orderNumber));
     }
