@@ -36,8 +36,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
 
   @override
   void initState() {
-    listTabItems.add("Plan-Satis");
-    listTabItems.add("Ziyaretler");
+    listTabItems.add("planSatis".tr);
+    listTabItems.add("ziyaretler".tr);
     tabController = TabController(
       initialIndex: tabinitialIndex,
       length: listTabItems.length,
@@ -133,7 +133,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   }
 
   widgetSatisInfo(BuildContext context) {
-    return Padding(
+    return Obx(() => Padding(
       padding: const EdgeInsets.all(5.0).copyWith(top: 40),
       child: Stack(
         children: [
@@ -177,7 +177,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${widget.controllerMercPref.selectedCustomers.value.totalPlan} ${"manatSimbol".tr}",
+                                          "${widget.controllerMercPref.selectedCustomers.value.totalPlan} ${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -190,7 +190,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                       ),
                                       CustomText(
                                           labeltext:
-                                              "${prettify(widget.controllerMercPref.selectedCustomers.value.totalSelling!.round() * 1)}${"manatSimbol".tr}",
+                                          "${prettify(widget.controllerMercPref.selectedCustomers.value.totalSelling!.round() * 1)}${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -233,8 +233,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                       ),
                                       CustomText(
                                           labeltext:
-                                              curculateTimeDistanceForVisit(
-                                                  widget.controllerMercPref.listGirisCixislar),
+                                          curculateTimeDistanceForVisit(
+                                              widget.controllerMercPref.listGirisCixislar),
                                           fontsize: 16),
                                     ],
                                   ),
@@ -291,7 +291,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
               ))
         ],
       ),
-    );
+    ));
   }
 
   widgetInfoHesabatlar(BuildContext context) {
@@ -684,8 +684,11 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
     }
   }
 
-  void _editMercCari() {
-    Get.toNamed(RouteHelper.getScreenEditMercMusteri(), arguments: [widget.controllerMercPref]);
+  Future<void> _editMercCari() async {
+    String dey=await Get.toNamed(RouteHelper.getScreenEditMercMusteri(), arguments: [widget.controllerMercPref]);
+    setState(() {
+      print("dey :"+dey.toString());
+    });
   }
 
   void _onPageViewChange(int value) {

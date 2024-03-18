@@ -724,10 +724,10 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
             if(listPlanlar.length==widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length){
               Get.back();
               Get.back();
-              Get.back();
+              Get.back(result: "OK");
             }else{
               Get.back();
-              Get.back();
+              Get.back(result: "OK");
             }
           },
         ));

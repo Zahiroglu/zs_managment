@@ -54,23 +54,27 @@ class _WellCameScreenState extends State<WellCameScreen> with TickerProviderStat
   getUser(ConnectivityResult connectivityResult) async {
     loggedUserModel = localUserServices.getLoggedUser();
     checkDviceType=CheckDviceType();
-    //Get.offNamed(RouteHelper.getWindosLoginScreen());
+    if(checkDviceType.getDviceType()==3){
+      Get.offNamed(RouteHelper.getWindosLoginScreen());
 
-    if (loggedUserModel.isLogged == null || loggedUserModel.isLogged == false) {
-      if (await localUserServices.getIfAppOpenFistOrNot()==false) {
-        Get.offNamed(RouteHelper.getLoginMobileFirstScreen());
-      } else {
-        Get.offNamed(RouteHelper.getMobileLisanceScreen());
+    }else{
+      if (loggedUserModel.isLogged == null || loggedUserModel.isLogged == false) {
+        if (await localUserServices.getIfAppOpenFistOrNot()==false) {
+          Get.offNamed(RouteHelper.getLoginMobileFirstScreen());
+        } else {
+          Get.offNamed(RouteHelper.getMobileLisanceScreen());
+        }
+      }
+      else {
+        bool base=localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!);
+        if (base) {
+          Get.offNamed(RouteHelper.getbazaDownloadMobile());
+        } else {
+          Get.offNamed(RouteHelper.getMobileMainScreen());
+        }
       }
     }
-    else {
-      bool base=localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!);
-      if (base) {
-        Get.offNamed(RouteHelper.getbazaDownloadMobile());
-      } else {
-        Get.offNamed(RouteHelper.getMobileMainScreen());
-      }
-    }
+
     setState(() {
       isLoading = false;
     });

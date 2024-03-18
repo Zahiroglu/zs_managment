@@ -5,7 +5,7 @@ import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/model_merc_customers_edit.dart';
 import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
-import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
+import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
@@ -311,30 +311,23 @@ class ControllerMercPref extends GetxController {
 
   void updateData(ModelUpdateMercCustomers modelUpdateMercCustomers, bool mustDelate, List<SellingData> selectedSellingDatas) {
     if(mustDelate){
-      print("Market silinmelidir");
-      print("Market selectedSellingDatas :"+selectedSellingDatas.toString());
-      print("Market modelUpdateMercCustomers :"+modelUpdateMercCustomers.toString());
-      print("Market movcuddur :"+listMercBaza.any((element) => element.code==modelUpdateMercCustomers.customerCode).toString());
-      print("Market sayi : "+listMercBaza.length.toString()+" plan :"+listMercBaza.fold(0.0, (sum, e) => sum+e.totalPlan!).toString());
-      listMercBaza.removeWhere((element) => element.code==modelUpdateMercCustomers.customerCode);
+      print("Market silindi");
+       listMercBaza.removeWhere((element) => element.code==modelUpdateMercCustomers.customerCode);
       listRutGunleri.removeWhere((element) => element.code==modelUpdateMercCustomers.customerCode);
-      print("Silindikden sora Market sayi : "+listMercBaza.length.toString()+" plan :"+listMercBaza.fold(0.0, (sum, e) => sum+e.totalPlan!).toString());
-
     }else{
-      print("Market guncellenmelidir");
+      print("Market update edildi");
       MercCustomersDatail model=listMercBaza.where((p) => p.code==modelUpdateMercCustomers.customerCode).first;
-      print("Secilen Market model evvel : "+model.toString());
-      print("Secilen Market selling evvel : "+model.sellingDatas.toString());
+      listRutGunleri.remove(model);
       listMercBaza.remove(model);
-      selectedSellingDatas.forEach((element) {
+      for (var element in selectedSellingDatas) {
         model.sellingDatas!.removeWhere((e) => e.forwarderCode==element.forwarderCode);
-      });
+      }
       model.totalPlan=model.sellingDatas!.fold(0, (sum, element) => sum!+element.plans);
       model.totalSelling=model.sellingDatas!.fold(0, (sum, element) => sum!+element.selling);
       model.totalRefund=model.sellingDatas!.fold(0, (sum, element) => sum!+element.refund);
-      print("Secilen Market model sonra : "+model.toString());
-      print("Secilen Market selling evvel : "+model.sellingDatas.toString());
       listMercBaza.add(model);
+      listRutGunleri.add(model);
+      selectedCustomers.value=model;
     }
     update();
   }

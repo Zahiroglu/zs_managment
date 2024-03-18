@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
-import 'package:zs_managment/companents/giris_cixis/sceens/screen_giriscixis_list.dart';
+import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/companents/widget_listitemsgiriscixis.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
@@ -728,6 +728,7 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
       ),
     );
   }
+
   Widget _infoMarketRout(ModelCariler element, BuildContext context) {
     int valuMore = 0;
     if (element.days!.any((element) => element.day==1)) {
@@ -779,7 +780,6 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
       ),
     );
   }
-
 
   void funFlutterToast(String s) {
     Fluttertoast.showToast(
@@ -1451,8 +1451,8 @@ class _ScreenGirisCixisUmumiListState extends State<ScreenGirisCixisUmumiList> {
   }
 
   Future<void> cixisEt(String uzaqliq) async {
-    await controllerGirisCixis.cixisUcunHazirliq(
-        _currentLocation, uzaqliq, "QEYD");
+    await controllerGirisCixis.pripareForExit(
+        _currentLocation, uzaqliq);
     setState(() {});
   }
 }

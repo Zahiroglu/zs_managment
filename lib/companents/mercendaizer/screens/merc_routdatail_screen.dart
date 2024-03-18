@@ -239,7 +239,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   Widget itemsCustomers(MercCustomersDatail element, bool rutSirasiGorunsun) {
     return InkWell(
       onTap: (){
-       controllerRoutDetailUser.intentMercCustamersDatail(element,rutSirasiGorunsun);
+        controllerRoutDetailUser.intentMercCustamersDatail(element,rutSirasiGorunsun);
       },
       child: Card(
         surfaceTintColor: Colors.white,
@@ -283,15 +283,15 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: element.totalPlan! <
-                                  element.totalSelling!
+                              element.totalSelling!
                               ? Colors.green
                               : Colors.red),
                       child:rutSirasiGorunsun
                           ? Center(
-                              child: CustomText(
-                                color: rutSirasiGorunsun?Colors.white:Colors.black,
-                                  fontWeight: rutSirasiGorunsun?FontWeight.w700:FontWeight.normal,
-                                  labeltext:element.days!.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):SizedBox(),
+                          child: CustomText(
+                              color: rutSirasiGorunsun?Colors.white:Colors.black,
+                              fontWeight: rutSirasiGorunsun?FontWeight.w700:FontWeight.normal,
+                              labeltext:element.days!.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):SizedBox(),
                     ),
                   )),
               Positioned(
@@ -299,10 +299,10 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   right: 8,
                   child: Center(
                       child: CustomText(
-                    labeltext: element.code.toString(),
-                    fontsize: 10,
-                    fontWeight: FontWeight.w700,
-                  )))
+                        labeltext: element.code.toString(),
+                        fontsize: 10,
+                        fontWeight: FontWeight.w700,
+                      )))
             ],
           ),
         ),
