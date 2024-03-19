@@ -29,8 +29,6 @@ import 'package:zs_managment/companents/local_bazalar/local_users_services.dart'
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
@@ -46,6 +44,7 @@ import 'package:zs_managment/widgets/sual_dialog.dart';
 import '../../global_models/custom_enummaptype.dart';
 import '../../widgets/simple_info_dialog.dart';
 import '../local_bazalar/local_app_setting.dart';
+import '../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 
 class ControllerGirisCixisYeni extends GetxController {
   RxList<ModelCariler> listCariler = List<ModelCariler>.empty(growable: true).obs;
@@ -133,10 +132,9 @@ class ControllerGirisCixisYeni extends GetxController {
   }
 
   Future<void> getRutPerformToday(bool butunCariler,UserModel selected) async {
-    print("getRutPerformToday cagildi");
     listTabItems.clear();
     if(butunCariler){
-      modelRutPerform.value = await localBaseDownloads.getRutDatail(loggedUserModel.userModel!.moduleId!);
+      modelRutPerform.value = await localBaseDownloads.getRutDatail(butunCariler,selectedTemsilci.value.code!);
       listTabItems.add(ModelTamItemsGiris(
           icon: Icons.people_outline_outlined,
           label: "umumiMusteri".tr,
@@ -155,7 +153,7 @@ class ControllerGirisCixisYeni extends GetxController {
           selected: false,
           color: Colors.green));
     }else{
-      modelRutPerform.value = await localBaseDownloads.getRutDatail(loggedUserModel.userModel!.moduleId!);
+      modelRutPerform.value = await localBaseDownloads.getRutDatail(butunCariler,selectedTemsilci.value.code!);
       listTabItems.add(ModelTamItemsGiris(
           icon: Icons.people_outline_outlined,
           label: "umumiMusteri".tr,
@@ -386,30 +384,32 @@ class ControllerGirisCixisYeni extends GetxController {
 
   bool rutGununuYoxla(ModelCariler model) {
     bool rutgunu = false;
-    if(model.days!=null){
-    final now = DateTime.now();
-    int day = now.weekday;
-    int irutgunu = 0;
-    if (model.days!.any((element) => element.day==1)) {
-      irutgunu = 1;
-    } else if (model.days!.any((element) => element.day==2)) {
-      irutgunu = 2;
-    } else if (model.days!.any((element) => element.day==3)) {
-      irutgunu = 3;
-    } else if (model.days!.any((element) => element.day==4)) {
-      irutgunu = 4;
-    } else if (model.days!.any((element) => element.day==5)) {
-      irutgunu = 5;
-    } else if (model.days!.any((element) => element.day==6)) {
-      irutgunu = 6;
-    } else {
-      rutgunu = false;
+    if (model.days != null) {
+      final now = DateTime.now();
+      int day = now.weekday;
+      int irutgunu = 0;
+      if (model.days!.any((element) => element.day == 1)) {
+        irutgunu = 1;
+      } if (model.days!.any((element) => element.day == 2)) {
+        irutgunu = 2;
+      } if (model.days!.any((element) => element.day == 3)) {
+        irutgunu = 3;
+      }  if (model.days!.any((element) => element.day == 4)) {
+        irutgunu = 4;
+      }  if (model.days!.any((element) => element.day == 5)) {
+        irutgunu = 5;
+      } if (model.days!.any((element) => element.day == 6)) {
+        irutgunu = 6;
+      } else {
+        rutgunu = false;
+      }
+      if (irutgunu == day) {
+        rutgunu = true;
+      } else {
+        rutgunu = false;
+      }
     }
-    if (irutgunu == day) {
-      rutgunu = true;
-    } else {
-      rutgunu = false;
-    }}
+    print("-----------------------------");
     return rutgunu;
   }
 
@@ -1895,13 +1895,13 @@ class ControllerGirisCixisYeni extends GetxController {
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     ModelRequestGirisCixis model=ModelRequestGirisCixis(
-        userPosition: loggedUserModel.userModel!.roleName!,
-    customerCode: modelgirisEdilmis.value.ckod!,
+      userPosition: loggedUserModel.userModel!.roleId!.toString(),
+      customerCode: selectedModel.code!.toString(),
       note: "",
       operationLatitude: currentLocation.latitude.toString(),
       operationLongitude: currentLocation.longitude.toString(),
       operationType: "In",
-      userCode: loggedUserModel.userModel!.id!.toString()
+      userCode: loggedUserModel.userModel!.code!.toString()
     );
     DialogHelper.hideLoading();
     DialogHelper.showLoading("qeydiyyatTesdiqlenir".tr, false);
@@ -1984,13 +1984,13 @@ class ControllerGirisCixisYeni extends GetxController {
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     ModelRequestGirisCixis model=ModelRequestGirisCixis(
-        userPosition: loggedUserModel.userModel!.roleName!,
+        userPosition: loggedUserModel.userModel!.roleId!.toString(),
         customerCode: modelgirisEdilmis.value.ckod!,
-        note: "",
+        note: qeyd,
         operationLatitude: currentLocation.latitude.toString(),
         operationLongitude: currentLocation.longitude.toString(),
-        operationType: "In",
-        userCode: loggedUserModel.userModel!.id!.toString()
+        operationType: "Out",
+        userCode: loggedUserModel.userModel!.code!.toString()
     );
     DialogHelper.hideLoading();
     DialogHelper.showLoading("qeydiyyatTesdiqlenir".tr, false);
@@ -2026,7 +2026,6 @@ class ControllerGirisCixisYeni extends GetxController {
       );
       if (response.statusCode == 200) {
         cixisiLocaldaTesdiqle(currentLocation, uzaqliq, myTime, qeyd);
-
         DialogHelper.hideLoading();
         Get.back();
       }

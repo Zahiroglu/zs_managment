@@ -8,9 +8,8 @@ import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/model_update_mercrut_order.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_update_mercrut_order.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';

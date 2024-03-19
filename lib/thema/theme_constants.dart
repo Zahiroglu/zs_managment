@@ -20,8 +20,12 @@ const colorAccent = Colors.greenAccent;
 ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: colorPramary,
-  floatingActionButtonTheme:
-      const FloatingActionButtonThemeData(backgroundColor: colorAccent),
+  cardTheme: CardTheme(
+    elevation: 10,
+    color: Colors.white,
+    shadowColor: Colors.black.withOpacity(0.2)
+  ),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(backgroundColor: colorAccent),
   drawerTheme: const DrawerThemeData(elevation: 0, backgroundColor: Colors.black),
   elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -48,6 +52,11 @@ ThemeData lightTheme = ThemeData(
 
 ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
+  cardTheme: CardTheme(
+      elevation: 10,
+      color: Colors.white,
+      shadowColor: Colors.black.withOpacity(0.2)
+  ),
   drawerTheme: const DrawerThemeData(elevation: 0, backgroundColor: Colors.white),
   switchTheme: SwitchThemeData(
     trackColor: MaterialStateProperty.all<Color>(Colors.grey),

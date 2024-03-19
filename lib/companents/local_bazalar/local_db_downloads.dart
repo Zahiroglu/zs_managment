@@ -9,7 +9,8 @@ import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
+
+import '../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 
 class LocalBaseDownloads {
   late Box downloads = Hive.box<ModelDownloads>("baseDownloads");
@@ -134,17 +135,56 @@ class LocalBaseDownloads {
 
 //////Umumi Rut gostericilerini Doldur//////
 
-  Future<ModelRutPerform> getRutDatail(int modeleId) async {
+  Future<ModelRutPerform> getRutDatailForMerc(bool hamisi,String temKod) async {
     ModelRutPerform modelRutPerform=ModelRutPerform();
     List<ModelCariler> listCariler=[];
-    if(modeleId==3){
-      listCariler=await getAllMercBazaForGirisCixis();
-    }else{
-      listCariler=getAllCariBaza();
-    }
-    List<ModelCariler> listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz").toList();
+    List<ModelCariler> listRutGUNU=[];
+    List<ModelCariler> listZiyaretedilmeyen=[];
     List<ModelGirisCixis> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
-    List<ModelCariler> listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
+    if(hamisi){
+      listCariler= getAllMercBazaForGirisCixis();
+      listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz").toList();
+    }else{
+      listCariler= getAllMercBazaForGirisCixis().toList().where((element) => element.forwarderCode==temKod).toList();
+      listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz"&&element.forwarderCode==temKod).toList();
+    }
+    listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
+    int sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Duz").toList()).length;
+    int saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Sef").toList()).length;
+    modelRutPerform=ModelRutPerform(
+      listGunlukRut: listRutGUNU,
+      listZiyaretEdilmeyen: listZiyaretedilmeyen,
+      snSayi: listCariler.length,
+      rutSayi: listRutGUNU.length,
+      duzgunZiya:sayDuzgunZiyaret,
+      rutkenarZiya: saySefZiyaret,
+      listGirisCixislar: localGirisCixisServiz.getAllGirisCixisToday(),
+      ziyaretEdilmeyen: listRutGUNU.length-sayDuzgunZiyaret,
+      snlerdeQalma: circulateSnlerdeQalmaVaxti(localGirisCixisServiz.getAllGirisCixisToday()),
+      umumiIsvaxti: localGirisCixisServiz.getAllGirisCixisToday().isEmpty?"":circulateUmumiIsVaxti(localGirisCixisServiz.getAllGirisCixisToday().first,localGirisCixisServiz.getAllGirisCixisToday().last),
+    );
+    if(modelRutPerform.snSayi==null){
+      return ModelRutPerform();
+    }else {
+      return modelRutPerform;
+    }}
+
+
+  Future<ModelRutPerform> getRutDatail(bool hamisi,String temKod) async {
+    ModelRutPerform modelRutPerform=ModelRutPerform();
+    List<ModelCariler> listCariler=[];
+    List<ModelCariler> listRutGUNU=[];
+    List<ModelCariler> listZiyaretedilmeyen=[];
+    List<ModelGirisCixis> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
+
+    if(hamisi){
+      listCariler=getAllCariBaza();
+      listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz").toList();
+    }else{
+      listCariler=getAllCariBaza().toList().where((element) => element.forwarderCode==temKod).toList();
+      listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz"&&element.forwarderCode==temKod).toList();
+    }
+    listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
     int sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Duz").toList()).length;
     int saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Sef").toList()).length;
     modelRutPerform=ModelRutPerform(
@@ -308,7 +348,7 @@ class LocalBaseDownloads {
     });
     return list;
   }
-  Future<List<ModelCariler>> getAllMercBazaForGirisCixis() async {
+  List<ModelCariler> getAllMercBazaForGirisCixis()  {
     List<ModelCariler> listCariler = [];
     List<MercDataModel> list = [];
     boxListMercBaza.toMap().forEach((key, value) {

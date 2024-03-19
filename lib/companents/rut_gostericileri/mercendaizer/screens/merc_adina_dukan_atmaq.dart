@@ -1,13 +1,15 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza_insert.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_mercbaza_insert.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
@@ -18,8 +20,6 @@ import 'package:zs_managment/widgets/custom_text_field.dart';
 import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
-
-import '../../login/services/api_services/users_controller_mobile.dart';
 
 class ScreenMercAdinaMusteriEalveEtme extends StatefulWidget {
   ModelCariler modelCari;

@@ -18,8 +18,6 @@ import 'package:zs_managment/companents/login/models/model_token.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
@@ -30,6 +28,7 @@ import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import '../local_bazalar/local_giriscixis.dart';
 import '../local_bazalar/local_users_services.dart';
 import '../local_bazalar/local_db_downloads.dart';
+import '../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'models/model_cariler.dart';
 import 'models/model_downloads.dart';
 import 'package:http/http.dart' as http;
@@ -340,8 +339,7 @@ class ControllerBaseDownloads extends GetxController {
     );
   }
 
-  getMustDownloadBase(
-      int roleId, List<ModelDownloads> listDownloadsFromLocalDb) {
+  getMustDownloadBase(int roleId, List<ModelDownloads> listDownloadsFromLocalDb) {
     for (var e in listDownloadsFromLocalDb) {
       if (listDonwloads.any((element) => element.code == e.code)) {
         listDonwloads
@@ -393,7 +391,8 @@ class ControllerBaseDownloads extends GetxController {
         break;
       case "enter":
         await localGirisCixisServiz.init();
-        loggedUserModel = localUserServices.getLoggedUser();
+        loggedUserModel =  localUserServices.getLoggedUser();
+        print("loggedUserModel :"+loggedUserModel.toString());
         if(loggedUserModel.userModel!.moduleId==3){
           List<MercDataModel> data = await getAllMercCariBaza();
           if (data.isNotEmpty) {
@@ -835,34 +834,37 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   }
 
   void syncAllInfo() async {
-    await getLoggedUserInfo(
-        loggedUserModel.tokenModel!, loggedUserModel.baseUrl!);
-    _donloadListiniDoldur();
-    callLocalBases();
-    listDonwloadsAll.clear();
+    await localUserServices.init();
+    loggedUserModel=localUserServices.getLoggedUser();
+    await getLoggedUserInfo(loggedUserModel.tokenModel!, loggedUserModel.baseUrl!).whenComplete(() async => {
+    _donloadListiniDoldur(),
+        callLocalBases(),
+    listDonwloadsAll.clear(),
     for (var element in listDonwloads) {
-      listDonwloadsAll.add(element);
-    }
+      listDonwloadsAll.add(element),
+    },
     for (var element in listDownloadsFromLocalDb) {
-      listDonwloadsAll.add(element);
-    }
+      listDonwloadsAll.add(element)
+    },
     for (var element in listDonwloadsAll) {
-      listDonwloads.remove(element);
-      listDownloadsFromLocalDb.remove(element);
-      element.donloading == true;
-      listDownloadsFromLocalDb.add(element);
+      listDonwloads.remove(element),
+      listDownloadsFromLocalDb.remove(element),
+      element.donloading == true,
+      listDownloadsFromLocalDb.add(element),
       await melumatlariEndir(element, true).whenComplete(() => {
-            listDownloadsFromLocalDb.remove(element),
-            element.donloading == false,
-            listDownloadsFromLocalDb.add(element)
-          });
-    }
-    update();
+        listDownloadsFromLocalDb.remove(element),
+        element.donloading == false,
+        listDownloadsFromLocalDb.add(element)
+      }),
+    },
+    update()
+    });
+
   }
 
   Future<void> getLoggedUserInfo(TokenModel modelToken, String baseUrl) async {
     int dviceType = checkDviceType.getDviceType();
-
+    localUserServices.init();
     DialogHelper.showLoading("istMelEndirilir".tr);
     languageIndex = await getLanguageIndex();
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -899,21 +901,22 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           if (response.statusCode == 200) {
             DialogHelper.hideLoading();
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            UserModel modelUser =
-                UserModel.fromJson(baseResponce.result['user']);
-            CompanyModel modelCompany =
-                CompanyModel.fromJson(baseResponce.result['company']);
+            UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
+            CompanyModel modelCompany = CompanyModel.fromJson(baseResponce.result['company']);
             LoggedUserModel modelLogged = LoggedUserModel(
                 baseUrl: baseUrl,
                 isLogged: true,
                 companyModel: modelCompany,
                 tokenModel: modelToken,
                 userModel: modelUser);
+            loggedUserModel==modelLogged;
             localUserServices.init();
             localUserServices.addUserToLocalDB(modelLogged);
-            DrawerMenuController controller = Get.put(DrawerMenuController());
-            controller.onInit();
-            controller.addPermisionsInDrawerMenu(loggedUserModel);
+            Future.delayed(const Duration(milliseconds: 20),(){});
+            print("yeni logged melumatlar :"+modelLogged.toString());
+            // DrawerMenuController controller = Get.put(DrawerMenuController());
+            // controller.onInit();
+            // controller.addPermisionsInDrawerMenu(loggedUserModel);
             update();
           } else {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
@@ -944,4 +947,97 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       }
     }
   }
+
+
+  ///GETGiris cixis
+  Future<List<ModelCariler>> getAllGirisCixis() async {
+    List<ModelCariler> listUsers = [];
+    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
+    var data={
+      "userCode": loggedUserModel.userModel!.code!,
+      "userPosition": loggedUserModel.userModel!.roleId!,
+      "startDate": "",
+      "endDate": ""
+    };
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio().post(
+          "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
+          data: data,
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        if (response.statusCode == 404) {
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "baglantierror".tr,
+            callback: () {},
+          ));
+        } else {
+          if (response.statusCode == 200) {
+            var dataModel = json.encode(response.data['result']);
+            List listuser = jsonDecode(dataModel);
+            for (var i in listuser) {
+              var dataCus = json.encode(i['customers']);
+              var temsilciKodu = i['user']['code'];
+              print("temsilciKodu :" + temsilciKodu.toString());
+
+              List listDataCustomers = jsonDecode(dataCus);
+              for (var a in listDataCustomers) {
+                ModelCariler model = ModelCariler.fromJson(a);
+                model.forwarderCode = temsilciKodu;
+                print("a custim :" + a.toString());
+                listUsers.add(model);
+              }
+            }
+          } else {
+            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {},
+            ));
+          }
+        }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
+    }
+    return listUsers;
+  }
+
 }

@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/anbar/screan_anbar_esas.dart';
 import 'package:zs_managment/companents/connected_users/rout_detail_users_screen.dart';
+import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_umumilist.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/dashbourd_screen_mobile.dart';
@@ -21,8 +22,8 @@ import 'package:zs_managment/companents/login/services/api_services/users_contro
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/main_screen/drawer/model_drawerItems.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/mercendaizer/screens/merc_routdatail_screen.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/screens/merc_routdatail_screen.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/sifaris_detallari/screen_sifarislerebax.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/setting_panel/setting_panel_controller.dart';
@@ -503,14 +504,15 @@ class DrawerMenuController extends getx.GetxController {
         if (localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!)) {
           modelAppSetting = await localAppSetting.getAvaibleMap();
           if (modelAppSetting.girisCixisType == "map") {
-            pageView = const YeniGirisCixisSon();
+            pageView = const YeniGirisCixisMap();
           } else {
-            if(userServices.getLoggedUser().userModel!.roleId==17||userServices.getLoggedUser().userModel!.roleId==18||userServices.getLoggedUser().userModel!.roleId==23||userServices.getLoggedUser().userModel!.roleId==24){
-              pageView =  ScreenGirisCixisList(drawerMenuController: this,);
+            if(userServices.getLoggedUser().userModel!.moduleId==3){
+              pageView =  ScreenGirisCixisReklam(drawerMenuController: this,);
 
             }else{
               pageView =  ScreenGirisCixisUmumiList(drawerMenuController: this,);
             }
+
           }
         } else {
           Get.dialog(ShowInfoDialog(

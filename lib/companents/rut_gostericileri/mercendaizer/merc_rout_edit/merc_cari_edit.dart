@@ -9,11 +9,10 @@ import 'package:zs_managment/companents/local_bazalar/local_users_services.dart'
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
-import 'package:zs_managment/companents/mercendaizer/controller_mercpref.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/model_merc_customers_edit.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/model_mercbaza.dart';
-import 'package:zs_managment/companents/mercendaizer/merc_rout_edit/dialog_select_expeditor.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/controller_mercpref.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_merc_customers_edit.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/merc_rout_edit/dialog_select_expeditor.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_dialog/dialog_select_user_connections.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
@@ -632,7 +631,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   }
 
   Future<void> _sendDataToBase() async {
-    if(modelMerc.sellingDatas!.length>1){
+    if(modelMerc.sellingDatas!.length>1&&widget.controllerMercPref.selectedMercBaza.value.user!.code!=selectedMercKod){
       Get.dialog(DialogSelectExpeditor(sellingDatas:modelMerc.sellingDatas!,getDataBack: (listSelectedExp){
         selectedSellingDatas=listSelectedExp;
         Get.back();

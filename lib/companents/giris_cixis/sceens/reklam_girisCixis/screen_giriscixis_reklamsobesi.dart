@@ -587,6 +587,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
   }
 
   Widget widgetCustomers(ModelCariler e) {
+    print("cari :"+e.name.toString()+" rut gunu :"+e.rutGunu.toString());
     return InkWell(
       onTap: () {
         setState(() {
@@ -729,6 +730,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
       ),
     );
   }
+
   Widget _infoMarketRout(ModelCariler element, BuildContext context) {
     int valuMore = 0;
     if (element.days!.any((element) => element.day==1)) {
@@ -1452,8 +1454,8 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
   }
 
   Future<void> cixisEt(String uzaqliq) async {
-    await controllerGirisCixis.cixisUcunHazirliq(
-        _currentLocation, uzaqliq, "QEYD");
+    await controllerGirisCixis.pripareForExit(
+        _currentLocation, uzaqliq);
     setState(() {});
   }
 }

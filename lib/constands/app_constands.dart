@@ -5,8 +5,8 @@ class AppConstands{
   static const appSlogan="";
 
   //static const baseUrlsMain="http://20.121.49.147/api/";
-  static const baseUrlsMain="https://b390-193-105-123-215.ngrok-free.app";
-  static const baseUrlsMainForWindos="https://b390-193-105-123-215.ngrok-free.app";//windos ucun olan
+  static const baseUrlsMain="https://da06-193-105-123-215.ngrok-free.app";
+  static const baseUrlsMainForWindos="https://da06-193-105-123-215.ngrok-free.app";//windos ucun olan
 
 
 

@@ -27,14 +27,14 @@ import '../../base_downloads/models/model_cariler.dart';
 import '../controller_giriscixis_yeni.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 
-class YeniGirisCixisSon extends StatefulWidget {
-  const YeniGirisCixisSon({super.key});
+class YeniGirisCixisMap extends StatefulWidget {
+  const YeniGirisCixisMap({super.key});
 
   @override
-  State<YeniGirisCixisSon> createState() => _YeniGirisCixisSonState();
+  State<YeniGirisCixisMap> createState() => _YeniGirisCixisMapState();
 }
 
-class _YeniGirisCixisSonState extends State<YeniGirisCixisSon> {
+class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
   ControllerGirisCixisYeni controllerGirisCixis =
       Get.put(ControllerGirisCixisYeni());
   final ScrollController listViewController = ScrollController();

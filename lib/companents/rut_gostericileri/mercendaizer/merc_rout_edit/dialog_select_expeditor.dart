@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:zs_managment/companents/mercendaizer/data_models/merc_data_model.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
-import '../../login/services/api_services/users_controller_mobile.dart';
+import '../../../login/services/api_services/users_controller_mobile.dart';
+
 
 class DialogSelectExpeditor extends StatefulWidget {
   List<SellingData> sellingDatas;
