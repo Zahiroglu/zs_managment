@@ -31,7 +31,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
+import '../giris_cixis/models/model_request_inout.dart';
 import '../rut_gostericileri/mercendaizer/data_models/model_mercbaza.dart';
+import 'model_main_inout.dart';
 
 
 class ControllerRoutDetailUser extends GetxController {
@@ -50,7 +52,7 @@ class ControllerRoutDetailUser extends GetxController {
   RxList<MercCustomersDatail> listSelectedMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;
   RxList<ModelCariler> listFilteredCustomers = List<ModelCariler>.empty(growable: true).obs;
   RxList<ModelMercBaza> listFilteredMercBaza = List<ModelMercBaza>.empty(growable: true).obs;
-  RxList<ModelGirisCixis> listGirisCixis = List<ModelGirisCixis>.empty(growable: true).obs;
+  RxList<ModelMainInOut> listGirisCixis = List<ModelMainInOut>.empty(growable: true).obs;
   RxBool dataLoading = true.obs;
   TextEditingController ctTemsilciKodu = TextEditingController();
   String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
@@ -241,13 +243,13 @@ class ControllerRoutDetailUser extends GetxController {
   Future<void> temsilciMelumatlariniGetirElevetedButton(String model) async {
     listSelectedCustomers.clear();
     listFilteredCustomers.clear();
-    DialogHelper.showLoading("cmendirilir".tr);
     if (fistTabSelected.value == "Exp") {
+      DialogHelper.showLoading("cmendirilir".tr);
       UserModel userModel=UserModel(roleId: 17,code: model,name: "tapilmadi".tr);
-      print("Evvel listSelectedCustomers : "+listSelectedCustomers.length.toString());
-      print("Evvel listFilteredCustomers : "+listFilteredCustomers.length.toString());
       listSelectedCustomers.value = await getAllCustomers(model);
-      print("Evvel listSelectedCustomers : "+listSelectedCustomers.length.toString());
+      DialogHelper.hideLoading();
+      DialogHelper.showLoading("gcendirilir".tr);
+      listGirisCixis.value=await getAllGirisCixis(model,"17");
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
         changeSelectedTabItems(listTabSifarisler.first);
@@ -263,9 +265,11 @@ class ControllerRoutDetailUser extends GetxController {
       }
       tabMelumatlariYukle();
     } else {
+      DialogHelper.showLoading("cmendirilir".tr);
       MercDataModel modela = await getAllCustomersMerc(model);
-      listSelectedMercBaza.value = modela.mercCustomersDatail!;
-      //listGirisCixis.value=await getDataFromServerGirisCixis(model);
+      DialogHelper.hideLoading();
+      DialogHelper.showLoading("gcendirilir".tr);
+      listGirisCixis.value=await getAllGirisCixis(model,"23");
       DialogHelper.hideLoading();
       if (modela.user!=null) {
         Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
@@ -284,9 +288,12 @@ class ControllerRoutDetailUser extends GetxController {
     selectedUser.value=model;
     listSelectedCustomers.clear();
     listFilteredCustomers.clear();
-    DialogHelper.showLoading("cmendirilir".tr);
     if (fistTabSelected.value == "Exp") {
+      DialogHelper.showLoading("cmendirilir".tr);
       listSelectedCustomers.value = await getAllCustomers(model.code!);
+      DialogHelper.hideLoading();
+      DialogHelper.showLoading("gcendirilir".tr);
+      await getAllGirisCixis(model.code!,model.roleId!.toString());
       DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
         tabMelumatlariYukle();
@@ -302,11 +309,16 @@ class ControllerRoutDetailUser extends GetxController {
       }
       tabMelumatlariYukle();
     } else {
+      DialogHelper.showLoading("cmendirilir".tr);
       MercDataModel modela = await getAllCustomersMerc(model.code!);
-      //listGirisCixis.value=await getDataFromServerGirisCixis(model.code!);
+      DialogHelper.hideLoading();
+      DialogHelper.showLoading("gcendirilir".tr);
+       List<ModelMainInOut> listGirisCixisa  = await getAllGirisCixis(model.code!,model.roleId!.toString());
+      DialogHelper.hideLoading();
+
       DialogHelper.hideLoading();
       if (modela.user!=null) {
-        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
+        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela,listGirisCixisa,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
             messaje: "mtapilmadi".tr,
@@ -603,8 +615,6 @@ class ControllerRoutDetailUser extends GetxController {
     return listUsers;
   }
 
-
-
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
     String rutgun = "Sef";
     int hefteningunu = DateTime
@@ -648,6 +658,93 @@ class ControllerRoutDetailUser extends GetxController {
   }
 
 ////giris cixis
+  Future<List<ModelMainInOut>> getAllGirisCixis(String temsilcikodu,String roleId) async {
+    List<ModelMainInOut> listUsers = [];
+    final now = DateTime.now();
+    var date = DateTime(now.year, now.month, 1).toString();
+    DateTime dateParse = DateTime.parse(date);
+    String ilkGun = intl.DateFormat('yyyy/MM/dd').format(dateParse);
+    String songun = intl.DateFormat('yyyy/MM/dd').format(now);
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    ModelRequestInOut model=ModelRequestInOut(
+      userRole: [UserRole(code: temsilcikodu, role: roleId)],
+      endDate: songun,
+      startDate: ilkGun
+    );
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio().post(
+          "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
+          data: model.toJson(),
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        print("selected Object :"+response.toString());
+        if (response.statusCode == 404) {
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "baglantierror".tr,
+            callback: () {},
+          ));
+        } else {
+          if (response.statusCode == 200) {
+            var dataModel = json.encode(response.data['result']);
+            List listuser = jsonDecode(dataModel);
+            for (var i in listuser) {
+              ModelMainInOut model=ModelMainInOut.fromJson(i);
+              print("model :"+model.toString());
+              listUsers.add(model);
+            }
+          } else {
+            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {},
+            ));
+          }
+        }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
+    }
+    return listUsers;
+  }
+
+
   Future<List<ModelGirisCixis>> getDataFromServerGirisCixis(String temsilcikodu) async {
     final now = DateTime.now();
     var date = DateTime(now.year, now.month, 1).toString();

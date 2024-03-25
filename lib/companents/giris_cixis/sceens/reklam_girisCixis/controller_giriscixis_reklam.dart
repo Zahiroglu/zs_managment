@@ -608,7 +608,7 @@ class ControllerGirisCixisReklam extends GetxController {
     return WidgetCarihesabatlar(
         cad: selectedCariModel.name ?? "",
         ckod: selectedCariModel.code ?? "",
-        height: 100);
+        height: 110);
   }
 
   Widget widgetGunlukGirisCixislar(BuildContext context) {

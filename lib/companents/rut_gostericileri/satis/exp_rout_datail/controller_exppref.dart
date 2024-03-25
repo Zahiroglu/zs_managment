@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:lottie/lottie.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
+import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
@@ -117,7 +118,7 @@ class ControllerExpPref extends GetxController {
   }
 
   ////umumi cariler hissesi
-  void getAllCariler(List<ModelCariler> listMercBaza, List<ModelGirisCixis> listGirisCixis, List<UserModel> listmercendaizers) {
+  void getAllCariler(List<ModelCariler> listMercBaza, List<ModelMainInOut> listGirisCixis, List<UserModel> listmercendaizers) {
     listSelectedExpBaza.clear();
     listFilteredUmumiBaza.clear();
     listRutGunleri.clear();
@@ -125,8 +126,8 @@ class ControllerExpPref extends GetxController {
     listTabItems.clear();
     listMercs.clear();
     for (var element in listMercBaza) {
-      element.ziyaretSayi = listGirisCixis.where((e) => e.cariKod == element.code).toList().length;
-     element.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariKod == element.code).toList());
+      element.ziyaretSayi = listGirisCixis.where((e) => e.userCode == element.code).toList().length;
+   //  element.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariKod == element.code).toList());
       listSelectedExpBaza.add(element);
       listFilteredUmumiBaza.add(element);
     }
@@ -163,7 +164,7 @@ class ControllerExpPref extends GetxController {
           keyText: "um"
       ));
     }
-    ziyaretTarixcesiTablesini(listGirisCixis);
+    //ziyaretTarixcesiTablesini(listGirisCixis);
     melumatlariGuneGoreDoldur();
     for (var element in listmercendaizers) {
       listMercs.add(element);

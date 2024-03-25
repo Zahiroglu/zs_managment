@@ -53,14 +53,14 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                   floating: false,
                   stretch: true,
                   actions: [],
-                  title: SizedBox(),
+                  title: const SizedBox(),
                   leading: IconButton(
-                    icon: Icon(Icons.menu),onPressed:_openDrawer,
+                    icon: const Icon(Icons.menu),onPressed:_openDrawer,
                   ),
                   flexibleSpace: FlexibleSpaceBar(
                     stretchModes: const [StretchMode.blurBackground],
                     background:  Container(
-                      margin: EdgeInsets.only(bottom: 20),
+                      margin: const EdgeInsets.only(bottom: 20),
                       width: MediaQuery.of(context).size.width,
                       height: 300,
                       decoration:  BoxDecoration(
@@ -521,13 +521,16 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
 
   }
 
-  void _sistemiYenidenBaslat() {
+  Future<void> _sistemiYenidenBaslat() async {
     Get.delete<DrawerMenuController>();
     Get.delete<UsersApiController>();
     Get.delete<UserApiControllerMobile>();
     Get.delete<SettingPanelController>();
     Get.delete<ControllerAnbar>();
-    Get.offAllNamed(RouteHelper.getWellComeScreen());
+    await localBazalar.clearLoggedUserInfo();
+    await localBazalar.clearAllGirisCixis();
+    await localBazalar.clearAllBaseDownloads();
+    Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
 
   }
 }

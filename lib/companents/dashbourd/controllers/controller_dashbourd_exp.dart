@@ -285,65 +285,6 @@ class ControllerDashBorudExp extends GetxController {
           );
   }
 
-  Widget getDownloadMenu(BuildContext context) {
-    return screenLoading.isFalse
-        ? Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.4),
-                        border: Border.all(color: Colors.grey, width: 0.2),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10),
-                        )),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10, top: 2),
-                              child: CustomText(
-                                  labeltext: "${"umuYensay".tr} : ${listDonwloads.length}",
-                                  fontsize: 14),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10, top: 2),
-                              child: CustomText(
-                                labeltext: "${"umuYenmelisay".tr} : ${listDonwloads.where((element) => element.musteDonwload==true).toList().length}",
-                                fontsize: 14,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                            iconSize: 35,
-                            onPressed: () {},
-                            icon: Icon(Icons.refresh))
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        : const Center(
-            child: CircularProgressIndicator(
-            color: Colors.blue,
-          ));
-  }
 
   Widget widgetHesabatlar(BuildContext context) {
     return screenLoading.isFalse

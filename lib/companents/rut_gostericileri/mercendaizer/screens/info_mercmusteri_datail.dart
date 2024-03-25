@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
@@ -232,8 +233,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                       ),
                                       CustomText(
                                           labeltext:
-                                          curculateTimeDistanceForVisit(
-                                              widget.controllerMercPref.listGirisCixislar),
+                                          curculateTimeDistanceForVisit(widget.controllerMercPref.listGirisCixislar),
                                           fontsize: 16),
                                     ],
                                   ),
@@ -351,14 +351,14 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
     );
   }
 
-  String curculateTimeDistanceForVisit(List<ModelGirisCixis> list) {
+  String curculateTimeDistanceForVisit(List<ModelInOut> list) {
     int hours = 0;
     int minutes = 0;
     Duration difference = Duration();
     for (var element in list) {
       difference = difference +
-          DateTime.parse(element.cixisTarix)
-              .difference(DateTime.parse(element.girisTarix));
+          DateTime.parse(element.inDate)
+              .difference(DateTime.parse(element.outDate));
     }
     hours = hours + difference.inHours % 24;
     minutes = minutes + difference.inMinutes % 60;
@@ -540,12 +540,12 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
     );
   }
 
-  Widget widgetListGirisItems(ModelGirisCixis model) {
+  Widget widgetListGirisItems(ModelInOut model) {
     return Stack(
       children: [
         Card(
           elevation: 5,
-          shadowColor: model.rutUygunluq == "Sef" ? Colors.red : Colors.green,
+         // shadowColor: model.rutUygunluq == "Sef" ? Colors.red : Colors.green,
           margin: const EdgeInsets.only(left: 2, right: 2, top: 10, bottom: 5),
           child: Container(
             padding: const EdgeInsets.all(10),
@@ -558,7 +558,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                   children: [
                     Expanded(
                         child: CustomText(
-                      labeltext: model.cariAd,
+                      labeltext: model.customerName,
                       fontsize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue,
@@ -582,7 +582,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: model.girisTarix.substring(11, 19)),
+                    CustomText(labeltext: model.inDate.substring(11, 19)),
                   ],
                 ),
                 const SizedBox(
@@ -600,7 +600,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: model.cixisTarix.substring(11, 19)),
+                    CustomText(labeltext: model.outDate.substring(11, 19)),
                     const SizedBox(
                       width: 10,
                     ),
@@ -621,7 +621,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                     ),
                     CustomText(
                         labeltext: carculateTimeDistace(
-                            model.girisTarix, model.cixisTarix)),
+                            model.inDate, model.outDate)),
                   ],
                 ),
                 Row(
@@ -634,13 +634,13 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                         child: CustomText(
                             maxline: 3,
                             fontsize: 12,
-                            labeltext: "qeyd".tr + " : " + model.ziyaretQeyd),
+                            labeltext: "qeyd".tr + " : " + model.outNote),
                       ),
                     ),
                     Expanded(
                       flex: 2,
                       child: CustomText(
-                          labeltext: "${model.girisTarix.substring(0, 10)}"),
+                          labeltext: "${model.inDate.substring(0, 10)}"),
                     ),
                   ],
                 ),
@@ -655,17 +655,17 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                   color: Colors.white,
-                  border: Border.all(
-                      color: model.rutUygunluq == "Sef"
-                          ? Colors.red
-                          : Colors.green,
-                      width: 0.4),
+                  // border: Border.all(
+                  //     color: model. == "Sef"
+                  //         ? Colors.red
+                  //         : Colors.green,
+                  //     width: 0.4),
                   borderRadius: BorderRadius.circular(5)),
-              child: CustomText(
-                fontsize: 12,
-                labeltext: model.rutUygunluq == "Sef" ? "wrong".tr : "right".tr,
-                color: model.rutUygunluq == "Sef" ? Colors.red : Colors.green,
-              ),
+              // child: CustomText(
+              //   fontsize: 12,
+              //   labeltext: model.rutUygunluq == "Sef" ? "wrong".tr : "right".tr,
+              //   color: model.rutUygunluq == "Sef" ? Colors.red : Colors.green,
+              // ),
             ))
       ],
     );

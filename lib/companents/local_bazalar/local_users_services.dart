@@ -45,4 +45,8 @@ class LocalUserServices {
     loggedLanguage.clear();
     loggedUserBox.clear();
   }
+  clearLoggedUserInfo() {
+    late Box loggedUserBox = Hive.box("LoggedUsers");
+    loggedUserBox.clear();
+  }
 }

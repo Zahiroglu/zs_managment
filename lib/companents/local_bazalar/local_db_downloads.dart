@@ -34,6 +34,8 @@ class LocalBaseDownloads {
     await downloads.clear();
     await boxCariBaza.clear();
     await boxAnbarBaza.clear();
+    await boxListConnectedUsers.clear();
+    await boxListMercBaza.clear();
   }
 
   bool getIfCariBaseDownloaded(int moduleId){

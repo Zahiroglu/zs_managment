@@ -368,8 +368,7 @@ class ControllerGirisCixisYeni extends GetxController {
   void addMarkersAndPlygane(String latitude, String longitude, Position currentLocation) {
     polygon.clear();
     pointsPoly.clear();
-    pointsPoly
-        .add(map.LatLng(currentLocation.latitude, currentLocation.longitude));
+    pointsPoly.add(map.LatLng(currentLocation.latitude, currentLocation.longitude));
     pointsPoly.add(map.LatLng(double.parse(latitude), double.parse(longitude)));
     polygon.add(map.Polygon(
       polygonId: const map.PolygonId('1'),
@@ -544,7 +543,7 @@ class ControllerGirisCixisYeni extends GetxController {
 
   //widgetss
   Widget widgetMusteriHesabatlari(ModelCariler selectedCariModel) {
-    return WidgetCarihesabatlar(cad:selectedCariModel.name??"" , ckod: selectedCariModel.code??"", height: 100);
+    return WidgetCarihesabatlar(cad:selectedCariModel.name??"" , ckod: selectedCariModel.code??"", height: 110);
   }
 
   Widget widgetGunlukGirisCixislar(BuildContext context) {

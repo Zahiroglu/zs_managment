@@ -813,7 +813,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-            height: 130,
+            height: 150,
             child: controllerGirisCixis
                 .widgetMusteriHesabatlari(selectedCariModel)),
         const SizedBox(

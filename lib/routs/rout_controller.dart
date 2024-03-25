@@ -17,6 +17,7 @@ import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/s
 import 'package:zs_managment/companents/ziyaret_tarixcesi/screen_ziyaret_giriscixislar_exp.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import '../companents/base_downloads/screen_download_base.dart';
+import '../companents/live_track/screen_search_live_users.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/merc_cari_edit.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/screen_rutsirasi_edit.dart';
 import '../companents/rut_gostericileri/mercendaizer/screens/info_mercmusteri_datail.dart';
@@ -68,6 +69,7 @@ class RouteHelper {
   static const String screenMercRutSiraEdit = '/screenMercRutSiraEdit';
   static const String screenExpRutSiraEdit = '/screenExpRutSiraEdit';
   static const String screenMercAdinaMusteriAt = '/screenMercAdinaMusteriAt';
+  static const String searchLiveUsers = '/searchLiveUsers';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
@@ -102,6 +104,7 @@ class RouteHelper {
   static String getScreenMercRutSiraEdit() => screenMercRutSiraEdit;
   static String getScreenExpRutSiraEdit() => screenExpRutSiraEdit;
   static String getScreenMercAdinaMusteriAt() => screenMercAdinaMusteriAt;
+  static String getsearchLiveUsers() => searchLiveUsers;
 
   static List<GetPage> routes = [
     GetPage(
@@ -280,7 +283,7 @@ class RouteHelper {
         transition: Transition.upToDown,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenZiyaretGirisCixis, page: () {
-      return   ScreenZiyaretGirisCixis(modelGunlukGirisCixis: Get.arguments[0],adSoyad: Get.arguments[1],modelCariler: Get.arguments[2],);
+      return   ScreenZiyaretGirisCixis(modelGunlukGirisCixis: Get.arguments[0],modelCariler: Get.arguments[2],adSoyad: Get.arguments[1],);
       return  Container();
     }),
     GetPage(
@@ -316,6 +319,13 @@ class RouteHelper {
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercAdinaMusteriAt, page: () {
       return   ScreenMercAdinaMusteriEalveEtme(modelCari:  Get.arguments[0],listUsers: Get.arguments[1],availableMap: Get.arguments[2],);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: searchLiveUsers, page: () {
+      return   SearchLiveUsers(listUsers:Get.arguments);
       return  Container();
     }),
   ];

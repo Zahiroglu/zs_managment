@@ -11,12 +11,17 @@ import 'package:zs_managment/companents/ziyaret_tarixcesi/model_gunluk_giriscixi
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
+import 'package:intl/intl.dart' as intl;
+
+import '../../connected_users/model_main_inout.dart';
 
 class ControllerMercPref extends GetxController {
   RxList<MercCustomersDatail> listMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;
   RxList<MercCustomersDatail> listRutGunleri = List<MercCustomersDatail>.empty(growable: true).obs;
   RxList<MercCustomersDatail> listZiyeretEdilmeyenler = List<MercCustomersDatail>.empty(growable: true).obs;
-  RxList<ModelGirisCixis> listGirisCixislar = List<ModelGirisCixis>.empty(growable: true).obs;
+  RxList<ModelMainInOut> modelInOut = List<ModelMainInOut>.empty(growable: true).obs;
+  RxList<ModelInOut> listGirisCixislar = List<ModelInOut>.empty(growable: true).obs;
+  RxList<ModelInOutDay> listGunlukGirisCixislar = List<ModelInOutDay>.empty(growable: true).obs;
   RxList<UserModel> listUsers = List<UserModel>.empty(growable: true).obs;
   Rx<MercDataModel> selectedMercBaza=MercDataModel().obs;
   Rx<MercCustomersDatail> selectedCustomers=MercCustomersDatail().obs;
@@ -29,7 +34,6 @@ class ControllerMercPref extends GetxController {
   double totalPrim = 0;
   RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
   RxList<Widget> listPagesHeader = List<Widget>.empty(growable: true).obs;
-  RxList<ModelGunlukGirisCixis> listTarixlerRx = List<ModelGunlukGirisCixis>.empty(growable: true).obs;
   String totalIsSaati="0";
   String hefteninGunu = "";
   bool userHasPermitionEditRutSira=true;
@@ -76,14 +80,20 @@ class ControllerMercPref extends GetxController {
 
 
   ////umumi cariler hissesi
-  void getAllCariler(MercDataModel model, List<ModelGirisCixis> listGirisCixis,List<UserModel> listUser) {
+  void getAllCariler(MercDataModel model, List<ModelMainInOut> listGirisCixis,List<UserModel> listUser) {
     selectedMercBaza.value=model;
-    listGirisCixislar.value=listGirisCixis;
+    modelInOut.value=listGirisCixis;
+    for (var element in modelInOut.first.modelInOutDays) {
+      listGunlukGirisCixislar.add(element);
+    }
+    for (var element in listGunlukGirisCixislar) {
+      listGirisCixislar.addAll(element.modelInOut);
+    }
     listUsers.value=listUser;
     listMercBaza.clear();
     for (MercCustomersDatail model in model.mercCustomersDatail!) {
-      model.ziyaretSayi = listGirisCixis.where((e) => e.cariAd == model.name).toList().length;
-      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariAd == model.name).toList());
+      model.ziyaretSayi = listGirisCixislar.where((a) => a.customerCode==model.code).toList().length;
+      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixislar.where((e) => e.customerCode == model.code).toList());
       listMercBaza.add(model);
     }
     circulateMotivasion();
@@ -118,58 +128,34 @@ class ControllerMercPref extends GetxController {
         label: "ziyaretTarixcesi".tr,
         selected: false,
         keyText: "um"
-    ));
-    ziyaretTarixcesiTablesini(listGirisCixis);}
+    ));}
     melumatlariGuneGoreDoldur();
     update();
   }
   
-  void ziyaretTarixcesiTablesini(List<ModelGirisCixis> listGirisCixis){
-    List<String> listTarixler=[];
-    listGirisCixis.sort((a, b) {
-      int cmp = a.girisTarix.substring(0,10).compareTo(b.girisTarix.substring(0,10));
-      if (cmp != 0) return cmp;
-      return a.girisTarix.substring(11,15).compareTo(b.girisTarix.substring(11,15));
-    });
-    for (var element in listGirisCixis) {
-      if(!listTarixler.contains(element.girisTarix.substring(0,10))) {
-        listTarixler.add(element.girisTarix.substring(0,10));
-      }
-    }
-    listTarixler.sort((a, b) => a.toString().compareTo(b.toString()));
-    for(var tarix in listTarixler){
-      List<ModelGirisCixis> list=listGirisCixis.where((a) => a.girisTarix.substring(0,10)==tarix).toList();
-      listTarixlerRx.add(ModelGunlukGirisCixis(tarix: tarix,
-          girisSayi: listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).length,
-          umumiIsVaxti:curculateSndeQalmaVaxti( listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList().first.girisTarix, listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList().last.cixisTarix) ,
-          iseBaslamaSaati: listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList().first.girisTarix.substring(11,19),
-          isiQutarmaSaati: listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList().last.cixisTarix.substring(11,19),
-          sndeIsvaxti: curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList()),
-      listgiriscixis: list,
-      ));
-    }
-    totalIsSaati=curculateTotalTimeDistanceForVisit(listGirisCixis);
-  }
 
 
-  String curculateTimeDistanceForVisit(List<ModelGirisCixis> list) {
+  String curculateTimeDistanceForVisit(List<ModelInOut> list) {
     int hours = 0;
     int minutes = 0;
     Duration difference = Duration();
     for (var element in list) {
-      difference = difference +
-          DateTime.parse(element.cixisTarix)
-              .difference(DateTime.parse(element.girisTarix));
+      print("giris vaxt :"+element.inDate);
+      print("cixis vaxt :"+element.outDate);
+      difference = difference +DateTime.parse(element.outDate.toString()).difference(DateTime.parse(element.inDate.toString()));
+      print("difference : "+difference.toString());
     }
     hours = hours + difference.inHours % 24;
     minutes = minutes + difference.inMinutes % 60;
     if (hours < 1) {
+      totalIsSaati="$minutes deq";
       return "$minutes deq";
     } else {
+      totalIsSaati="$hours saat $minutes deq";
       return "$hours saat $minutes deq";
+
     }
   }
-
   String curculateTotalTimeDistanceForVisit(List<ModelGirisCixis> list) {
     int hours = 0;
     int minutes = 0;

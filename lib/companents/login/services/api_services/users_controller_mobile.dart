@@ -328,8 +328,7 @@ class UserApiControllerMobile extends GetxController {
     }
   }
 
-  Future<bool> loginWithMobileDviceIdForDrawerItems(
-      TokenModel tokenmodel, String language) async {
+  Future<bool> loginWithMobileDviceIdForDrawerItems(TokenModel tokenmodel, String language) async {
     DialogHelper.showLoading("Dil deyisdirilir...");
     bool isSucces = false;
     languageIndex = await getLanguageIndex();
@@ -376,10 +375,8 @@ class UserApiControllerMobile extends GetxController {
               tokenModel: tokenmodel,
               userModel: modelUser);
           localUserServices.addUserToLocalDB(modelLogged);
-          DrawerMenuController drawerMenuController =
-              Get.put(DrawerMenuController());
-          SettingPanelController settingcontroller =
-              Get.put(SettingPanelController());
+          DrawerMenuController drawerMenuController = Get.put(DrawerMenuController());
+          SettingPanelController settingcontroller = Get.put(SettingPanelController());
           settingcontroller.getCurrentLoggedUserFromLocale(modelUser);
           drawerMenuController.addPermisionsInDrawerMenu(modelLogged);
           isSucces = true;

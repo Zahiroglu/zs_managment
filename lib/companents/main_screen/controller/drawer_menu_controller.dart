@@ -12,6 +12,7 @@ import 'package:zs_managment/companents/anbar/screan_anbar_esas.dart';
 import 'package:zs_managment/companents/connected_users/rout_detail_users_screen.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_umumilist.dart';
+import 'package:zs_managment/companents/live_track/screen_live_track.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/dashbourd_screen_mobile.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_list.dart';
@@ -71,8 +72,6 @@ class DrawerMenuController extends getx.GetxController {
     super.onInit();
   }
 
-
-
   void clousDrawer(){
     keyScaff.currentState!.closeDrawer();
     update();
@@ -93,7 +92,6 @@ class DrawerMenuController extends getx.GetxController {
     keyScaff=key;
     update();
   }
-
 
   List<SelectionButtonData> addPermisionsInDrawerMenu(LoggedUserModel loggedUser) {
     dviceType = checkDviceType.getDviceType();
@@ -157,6 +155,7 @@ class DrawerMenuController extends getx.GetxController {
     if (dviceType == 3 || dviceType == 2) {
       drawerMenus.add(buttonUsers);
     } else {
+      drawerMenus.add(buttonUsers);
       drawerMenus.add(dashboard);
       drawerMenus.add(buttonstaticProfileSetting);
       drawerMenus.add(buttondownloads);
@@ -187,7 +186,7 @@ class DrawerMenuController extends getx.GetxController {
         drawerMenus.add(buttonData);
       }
     }
-    drawerMenus.add(buttonUsers);
+    //drawerMenus.add(buttonUsers);
     drawerMenus.add(buttonstaticAboudAs);
     drawerMenus.add(buttonstaticPrivansyPolisy);
     drawerMenus.add(buttonLogOut);
@@ -427,7 +426,7 @@ class DrawerMenuController extends getx.GetxController {
                 isMenuExpended.isTrue
                     ? const SizedBox()
                     : model.totalNotif==0?SizedBox():DecoratedBox(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     //color: Colors.grey.withOpacity(0.5),
                     shape: BoxShape.circle,
 
@@ -527,7 +526,7 @@ class DrawerMenuController extends getx.GetxController {
         case "sellDetal":
           pageView= ScreenSifarislereBax(drawerMenuController: this,);
         break;
-        case "myUserRut":
+        case "myConnectedUsers":
           pageView= RoutDetailScreenUsers(drawerMenuController: this,);
         break;
         case "myRut":
@@ -537,6 +536,9 @@ class DrawerMenuController extends getx.GetxController {
           }break;
       case "logout":
         logOut();
+        break;
+        case "liveTrack":
+          pageView= ScreenLiveTrack(drawerMenuController: this,);
         break;
     }
     selectedIndex.value = drawerIndexdata;

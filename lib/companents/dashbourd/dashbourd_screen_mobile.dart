@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
+import 'package:zs_managment/companents/main_screen/drawer/model_drawerItems.dart';
 
 import '../../widgets/custom_responsize_textview.dart';
 import 'controllers/controller_dashbourd_exp.dart';
@@ -73,7 +74,7 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             contoller.getUserInfoField(context),
-                            contoller.getDownloadMenu(context),
+                            getDownloadMenu(context),
                           ],
                         ),
                       ),
@@ -115,10 +116,86 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
 
     }
 
+  Widget getDownloadMenu(BuildContext context) {
+    return Obx(() => controllerDashBorudExp.screenLoading.isFalse
+        ? Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.4),
+                  border: Border.all(color: Colors.grey, width: 0.2),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(10),
+                  )),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10, top: 2),
+                        child: CustomText(
+                            labeltext: "${"umuYensay".tr} : ${controllerDashBorudExp.listDonwloads.length}",
+                            fontsize: 14),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10, top: 2),
+                        child: CustomText(
+                          labeltext: "${"umuYenmelisay".tr} : ${controllerDashBorudExp.listDonwloads.where((element) => element.musteDonwload==true).toList().length}",
+                          fontsize: 14,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                      iconSize: 35,
+                      onPressed: () {
+                        _changePageToDownloads();
+                      },
+                      icon: Icon(Icons.refresh))
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    )
+        : const Center(
+        child: CircularProgressIndicator(
+          color: Colors.blue,
+        )));
+  }
+
+
   void _openDrawer() {
     widget.drawerMenuController.openDrawer();
     setState(() {
     });
+  }
+
+  void _changePageToDownloads() {
+    SelectionButtonData buttondownloads = SelectionButtonData(
+        icon: Icons.upcoming,
+        label: "dovnloads".tr,
+        activeIcon: Icons.upcoming_outlined,
+        totalNotif: 0,
+        statickField: false,
+        isSelected: false,
+        codename: "down");
+    widget.drawerMenuController.changeSelectedIndex(2, buttondownloads, false);
+    setState(() {});
   }
 
 

@@ -17,7 +17,7 @@ class ModelCariHesabatlar {
       this.needDate,
       this.key});
 
-  List<ModelCariHesabatlar> getAllHesabatlarListy() {
+  List<ModelCariHesabatlar> getAllCariHesabatlarListy() {
     List<ModelCariHesabatlar> cariHesabatlar = [];
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Cari ziyaret hesabati",
@@ -61,6 +61,25 @@ class ModelCariHesabatlar {
         routName: RouteHelper.getCariQaytarmaRaporu(),
         needDate: true,
         key: "cZayMalH"));
+
+    return cariHesabatlar;
+  }
+  List<ModelCariHesabatlar> getAllUserHesabatlarListy() {
+    List<ModelCariHesabatlar> cariHesabatlar = [];
+    cariHesabatlar.add(ModelCariHesabatlar(
+        label: "Temsilci rut hesabati",
+        icon: Icons.list_alt,
+        color: Colors.green,
+        routName: RouteHelper.getScreenMercRoutDatail(),
+        needDate: false,
+        key: "trhesabat"));
+    cariHesabatlar.add(ModelCariHesabatlar(
+        label: "Temsilci ziyaret hesabati",
+        icon: Icons.visibility,
+        color: Colors.blue,
+        //routName: RouteHelper.getCariSatilanCesidRaporu(),
+        needDate: true,
+        key: "tzhesab"));
 
     return cariHesabatlar;
   }

@@ -56,6 +56,7 @@ Future<void>  main() async{
   Hive.registerAdapter(SellingDataAdapter());
   Hive.registerAdapter(UserMercAdapter());
 }
+
 class MyApp extends StatefulWidget {
   final Map<String, Map<String, String>> languages;
   const MyApp({super.key,required this.languages});

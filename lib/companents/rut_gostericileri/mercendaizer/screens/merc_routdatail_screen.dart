@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
@@ -15,7 +16,7 @@ import 'package:zs_managment/widgets/widget_rutgunu.dart';
 class ScreenMercRoutDatail extends StatefulWidget {
 
   MercDataModel modelMercBaza;
-  List<ModelGirisCixis> listGirisCixis;
+  List<ModelMainInOut> listGirisCixis;
   List<UserModel> listUsers;
   bool isMenumRutum;
   DrawerMenuController drawerMenuController;
@@ -59,7 +60,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     });
     _controller.addListener(() {
       setState(() {
-        _controllerIki.animateTo(_controller.position.pixels, duration: Duration(milliseconds: 1000), curve:  Curves.easeOutCubic);
+        _controllerIki.animateTo(_controller.position.pixels, duration: const Duration(milliseconds: 1000), curve:  Curves.easeOutCubic);
       });
     });
     if (controllerRoutDetailUser.initialized) {
@@ -130,7 +131,6 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     _animationController.dispose();
     tabController.dispose();
     _controller.dispose();
-    // TODO: implement dispose
     super.dispose();
   }
 
@@ -160,7 +160,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         onPressed: (){
                           widget.drawerMenuController.openDrawer();
                         },
-                        icon: Icon(Icons.menu),
+                        icon: const Icon(Icons.menu),
                       ):null,
                       title: CustomText(
                           labeltext: widget.modelMercBaza.user!.name),
@@ -290,7 +290,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           child: CustomText(
                               color: rutSirasiGorunsun?Colors.white:Colors.black,
                               fontWeight: rutSirasiGorunsun?FontWeight.w700:FontWeight.normal,
-                              labeltext:element.days!.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):SizedBox(),
+                              labeltext:element.days!.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):const SizedBox(),
                     ),
                   )),
               Positioned(
@@ -413,7 +413,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
              element.sellingDatas!.length>1?const Positioned(
                   bottom: -2,
                   right: -2,
-                  child: Icon(Icons.expand_circle_down,color: Colors.blue,)):SizedBox()
+                  child: Icon(Icons.expand_circle_down,color: Colors.blue,)):const SizedBox()
             ],
           ),
         ));
@@ -1020,7 +1020,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                 .length,5),
                         controllerRoutDetailUser.listMercBaza
                             .where((p0) => p0.days!.any((element) => element.day==6))
-                            .toList().isEmpty?SizedBox():_itemIndoMenuRutGunu(
+                            .toList().isEmpty?const SizedBox():_itemIndoMenuRutGunu(
                             "gun6".tr.toString(),
                             controllerRoutDetailUser.listMercBaza
                                 .where((p0) => p0.days!.any((element) => element.day==7))
@@ -1083,7 +1083,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                 ),
                 const Divider(height: 1,color: Colors.black,endIndent: 40,indent: 40),
                 CustomText(
-                  labeltext: length.toString()+" "+ "market".tr,
+                  labeltext: "$length ${"market".tr}",
                   fontWeight: selectedGunIndex.endsWith(rutGunu)
                       ? FontWeight.w800
                       : FontWeight.normal,
@@ -1109,8 +1109,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   onPressed: (){
                     _intentRutSirasiScreen(rutGunu,gunInt);
                   },
-                  icon:  Icon(Icons.edit,color: Colors.red,size: 18,),
-                )):SizedBox():SizedBox(),
+                  icon:  const Icon(Icons.edit,color: Colors.red,size: 18,),
+                )):const SizedBox():const SizedBox(),
           ],
         ),
       ),
@@ -1150,7 +1150,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                     border: Border.all(color: Colors.red, width: 2),
                     borderRadius: const BorderRadius.all(Radius.circular(15))),
                 child: Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1180,7 +1180,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "satis".tr + " : "),
+                          CustomText(labeltext: "${"satis".tr} : "),
                           CustomText(
                               labeltext:
                                   "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalSelling!))} ${"manatSimbol".tr}"),
@@ -1188,7 +1188,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "zaymal".tr + " : "),
+                          CustomText(labeltext: "${"zaymal".tr} : "),
                           CustomText(
                               labeltext:
                                   "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalRefund!))} ${"manatSimbol".tr}"),
@@ -1235,17 +1235,17 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   Widget _pageViewZiyaretTarixcesi() {
     return ListView.builder(
         padding: const EdgeInsets.all(0),
-        itemCount: controllerRoutDetailUser.listTarixlerRx.length,
+        itemCount: controllerRoutDetailUser.listGunlukGirisCixislar.length,
         itemBuilder: (con, index) {
           return itemZiyaretGunluk(
-              controllerRoutDetailUser.listTarixlerRx.elementAt(index));
+              controllerRoutDetailUser.listGunlukGirisCixislar.elementAt(index));
         });
   }
 
-  Widget itemZiyaretGunluk(ModelGunlukGirisCixis model) {
+  Widget itemZiyaretGunluk(ModelInOutDay model) {
     return InkWell(
       onTap: (){
-        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,widget.modelMercBaza.user!.name!,widget.modelMercBaza]);
+        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,widget.modelMercBaza.user!.name,widget.modelMercBaza.mercCustomersDatail!]);
       },
       child: Padding(
         padding: const EdgeInsets.all(5.0).copyWith(left: 10,right: 10),
@@ -1267,26 +1267,26 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(labeltext: model.tarix,fontsize: 18,fontWeight: FontWeight.w700,),
+                CustomText(labeltext: model.day,fontsize: 18,fontWeight: FontWeight.w700,),
                 const SizedBox(height: 2,),
                 const Divider(height: 1,color: Colors.black,),
                 const SizedBox(height: 2,),
                 Row(
                   children: [
-                    CustomText(labeltext: "ziyaretSayi".tr+" : ",fontWeight: FontWeight.w600),
-                    CustomText(labeltext: model.girisSayi.toString()),
+                    CustomText(labeltext: "${"ziyaretSayi".tr} : ",fontWeight: FontWeight.w600),
+                    CustomText(labeltext: model.visitedCount.toString()),
                   ],
                 ),
                 Row(
                   children: [
-                    CustomText(labeltext: "isBaslama".tr+" : ",fontWeight: FontWeight.w600),
-                    CustomText(labeltext: model.iseBaslamaSaati.toString()),
+                    CustomText(labeltext: "${"isBaslama".tr} : ",fontWeight: FontWeight.w600),
+                    CustomText(labeltext: model.firstEnterDate.substring(11,model.firstEnterDate.toString().length)),
                   ],
                 ),
                 Row(
                   children: [
-                    CustomText(labeltext: "isbitme".tr+" : ",fontWeight: FontWeight.w600),
-                    CustomText(labeltext: model.isiQutarmaSaati.toString()),
+                    CustomText(labeltext: "${"isbitme".tr} : ",fontWeight: FontWeight.w600),
+                    CustomText(labeltext: model.lastExitDate.substring(11,model.lastExitDate.toString().length)),
                   ],
                 ),
                 Padding(
@@ -1304,18 +1304,18 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           Row(
                             children: [
                               CustomText(
-                                labeltext: "marketlerdeISvaxti".tr +" : ",
+                                labeltext: "${"marketlerdeISvaxti".tr} : ",
                               ),
-                              CustomText(labeltext: model.sndeIsvaxti),
+                              CustomText(labeltext: model.workTimeInCustomer),
                             ],
                           ),
                           Row(
                             children: [
                               CustomText(
-                                labeltext: "erazideIsVaxti".tr+" : ",
+                                labeltext: "${"erazideIsVaxti".tr} : ",
                               ),
                               CustomText(
-                                labeltext: model.umumiIsVaxti,
+                                labeltext: model.workTimeInArea,
                               ),
                             ],
                           ),
@@ -1374,29 +1374,26 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "isgunleri".tr + " : "),
+                          CustomText(labeltext: "${"isgunleri".tr} : "),
                           CustomText(
-                              labeltext: controllerRoutDetailUser
-                                      .listTarixlerRx.length
-                                      .toString() +
-                                  " " +
-                                  "gun".tr),
+                              labeltext: "${controllerRoutDetailUser
+                                      .listGunlukGirisCixislar.length} ${"gun".tr}"),
                         ],
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "ziyaretSayi".tr + " : "),
+                          CustomText(labeltext: "${"ziyaretSayi".tr} : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.listTarixlerRx.fold(0, (sum, element) => sum + element.girisSayi)} ${"market".tr}"),
+                                  "${controllerRoutDetailUser.listGunlukGirisCixislar.fold(0, (sum, element) => sum + element.visitedCount)} ${"market".tr}"),
                         ],
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "umumiIssaati".tr + " : "),
+                          CustomText(labeltext: "${"umumiIssaati".tr} : "),
                           CustomText(
                               labeltext:
-                                  controllerRoutDetailUser.totalIsSaati + " "),
+                                  "${controllerRoutDetailUser.totalIsSaati} "),
                         ],
                       )
                     ],

@@ -6,20 +6,20 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
 
-class WidgetHesabatListItems extends StatefulWidget {
+class WidgetHesabatListItemsCari extends StatefulWidget {
   BuildContext context;
   ModelCariHesabatlar modelCariHesabatlar;
   String ckod;
   String cAd;
 
-  WidgetHesabatListItems(
+  WidgetHesabatListItemsCari(
       {required this.modelCariHesabatlar, required this.context,required this.ckod,required this.cAd, super.key});
 
   @override
-  State<WidgetHesabatListItems> createState() => _WidgetHesabatListItemsState();
+  State<WidgetHesabatListItemsCari> createState() => _WidgetHesabatListItemsCariState();
 }
 
-class _WidgetHesabatListItemsState extends State<WidgetHesabatListItems> {
+class _WidgetHesabatListItemsCariState extends State<WidgetHesabatListItemsCari> {
   TextEditingController ctFistDay = TextEditingController();
   TextEditingController ctLastDay = TextEditingController();
 

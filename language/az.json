@@ -169,6 +169,7 @@
     "isBaslama": "İşə başlama vaxtı",
     "isbitme": "İşi bitirmə vaxtı",
     "marketlerdeISvaxti": "Marketlərdə iş vaxtı",
+    "marketdeISvaxti": "Marketdə iş vaxtı",
     "erazideIsVaxti": "Ərazidə iş vaxtı",
     "rutZiyaretEdilmeyen": "Rut günü ziyarət edilməyən market sayı",
     "cariRut": "Cari rut",
@@ -235,6 +236,13 @@
     "planSatis": "Plan-Satis",
     "ziyaretler": "Ziyaretler",
     "girisEdilir": "Giris edilir",
-    "cixisEdilir": "Cixis edilir"
+    "cixisEdilir": "Cixis edilir",
+    "ziyaretci": "Ziyaretci",
+    "hereketdedir": "Hereketdedir",
+    "surret": "Surret",
+    "sonYenilenme": "Son yenilenme",
+    "sonuncuZiyaret": "Son ziyaret",
+    "cixisedilmeyib": "Cixis edilmeyib",
+    "gcendirilir": "Ziyaretler endirilir"
 
 }

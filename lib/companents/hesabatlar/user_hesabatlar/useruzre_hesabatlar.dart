@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesabatlar.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/widgetHesabatListItems.dart';
+import 'package:zs_managment/companents/hesabatlar/user_hesabatlar/widgetHesabatListItemsUser.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
-class WidgetCarihesabatlar extends StatefulWidget {
-  String ckod;
-  String cad;
+class WidgetRuthesabatlar extends StatefulWidget {
+  int roleId;
+  String temsilciKodu;
   double height;
 
-  WidgetCarihesabatlar(
-      {required this.cad, required this.ckod, required this.height, super.key});
+  WidgetRuthesabatlar(
+      {required this.roleId, required this.temsilciKodu, required this.height, super.key});
 
   @override
-  State<WidgetCarihesabatlar> createState() => _WidgetCarihesabatlarState();
+  State<WidgetRuthesabatlar> createState() => _WidgetRuthesabatlarState();
 }
 
-class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
+class _WidgetRuthesabatlarState extends State<WidgetRuthesabatlar> {
   ModelCariHesabatlar modelCariHesabatlar = ModelCariHesabatlar();
 
   @override
@@ -49,7 +50,7 @@ class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CustomText(
-                      labeltext: "cariHesabatlar".tr,
+                      labeltext: "Temsilci uzre hesabatlar".tr,
                       fontWeight: FontWeight.w800,
                       fontsize: 16),
                   Icon(Icons.read_more)
@@ -63,12 +64,10 @@ class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: modelCariHesabatlar
-                      .getAllCariHesabatlarListy()
-                      .map((e) => WidgetHesabatListItemsCari(
-                            cAd: widget.cad,
-                            ckod: widget.ckod,
+                      .getAllUserHesabatlarListy()
+                      .map((e) => WidgetHesabatListItemsUser(
                             context: context,
-                            modelCariHesabatlar: e,
+                            modelCariHesabatlar: e, userCode: widget.temsilciKodu,roleId: widget.roleId.toString(),
                           ))
                       .toList(),
                 ),

@@ -39,12 +39,9 @@ class ControllerBaseDownloads extends GetxController {
   late CheckDviceType checkDviceType = CheckDviceType();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   LocalUserServices localUserServices = LocalUserServices();
-  RxList<ModelDownloads> listDonwloads =
-      List<ModelDownloads>.empty(growable: true).obs;
-  RxList<ModelDownloads> listDownloadsFromLocalDb =
-      List<ModelDownloads>.empty(growable: true).obs;
-  RxList<ModelDownloads> listDonwloadsAll =
-      List<ModelDownloads>.empty(growable: true).obs;
+  RxList<ModelDownloads> listDonwloads = List<ModelDownloads>.empty(growable: true).obs;
+  RxList<ModelDownloads> listDownloadsFromLocalDb = List<ModelDownloads>.empty(growable: true).obs;
+  RxList<ModelDownloads> listDonwloadsAll = List<ModelDownloads>.empty(growable: true).obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
   String soaphost = "193.105.123.215";
@@ -67,10 +64,10 @@ class ControllerBaseDownloads extends GetxController {
     for (var element in listUsersPermitions) {
       print("permiton :"+element.toString());
       switch (element.code) {
-        case "myUserRut":
+        case "myConnectedUsers":
           listDonwloads.add(ModelDownloads(
               name: "connextedUsers".tr,
-              code: "myUserRut",
+              code: "myConnectedUsers",
               info: "connextedUsersExplain".tr,
               lastDownDay: "",
               donloading: false,
@@ -103,6 +100,7 @@ class ControllerBaseDownloads extends GetxController {
               lastDownDay: "",
               musteDonwload: true));
           break;
+
       }
     }
   }
@@ -352,7 +350,7 @@ class ControllerBaseDownloads extends GetxController {
   Future<void> melumatlariEndir(ModelDownloads model, bool guncelle) async {
     DialogHelper.showLoading("${model.name!} endirilir...");
     switch (model.code) {
-      case "myUserRut":
+      case "myConnectedUsers":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
