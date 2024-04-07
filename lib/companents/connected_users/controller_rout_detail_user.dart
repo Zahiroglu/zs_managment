@@ -12,7 +12,6 @@ import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
@@ -20,6 +19,7 @@ import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
@@ -34,7 +34,6 @@ import 'package:xml/xml.dart' as xml;
 import '../giris_cixis/models/model_request_inout.dart';
 import '../rut_gostericileri/mercendaizer/data_models/model_mercbaza.dart';
 import 'model_main_inout.dart';
-
 
 class ControllerRoutDetailUser extends GetxController {
   LocalUserServices userService = LocalUserServices();
@@ -63,6 +62,7 @@ class ControllerRoutDetailUser extends GetxController {
   RxString fistTabSelected = "Exp".obs;
   String languageIndex = "az";
   late CheckDviceType checkDviceType = CheckDviceType();
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   @override
   void onInit() {
@@ -158,83 +158,84 @@ class ControllerRoutDetailUser extends GetxController {
   Widget _widgetDialogExpCode(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.all(0),
-        decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(20))),
-        margin: EdgeInsets.symmetric(
-            vertical: MediaQuery
-                .of(context)
-                .size
-                .height * 0.34,
-            horizontal: MediaQuery
-                .of(context)
-                .size
-                .width * 0.1),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0).copyWith(top: 20),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CustomText(
-                          labeltext: "Temsilci secimi",
-                          fontsize: 18,
-                          fontWeight: FontWeight.w600,
-                          textAlign: TextAlign.center),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Padding(
-                    padding:
-                    const EdgeInsets.all(8.0).copyWith(left: 20, right: 20),
-                    child: Expanded(
-                        child: CustomTextField(
-                            obscureText: false,
-                            updizayn: true,
-                            align: TextAlign.center,
-                            controller: ctTemsilciKodu,
-                            inputType: TextInputType.text,
-                            hindtext: "temsilciSec".tr,
-                            fontsize: 14)),
-                  ),
-                  CustomElevetedButton(
-                    cllback: () {
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(0),
+          decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+          margin: EdgeInsets.symmetric(
+              vertical: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.34,
+              horizontal: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.1),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0).copyWith(top: 20),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CustomText(
+                            labeltext: "Temsilci secimi",
+                            fontsize: 18,
+                            fontWeight: FontWeight.w600,
+                            textAlign: TextAlign.center),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding:
+                      const EdgeInsets.all(8.0).copyWith(left: 20, right: 20),
+                      child: CustomTextField(
+                          obscureText: false,
+                          updizayn: true,
+                          align: TextAlign.center,
+                          controller: ctTemsilciKodu,
+                          inputType: TextInputType.text,
+                          hindtext: "temsilciSec".tr,
+                          fontsize: 14),
+                    ),
+                    CustomElevetedButton(
+                      cllback: () {
+                        Get.back();
+                        temsilciMelumatlariniGetirElevetedButton(ctTemsilciKodu.text);
+                        ctTemsilciKodu.clear();
+                      },
+                      label: "tesdiqle".tr,
+                      fontWeight: FontWeight.w700,
+                      borderColor: Colors.grey,
+                      elevation: 5,
+                      height: 30,
+                      width: 200,
+                    )
+                  ],
+                ),
+              ),
+              Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    onPressed: () {
                       Get.back();
-                      temsilciMelumatlariniGetirElevetedButton(ctTemsilciKodu.text);
                       ctTemsilciKodu.clear();
                     },
-                    label: "tesdiqle".tr,
-                    fontWeight: FontWeight.w700,
-                    borderColor: Colors.grey,
-                    elevation: 5,
-                    height: 30,
-                    width: 200,
-                  )
-                ],
-              ),
-            ),
-            Positioned(
-                top: 0,
-                right: 0,
-                child: IconButton(
-                  onPressed: () {
-                    Get.back();
-                    ctTemsilciKodu.clear();
-                  },
-                  icon: Icon(
-                    Icons.clear,
-                    color: Colors.red,
-                  ),
-                )),
-          ],
+                    icon: Icon(
+                      Icons.clear,
+                      color: Colors.red,
+                    ),
+                  )),
+            ],
+          ),
         ),
       ),
     );
@@ -248,11 +249,12 @@ class ControllerRoutDetailUser extends GetxController {
       UserModel userModel=UserModel(roleId: 17,code: model,name: "tapilmadi".tr);
       listSelectedCustomers.value = await getAllCustomers(model);
       DialogHelper.hideLoading();
-      DialogHelper.showLoading("gcendirilir".tr);
-      listGirisCixis.value=await getAllGirisCixis(model,"17");
-      DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
-        changeSelectedTabItems(listTabSifarisler.first);
+        DialogHelper.showLoading("gcendirilir".tr);
+        listGirisCixis.value=await getAllGirisCixis(model,"17");
+        DialogHelper.hideLoading();
+        tabMelumatlariYukle();
+         changeSelectedTabItems(listTabSifarisler.first);
         print("Evvel listFilteredCustomers : "+listFilteredCustomers.length.toString());
         Get.toNamed(RouteHelper.screenExpRoutDetail, arguments: [this,userModel,listUsers]);
       } else {
@@ -263,15 +265,15 @@ class ControllerRoutDetailUser extends GetxController {
               Get.back();
             }));
       }
-      tabMelumatlariYukle();
+    //  tabMelumatlariYukle();
     } else {
       DialogHelper.showLoading("cmendirilir".tr);
       MercDataModel modela = await getAllCustomersMerc(model);
       DialogHelper.hideLoading();
-      DialogHelper.showLoading("gcendirilir".tr);
-      listGirisCixis.value=await getAllGirisCixis(model,"23");
-      DialogHelper.hideLoading();
       if (modela.user!=null) {
+        DialogHelper.showLoading("gcendirilir".tr);
+        listGirisCixis.value=await getAllGirisCixis(model,"23");
+        DialogHelper.hideLoading();
         Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
@@ -292,10 +294,10 @@ class ControllerRoutDetailUser extends GetxController {
       DialogHelper.showLoading("cmendirilir".tr);
       listSelectedCustomers.value = await getAllCustomers(model.code!);
       DialogHelper.hideLoading();
-      DialogHelper.showLoading("gcendirilir".tr);
-      await getAllGirisCixis(model.code!,model.roleId!.toString());
-      DialogHelper.hideLoading();
       if (listSelectedCustomers.isNotEmpty) {
+        DialogHelper.showLoading("gcendirilir".tr);
+        await getAllGirisCixis(model.code!,model.roleId!.toString());
+        DialogHelper.hideLoading();
         tabMelumatlariYukle();
         changeSelectedTabItems(listTabSifarisler.first);
         Get.toNamed(RouteHelper.screenExpRoutDetail, arguments: [this,model,listUsers.where((p0) => p0.roleId==23).toList()]);
@@ -312,12 +314,10 @@ class ControllerRoutDetailUser extends GetxController {
       DialogHelper.showLoading("cmendirilir".tr);
       MercDataModel modela = await getAllCustomersMerc(model.code!);
       DialogHelper.hideLoading();
-      DialogHelper.showLoading("gcendirilir".tr);
-       List<ModelMainInOut> listGirisCixisa  = await getAllGirisCixis(model.code!,model.roleId!.toString());
-      DialogHelper.hideLoading();
-
-      DialogHelper.hideLoading();
       if (modela.user!=null) {
+        DialogHelper.showLoading("gcendirilir".tr);
+        List<ModelMainInOut> listGirisCixisa  = await getAllGirisCixis(model.code!,model.roleId!.toString());
+        DialogHelper.hideLoading();
         Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela,listGirisCixisa,listUsers.where((p0) => p0.roleId==23).toList()]);
       } else {
         Get.dialog(ShowInfoDialog(
@@ -456,7 +456,6 @@ class ControllerRoutDetailUser extends GetxController {
     List<String> secilmisTemsilciler=[];
     secilmisTemsilciler.add(temKod);
     print("temsilci Kodu :"+secilmisTemsilciler.toString());
-
     int dviceType = checkDviceType.getDviceType();
     LoggedUserModel loggedUserModel=userService.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -484,13 +483,6 @@ class ControllerRoutDetailUser extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        if (response.statusCode == 404) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
             List listuser = jsonDecode(dataModel);
@@ -509,13 +501,7 @@ class ControllerRoutDetailUser extends GetxController {
             }
 
           } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
-          }
+            exeptionHandler.handleExeption(response);
         }
       } on DioException catch (e) {
         if (e.response != null) {
@@ -571,13 +557,7 @@ class ControllerRoutDetailUser extends GetxController {
           ),
         );
         print("responce kode :"+response.data.toString());
-        if (response.statusCode == 404) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
+
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
             List listuser = jsonDecode(dataModel);
@@ -587,14 +567,9 @@ class ControllerRoutDetailUser extends GetxController {
 
 
           } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
+            exeptionHandler.handleExeption(response);
           }
-        }
+
       } on DioException catch (e) {
         if (e.response != null) {
           print(e.response!.data);
@@ -700,13 +675,7 @@ class ControllerRoutDetailUser extends GetxController {
           ),
         );
         print("selected Object :"+response.toString());
-        if (response.statusCode == 404) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
+
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
             List listuser = jsonDecode(dataModel);
@@ -716,14 +685,10 @@ class ControllerRoutDetailUser extends GetxController {
               listUsers.add(model);
             }
           } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
+            exeptionHandler.handleExeption(response);
+
           }
-        }
+
       } on DioException catch (e) {
         if (e.response != null) {
           print(e.response!.data);
@@ -744,108 +709,6 @@ class ControllerRoutDetailUser extends GetxController {
     return listUsers;
   }
 
-
-  Future<List<ModelGirisCixis>> getDataFromServerGirisCixis(String temsilcikodu) async {
-    final now = DateTime.now();
-    var date = DateTime(now.year, now.month, 1).toString();
-    DateTime dateParse = DateTime.parse(date);
-    String ilkGun = intl.DateFormat('yyyyMMdd').format(dateParse);
-    String songun = intl.DateFormat('yyyyMMdd').format(now);
-    print("ilkGun :"+ilkGun);
-    print("songun :"+songun);
-    String tkod="'"+temsilcikodu+"'";
-    print("temsilcikodu :"+tkod);
-
-    var envelopeaUmumicariler = '''
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-<soap:Body>
-    <Rutlarimiz_izl xmlns="http://tempuri.org/">
-      <tem1>$tkod</tem1>
-      <t1>$ilkGun</t1>
-      <t2>$songun</t2>
-    </Rutlarimiz_izl>
-  </soap:Body>
-</soap:Envelope>
-''';
-    var url = Uri.parse(soapadress);
-    http.Response response = await http.post(url,
-        headers: {
-          "Content-Type": "text/xml; charset=utf-8",
-          "SOAPAction": "http://tempuri.org/Rutlarimiz_izl",
-          // "Host": "85.132.97.2"
-          "Host": soaphost
-          //"Accept": "text/xml"
-        },
-        body: envelopeaUmumicariler);
-    var rawXmlResponse = "";
-    print(response.body.toString());
-    print(response.statusCode.toString());
-    if (response.statusCode == 200) {
-      rawXmlResponse = response.body;
-    } else {
-      Get.dialog(ShowInfoDialog(
-        messaje: "Xeta BAs Verdi",
-        icon: Icons.error,
-        callback: () {
-          DialogHelper.hideLoading();
-        },
-      ));
-    }
-    update();
-    return _parsingGirisler(rawXmlResponse);
-  }
-
-  Future<List<ModelGirisCixis>> _parsingGirisler(var _response) async {
-    List<ModelGirisCixis> listKodrdinar = [];
-    var document = xml.parse(_response);
-    Iterable<xml.XmlElement> items = document.findAllElements('Table');
-    items.map((xml.XmlElement item) {
-      var izl_cari_kod = _getValue(item.findElements("izl_cari_kod"));
-      var izl_cari_ad = _getValue(item.findElements("izl_cari_ad"));
-      var izl_vezife = _getValue(item.findElements("izl_vezife"));
-      var izl_tem_mer_kod = _getValue(item.findElements("izl_tem_mer_kod"));
-      var izl_tem_mer_ad = _getValue(item.findElements("izl_tem_mer_ad"));
-      var izl_gir_tarix = _getValue(item.findElements("izl_gir_tarix"));
-      var izl_gir_mesf = _getValue(item.findElements("izl_gir_mesf"));
-      var izl_gir_kon = _getValue(item.findElements("izl_gir_kon"));
-      var izl_cix_tarix = _getValue(item.findElements("izl_cix_tarix"));
-      var izl_cix_mesf = _getValue(item.findElements("izl_cix_mesf"));
-      var izl_cix_kon = _getValue(item.findElements("izl_cix_kon"));
-      var izl_aciqlama = _getValue(item.findElements("izl_aciqlama"));
-      var izl_rut_uyg = _getValue(item.findElements("izl_rut_uyg"));
-      var boy = _getValue(item.findElements("boy"));
-      var en = _getValue(item.findElements("en"));
-      ModelGirisCixis model = ModelGirisCixis(cariKod: izl_cari_kod,
-          cariAd: izl_cari_ad,
-          vezifeId: izl_vezife,
-          temKod: izl_tem_mer_kod,
-          temAd: izl_tem_mer_ad,
-          girisTarix: izl_gir_tarix,
-          girisMesafe: izl_gir_mesf,
-          girisGps: izl_gir_kon,
-          cixisTarix: izl_cix_tarix,
-          cixisMesafe: izl_cix_mesf,
-          cixisGps: izl_cix_kon,
-          ziyaretQeyd: izl_aciqlama,
-          rutUygunluq: izl_rut_uyg,
-          marketUzunluq: boy??"0",
-          marketEynilik: en??"0");
-      listKodrdinar.add(model);
-      //  itemsList.add(_addResult);
-    }).toList();
-    return listKodrdinar;
-  }
-
-  _getValue(Iterable<xml.XmlElement> items) {
-    var textValue;
-    items.map((xml.XmlElement node) {
-      textValue = node.text;
-    }).toList();
-    return textValue;
-  }
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }

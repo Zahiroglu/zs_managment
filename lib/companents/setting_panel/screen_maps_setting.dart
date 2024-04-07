@@ -26,9 +26,10 @@ class _ScreenMapsSettingState extends State<ScreenMapsSetting> {
   bool dropdownTap = false;
   LocalAppSetting localAppSetting = LocalAppSetting();
   String giriscixisScreenType="";
+  bool userStartWork=false;
   List<ModelGirisCixisScreenType> listGirisCixisType=[ModelGirisCixisScreenType(name: "map",icon: const Icon(Icons.map,color: Colors.green,),kod: "map"),ModelGirisCixisScreenType(name: "list",icon: const Icon(Icons.list_alt),kod: "list")];
   ModelGirisCixisScreenType? selectedModelGirisCixis;
-  ModelAppSetting modelsetting  =ModelAppSetting(mapsetting: null, girisCixisType: "");
+  ModelAppSetting modelsetting  =ModelAppSetting(mapsetting: null, girisCixisType: "",userStartWork: false);
 
   @override
   void initState() {
@@ -63,6 +64,11 @@ class _ScreenMapsSettingState extends State<ScreenMapsSetting> {
       giriscixisScreenType=modelAppSetting.girisCixisType!;
     }else{
       giriscixisScreenType="map";
+    }
+    if(modelAppSetting.userStartWork!=null){
+      userStartWork=modelAppSetting.userStartWork!;
+    }else{
+      userStartWork=false;
     }
     if(giriscixisScreenType.isNotEmpty){
       selectedModelGirisCixis= listGirisCixisType.where((element) => element.kod==giriscixisScreenType).first;
@@ -225,7 +231,7 @@ class _ScreenMapsSettingState extends State<ScreenMapsSetting> {
                       icon: modela.icon,
                       name: modela.mapName);
                   selectedApp=AvailableMap(mapName: modela.mapName, mapType: modela.mapType, icon: modela.icon);
-                  modelsetting = ModelAppSetting(mapsetting: modelMapApp, girisCixisType: giriscixisScreenType);
+                  modelsetting = ModelAppSetting(mapsetting: modelMapApp, girisCixisType: giriscixisScreenType,userStartWork: userStartWork);
                   saveChangedSettingtoDb(modelsetting);
                 });
               },
@@ -353,7 +359,7 @@ class ModelGirisCixisScreenType{
   String? kod;
   String? name;
 
-  ModelGirisCixisScreenType({required this.icon,required this.kod,required this.name});
+  ModelGirisCixisScreenType({this.icon,this.kod,this.name});
 
   @override
   String toString() {

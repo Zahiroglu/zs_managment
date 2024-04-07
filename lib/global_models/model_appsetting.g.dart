@@ -19,17 +19,20 @@ class ModelAppSettingAdapter extends TypeAdapter<ModelAppSetting> {
     return ModelAppSetting(
       mapsetting: fields[0] as ModelMapApp?,
       girisCixisType: fields[1] as String?,
+      userStartWork: fields[2] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelAppSetting obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.mapsetting)
       ..writeByte(1)
-      ..write(obj.girisCixisType);
+      ..write(obj.girisCixisType)
+      ..writeByte(2)
+      ..write(obj.userStartWork);
   }
 
   @override

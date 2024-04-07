@@ -41,6 +41,7 @@ import 'package:zs_managment/widgets/sual_dialog.dart';
 import '../../base_downloads/screen_download_base.dart';
 import '../../giris_cixis/sceens/yeni_girisCixis.dart';
 import '../../local_bazalar/local_bazalar.dart';
+import '../../tapsiriqlar/screen_tasks.dart';
 import '../../users_panel/mobile/users_panel_mobile_screen.dart';
 import 'package:zs_managment/language/utils/dep.dart' as dep;
 
@@ -48,8 +49,7 @@ class DrawerMenuController extends getx.GetxController {
   getx.RxList<SelectionButtonData> drawerMenus = List<SelectionButtonData>.empty(growable: true).obs;
   getx.RxInt selectedIndex = 0.obs;
   getSelectedIndex() => selectedIndex;
-  dynamic pageView =  SizedBox();
-  Widget getCurrentPage() => pageView;
+ // Widget getCurrentPage() => pageView;
   LocalUserServices userServices = LocalUserServices();
   getx.RxBool drawerCloused = true.obs;
   getx.RxBool isMenuExpended = true.obs;
@@ -57,18 +57,19 @@ class DrawerMenuController extends getx.GetxController {
   CheckDviceType checkDviceType = CheckDviceType();
   int dviceType = 0;
   LocalAppSetting localAppSetting = LocalAppSetting();
-  ModelAppSetting modelAppSetting = ModelAppSetting(mapsetting: null, girisCixisType: "map");
+  ModelAppSetting modelAppSetting = ModelAppSetting(mapsetting: null, girisCixisType: "map",userStartWork: false);
   LocalBazalar localBazalar = LocalBazalar();
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   LocalBaseSatis localBaseSatis=LocalBaseSatis();
   late Rx<ModelSatisEmeliyyati> modelSatisEmeliyyat = ModelSatisEmeliyyati().obs;
   GlobalKey<ScaffoldState> keyScaff = GlobalKey(); // Create a key
+  dynamic pageView =  SizedBox();
 
 
   @override
   void onInit() {
-    pageView =  DashborudScreenMobile(drawerMenuController: this);
     initAllValues();
+    pageView = DashborudScreenMobile(drawerMenuController: this);
     super.onInit();
   }
 
@@ -93,7 +94,7 @@ class DrawerMenuController extends getx.GetxController {
     update();
   }
 
-  List<SelectionButtonData> addPermisionsInDrawerMenu(LoggedUserModel loggedUser) {
+  Future<List<SelectionButtonData>> addPermisionsInDrawerMenu(LoggedUserModel loggedUser) async {
     dviceType = checkDviceType.getDviceType();
     drawerMenus.clear();
     SelectionButtonData dashboard = SelectionButtonData(
@@ -112,14 +113,6 @@ class DrawerMenuController extends getx.GetxController {
         statickField: false,
         isSelected: false,
         codename: "down");
-    SelectionButtonData buttonUsers = SelectionButtonData(
-        icon: Icons.update,
-        label: "users".tr,
-        activeIcon: Icons.update_outlined,
-        totalNotif: 0,
-        statickField: false,
-        isSelected: false,
-        codename: "users");
     SelectionButtonData buttonstaticAboudAs = SelectionButtonData(
         icon: Icons.info_outline,
         label: "haqqimizda",
@@ -152,24 +145,19 @@ class DrawerMenuController extends getx.GetxController {
         statickField: true,
         isSelected: false,
         codename: "logout");
-    if (dviceType == 3 || dviceType == 2) {
-      drawerMenus.add(buttonUsers);
-    } else {
-      drawerMenus.add(buttonUsers);
-      drawerMenus.add(dashboard);
-      drawerMenus.add(buttonstaticProfileSetting);
-      drawerMenus.add(buttondownloads);
-      if(checkIfTodayHasSales()){
-        SelectionButtonData buttonSatis = SelectionButtonData(
-            icon: Icons.payments,
-            label: "Sifarisler",
-            activeIcon: Icons.payments_sharp,
-            totalNotif: (modelSatisEmeliyyat.value.listSatis!.length+modelSatisEmeliyyat.value.listIade!.length+modelSatisEmeliyyat.value.listKassa!.length).toInt(),
-            statickField: false,
-            isSelected: false,
-            codename: "sellDetal");
-        drawerMenus.insert(2,buttonSatis);
-      }
+    drawerMenus.insert(0,dashboard);
+    drawerMenus.add(buttonstaticProfileSetting);
+    drawerMenus.insert(1,buttondownloads);
+    if(checkIfTodayHasSales()){
+      SelectionButtonData buttonSatis = SelectionButtonData(
+          icon: Icons.payments,
+          label: "Sifarisler",
+          activeIcon: Icons.payments_sharp,
+          totalNotif: (modelSatisEmeliyyat.value.listSatis!.length+modelSatisEmeliyyat.value.listIade!.length+modelSatisEmeliyyat.value.listKassa!.length).toInt(),
+          statickField: false,
+          isSelected: false,
+          codename: "sellDetal");
+      drawerMenus.insert(2,buttonSatis);
     }
     if (loggedUser.userModel != null) {
       for (var element in loggedUser.userModel!.permissions!.where((element) => element.category == 1)) {
@@ -186,6 +174,22 @@ class DrawerMenuController extends getx.GetxController {
         drawerMenus.add(buttonData);
       }
     }
+    SelectionButtonData gunlukIseBasla = SelectionButtonData(
+        icon: Icons.work,
+        label: "startWork",
+        activeIcon: Icons.work_history,
+        totalNotif: 0,
+        statickField: false,
+        isSelected: false,
+        codename: "startWork");
+    SelectionButtonData gunlukIsiSonlandir = SelectionButtonData(
+        icon: Icons.stop_circle_outlined,
+        label: "stopWork",
+        activeIcon: Icons.stop_circle_outlined,
+        totalNotif: 0,
+        statickField: false,
+        isSelected: false,
+        codename: "startWork");
     //drawerMenus.add(buttonUsers);
     drawerMenus.add(buttonstaticAboudAs);
     drawerMenus.add(buttonstaticPrivansyPolisy);
@@ -352,7 +356,7 @@ class DrawerMenuController extends getx.GetxController {
           : const Duration(milliseconds: 500),
       curve: Curves.linear,
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: model.statickField==true?const EdgeInsets.all(10.0).copyWith(bottom: 5,top: 5):const EdgeInsets.all(10.0).copyWith(top: 7,bottom: 7),
         child: Column(
           children: <Widget>[
             Row(
@@ -446,7 +450,8 @@ class DrawerMenuController extends getx.GetxController {
                     ),
                 SizedBox(width: 10,),
               ],
-            )
+            ),
+            model.statickField==true?SizedBox(height: 5,):SizedBox(),
           ],
         ),
       ),
@@ -463,87 +468,9 @@ class DrawerMenuController extends getx.GetxController {
   changeSelectedIndex(int index, SelectionButtonData model, bool desktop) {
     selectedIndex.value = index;
     changeIndex(index, model, desktop);
-    print("selectedIndex : "+selectedIndex.toString());
     update();
   }
 
-  Future<void> changeIndex(int drawerIndexdata, SelectionButtonData model, bool desktop) async {
-    switch (model.codename) {
-      case "dashboard":
-        pageView = DashborudScreenMobile(drawerMenuController: this);
-        break;
-      case "warehouse":
-        if(localBaseDownloads.getIfAnbarBaseDownloaded()){
-          pageView =  AnbarRaporEsas(drawerMenuController: this,);
-        }else{
-          Get.dialog(ShowInfoDialog(
-              messaje: "Anbar bazasi bosdur.Zehmet olmasa yenileyin",
-              icon: Icons.mobiledata_off,
-              callback: () {
-                Get.back();
-                Get.toNamed(RouteHelper.bazaDownloadMobile);
-
-              }));
-        }
-        break;
-      case "down":
-        pageView = ScreenBaseDownloads(fromFirstScreen: false,drawerMenuController: this,
-        );
-        break;
-      case "users":
-        if (desktop) {
-          pageView = const UserPanelWindosScreen();
-        } else {
-          pageView =  UsersPanelScreenMobile(drawerMenuController: this,);
-        }
-        break;
-      case "setting":
-        pageView =  SettingScreenMobile(drawerMenuController: this,);
-      case "enter":
-        if (localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!)) {
-          modelAppSetting = await localAppSetting.getAvaibleMap();
-          if (modelAppSetting.girisCixisType == "map") {
-            pageView = const YeniGirisCixisMap();
-          } else {
-            if(userServices.getLoggedUser().userModel!.moduleId==3){
-              pageView =  ScreenGirisCixisReklam(drawerMenuController: this,);
-
-            }else{
-              pageView =  ScreenGirisCixisUmumiList(drawerMenuController: this,);
-            }
-
-          }
-        } else {
-          Get.dialog(ShowInfoDialog(
-              messaje: "baseEmptyCari".tr,
-              icon: Icons.mobiledata_off,
-              callback: () {
-                Get.back();
-                Get.toNamed(RouteHelper.bazaDownloadMobile);
-              }));
-        }
-        break;
-        case "sellDetal":
-          pageView= ScreenSifarislereBax(drawerMenuController: this,);
-        break;
-        case "myConnectedUsers":
-          pageView= RoutDetailScreenUsers(drawerMenuController: this,);
-        break;
-        case "myRut":
-          if(userServices.getLoggedUser().userModel!.roleId==23) {
-            List<MercDataModel> model=await localBaseDownloads.getAllMercDatail();
-            pageView = ScreenMercRoutDatail(listGirisCixis: [],listUsers: [],modelMercBaza: model.first,isMenumRutum: true,drawerMenuController: this,);
-          }break;
-      case "logout":
-        logOut();
-        break;
-        case "liveTrack":
-          pageView= ScreenLiveTrack(drawerMenuController: this,);
-        break;
-    }
-    selectedIndex.value = drawerIndexdata;
-    update();
-  }
 
   bool checkIfTodayHasSales(){
     modelSatisEmeliyyat.value=localBaseSatis.getTodaySatisEmeliyyatlari();
@@ -589,5 +516,107 @@ class DrawerMenuController extends getx.GetxController {
     update();
   }
 
+  Future<void> changeIndex(int drawerIndexdata, SelectionButtonData model, bool desktop) async {
+    switch (model.codename) {
+      case "dashboard":
+        pageView = DashborudScreenMobile(drawerMenuController: this);
+        break;
+      case "warehouse":
+        if(localBaseDownloads.getIfAnbarBaseDownloaded()){
+          pageView =  AnbarRaporEsas(drawerMenuController: this,);
+        }else{
+          Get.dialog(ShowInfoDialog(
+              messaje: "Anbar bazasi bosdur.Zehmet olmasa yenileyin",
+              icon: Icons.mobiledata_off,
+              callback: () {
+                changeIndex(1,SelectionButtonData(
+                    icon: Icons.upcoming,
+                    label: "dovnloads",
+                    activeIcon: Icons.upcoming_outlined,
+                    totalNotif: 0,
+                    statickField: false,
+                    isSelected: false,
+                    codename: "down"),desktop);
+                update();
+              }));
+        }
+        break;
+      case "down":
+        pageView = ScreenBaseDownloads(fromFirstScreen: false,drawerMenuController: this,
+        );
+        break;
+      case "users":
+        if (desktop) {
+          pageView = const UserPanelWindosScreen();
+        } else {
+          pageView =  UsersPanelScreenMobile(drawerMenuController: this,);
+        }
+        break;
+      case "setting":
+        pageView =  SettingScreenMobile(drawerMenuController: this,);
+      case "enter":
+       await localAppSetting.init();
+       modelAppSetting = await localAppSetting.getAvaibleMap();
+       if(modelAppSetting.userStartWork==true) {
+         if (localBaseDownloads.getIfCariBaseDownloaded(userServices
+             .getLoggedUser()
+             .userModel!
+             .moduleId!)) {
+           if (modelAppSetting.girisCixisType == "map") {
+             pageView = const YeniGirisCixisMap();
+           } else {
+             if (userServices
+                 .getLoggedUser()
+                 .userModel!
+                 .moduleId == 3) {
+               pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
+             } else {
+               pageView =
+                   ScreenGirisCixisUmumiList(drawerMenuController: this,);
+             }
+           }
+         } else {
+           Get.dialog(ShowInfoDialog(
+               messaje: "baseEmptyCari".tr,
+               icon: Icons.mobiledata_off,
+               callback: () {
+                 Get.back();
+                 update();
+               }));
+         }
+       }else{
+         Get.dialog(ShowInfoDialog(
+             messaje: "infoErrorStartWork".tr,
+             icon: Icons.work_history,
+             color: Colors.red,
+             callback: () {
+               Get.back();
+               update();
+             }));
+
+       }break;
+      case "sellDetal":
+        pageView= ScreenSifarislereBax(drawerMenuController: this,);
+        break;
+      case "myConnectedUsers":
+        pageView= RoutDetailScreenUsers(drawerMenuController: this,);
+        break;
+      case "myRut":
+        if(userServices.getLoggedUser().userModel!.roleId==23) {
+          List<MercDataModel> model=await localBaseDownloads.getAllMercDatail();
+          pageView = ScreenMercRoutDatail(listGirisCixis: [],listUsers: [],modelMercBaza: model.first,isMenumRutum: true,drawerMenuController: this,);
+        }break;
+      case "logout":
+        logOut();
+        break;
+      case "liveTrack":
+        pageView= ScreenLiveTrack(drawerMenuController: this,);
+        break;
+      case "task":
+        pageView= ScreenTask(drawerMenuController: this,);
+        break;
+    }
+    selectedIndex.value = drawerIndexdata;
+update();  }
 
 }

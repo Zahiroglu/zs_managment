@@ -193,7 +193,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
       Padding(
         padding: const EdgeInsets.all(2.0),
         child: Image.asset(
-          widget.model.gender == "Kisi"
+          widget.model.gender == 0
               ? "images/imageman.png"
               : "images/imagewoman.png",
           width: 60.w,

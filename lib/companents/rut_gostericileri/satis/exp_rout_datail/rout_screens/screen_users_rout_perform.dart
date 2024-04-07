@@ -5,10 +5,11 @@ import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.d
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/companents/rut_gostericileri/satis/exp_rout_datail/controller_exppref.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_gunluk_giriscixis.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
+
+import '../../../../connected_users/model_main_inout.dart';
 
 class ScreenExpRoutPerform extends StatefulWidget {
   ControllerRoutDetailUser controllerRoutDetailUser;
@@ -909,110 +910,108 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
   Widget _pageViewZiyaretTarixcesi() {
     return ListView.builder(
         padding: const EdgeInsets.all(0),
-        itemCount: controllerRoutDetailUser.listTarixlerRx.length,
+        itemCount: controllerRoutDetailUser.listGunlukGirisCixislar.length,
         itemBuilder: (con, index) {
           return itemZiyaretGunluk(
-              controllerRoutDetailUser.listTarixlerRx.elementAt(index));
+              controllerRoutDetailUser.listGunlukGirisCixislar.elementAt(index));
         });
   }
-  Widget itemZiyaretGunluk(ModelGunlukGirisCixis model) {
+
+  Widget itemZiyaretGunluk(ModelInOutDay model) {
     return InkWell(
       onTap: (){
         Get.toNamed(RouteHelper.screenZiyaretGirisCixisExp,arguments: [model,controllerRoutDetailUser.listSelectedExpBaza.first.forwarderCode,controllerRoutDetailUser.listSelectedExpBaza]);
       },
-      child: Card(
-        margin: const EdgeInsets.all(10).copyWith(left: 15,right: 15),
-        elevation: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(0.0).copyWith(left: 0,right: 0),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey),
-                boxShadow: const [
-                  BoxShadow(
-                      color: Colors.grey,
-                      offset: Offset(0, 1),
-                      spreadRadius: 0.1,
-                      blurRadius: 2)
-                ],
-                color: Colors.white),
-            child: Padding(
-              padding: const EdgeInsets.all(5.0).copyWith(left: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(labeltext: model.tarix,fontsize: 18,fontWeight: FontWeight.w700,),
-                  const SizedBox(height: 2,),
-                  const Divider(height: 1,color: Colors.black,),
-                  const SizedBox(height: 2,),
-                  Row(
-                    children: [
-                      CustomText(labeltext: "ziyaretSayi".tr+" : ",fontWeight: FontWeight.w600),
-                      CustomText(labeltext: model.girisSayi.toString()),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      CustomText(labeltext: "isBaslama".tr+" : ",fontWeight: FontWeight.w600),
-                      CustomText(labeltext: model.iseBaslamaSaati.toString()),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      CustomText(labeltext: "isbitme".tr+" : ",fontWeight: FontWeight.w600),
-                      CustomText(labeltext: model.isiQutarmaSaati.toString()),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                          border:
-                          Border.all(color: Colors.blue, width: 0.5),
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                CustomText(
-                                  labeltext: "marketlerdeISvaxti".tr +" : ",
-                                ),
-                                CustomText(labeltext: model.sndeIsvaxti),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                CustomText(
-                                  labeltext: "erazideIsVaxti".tr+" : ",
-                                ),
-                                CustomText(
-                                  labeltext: model.umumiIsVaxti,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+      child: Padding(
+        padding: const EdgeInsets.all(5.0).copyWith(left: 10,right: 10),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey),
+              boxShadow: const [
+                BoxShadow(
+                    color: Colors.grey,
+                    offset: Offset(0, 1),
+                    spreadRadius: 0.1,
+                    blurRadius: 2)
+              ],
+              color: Colors.white),
+          child: Padding(
+            padding: const EdgeInsets.all(5.0).copyWith(left: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(labeltext: model.day,fontsize: 18,fontWeight: FontWeight.w700,),
+                const SizedBox(height: 2,),
+                const Divider(height: 1,color: Colors.black,),
+                const SizedBox(height: 2,),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"ziyaretSayi".tr} : ",fontWeight: FontWeight.w600),
+                    CustomText(labeltext: model.visitedCount.toString()),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"isBaslama".tr} : ",fontWeight: FontWeight.w600),
+                    CustomText(labeltext: model.firstEnterDate.substring(11,model.firstEnterDate.toString().length)),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"isbitme".tr} : ",fontWeight: FontWeight.w600),
+                    CustomText(labeltext: model.lastExitDate.substring(11,model.lastExitDate.toString().length)),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                        border:
+                        Border.all(color: Colors.blue, width: 0.5),
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              CustomText(
+                                labeltext: "${"marketlerdeISvaxti".tr} : ",
+                              ),
+                              CustomText(labeltext: model.workTimeInCustomer),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              CustomText(
+                                labeltext: "${"erazideIsVaxti".tr} : ",
+                              ),
+                              CustomText(
+                                labeltext: model.workTimeInArea,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
   }
+
   Widget infoZiyaretTarixcesi() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Stack(
+    return Column(
+      children: [
+        SingleChildScrollView(
+          child: Stack(
             children: [
               Container(margin: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 50, bottom: 60),
                 padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -1050,29 +1049,26 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "isgunleri".tr + " : "),
+                          CustomText(labeltext: "${"isgunleri".tr} : "),
                           CustomText(
-                              labeltext: controllerRoutDetailUser
-                                  .listTarixlerRx.length
-                                  .toString() +
-                                  " " +
-                                  "gun".tr),
+                              labeltext: "${controllerRoutDetailUser
+                                  .listGunlukGirisCixislar.length} ${"gun".tr}"),
                         ],
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "ziyaretSayi".tr + " : "),
+                          CustomText(labeltext: "${"ziyaretSayi".tr} : "),
                           CustomText(
                               labeltext:
-                              "${controllerRoutDetailUser.listTarixlerRx.fold(0, (sum, element) => sum + element.girisSayi)} ${"market".tr}"),
+                              "${controllerRoutDetailUser.listGunlukGirisCixislar.fold(0, (sum, element) => sum + element.visitedCount)} ${"market".tr}"),
                         ],
                       ),
                       Row(
                         children: [
-                          CustomText(labeltext: "umumiIssaati".tr + " : "),
+                          CustomText(labeltext: "${"umumiIssaati".tr} : "),
                           CustomText(
                               labeltext:
-                              controllerRoutDetailUser.totalIsSaati + " "),
+                              "${controllerRoutDetailUser.totalIsSaati} "),
                         ],
                       )
                     ],
@@ -1080,9 +1076,10 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                 ),
               ),
             ],
-          )
-        ],
-      ),
+          ),
+        )
+      ],
     );
   }
+
 }

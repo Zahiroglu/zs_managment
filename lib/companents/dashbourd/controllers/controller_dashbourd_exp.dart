@@ -13,6 +13,9 @@ import 'package:zs_managment/companents/umumi_widgetler/widget_rut_performans.da
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import '';
+import '../../../global_models/model_appsetting.dart';
+import '../../../widgets/custom_eleveted_button.dart';
+import '../../local_bazalar/local_app_setting.dart';
 import '../../local_bazalar/local_db_downloads.dart';
 import '../../base_downloads/models/model_downloads.dart';
 import '../../giris_cixis/models/model_giriscixis.dart';
@@ -29,7 +32,8 @@ class ControllerDashBorudExp extends GetxController {
   List<ModelGirisCixis> listGirisCixislar=[];
   Rx<ModelRutPerform> modelRutPerform=ModelRutPerform().obs;
   RxList<ModelUserPermissions> listPermitions=List<ModelUserPermissions>.empty(growable: true).obs;
-
+  LocalAppSetting localAppSetting = LocalAppSetting();
+  ModelAppSetting modelAppSetting = ModelAppSetting(mapsetting: null, girisCixisType: "map",userStartWork: false);
   @override
   onInit() {
     initializeBazalar();
@@ -195,7 +199,7 @@ class ControllerDashBorudExp extends GetxController {
                               modelLastGiris.cixisvaxt),
                           color: Colors.blueAccent,
                         ),
-                      )))
+                      ))),
             ],
           ),
         ],
@@ -376,7 +380,11 @@ class ControllerDashBorudExp extends GetxController {
   }
 
   Widget widgetGunlukGirisCixislar(BuildContext context){
-    return WidgetRutPerformans(modelRutPerform: modelRutPerform.value,);
+    return Column(
+      children: [
+        WidgetRutPerformans(modelRutPerform: modelRutPerform.value,),
+      ],
+    );
 
   }
 
@@ -403,6 +411,14 @@ class ControllerDashBorudExp extends GetxController {
     } else {
       return "$minutes deq";
     }
+  }
+
+  Future<void> stopTodayWork() async {
+    await localAppSetting.init();
+    modelAppSetting = await localAppSetting.getAvaibleMap();
+    modelAppSetting.userStartWork=false;
+    localAppSetting.addSelectedMyTypeToLocalDB(modelAppSetting);
+    Get.offAllNamed(RouteHelper.bazaDownloadMobile);
   }
 
 }

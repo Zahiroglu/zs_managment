@@ -3,12 +3,11 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
+import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/controller_mercpref.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_gunluk_giriscixis.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
@@ -47,9 +46,10 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   int selectedRutGunu=1;
   int t=0; //Tid
   double p=0; //Position
-
+  LocalUserServices userLocalService=LocalUserServices();
   @override
   void initState() {
+    userLocalService.init();
     melumatlariGuneGoreDoldur();
     _scrollControllerNested = ScrollController();
     _controller = PageController(initialPage: _initialIndex, viewportFraction:  1);
@@ -1102,7 +1102,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   ? Colors.white
                   : Colors.black,
             )),
-            controllerRoutDetailUser.userHasPermitionEditRutSira?selectedGunIndex.endsWith(rutGunu)?Positioned(
+            controllerRoutDetailUser.userHasPermitionEditRutSira?selectedGunIndex.endsWith(rutGunu)?userLocalService.getLoggedUser().userModel!.permissions!.any((element) => element.id==28)?Positioned(
               top: -5,
                 right: -10,
                 child:IconButton(
@@ -1110,7 +1110,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                     _intentRutSirasiScreen(rutGunu,gunInt);
                   },
                   icon:  const Icon(Icons.edit,color: Colors.red,size: 18,),
-                )):const SizedBox():const SizedBox(),
+                )):SizedBox():const SizedBox():const SizedBox(),
           ],
         ),
       ),

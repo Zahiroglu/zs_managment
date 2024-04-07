@@ -946,8 +946,8 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
       secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(
           _currentLocation.latitude,
           _currentLocation.longitude,
-          double.parse(model.longitude!),
-          double.parse(model.latitude!));
+          double.parse(model.longitude!.toString()),
+          double.parse(model.latitude!.toString()));
       if (secilenMarketdenUzaqliq > 1) {
         secilenMarketdenUzaqliqString =
         "${(secilenMarketdenUzaqliq).round()} km";
@@ -989,7 +989,7 @@ class _ScreenGirisCixisListState extends State<ScreenGirisCixisList> {
     {
       selectedCariModel = model,
       secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model),
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(model.longitude!), double.parse(model.latitude!)),
+      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(model.longitude!.toString()), double.parse(model.latitude!.toString())),
       if (secilenMarketdenUzaqliq > 1) {
         secilenMarketdenUzaqliqString =
         "${(secilenMarketdenUzaqliq).round()} km",

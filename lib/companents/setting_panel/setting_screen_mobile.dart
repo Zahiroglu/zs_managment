@@ -224,10 +224,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
   }
 
   Widget widgetSettingPart(UserModel model, ThemaController themaController) {
-    return Expanded(
-      child: ListView(
-        scrollDirection: Axis.vertical,
-        padding: const EdgeInsets.all(5),
+    return SingleChildScrollView(
+      child: Column(
         children: [
           widgetPersonalInfo(model, themaController),
           SizedBox(
@@ -516,6 +514,7 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
     Get.to(ScreenUserConnections(listConnections:  model.connections!));
 
   }
+
   void appsettionFormunaBax(UserModel model) {
     Get.toNamed(RouteHelper.mobileMapSettingMobile);
 

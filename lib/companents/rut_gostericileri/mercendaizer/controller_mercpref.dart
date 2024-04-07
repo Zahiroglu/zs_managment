@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
+import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_merc_customers_edit.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_gunluk_giriscixis.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
@@ -37,9 +37,13 @@ class ControllerMercPref extends GetxController {
   String totalIsSaati="0";
   String hefteninGunu = "";
   bool userHasPermitionEditRutSira=true;
+  LocalUserServices userLocalService=LocalUserServices();
+  LoggedUserModel loggedUserModel=LoggedUserModel();
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
+    await userLocalService.init();
+    loggedUserModel=userLocalService.getLoggedUser();
     // TODO: implement onInit
     super.onInit();
   }
@@ -83,11 +87,13 @@ class ControllerMercPref extends GetxController {
   void getAllCariler(MercDataModel model, List<ModelMainInOut> listGirisCixis,List<UserModel> listUser) {
     selectedMercBaza.value=model;
     modelInOut.value=listGirisCixis;
-    for (var element in modelInOut.first.modelInOutDays) {
-      listGunlukGirisCixislar.add(element);
-    }
-    for (var element in listGunlukGirisCixislar) {
-      listGirisCixislar.addAll(element.modelInOut);
+    if(listGirisCixis.isNotEmpty){
+      for (var element in modelInOut.first.modelInOutDays) {
+        listGunlukGirisCixislar.add(element);
+      }
+      for (var element in listGunlukGirisCixislar) {
+        listGirisCixislar.addAll(element.modelInOut);
+      }
     }
     listUsers.value=listUser;
     listMercBaza.clear();
@@ -141,9 +147,11 @@ class ControllerMercPref extends GetxController {
     Duration difference = Duration();
     for (var element in list) {
       print("giris vaxt :"+element.inDate);
-      print("cixis vaxt :"+element.outDate);
-      difference = difference +DateTime.parse(element.outDate.toString()).difference(DateTime.parse(element.inDate.toString()));
-      print("difference : "+difference.toString());
+      if(element.outDate!=null) {
+        difference = difference +
+            DateTime.parse(element.outDate.toString()).difference(
+                DateTime.parse(element.inDate.toString()));
+      }print("difference : "+difference.toString());
     }
     hours = hours + difference.inHours % 24;
     minutes = minutes + difference.inMinutes % 60;
@@ -156,34 +164,7 @@ class ControllerMercPref extends GetxController {
 
     }
   }
-  String curculateTotalTimeDistanceForVisit(List<ModelGirisCixis> list) {
-    int hours = 0;
-    int minutes = 0;
-    Duration difference = Duration();
-    for (var element in list) {
-     difference = difference + DateTime.parse(element.cixisTarix).difference(DateTime.parse(element.girisTarix));
-     }
-    hours = hours + difference.inHours;
-    minutes = minutes + difference.inMinutes % 60;
-    if (hours < 1) {
-      return "$minutes deq";
-    } else {
-      return "$hours saat $minutes deq";
-    }
-  }
 
-  String curculateSndeQalmaVaxti(String girisVaxti,String cixisTarixi) {
-    int hours = 0;
-    int minutes = 0;
-    Duration difference = DateTime.parse(cixisTarixi).difference(DateTime.parse(girisVaxti));
-    hours = hours + difference.inHours % 24;
-    minutes = minutes + difference.inMinutes % 60;
-    if (hours < 1) {
-      return "$minutes deq";
-    } else {
-      return "$hours saat $minutes deq";
-    }
-  }
 
   String prettify(double d) {
     return d.toStringAsFixed(1).replaceFirst(RegExp(r'\.?0*$'), '');

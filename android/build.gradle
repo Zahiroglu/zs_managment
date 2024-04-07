@@ -11,7 +11,7 @@ buildscript {
     }
 }
 ext {
-    compileSdkVersion   = 33                // or higher / as desired
+    compileSdkVersion   = 34                // or higher / as desired
     targetSdkVersion    = 33                // or higher / as desired
     minSdkVersion       = 21                // Required minimum
     appCompatVersion    = "1.4.2"           // or higher / as desired

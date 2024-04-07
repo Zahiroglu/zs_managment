@@ -31,6 +31,7 @@ import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import '../../global_models/custom_enummaptype.dart';
 import '../../global_models/model_appsetting.dart';
 import '../../global_models/model_maptypeapp.dart';
+import '../../routs/rout_controller.dart';
 import '../local_bazalar/local_app_setting.dart';
 import '../local_bazalar/local_giriscixis.dart';
 import '../local_bazalar/local_users_services.dart';
@@ -42,7 +43,7 @@ import 'models/model_downloads.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
-class ControllerBaseDownloads extends GetxController {
+class ControllerBaseDownloadsFirstTime extends GetxController {
   Dio dio = Dio();
   late CheckDviceType checkDviceType = CheckDviceType();
   LoggedUserModel loggedUserModel = LoggedUserModel();
@@ -114,10 +115,11 @@ class ControllerBaseDownloads extends GetxController {
     update();
   }
 
-  Future<void> saveChangedSettingtoDb() async {
-    modelsetting.userStartWork=true;
+  Future<void> saveChangedSettingtoDb(bool istrue) async {
+    modelsetting.userStartWork=istrue;
     await localAppSetting.addSelectedMyTypeToLocalDB(modelsetting);
-    getAPPlist();
+    Get.offNamed(RouteHelper.mobileMainScreen);
+
   }
   _donloadListiniDoldur() async {
     await localUserServices.init();
@@ -180,14 +182,25 @@ class ControllerBaseDownloads extends GetxController {
   callLocalBases() async {
     dataLoading = true.obs;
     await localBaseSatis.init();
+    modelsetting=await localAppSetting.getAvaibleMap();
+    print("modelsetting :"+modelsetting.toString());
     loggedUserModel = localUserServices.getLoggedUser();
     ifUserMustLocateAllWordDay.value==loggedUserModel.userModel!.permissions!.any((element) => element.code=="liveAllDay");
     listDownloadsFromLocalDb.value = localBaseDownloads.getAllDownLoadBaseList();
     getMustDownloadBase(loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
-    if (localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!)) {
+    if (localBaseDownloads.checkIfUserMustDonwloadsBaseFirstTime(loggedUserModel.userModel!.roleId!)) {
       davamEtButonuGorunsun.value = false;
     }else{
-      davamEtButonuGorunsun.value = true;
+      if(listDonwloads.isNotEmpty){
+        davamEtButonuGorunsun.value = false;
+      }else{
+        if(modelsetting.userStartWork==true){
+          Get.offNamed(RouteHelper.mobileMainScreen);
+        }else{
+          davamEtButonuGorunsun.value = true;
+        }
+
+      }
 
     }
     update();

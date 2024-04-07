@@ -13,20 +13,23 @@ class ModelAppSetting{
   ModelMapApp? mapsetting;
   @HiveField(1)
   String? girisCixisType;
+  @HiveField(2)
+  bool? userStartWork;
 
 
   ModelAppSetting.name(this.mapsetting);
 
 
-  ModelAppSetting({required this.mapsetting,required this.girisCixisType});
+  ModelAppSetting({ this.mapsetting, this.girisCixisType, this.userStartWork});
 
   factory ModelAppSetting.fromJson(Map<String, dynamic> json) => ModelAppSetting(
       mapsetting: json["mapsetting"] == null ? null : ModelMapApp.fromJson(json["mapsetting"]),
-      girisCixisType: json['girisCixisType']==null?"map":json["girisCixisType"]
+      girisCixisType: json['girisCixisType']==null?"map":json["girisCixisType"],
+      userStartWork: json['userStartWork']==null?false:json["userStartWork"]
   );
 
   @override
   String toString() {
-    return 'ModelAppSetting{mapsetting: $mapsetting, girisCixisType: $girisCixisType}';
+    return 'ModelAppSetting{mapsetting: $mapsetting, girisCixisType: $girisCixisType, userStartWork: $userStartWork}';
   }
 }

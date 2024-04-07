@@ -65,7 +65,7 @@ class SearchLiveUsers extends StatelessWidget {
                   child: CustomText(
                     overflow: TextOverflow.ellipsis,
                     labeltext:
-                    "${element.userCode!}-${element.userName!}",
+                    "${element.userCode!}-${element.currentLocation!.userFullName}",
                     fontsize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -76,14 +76,14 @@ class SearchLiveUsers extends StatelessWidget {
                     margin: EdgeInsets.only(right: 10),
                     padding: EdgeInsets.all(2),
                     decoration: BoxDecoration(
-                        color: element.userCurrentPosition!.isOnline
+                        color: element.currentLocation!.isOnline!
                             ? Colors.green
                             : Colors.red,
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         border: Border.all(color: Colors.grey,width: 0.5)),
                     child: Center(
                         child: CustomText(
-                          labeltext: element.userCurrentPosition!.isOnline
+                          labeltext: element.currentLocation!.isOnline!
                               ? "Online"
                               : "Offline",
                           color: Colors.white,
@@ -105,7 +105,7 @@ class SearchLiveUsers extends StatelessWidget {
                     fontsize: 14,
                     fontWeight: FontWeight.normal),
                 CustomText(
-                    labeltext: element.userCurrentPosition!.lastTime),
+                    labeltext: element.currentLocation!.locationDate!),
               ],
             ),
             Row(
@@ -119,12 +119,12 @@ class SearchLiveUsers extends StatelessWidget {
                         fontsize: 14,
                         fontWeight: FontWeight.normal),
                     CustomText(
-                        labeltext: "${element.userCurrentPosition!.speed} km"),
+                        labeltext: "${element.currentLocation!.speed} km"),
                   ],
                 ),
                 const SizedBox(
                   width: 10,
-                ),element.userCurrentPosition!.speed ==
+                ),element.currentLocation!.speed ==
                     "0"
                     ? SizedBox()
                     : Row(
@@ -136,7 +136,7 @@ class SearchLiveUsers extends StatelessWidget {
                         fontsize: 14,
                         fontWeight: FontWeight.normal),
                     CustomText(
-                        labeltext: element.userCurrentPosition!.speed ==
+                        labeltext: element.currentLocation!.speed ==
                             "0"
                             ? ""
                             : "hereketdedir".tr),

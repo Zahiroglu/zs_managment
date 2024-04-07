@@ -8,7 +8,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:location/location.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -375,8 +374,8 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
       double hesabMesafe = calculateDistance(
           _currentLocation.latitude,
           _currentLocation.longitude,
-          double.parse(element.longitude!),
-          double.parse(element.latitude!));
+          double.parse(element.longitude!.toString()),
+          double.parse(element.latitude!.toString()));
       if (hesabMesafe > 1) {
         listmesafe = "${(hesabMesafe).round()} km";
       } else {
@@ -392,8 +391,8 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
       double hesabMesafe = calculateDistance(
           _currentLocation.latitude,
           _currentLocation.longitude,
-          double.parse(model.longitude!),
-          double.parse(model.latitude!));
+          double.parse(model.longitude!.toString().toString()),
+          double.parse(model.latitude!.toString().toString()));
       if (hesabMesafe > 1) {
         uzaqliq = "${(hesabMesafe).round()} km";
       } else {
@@ -410,19 +409,19 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
           _customInfoWindowController.addInfoWindow!(
               myCusttomInfoWindowStyleSimpleInfo(selectedModel, uzaqliq, girisIcazesi),
               map.LatLng(
-                  double.parse(model.longitude!), double.parse(model.latitude!)));
+                  double.parse(model.longitude!.toString()), double.parse(model.latitude!.toString())));
         }else {
           if(girisIcazesi){
             _customInfoWindowController.addInfoWindow!(
                 myCusttomInfoWindowStyleGiris(
                     selectedModel, uzaqliq, girisIcazesi),
                 map.LatLng(
-                    double.parse(model.longitude!), double.parse(model.latitude!)));
+                    double.parse(model.longitude!.toString()), double.parse(model.latitude!.toString())));
           }else{
             _customInfoWindowController.addInfoWindow!(
                 myCusttomInfoWindowStyleSimpleInfo(selectedModel, uzaqliq, girisIcazesi),
                 map.LatLng(
-                    double.parse(model.longitude!), double.parse(model.latitude!)));
+                    double.parse(model.longitude!.toString()), double.parse(model.latitude!.toString())));
           }
 
         }});
@@ -512,11 +511,11 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
             }
             },
           icon: await getClusterBitmap(120, model,model.ziyaret!,controllerGirisCixis.marketeGirisEdilib.value),
-          position: map.LatLng(double.parse(model.longitude!), double.parse(model.latitude!))));
+          position: map.LatLng(double.parse(model.longitude!.toString()), double.parse(model.latitude!.toString()))));
       _markersSmoll.add(map.Marker(
         markerId: map.MarkerId(model.code!),
         icon: await getClusterBitmapSmole(40,model),
-          position: map.LatLng(double.parse(model.longitude!), double.parse(model.latitude!))));
+          position: map.LatLng(double.parse(model.longitude!.toString()), double.parse(model.latitude!.toString()))));
     }
     if(controllerGirisCixis.marketeGirisEdilib.isTrue){
      // controllerGirisCixis.addMarkersAndPlygane(controllerGirisCixis.modelgirisEdilmis.value.marketgpsUzunluq!,controllerGirisCixis.modelgirisEdilmis.value.marketgpsEynilik!,_currentLocation);
@@ -532,8 +531,8 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
     double hesabMesafe = calculateDistance(
         _currentLocation.latitude,
         _currentLocation.longitude,
-        double.parse(element.longitude!),
-        double.parse(element.latitude!));
+        double.parse(element.longitude!.toString()),
+        double.parse(element.latitude!.toString()));
     if (hesabMesafe > 1) {
       uzaqliq = "${(hesabMesafe).round()} km";
     } else {
@@ -550,7 +549,7 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
       selectedModel = element;
       _customInfoWindowController.addInfoWindow!(
           girisicaze?myCusttomInfoWindowStyleGiris(selectedModel, uzaqliq, girisicaze):myCusttomInfoWindowStyleSimpleInfo(selectedModel, uzaqliq, girisicaze),
-          map.LatLng(double.parse(element.longitude!), double.parse(element.latitude!)));
+          map.LatLng(double.parse(element.longitude!.toString()), double.parse(element.latitude!.toString())));
       controllerGirisCixis.leftSideMenuVisible.value = false;
       controllerGirisCixis.rightSideMenuVisible.value = false;
     });
@@ -563,8 +562,8 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
     double hesabMesafe = calculateDistance(
         _currentLocation.latitude,
         _currentLocation.longitude,
-        double.parse(element.longitude!),
-        double.parse(element.latitude!));
+        double.parse(element.longitude!.toString()),
+        double.parse(element.latitude!.toString()));
     if (hesabMesafe > 1) {
       uzaqliq = "${(hesabMesafe).round()} km";
     } else {
@@ -581,7 +580,7 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
          cixisEdilmeliMarketdir?
           myCusttomInfoWindowStyleCixis(selectedModel, uzaqliq, cixisIcaze):
           myCusttomInfoWindowStyleSimpleInfo(selectedModel, uzaqliq, cixisIcaze),
-          map.LatLng(double.parse(element.longitude!), double.parse(element.latitude!)));
+          map.LatLng(double.parse(element.longitude!.toString()), double.parse(element.latitude!.toString())));
       controllerGirisCixis.leftSideMenuVisible.value = false;
       controllerGirisCixis.rightSideMenuVisible.value = false;
     }
@@ -1096,8 +1095,8 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
     double hesabMesafe = calculateDistance(
         _currentLocation.latitude,
         _currentLocation.longitude,
-        double.parse(selectedModel.longitude!),
-        double.parse(selectedModel.latitude!));
+        double.parse(selectedModel.longitude!.toString()),
+        double.parse(selectedModel.latitude!.toString()));
     if (hesabMesafe > 1) {
       listmesafe = "${(hesabMesafe).round()} km";
     } else {
@@ -1231,7 +1230,7 @@ class _YeniGirisCixisState extends State<YeniGirisCixis> {
   void girisEt(ModelCariler selectedModel, String uzaqliq) async {
     // await controllerGirisCixis.pripareForEnter(_currentLocation, selectedModel, uzaqliq);
     // _customInfoWindowController.hideInfoWindow!();
-    cixisXeritesiniQur(selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
+    cixisXeritesiniQur(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), selectedModel.code!);
   }
 
   /////////////Cixis Et hissesi//////////////

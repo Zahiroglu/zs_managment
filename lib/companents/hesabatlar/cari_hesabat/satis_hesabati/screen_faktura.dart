@@ -97,7 +97,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     listFiler.clear();
     listFiler.add("hamisi".tr);
     List<ModelFaktura> listKodrdinar = [];
-    var document = xml.parse(_response);
+    var document = xml.XmlDocument.parse(_response);
     Iterable<xml.XmlElement> items = document.findAllElements('Table');
     items.map((xml.XmlElement item) {
       var sth_tarih = _getValue(item.findElements("sth_tarih"));

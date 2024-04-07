@@ -17,6 +17,7 @@ import 'package:zs_managment/companents/users_panel/new_user_create/models/model
 import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
@@ -75,6 +76,7 @@ class NewUserController extends GetxController {
   final selectedRegion = Rxn<ModelRegions>();
   final selectedSobe = Rxn<ModelUserRolesTest>();
   final selectedVezife = Rxn<Role>();
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   //final selectedRole = Rxn<Model>();
   RxString selectedDate = DateTime.now().toString().substring(0, 10).obs;
@@ -157,6 +159,9 @@ class NewUserController extends GetxController {
             listRegionlar.add(model);
           }
           getRolesFromApiService(controller);
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
 
     }
@@ -206,6 +211,9 @@ class NewUserController extends GetxController {
             incrementCustomStepper(controller);
             canUseNextButton.value = false;
           DialogHelper.hideLoading();
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -400,6 +408,9 @@ class NewUserController extends GetxController {
           }
           DialogHelper.hideLoading();
           getConnectionsFromApiService(controller);
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -459,6 +470,9 @@ class NewUserController extends GetxController {
             }
           }
           getUsersPermitionsFromApi(controller);
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -519,6 +533,9 @@ class NewUserController extends GetxController {
           if (listModelSelectUserPermitions.isNotEmpty) {
             changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
           }
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
     canUseNextButton.value = true;
@@ -745,6 +762,9 @@ class NewUserController extends GetxController {
             listUsers: listUsers,
             vezifeAdi: selectedGroupName.value.name!,
           ));
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
     return listUsers;
@@ -855,6 +875,9 @@ class NewUserController extends GetxController {
           acceptRecistredUser(response.data['result'],registerData.value);
           succes=true;
           Get.back();
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
 
@@ -897,6 +920,9 @@ class NewUserController extends GetxController {
         if (response.statusCode == 200) {
           DialogHelper.hideLoading();
           Get.back();
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
   }

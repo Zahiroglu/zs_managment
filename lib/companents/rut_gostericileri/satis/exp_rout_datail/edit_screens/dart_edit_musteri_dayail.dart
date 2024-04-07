@@ -71,7 +71,7 @@ class _EditMusteriDetailScreenState extends State<EditMusteriDetailScreen> {
     ctKateq.text=cariModel.category!;
     ctReion.text=cariModel.district!;
     cameraPosition = CameraPosition(
-      target: LatLng(double.parse(cariModel.longitude!),
+      target: LatLng(double.parse(cariModel.longitude!.toString()),
           double.parse(cariModel.latitude.toString())),
       zoom: 14.4746,
     );
@@ -223,9 +223,9 @@ class _EditMusteriDetailScreenState extends State<EditMusteriDetailScreen> {
                                 melumatlariDeyisGorunsun=true;
                                 mapEditClicked = false;
                                 cariModel.longitude =
-                                    cameraPosition.target.latitude.toString();
+                                    cameraPosition.target.latitude;
                                 cariModel.latitude =
-                                    cameraPosition.target.longitude.toString();
+                                    cameraPosition.target.longitude;
                                 addMarker();
                               });
                             }

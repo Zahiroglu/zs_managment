@@ -61,8 +61,8 @@ class UserApiControllerMobile extends GetxController {
       dviceId.value = 'Failed to get deviceId.';
     }
     if (dviceId.value.isNotEmpty) {
-      //getCompanyUrlByDivaceId();
-      loginWithMobileDviceId(AppConstands.baseUrlsMain);
+      getCompanyUrlByDivaceId();
+      //loginWithMobileDviceId(AppConstands.baseUrlsMain);
     } else {
       Get.dialog(ShowInfoDialog(
         messaje: "Xeta bas verdi",
@@ -115,9 +115,6 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        print("req :"+response.requestOptions.path);
-        print("res :"+response.data.toString());
-
         if (response.statusCode == 404) {
           changeLoading();
           basVerenXeta = "baglantierror".tr;
@@ -126,7 +123,8 @@ class UserApiControllerMobile extends GetxController {
             messaje: "baglantierror".tr,
             callback: () {},
           ));
-        } else {
+        }
+        else {
           if (response.statusCode == 200) {
             String baseUrl=response.data['result'];
             loginWithMobileDviceId(baseUrl);
@@ -143,7 +141,6 @@ class UserApiControllerMobile extends GetxController {
             if (baseResponce.code == 400) {
               deviceIdMustvisible.value = true;
             }
-            changeLoading();
           }
         }
       } on DioException catch (e) {
@@ -152,8 +149,9 @@ class UserApiControllerMobile extends GetxController {
         } else {}
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          messaje: e.message ?? "baglantierror".tr,
           callback: () {
+            changeLoading();
           },
         ));
       }
@@ -162,7 +160,7 @@ class UserApiControllerMobile extends GetxController {
 
 
   Future<void> loginWithMobileDviceId(String baseUrl) async {
-    changeLoading();
+    print("baseUrl :"+baseUrl.toString());
     languageIndex = await getLanguageIndex();
     dviceType = checkDviceType.getDviceType();
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -170,9 +168,10 @@ class UserApiControllerMobile extends GetxController {
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
         messaje: "internetError".tr,
-        callback: () {},
+        callback: () {
+          changeLoading();
+        },
       ));
-      changeLoading();
     } else {
       try {
         final response = await dio.post(
@@ -190,7 +189,7 @@ class UserApiControllerMobile extends GetxController {
           ),
         );
         print("request:"+response.requestOptions.path);
-        print("responce:"+response.statusCode.toString());
+        print("responce:"+response.data.toString());
         if (response.statusCode == 404) {
           basVerenXeta = "baglantierror".tr;
           Get.dialog(ShowInfoDialog(
@@ -216,6 +215,7 @@ class UserApiControllerMobile extends GetxController {
             ));
             if (baseResponce.code == 400) {
               deviceIdMustvisible.value = true;
+
             }
           }
         }
@@ -303,7 +303,6 @@ class UserApiControllerMobile extends GetxController {
                 changeLoading();
               },
             ));
-            changeLoading();
           }
         }
       } on DioException catch (e) {
@@ -323,7 +322,6 @@ class UserApiControllerMobile extends GetxController {
             changeLoading();
           },
         ));
-        changeLoading();
       }
     }
   }
@@ -435,6 +433,6 @@ class UserApiControllerMobile extends GetxController {
 
   Future<bool> checkUsersDownloads(int? roleId) async{
     await localBaseDownloads.init();
-    return  localBaseDownloads.checkIfUserMustDonwloadsBase(roleId);
+    return  localBaseDownloads.checkIfUserMustDonwloadsBaseFirstTime(roleId);
   }
 }

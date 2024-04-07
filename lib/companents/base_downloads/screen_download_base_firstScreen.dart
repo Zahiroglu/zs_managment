@@ -5,7 +5,9 @@ import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
+import '../../global_models/model_appsetting.dart';
 import 'controller_base_downloads.dart';
+import 'controller_base_downloads_firsttime.dart';
 
 class FirstScreenBaseDownloads extends StatefulWidget {
   bool fromFirstScreen;
@@ -17,11 +19,11 @@ class FirstScreenBaseDownloads extends StatefulWidget {
 }
 
 class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
-  ControllerBaseDownloads controllerBaseDownloads = Get.put(ControllerBaseDownloads());
+  ControllerBaseDownloadsFirstTime controllerBaseDownloads = Get.put(ControllerBaseDownloadsFirstTime());
 
   @override
   void dispose() {
-    Get.delete<ControllerBaseDownloads>();
+    Get.delete<ControllerBaseDownloadsFirstTime>();
     // TODO: implement dispose
     super.dispose();
   }
@@ -31,7 +33,7 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
     return Material(
 
       child: SafeArea(
-        child: GetBuilder<ControllerBaseDownloads>(builder: (controller) {
+        child: GetBuilder<ControllerBaseDownloadsFirstTime>(builder: (controller) {
           return Scaffold(
             appBar: AppBar(
               toolbarHeight: 60,
@@ -82,26 +84,49 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
                       ),
                     ),
                   ),
-                  controllerBaseDownloads.davamEtButonuGorunsun.isTrue?Align(
+                  controllerBaseDownloads.davamEtButonuGorunsun.isFalse?SizedBox():Align(
                     alignment: Alignment.bottomCenter,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CustomElevetedButton(
-                          cllback: () {
-                            Get.offNamed(RouteHelper.mobileMainScreen);
-                          },
-                          label: "goAhed".tr,
-                          height: 40,
-                          width: MediaQuery.of(context).size.width / 2,
-                          surfaceColor: Colors.white,
-                          borderColor: Colors.blueAccent,
-                          elevation: 10,
-                        )
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex:5,
+                            child: CustomElevetedButton(
+                              cllback: () async {
+                                await controllerBaseDownloads.saveChangedSettingtoDb(false);
+                              },
+                              label: "goAhead".tr,
+                              height: 40,
+                              icon: Icons.info,
+                              surfaceColor: Colors.white,
+                              textColor: Colors.orangeAccent,
+                              borderColor: Colors.orangeAccent,
+                              elevation: 10,
+                            ),
+                          ),
+                          SizedBox(width: 10,),
+                          Expanded(
+                            flex: 5,
+                            child: CustomElevetedButton(
+                              cllback: () async {
+                                await controllerBaseDownloads.saveChangedSettingtoDb(true);
+                              },
+                              textColor: Colors.green,
+                              icon: Icons.work_history,
+                              label: "startWork".tr,
+                              height: 40,
+                              surfaceColor: Colors.white,
+                              borderColor: Colors.green,
+                              elevation: 10,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ):SizedBox(),
+                  ),
                 ],
               ),
             )),
@@ -110,6 +135,7 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
       ),
     );
   }
+
 
   void _butunMelumatlariSyncEt() {
     controllerBaseDownloads.syncAllInfo();

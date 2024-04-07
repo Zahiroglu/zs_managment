@@ -13,10 +13,8 @@ import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_mercbaza.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_gunluk_giriscixis.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
 import 'package:zs_managment/global_models/model_maptypeapp.dart';
@@ -47,7 +45,6 @@ class ControllerExpPref extends GetxController {
   double totalPrim = 0;
   RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
   RxList<Widget> listPagesHeader = List<Widget>.empty(growable: true).obs;
-  RxList<ModelGunlukGirisCixis> listTarixlerRx = List<ModelGunlukGirisCixis>.empty(growable: true).obs;
   String totalIsSaati="0";
   String hefteninGunu = "";
   bool userHasPermitionEditRutSira=true;
@@ -58,7 +55,9 @@ class ControllerExpPref extends GetxController {
   final RxSet<map.Circle> circles = <map.Circle>{}.obs;
   late Rx<ModelCariler> selectedCariModel = ModelCariler().obs;
   RxList<UserModel> listMercs = List<UserModel>.empty(growable: true).obs;
-
+  RxList<ModelMainInOut> modelInOut = List<ModelMainInOut>.empty(growable: true).obs;
+  RxList<ModelInOut> listGirisCixislar = List<ModelInOut>.empty(growable: true).obs;
+  RxList<ModelInOutDay> listGunlukGirisCixislar = List<ModelInOutDay>.empty(growable: true).obs;
   @override
   void onInit() {
     getAppSetting();
@@ -125,9 +124,18 @@ class ControllerExpPref extends GetxController {
     listZiyeretEdilmeyenler.clear();
     listTabItems.clear();
     listMercs.clear();
+    modelInOut.value=listGirisCixis;
+    if(listGirisCixis.isNotEmpty){
+      for (var element in modelInOut.first.modelInOutDays) {
+        listGunlukGirisCixislar.add(element);
+      }
+      for (var element in listGunlukGirisCixislar) {
+        listGirisCixislar.addAll(element.modelInOut);
+      }
+    }
     for (var element in listMercBaza) {
       element.ziyaretSayi = listGirisCixis.where((e) => e.userCode == element.code).toList().length;
-   //  element.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.cariKod == element.code).toList());
+      element.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixislar.where((e) => e.customerCode == element.code).toList());
       listSelectedExpBaza.add(element);
       listFilteredUmumiBaza.add(element);
     }
@@ -172,32 +180,6 @@ class ControllerExpPref extends GetxController {
     update();
   }
   
-  void ziyaretTarixcesiTablesini(List<ModelGirisCixis> listGirisCixis){
-    List<String> listTarixler=[];
-    listGirisCixis.sort((a, b) {
-      int cmp = a.girisTarix.substring(0,10).compareTo(b.girisTarix.substring(0,10));
-      if (cmp != 0) return cmp;
-      return a.girisTarix.substring(11,15).compareTo(b.girisTarix.substring(11,15));
-    });
-    for (var element in listGirisCixis) {
-      if(!listTarixler.contains(element.girisTarix.substring(0,10))) {
-        listTarixler.add(element.girisTarix.substring(0,10));
-      }
-    }
-    listTarixler.sort((a, b) => a.toString().compareTo(b.toString()));
-    for(var tarix in listTarixler){
-      List<ModelGirisCixis> list=listGirisCixis.where((a) => a.girisTarix.substring(0,10)==tarix).toList();
-      listTarixlerRx.add(ModelGunlukGirisCixis(tarix: tarix,
-          girisSayi: listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).length,
-          umumiIsVaxti:curculateSndeQalmaVaxti( listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList().first.girisTarix, listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList().last.cixisTarix) ,
-          iseBaslamaSaati: listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList().first.girisTarix.substring(11,19),
-          isiQutarmaSaati: listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList().last.cixisTarix.substring(11,19),
-          sndeIsvaxti: curculateTimeDistanceForVisit(listGirisCixis.where((e) => e.girisTarix.substring(0,10)==tarix).toList()),
-      listgiriscixis: list,
-      ));
-    }
-    totalIsSaati=curculateTotalTimeDistanceForVisit(listGirisCixis);
-  }
 
   List<ModelMercBaza> createRandomOrdenNumber(List<ModelMercBaza> list) {
     List<ModelMercBaza> yeniList = [];
@@ -258,39 +240,28 @@ class ControllerExpPref extends GetxController {
     return list;
   }
 
-  String curculateTimeDistanceForVisit(List<ModelGirisCixis> list) {
+  String curculateTimeDistanceForVisit(List<ModelInOut> list) {
     int hours = 0;
     int minutes = 0;
     Duration difference = Duration();
     for (var element in list) {
-      difference = difference +
-          DateTime.parse(element.cixisTarix)
-              .difference(DateTime.parse(element.girisTarix));
+      print("giris vaxt :"+element.inDate);
+      print("cixis vaxt :"+element.outDate);
+      difference = difference +DateTime.parse(element.outDate.toString()).difference(DateTime.parse(element.inDate.toString()));
+      print("difference : "+difference.toString());
     }
     hours = hours + difference.inHours % 24;
     minutes = minutes + difference.inMinutes % 60;
     if (hours < 1) {
+      totalIsSaati="$minutes deq";
       return "$minutes deq";
     } else {
+      totalIsSaati="$hours saat $minutes deq";
       return "$hours saat $minutes deq";
+
     }
   }
 
-  String curculateTotalTimeDistanceForVisit(List<ModelGirisCixis> list) {
-    int hours = 0;
-    int minutes = 0;
-    Duration difference = Duration();
-    for (var element in list) {
-     difference = difference + DateTime.parse(element.cixisTarix).difference(DateTime.parse(element.girisTarix));
-     }
-    hours = hours + difference.inHours;
-    minutes = minutes + difference.inMinutes % 60;
-    if (hours < 1) {
-      return "$minutes deq";
-    } else {
-      return "$hours saat $minutes deq";
-    }
-  }
 
   String curculateSndeQalmaVaxti(String girisVaxti,String cixisTarixi) {
     int hours = 0;
@@ -402,7 +373,7 @@ class ControllerExpPref extends GetxController {
       print("per :"+element.toString());
     });
     bool canEditCari=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canEditExpCari");
-    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canAddCariToMerchBase");
+    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canEditMerchCustomers");
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -510,7 +481,7 @@ class ControllerExpPref extends GetxController {
           },
           icon: await getClusterBitmap2(120, model),
           position: map.LatLng(
-              double.parse(model.longitude!), double.parse(model.latitude!))));
+              double.parse(model.longitude!.toString()), double.parse(model.latitude!.toString()))));
     }
   }
 
@@ -588,8 +559,8 @@ class ControllerExpPref extends GetxController {
     circles.value = {
       map.Circle(
           circleId: map.CircleId(selectedCariModel.value.code!),
-          center: map.LatLng(double.parse(selectedCariModel.value.longitude!),
-              double.parse(selectedCariModel.value.latitude!)),
+          center: map.LatLng(double.parse(selectedCariModel.value.longitude!.toString()),
+              double.parse(selectedCariModel.value.latitude!.toString())),
           radius: 100,
           fillColor: Colors.black.withOpacity(0.5),
           strokeColor: Colors.red,

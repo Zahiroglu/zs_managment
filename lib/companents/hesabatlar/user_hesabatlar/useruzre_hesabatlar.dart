@@ -50,7 +50,7 @@ class _WidgetRuthesabatlarState extends State<WidgetRuthesabatlar> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CustomText(
-                      labeltext: "Temsilci uzre hesabatlar".tr,
+                      labeltext: "tmHesabat".tr,
                       fontWeight: FontWeight.w800,
                       fontsize: 16),
                   Icon(Icons.read_more)

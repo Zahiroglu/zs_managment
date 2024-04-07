@@ -13,6 +13,8 @@ class CustomTextField extends StatefulWidget {
       this.suffixIcon,
       this.onTextChange,
       this.onTopVisible,
+      this.onSubmit,
+      this.maxLines=1,
       this.containerHeight = 60,
       required this.hindtext,
       required this.fontsize,
@@ -43,12 +45,14 @@ class CustomTextField extends StatefulWidget {
   bool updizayn;
   Function(String txt)? onTextChange;
   Function? onTopVisible;
+  Function(String txt)? onSubmit;
   TextAlign align;
   Color hintTextColor;
   Color? textColor;
   Color? borderColor;
   bool isImportant=false;
   bool hasLabel=false;
+  int maxLines;
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
 }
@@ -71,6 +75,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 height: widget.containerHeight,
                 margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                 child: TextFormField(
+                  maxLines:  widget.maxLines,
+                  onFieldSubmitted: (s){
+                    widget.onSubmit!.call(s);
+                  },
                   inputFormatters: widget.inputType == TextInputType.phone ? <
                       TextInputFormatter>[maskFormatter,
                   ] : [],
@@ -162,6 +170,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
             height: widget.containerHeight,
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
             child: TextFormField(
+              maxLines: widget.maxLines,
+              onFieldSubmitted: (s){
+                widget.onSubmit!.call(s);
+              },
               textAlignVertical: TextAlignVertical.center,
               textAlign: widget.align,
               obscureText: widget.obscureText!,

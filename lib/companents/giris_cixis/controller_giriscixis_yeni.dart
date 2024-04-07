@@ -1241,7 +1241,7 @@ class ControllerGirisCixisYeni extends GetxController {
     for (ModelCariler element in listMusteriler) {
       String listmesafe = "0m";
       double hesabMesafe = calculateDistance(event.latitude, event.longitude,
-          double.parse(element.longitude??"0"), double.parse(element.latitude??"0"));
+          double.parse(element.longitude.toString()??"0"), double.parse(element.latitude.toString()??"0"));
       if (hesabMesafe > 1) {
         listmesafe = "${(hesabMesafe).round()} km";
       } else {
@@ -1943,7 +1943,7 @@ class ControllerGirisCixisYeni extends GetxController {
   }
 
   Future<void> girisiLocaldaTesdiqleme(Position currentLocation, ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
-    createCircles(selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
+    createCircles(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), selectedModel.code!);
     ModelGirisCixis modela = ModelGirisCixis(
         cariad: selectedModel.name,
         ckod: selectedModel.code,
@@ -1960,15 +1960,15 @@ class ControllerGirisCixisYeni extends GetxController {
         temsilciadi: userService.getLoggedUser().userModel!.name.toString(),
         temsilcikodu: userService.getLoggedUser().userModel!.code.toString(),
         vezifeId: userService.getLoggedUser().userModel!.roleId.toString(),
-        marketgpsEynilik: selectedModel.latitude,
-        marketgpsUzunluq: selectedModel.longitude);
+        marketgpsEynilik: selectedModel.latitude.toString(),
+        marketgpsUzunluq: selectedModel.longitude.toString());
     await localDbGirisCixis.addSelectedGirisCixisDB(modela);
     ModelCariler modelCari = listCariler.where((a) => a.code == modela.ckod).first;
     modelCari.ziyaret = "1";
     await localBase.updateModelCari(modelCari);
     marketeGirisEdilib.value = true;
     modelgirisEdilmis.value = modela;
-    addMarkersAndPlygane(selectedModel.longitude!, selectedModel.latitude!, currentLocation);
+    addMarkersAndPlygane(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), currentLocation);
     slidePanelVisible.value = false;
     leftSideMenuVisible.value = true;
     rightSideMenuVisible.value = true;

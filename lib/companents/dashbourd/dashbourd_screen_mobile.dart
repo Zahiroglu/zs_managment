@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/main_screen/drawer/model_drawerItems.dart';
 
+import '../../widgets/custom_eleveted_button.dart';
 import '../../widgets/custom_responsize_textview.dart';
 import 'controllers/controller_dashbourd_exp.dart';
 
@@ -41,7 +42,7 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
                     elevation: 0,
                     backgroundColor: Colors.white,
                     centerTitle: false,
-                    expandedHeight: 250,
+                    expandedHeight: 270,
                     pinned: true,
                     floating: false,
                     stretch: true,
@@ -55,7 +56,7 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
                       background:  Container(
                         margin: const EdgeInsets.only(bottom: 20),
                         width: MediaQuery.of(context).size.width,
-                        height: 280,
+                        height: 300,
                         decoration:  BoxDecoration(
                             color: Colors.blue.withOpacity(0.5),
                             boxShadow: [
@@ -74,7 +75,53 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             contoller.getUserInfoField(context),
-                            getDownloadMenu(context),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0).copyWith(top: 5),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                    color: Colors.red.shade100,
+                                    border: Border.all(color: Colors.black.withOpacity(0.2),width: 0.2),
+                                    borderRadius: BorderRadius.circular(10)
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0).copyWith(top: 0),
+                                  child: Stack(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0).copyWith(top: 15),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                                flex:5,
+                                                child: CustomText(labeltext: "fodgetToStop".tr,maxline: 2,fontWeight: FontWeight.w600,)),
+                                            Expanded(
+                                                flex:3,
+                                                child: CustomElevetedButton(
+                                                    textColor: Colors.blueAccent,
+                                                    borderColor: Colors.blue,
+                                                    icon: Icons.work_off,
+                                                    height: 35,
+                                                    cllback: (){
+                                                      controllerDashBorudExp.stopTodayWork();
+
+                                                    }, label: "stopWork"))
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                        width: MediaQuery.of(context).size.width,),
+                                      const Positioned(
+                                          top: 0,
+                                          right: -1,
+                                          child: Icon(Icons.info,size: 18,color: Colors.red,))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+
+                            // getDownloadMenu(context),
                           ],
                         ),
                       ),
@@ -197,6 +244,7 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
     widget.drawerMenuController.changeSelectedIndex(2, buttondownloads, false);
     setState(() {});
   }
+
 
 
 }

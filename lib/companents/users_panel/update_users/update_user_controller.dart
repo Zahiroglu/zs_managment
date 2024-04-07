@@ -18,6 +18,7 @@ import 'package:zs_managment/companents/users_panel/new_user_create/models/model
 import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 
@@ -84,6 +85,7 @@ class UpdateUserController extends GetxController {
   RxBool canRegisterNewUser = false.obs;
   RxBool canUserWindowsPermitions = false.obs;
   RxBool canUserMobilePermitions = false.obs;
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   @override
   void onInit() {
@@ -158,6 +160,9 @@ class UpdateUserController extends GetxController {
             }
           }
           getRolesFromApiService(controller);
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -230,6 +235,9 @@ class UpdateUserController extends GetxController {
           regionSecilmelidir.value = true;
           incrementCustomStepper(controller);
           DialogHelper.hideLoading();
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -352,6 +360,7 @@ class UpdateUserController extends GetxController {
         DialogHelper.hideLoading();
       }else{
         DialogHelper.hideLoading();
+        exeptionHandler.handleExeption(response);
       }
     }
     getConnectionsFromApiService(controller);
@@ -413,6 +422,9 @@ class UpdateUserController extends GetxController {
           }
           canUseNextButton.value=true;
           getUsersPermitionsFromApi(controller);
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -480,6 +492,9 @@ class UpdateUserController extends GetxController {
             selectedPermitions.value=listModelSelectUserPermitions.first.permissions!;
             selectedModulPermitions.value = listModelSelectUserPermitions.first;
           }
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
         }
     canUseNextButton.value = true;
@@ -635,7 +650,10 @@ class UpdateUserController extends GetxController {
               vezifeAdi: selectedGroupName.value.name!,
             ));
 
-          }}
+          }}else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
+        }
     }
     return listUsers;
   }
@@ -770,6 +788,9 @@ class UpdateUserController extends GetxController {
               },
           ));
 
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
         //dataLoading.value = false;
       }

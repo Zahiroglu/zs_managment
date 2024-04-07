@@ -19,6 +19,7 @@ import 'package:zs_managment/companents/users_panel/services/user_datagrid.dart'
 import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
@@ -39,6 +40,7 @@ class UserMainScreenController extends GetxController {
   ServiceExcell serviceExcell = ServiceExcell();
   UserModel selectedUser = UserModel();
   RxInt greateCountInList=4.obs;
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   UserModel getSelectedUser() => selectedUser;
 
@@ -99,6 +101,9 @@ class UserMainScreenController extends GetxController {
            userLisanceLoading.value=false;
            selectedModelAllUsersLisance.value=ModelAllUsersLisance.fromJson(response.data['result']);
            listModelAllUsersLisanceUserCount.value=  selectedModelAllUsersLisance.value.userCounts!;
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
     List<ModelAllUsersItemsLisance>list=[];
@@ -184,6 +189,9 @@ class UserMainScreenController extends GetxController {
             listUsers!.add(model);
           }
 
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
 
     }
@@ -241,6 +249,9 @@ class UserMainScreenController extends GetxController {
             listUsers!.add(model);
           }
 
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
 
     }

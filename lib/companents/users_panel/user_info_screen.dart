@@ -497,14 +497,33 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
       width: double.infinity,
       height: double.infinity,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(
             height: 20,
           ),
+          Container(
+            padding: EdgeInsets.only(left: 20),
+            width: MediaQuery.of(context).size.width,
+              height: 25,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.5)
+              ),
+              child: CustomText(labeltext: "Menular"+" ("+widget.model.permissions!.where((a) => a.category==1).length.toString()+")")),
           Expanded(child: ListView(
-            children: widget.model.permissions!.map((e) => itemsPermitions(e)).toList(),
+            children: widget.model.permissions!.where((a) => a.category==1).map((e) => itemsPermitions(e)).toList(),
+          )),
+          Container(
+              padding: EdgeInsets.only(left: 20),
+              width: MediaQuery.of(context).size.width,
+              height: 25,
+              decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.5)
+              ),
+              child: CustomText(labeltext: "Diger icezeler"+" ("+widget.model.permissions!.where((a) => a.category!=1).length.toString()+")")),
+          Expanded(child: ListView(
+            children: widget.model.permissions!.where((a) => a.category!=1).map((e) => itemsPermitions(e)).toList(),
           ))
         ],
       ),
@@ -518,9 +537,17 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
         children: [
           Row(
             children: [
-              CustomText(labeltext: "${e.name} : ",color: Colors.black,fontsize: 16,fontWeight: FontWeight.w500),
+              Expanded(
+                  flex: 7,
+                  child: CustomText(
+                      maxline: 2,
+                      labeltext: "${e.name} : ",color: Colors.black,fontsize: 14,fontWeight: FontWeight.w500)),
               const SizedBox(width: 5,),
-              CustomText(labeltext: "${e.valName.toString()}",color: Colors.white,fontsize: 16,fontWeight: FontWeight.w800),
+              Expanded(
+                  flex: 3,
+                  child: CustomText(
+                      maxline: 2,
+                      labeltext: "${e.valName.toString()}",color: Colors.white,fontsize: 14,fontWeight: FontWeight.w800)),
             ],
           ),
           const SizedBox(height: 5,),

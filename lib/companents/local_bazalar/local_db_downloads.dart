@@ -18,6 +18,7 @@ class LocalBaseDownloads {
   late Box boxAnbarBaza = Hive.box<ModelAnbarRapor>("AnbarBaza");
   late Box boxListConnectedUsers = Hive.box<UserModel>("listConnectedUsers");
   late Box boxListMercBaza = Hive.box<MercDataModel>("listMercDataModel");
+  late Box boxMotivasiyaMerc = Hive.box<MercDataModel>("boxMotivasiyaMerc");
   LocalGirisCixisServiz localGirisCixisServiz=LocalGirisCixisServiz();
 
   Future<void> init() async {
@@ -26,9 +27,9 @@ class LocalBaseDownloads {
     boxAnbarBaza = await Hive.openBox<ModelAnbarRapor>("AnbarBaza");
     boxListConnectedUsers = await Hive.openBox<UserModel>("listConnectedUsers");
     boxListMercBaza = await Hive.openBox<MercDataModel>("listMercDataModel");
+    boxMotivasiyaMerc = await Hive.openBox<MercDataModel>("boxMotivasiyaMerc");
     await localGirisCixisServiz.init();
   }
-
 
   Future<void> clearAllData() async {
     await downloads.clear();
@@ -40,10 +41,8 @@ class LocalBaseDownloads {
 
   bool getIfCariBaseDownloaded(int moduleId){
     if(moduleId==3){
-      print('Merc baza count :'+boxListMercBaza.toMap().length.toString());
       return boxListMercBaza.toMap().isNotEmpty?true:false;
     }else{
-      print('Exp baza count :'+boxCariBaza.toMap().length.toString());
       return boxCariBaza.toMap().isNotEmpty?true:false;
     }
   }
@@ -112,7 +111,6 @@ class LocalBaseDownloads {
     for (var element in list) {
       element.musteDonwload = convertDayByLastday(element);
       element.donloading=false;
-      print("Yuklemekeler :"+element.toString());
     }
     return list;
   }
@@ -130,7 +128,17 @@ class LocalBaseDownloads {
       deyer==0;
     }else{
       deyer = listustDown.where((element) => element.musteDonwload == true).length;
-      print('Endirilmeli baza sayi :' + deyer.toString());
+    }
+    return deyer==0?false:true;
+  }
+
+  bool checkIfUserMustDonwloadsBaseFirstTime(int? roleId) {
+    int deyer=0;
+    List<ModelDownloads> listustDown = getAllDownLoadBaseList();
+    if(listustDown.isEmpty){
+      deyer=1;
+    }else{
+      deyer = listustDown.where((element) => element.musteDonwload == true).length;
     }
     return deyer==0?false:true;
   }
@@ -144,11 +152,19 @@ class LocalBaseDownloads {
     List<ModelCariler> listZiyaretedilmeyen=[];
     List<ModelGirisCixis> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
     if(hamisi){
-      listCariler= getAllMercBazaForGirisCixis();
-      listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz").toList();
+      print("hamisi");
+      listCariler= await getAllMercBazaForGirisCixis();
+      listRutGUNU =listCariler.where((element) => element.rutGunu=="Duz").toList();
     }else{
-      listCariler= getAllMercBazaForGirisCixis().toList().where((element) => element.forwarderCode==temKod).toList();
-      listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz"&&element.forwarderCode==temKod).toList();
+      print("Tek temsilci uzre");
+      listCariler= await getAllMercBazaForGirisCixis();
+      print("listCariler.count :"+listCariler.length.toString());
+      listCariler=listCariler.where((element) => element.forwarderCode==temKod).toList();
+      listRutGUNU = listCariler.where((element) => element.rutGunu=="Duz").toList();
+      listCariler.forEach((element) {
+        print("Element data :"+element.name!+" day : "+element.rutGunu.toString());
+
+      });
     }
     listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
     int sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Duz").toList()).length;
@@ -171,7 +187,6 @@ class LocalBaseDownloads {
       return modelRutPerform;
     }}
 
-
   Future<ModelRutPerform> getRutDatail(bool hamisi,String temKod) async {
     ModelRutPerform modelRutPerform=ModelRutPerform();
     List<ModelCariler> listCariler=[];
@@ -180,9 +195,11 @@ class LocalBaseDownloads {
     List<ModelGirisCixis> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
 
     if(hamisi){
+      print("hamisi");
       listCariler=getAllCariBaza();
       listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz").toList();
     }else{
+      print("Tek temsilci Uzre");
       listCariler=getAllCariBaza().toList().where((element) => element.forwarderCode==temKod).toList();
       listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz"&&element.forwarderCode==temKod).toList();
     }
@@ -219,15 +236,12 @@ class LocalBaseDownloads {
 
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
     String rutgun = "Sef";
-    int hefteningunu = DateTime
-        .now()
-        .weekday;
+    int hefteningunu = DateTime.now().weekday;
     if(selectedModel.days!=null){
     switch (hefteningunu) {
       case 1:
         if (selectedModel.days!.any((element) => element.day==1)) {
           rutgun = "Duz";
-
         }
         break;
       case 2:
@@ -285,11 +299,7 @@ class LocalBaseDownloads {
     Duration umumiVaxtDeqiqe=getTimeDifferenceFromNow(DateTime.parse(first.girisvaxt.toString()),DateTime.parse(last.cixisvaxt.toString()));
     int hours = umumiVaxtDeqiqe.inHours % 24;
     int minutes = umumiVaxtDeqiqe.inMinutes % 60;
-    if(hours<1){
-      return "$minutes deq";
-    }else{
-      return "$hours saat $minutes deq";
-    }
+    if(hours<1){return "$minutes deq";}else{return "$hours saat $minutes deq";}
   }
 
   List<ModelCariler> ziyaretEdilmeyenler(List<ModelCariler> listRutGUNU, List<ModelGirisCixis> listGirisCixis) {
@@ -308,17 +318,12 @@ class LocalBaseDownloads {
   ///Anbar bazasi////
   Future<void> addAnbarBaza(List<ModelAnbarRapor> mallar) async {
     await boxAnbarBaza.clear();
-    for (ModelAnbarRapor model in mallar) {
-      await boxAnbarBaza.put(model.stokkod!, model);
-    }
+    for (ModelAnbarRapor model in mallar) {await boxAnbarBaza.put(model.stokkod!, model);}
   }
 
   List<ModelAnbarRapor> getAllMehsullar() {
     List<ModelAnbarRapor> list = [];
-    boxAnbarBaza.toMap().forEach((key, value) {
-      list.add(value);
-    });
-
+    boxAnbarBaza.toMap().forEach((key, value) {list.add(value);});
     return list;
   }
 
@@ -336,21 +341,17 @@ class LocalBaseDownloads {
 
   List<UserModel> getAllConnectedUserFromLocal() {
     List<UserModel> list = [];
-    boxListConnectedUsers.toMap().forEach((key, value) {
-      list.add(value);
-    });
-
+    boxListConnectedUsers.toMap().forEach((key, value) {list.add(value);});
     return list;
   }
 
   Future<List<MercDataModel>> getAllMercDatail() async {
     List<MercDataModel> list = [];
-    boxListMercBaza.toMap().forEach((key, value) {
-      list.add(value);
-    });
+    boxListMercBaza.toMap().forEach((key, value) {list.add(value);});
     return list;
   }
-  List<ModelCariler> getAllMercBazaForGirisCixis()  {
+
+  Future<List<ModelCariler>> getAllMercBazaForGirisCixis()  async{
     List<ModelCariler> listCariler = [];
     List<MercDataModel> list = [];
     boxListMercBaza.toMap().forEach((key, value) {
@@ -369,7 +370,7 @@ class LocalBaseDownloads {
             area: modelMerc.area,
             category: modelMerc.category,
             district: modelMerc.district,
-            latitude: modelMerc.latitude,
+            latitude:modelMerc.latitude,
             longitude: modelMerc.longitude,
             debt: modelMerc.debt,
             mainCustomer: modelMerc.mainCustomer,
@@ -385,6 +386,7 @@ class LocalBaseDownloads {
             ziyaretSayi: 0
 
         );
+        modelCari.rutGunu=rutDuzgunluyuYoxla(modelCari);
         listCariler.add(modelCari);
       }
     }
@@ -393,9 +395,12 @@ class LocalBaseDownloads {
 
   Future<void> addAllToMercBase(List<MercDataModel> cariler) async {
     await boxListMercBaza.clear();
-    for (MercDataModel model in cariler) {
-      await boxListMercBaza.put(model.user!.code??"0", model);
-    }
+    for (MercDataModel model in cariler) {await boxListMercBaza.put(model.user!.code??"0", model);}
+  }
+
+  Future<void> addDataMotivationMerc(List<MercDataModel> cariler) async {
+    await boxMotivasiyaMerc.clear();
+    for (MercDataModel model in cariler) {await boxMotivasiyaMerc.put(model.user!.code??"0", model);}
   }
 
 }

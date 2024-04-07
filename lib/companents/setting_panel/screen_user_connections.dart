@@ -14,10 +14,7 @@ class ScreenUserConnections extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
         centerTitle: true,
-         backgroundColor: Colors.transparent,
-         foregroundColor: Colors.black,
         title: CustomText(labeltext: "connections".tr,fontsize: 18),
         elevation: 0,
       ),

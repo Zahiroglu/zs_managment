@@ -23,7 +23,7 @@ import '../constands/app_constands.dart';
 import '../widgets/simple_info_dialog.dart';
 import 'package:get/get.dart' as getxt;
 
-class CustomInterceptor extends Interceptor {
+class CustomInterceptorHidden extends Interceptor {
   late CheckDviceType checkDviceType = CheckDviceType();
   LocalUserServices localUserServices = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
@@ -31,18 +31,21 @@ class CustomInterceptor extends Interceptor {
   Dio dio;
   LocalBazalar localBazalar = LocalBazalar();
 
-  CustomInterceptor(this.dio, this.isLiveTrackRequest);
+  CustomInterceptorHidden(this.dio, this.isLiveTrackRequest);
 
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
 
   @override
-  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     await localUserServices.init();
     String token = localUserServices.getLoggedUser().tokenModel!.accessToken!;
-    String refresh = localUserServices.getLoggedUser().tokenModel!.refreshToken!;
-    print('Request[=> PATH:${options.path}] data :${options.data} refresj :${refresh}');
+    String refresh =
+        localUserServices.getLoggedUser().tokenModel!.refreshToken!;
+    print(
+        'Request[=> PATH:${options.path}] data :${options.data} refresj :${refresh}');
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     }
@@ -53,24 +56,11 @@ class CustomInterceptor extends Interceptor {
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
     print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
      if (response.statusCode != 200) {
-       if(response.statusCode == 404){
-         Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-       }
       if (response.statusCode == 401) {
         int statusrefresh = await refreshAccessToken();
         if (statusrefresh == 200) {
           return handler.resolve(await _retry(response.requestOptions));
         }
-      }
-      else{
-        Get.dialog(ShowInfoDialog(
-          color: Colors.red,
-          icon: Icons.error_outline,
-          messaje: "Xeta bas verdi",
-          callback: () {
-            Get.back();
-          },
-        ));
       }
     }
     super.onResponse(response, handler);
@@ -79,14 +69,6 @@ class CustomInterceptor extends Interceptor {
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
     print("error :" + err.toString());
-    Get.dialog(ShowInfoDialog(
-      color: Colors.red,
-      icon: Icons.error_outline,
-      messaje: err.toString(),
-      callback: () {
-        Get.back();
-      },
-    ));
     super.onError(err, handler);
   }
 
@@ -140,16 +122,11 @@ class CustomInterceptor extends Interceptor {
             responseType: ResponseType.json,
           ),
         );
-        print("responce refresh token :" + response.data.toString());
         if (response.statusCode == 200) {
           TokenModel model = TokenModel.fromJson(response.data['result']);
           loggedUserModel.tokenModel = model;
-          await localUserServices.addUserToLocalDB(loggedUserModel).whenComplete(() => succes = 200);
-        } else {
-          if (!isLiveTrackRequest) {
-            _sistemiYenidenBaslat();
-            succes == response.statusCode;
-          }
+          localUserServices.addUserToLocalDB(loggedUserModel);
+          succes = 200;
         }
       } on DioException catch (e) {
        print(e.error);
@@ -172,49 +149,3 @@ class CustomInterceptor extends Interceptor {
 
 }
 
-class ModelExceptions {
-  String? code;
-  String? message;
-  String? level;
-  String? validationMessage;
-
-  ModelExceptions({
-    this.code,
-    this.message,
-    this.level,
-    this.validationMessage,
-  });
-
-  ModelExceptions copyWith({
-    String? code,
-    String? message,
-    String? level,
-    String? validationMessage,
-  }) =>
-      ModelExceptions(
-        code: code ?? this.code,
-        message: message ?? this.message,
-        level: level ?? this.level,
-        validationMessage: validationMessage ?? this.validationMessage,
-      );
-
-  factory ModelExceptions.fromRawJson(String str) =>
-      ModelExceptions.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory ModelExceptions.fromJson(Map<String, dynamic> json) =>
-      ModelExceptions(
-        code: json["code"],
-        message: json["message"],
-        level: json["level"],
-        validationMessage: json["validationMessage"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "code": code,
-        "message": message,
-        "level": level,
-        "validationMessage": validationMessage,
-      };
-}

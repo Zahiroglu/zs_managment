@@ -23,7 +23,7 @@ class LocalAppSetting {
   }
 
   Future<ModelAppSetting> getAvaibleMap() async{
-    ModelAppSetting model=ModelAppSetting(mapsetting: null, girisCixisType: "list");
+    ModelAppSetting model=ModelAppSetting(mapsetting: null, girisCixisType: "list",userStartWork: false);
     if(appSettings.values.firstOrNull!=null){
       model= await appSettings.values.firstOrNull;
     }

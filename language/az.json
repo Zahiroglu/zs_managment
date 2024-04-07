@@ -1,6 +1,6 @@
 {
     "welcome": "Xoş gəldiniz",
-    "copyId": "Cihaz İD-si götürüldü",
+    "copyId": "Cihaz İD-si kopyanaldi",
     "melumattapilmadi": "Məlumat tapılmadı",
     "internetError": "Şəbəkə bağlantısı xətası var",
     "baglantierror": "Server bağlantı xətasi var.Adminlə əlaqə saxlayın",
@@ -45,6 +45,11 @@
     "geri":"Geri",
     "mobId":"Mobil ID daxil et",
     "bagla":"Bagla",
+    "goAhead":"Davam et",
+    "startWork":"Ise basla",
+    "stopWork":"Isi bitir",
+    "fodgetToStop":"Is sonunda sistemi sondurmeyi unutma!",
+    "infoErrorStartWork":"Giris-Cixis sisteminin aktiv etmek ucun 'Ise basla' butonuna basaraq sistemi aktiv edin",
     "icazecihazDialog":"Cihaz ID əlavə edin",
     "icazeWinwosDialogUsername":"istivadəçi adı əlavə edin",
     "icazeWinwosDialogPassword":"Şifrə  əlavə edin",
@@ -243,6 +248,15 @@
     "sonYenilenme": "Son yenilenme",
     "sonuncuZiyaret": "Son ziyaret",
     "cixisedilmeyib": "Cixis edilmeyib",
-    "gcendirilir": "Ziyaretler endirilir"
+    "gcendirilir": "Ziyaretler endirilir",
+    "newTask": "Yeni tapsiriq",
+    "tasks": "Tapsiriqlar",
+    "taskHeader": "Basliq",
+    "taskTitle": "Taprisiqin megzi",
+    "tamsiriqicrasi": "Tapsiriq icrazi",
+    "tmHesabat": "Temsilci uzre hesabatlar",
+    "firstDate": "Ilkin tarix",
+    "lastDate": "Last tarix",
+    "hesabatAl": "Hesabat al"
 
 }

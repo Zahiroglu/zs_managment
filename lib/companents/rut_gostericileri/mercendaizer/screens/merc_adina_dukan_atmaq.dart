@@ -12,6 +12,7 @@ import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_mercbaza_insert.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
@@ -50,6 +51,7 @@ class _ScreenMercAdinaMusteriEalveEtmeState
   bool buttonClicble = true;
   late CheckDviceType checkDviceType = CheckDviceType();
   LocalUserServices userService = LocalUserServices();
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   @override
   void initState() {
@@ -661,6 +663,8 @@ class _ScreenMercAdinaMusteriEalveEtmeState
       if (response.statusCode == 200) {
         DialogHelper.hideLoading();
         Get.back();
+      }else{
+        exeptionHandler.handleExeption(response);
       }
     }
   }

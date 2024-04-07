@@ -14,7 +14,26 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
 
+import '../../../routs/rout_controller.dart';
+import '../../../widgets/simple_info_dialog.dart';
+import '../../anbar/screan_anbar_esas.dart';
+import '../../base_downloads/screen_download_base.dart';
+import '../../connected_users/rout_detail_users_screen.dart';
+import '../../dashbourd/dashbourd_screen_mobile.dart';
+import '../../giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
+import '../../giris_cixis/sceens/satisGirisCixis/screen_giriscixis_umumilist.dart';
+import '../../giris_cixis/sceens/yeni_giriscixis_map.dart';
+import '../../live_track/screen_live_track.dart';
+import '../../local_bazalar/local_db_downloads.dart';
+import '../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
+import '../../rut_gostericileri/mercendaizer/screens/merc_routdatail_screen.dart';
+import '../../satis_emeliyyatlari/sifaris_detallari/screen_sifarislerebax.dart';
+import '../../setting_panel/setting_screen_mobile.dart';
+import '../../tapsiriqlar/screen_tasks.dart';
+import '../../users_panel/mobile/users_panel_mobile_screen.dart';
+import '../../users_panel/user_panel_windows_screen.dart';
 import '../drawer/custom_drawermobile.dart';
+import '../drawer/model_drawerItems.dart';
 
 class MainScreenMobile extends StatefulWidget {
   const MainScreenMobile({ super.key});
@@ -29,6 +48,7 @@ class _MainScreenMobileState extends State<MainScreenMobile> {
   ThemaController themaController=ThemaController();
   DrawerMenuController drawerMenuController=Get.put(DrawerMenuController());
   LocalUserServices userServices=LocalUserServices();
+
   bool melumatYuklendi=false;
 
 
@@ -78,7 +98,7 @@ class _MainScreenMobileState extends State<MainScreenMobile> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: drawerMenuController.getCurrentPage())
+                  Expanded(child: drawerMenuController.pageView)
                 ],
               ),
             ),
@@ -119,5 +139,6 @@ class _MainScreenMobileState extends State<MainScreenMobile> {
 
 
   }
+
 
 }

@@ -12,6 +12,7 @@ import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_mode
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_update_mercrut_order.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -42,6 +43,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
   bool buttonClicble = true;
   LocalUserServices userService = LocalUserServices();
   late CheckDviceType checkDviceType = CheckDviceType();
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   @override
   void initState() {
@@ -297,6 +299,8 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
             Get.back();
           },
         ));
+      }else{
+        exeptionHandler.handleExeption(response);
       }
     }
   }

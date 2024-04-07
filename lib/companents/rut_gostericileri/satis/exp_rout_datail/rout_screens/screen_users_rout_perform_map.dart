@@ -232,7 +232,7 @@ class _ScreenUserRoutPerformMapState extends State<ScreenUserRoutPerformMap> {
     await widget.controllerRoutDetailUser.setAllMarkers();
     map.CameraPosition cameraPosition = map.CameraPosition(
       target: map.LatLng(
-         double.parse( widget.controllerRoutDetailUser.selectedCariModel.value.longitude!),   double.parse( widget.controllerRoutDetailUser.selectedCariModel.value.latitude!)),
+         double.parse( widget.controllerRoutDetailUser.selectedCariModel.value.longitude!.toString()),   double.parse( widget.controllerRoutDetailUser.selectedCariModel.value.latitude!.toString())),
       zoom: 14,
     );
     Future.delayed(const Duration(milliseconds: 1)).whenComplete(() =>

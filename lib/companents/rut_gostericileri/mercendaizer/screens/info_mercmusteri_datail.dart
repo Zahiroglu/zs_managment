@@ -7,7 +7,6 @@ import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/controller_mercpref.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/model_giriscixis.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
@@ -34,6 +33,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   int tabinitialIndex = 0;
   late PageController _controller;
 
+
   @override
   void initState() {
     listTabItems.add("planSatis".tr);
@@ -51,6 +51,15 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
     });
     // TODO: implement initState
     super.initState();
+  }
+
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    _controller.dispose();
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -219,7 +228,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                         fontWeight: FontWeight.bold,
                                       ),
                                       CustomText(
-                                          labeltext: widget.controllerMercPref.listGirisCixislar.length
+                                          labeltext: widget.controllerMercPref.listGirisCixislar.where((p0) => p0.customerCode==widget.controllerMercPref.selectedCustomers.value.code).length
                                               .toString(),
                                           fontsize: 16),
                                     ],
@@ -233,7 +242,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                       ),
                                       CustomText(
                                           labeltext:
-                                          curculateTimeDistanceForVisit(widget.controllerMercPref.listGirisCixislar),
+                                          curculateTimeDistanceForVisit(widget.controllerMercPref.listGirisCixislar.where((p0) => p0.customerCode==widget.controllerMercPref.selectedCustomers.value.code).toList()),
                                           fontsize: 16),
                                     ],
                                   ),
@@ -276,7 +285,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
               ],
             ),
           ),
-          Positioned(
+         widget.controllerMercPref.loggedUserModel.userModel!.permissions!.any((element) => element.id==30)?Positioned(
               top: -8,
               right: -5,
               child: IconButton.filled(
@@ -287,7 +296,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                 padding: const EdgeInsets.all(0),
                 constraints: const BoxConstraints(
                     maxHeight: 50, minHeight: 30, maxWidth: 50, minWidth: 30),
-              ))
+              )):SizedBox()
         ],
       ),
     ));
@@ -319,8 +328,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
       valuMore = valuMore + 1;
     }
     return SizedBox(
-      height: valuMore > 5 ? 60 : 28,
-      width: MediaQuery.of(context).size.width * 0.75,
+      height:  30,
+      width: MediaQuery.of(context).size.width * 0.85,
       child: Wrap(
         direction: Axis.horizontal,
         alignment: WrapAlignment.start,
@@ -354,12 +363,15 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   String curculateTimeDistanceForVisit(List<ModelInOut> list) {
     int hours = 0;
     int minutes = 0;
-    Duration difference = Duration();
+    Duration difference = const Duration(seconds: 0,hours: 0);
     for (var element in list) {
-      difference = difference +
-          DateTime.parse(element.inDate)
-              .difference(DateTime.parse(element.outDate));
-    }
+      print("element.in :"+element.inDate.toString());
+      print("element.out :"+element.outDate.toString());
+      if(element.outDate!=null){
+      difference = difference + DateTime.parse(element.outDate).difference(DateTime.parse(element.inDate));
+      print("difference :"+difference.toString());
+
+      }}
     hours = hours + difference.inHours % 24;
     minutes = minutes + difference.inMinutes % 60;
     if (hours < 1) {
@@ -526,10 +538,10 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                 Expanded(
                   child: ListView.builder(
                       padding: EdgeInsets.zero,
-                      itemCount:  widget.controllerMercPref.listGirisCixislar.length,
+                      itemCount:  widget.controllerMercPref.listGirisCixislar.where((p0) => p0.customerCode==widget.controllerMercPref.selectedCustomers.value.code).length,
                       itemBuilder: (c, index) {
                         return widgetListGirisItems(
-                            widget.controllerMercPref.listGirisCixislar.elementAt(index));
+                            widget.controllerMercPref.listGirisCixislar.where((p0) => p0.customerCode==widget.controllerMercPref.selectedCustomers.value.code).elementAt(index));
                       }),
                 )
               ],
@@ -600,7 +612,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: model.outDate.substring(11, 19)),
+                    model.outDate!=null?CustomText(labeltext: model.outDate.substring(11, 19)):CustomText(labeltext: "cixisedilmeyib".tr),
                     const SizedBox(
                       width: 10,
                     ),
@@ -627,7 +639,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Expanded(
+                    model.outNote!=null?Expanded(
                       flex: 8,
                       child: Padding(
                         padding: const EdgeInsets.all(3.0),
@@ -636,7 +648,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                             fontsize: 12,
                             labeltext: "qeyd".tr + " : " + model.outNote),
                       ),
-                    ),
+                    ):SizedBox(),
                     Expanded(
                       flex: 2,
                       child: CustomText(
@@ -672,9 +684,11 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   }
 
   String carculateTimeDistace(String? girisvaxt, String? cixisvaxt) {
-    Duration difference =
-        DateTime.parse(cixisvaxt!).difference(DateTime.parse(girisvaxt!));
-    int hours = difference.inHours % 24;
+    Duration difference = const Duration();
+    if(cixisvaxt!=null) {
+      difference =
+          DateTime.parse(cixisvaxt).difference(DateTime.parse(girisvaxt!));
+    }int hours = difference.inHours % 24;
     int minutes = difference.inMinutes % 60;
     if (hours < 1) {
       return "$minutes deq";

@@ -168,7 +168,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
               child: Row(
                 children: [
                   CustomText(
-                      labeltext: "Ilkin tarix",
+                      labeltext: "firstDate".tr,
                       fontsize: 18,
                       fontWeight: FontWeight.w400),
                   const SizedBox(
@@ -202,7 +202,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
               child: Row(
                 children: [
                   CustomText(
-                      labeltext: "Son tarix",
+                      labeltext: "lastDate".tr,
                       fontsize: 18,
                       fontWeight: FontWeight.w400),
                   const SizedBox(
@@ -247,7 +247,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
                 cllback: () {
                   _intenReqPage();
                 },
-                label: "Hesabat al")
+                label: "hesabatAl".tr)
           ],
         ),
       ),
@@ -294,11 +294,10 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     DialogHelper.showLoading("cmendirilir".tr);
     switch(widget.modelCariHesabatlar.key){
       case "trhesabat":
-        print("hesabt al");
         List<ModelMainInOut> listGirisCixis =[];
         List<UserModel> listUsers = [];
         MercDataModel modela = await getAllCustomersMerc(widget.userCode);
-       //await getAllGirisCixis(widget.userCode,widget.roleId);
+        await getAllGirisCixis(widget.userCode,widget.roleId);
         DialogHelper.hideLoading();
         if (modela.user!=null) {
           Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela,listGirisCixis,listUsers]);

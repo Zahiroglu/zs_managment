@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
+import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 import '../login/services/api_services/users_controller_mobile.dart';
@@ -38,39 +39,46 @@ class WidgetRutPerformans extends StatelessWidget {
                   color: Get.isDarkMode ? Colors.black : Colors.white,
                   border: Border.all(color: Colors.grey, width: 0.5),
                   borderRadius: const BorderRadius.all(Radius.circular(15))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  Expanded(
-                    flex:2,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        widgetSimpleTextInfo("${"umumiMusteri".tr} : ",modelRutPerform.snSayi.toString()),
-                        widgetSimpleTextInfo("${"cariRut".tr} : ",modelRutPerform.rutSayi.toString()),
-                        widgetSimpleTextInfo("${"duzZiyaret".tr} : ",modelRutPerform.duzgunZiya.toString()),
-                        widgetSimpleTextInfo("${"sefZiyaret".tr} : ",modelRutPerform.rutkenarZiya.toString()),
-                        widgetSimpleTextInfo("ziyaretUmumiSayi".tr+" : ",modelRutPerform.listGirisCixislar!.length.toString()),
-                        widgetSimpleTextInfo("ziyaretEdilmeyen".tr+" : ",modelRutPerform.ziyaretEdilmeyen.toString()),
-                        widgetSimpleTextInfo("marketlerdeISvaxti".tr+" : ",modelRutPerform.snlerdeQalma.toString()),
-                        widgetSimpleTextInfo("erazideIsVaxti".tr+" : ",modelRutPerform.umumiIsvaxti.toString()),
-                      ],
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        flex:2,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            widgetSimpleTextInfo("${"umumiMusteri".tr} : ",modelRutPerform.snSayi.toString()),
+                            widgetSimpleTextInfo("${"cariRut".tr} : ",modelRutPerform.rutSayi.toString()),
+                            widgetSimpleTextInfo("${"duzZiyaret".tr} : ",modelRutPerform.duzgunZiya.toString()),
+                            widgetSimpleTextInfo("${"sefZiyaret".tr} : ",modelRutPerform.rutkenarZiya.toString()),
+                            widgetSimpleTextInfo("ziyaretUmumiSayi".tr+" : ",modelRutPerform.listGirisCixislar!.length.toString()),
+                            widgetSimpleTextInfo("ziyaretEdilmeyen".tr+" : ",modelRutPerform.ziyaretEdilmeyen.toString()),
+                            widgetSimpleTextInfo("marketlerdeISvaxti".tr+" : ",modelRutPerform.snlerdeQalma.toString()),
+                            widgetSimpleTextInfo("erazideIsVaxti".tr+" : ",modelRutPerform.umumiIsvaxti.toString()),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            chartWidget(),
+                            CustomText(labeltext: "Ziyaret Diagrami", fontsize: 10),
+                          ],
+                        ),
+                      ),
+
+                    ],
                   ),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        chartWidget(),
-                        CustomText(labeltext: "Ziyaret Diagrami", fontsize: 10),
-                      ],
-                    ),
-                  )
+
                 ],
               ),
-            )
+            ),
+
           ],
         ),
       ),
@@ -97,5 +105,7 @@ class WidgetRutPerformans extends StatelessWidget {
       ],
     );
   }
+
+  void _stopTodayWork() {}
 
 }

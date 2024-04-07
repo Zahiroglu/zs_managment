@@ -9,6 +9,7 @@ import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -29,6 +30,7 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
   bool valueSelected = true;
   bool valueSelected2 = false;
   late CheckDviceType checkDviceType = CheckDviceType();
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +245,9 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
             },
           ));
 
+        }else{
+          DialogHelper.hideLoading();
+          exeptionHandler.handleExeption(response);
         }
     }
   }

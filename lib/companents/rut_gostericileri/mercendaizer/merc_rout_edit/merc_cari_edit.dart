@@ -17,6 +17,7 @@ import 'package:zs_managment/companents/users_panel/new_user_create/new_user_con
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_dialog/dialog_select_user_connections.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -56,6 +57,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   late CheckDviceType checkDviceType = CheckDviceType();
   List<SellingData> selectedSellingDatas=[];
   List<Day> selectedDays=[];
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   @override
   void initState() {
@@ -105,8 +107,8 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         children: [
           _infoMerc(context),
           _infoPlan(context),
-          widgetRutGunleri(context),
-          Align(
+          widget.controllerMercPref.loggedUserModel.userModel!.permissions!.any((element) => element.id==29)?widgetRutGunleri(context):SizedBox(),
+  Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 20),
@@ -389,18 +391,19 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                 )
               ],
             ),
-            Positioned(
+            widget.controllerMercPref.loggedUserModel.userModel!.permissions!.any((element) => element.id==31)? Positioned(
                 top: 0,
                 right: 0,
                 height: 50,
                 child: CustomElevetedButton(
                   label: "planDeyis".tr,
                   cllback: () {
+
                     _editPlanDialogAc(element);
                   },
                   elevation: 5,
                   icon: Icons.edit,
-                ))
+                )):SizedBox()
           ],
         ),
       ),
@@ -730,6 +733,9 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
             }
           },
         ));
+      }else{
+        exeptionHandler.handleExeption(response);
+
       }
     }
   }

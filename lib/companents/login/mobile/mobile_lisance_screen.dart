@@ -14,46 +14,46 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:lottie/lottie.dart';
+
 //import 'package:platform_device_id/platform_device_id.dart';
 import 'package:android_id/android_id.dart';
 
 class ScreenRequestCheckMobile extends StatelessWidget {
-   ScreenRequestCheckMobile({Key? key}) : super(key: key);
+  ScreenRequestCheckMobile({Key? key}) : super(key: key);
 
   UserApiControllerMobile apiController = Get.put(UserApiControllerMobile());
 
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context);
-      return Material(
-          child: SafeArea(
-            child: Stack(
+    return Material(
+        child: SafeArea(
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    widgetLogoHisse(context),
-                    SizedBox(
-                      height: 60.h,
-                    ),
-                    Obx(() {
-                      return apiController.isLoading.isTrue
-                          ? widgetAnimationYoxlanir(context)
-                          : widgetMelumatTapilmadi();
-                    }),
-                    SizedBox(
-                      height: 30.h,
-                    ),
-                  ],
+                widgetLogoHisse(context),
+                SizedBox(
+                  height: 60.h,
                 ),
-                Positioned(
-                    bottom: 10.h,
-                    right: 5.w,
-                    child: widgetFooter())
+                Obx(() {
+                  return apiController.isLoading.isTrue
+                      ? widgetAnimationYoxlanir(context)
+                      : widgetMelumatTapilmadi();
+                }),
+                SizedBox(
+                  height: 30.h,
+                ),
               ],
             ),
-          ));
+            Positioned(bottom: 10.h, right: 5.w, child: widgetFooter())
+          ],
+        ),
+      ),
+    ));
   }
 
   Align widgetFooter() {
@@ -91,7 +91,6 @@ class ScreenRequestCheckMobile extends StatelessWidget {
               SizedBox(
                 width: 5.w,
               ),
-
             ],
           ),
         )
@@ -123,8 +122,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
           apiController.countClick.value == 3
               ? CustomElevetedButton(
                   cllback: () {
-                  apiController.clouseApp();
-
+                    apiController.clouseApp();
                   },
                   label: "yenidenBaslat".tr,
                   surfaceColor: Colors.blueAccent.withOpacity(0.5),
@@ -153,27 +151,60 @@ class ScreenRequestCheckMobile extends StatelessWidget {
       children: [
         Row(
           children: [
-            CustomText(labeltext: "ID : ", fontsize: 16,color: Colors.blue,fontWeight: FontWeight.w700),
-            SizedBox(height: 5.h,),
-            Obx(() =>InkWell(
-                onTap: (){
-                  Clipboard.setData(ClipboardData(text: apiController.dviceId.value.toString()));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: CustomText(labeltext: "copyId".tr),
-                    ),
-                  );
-                },
-                child: Row(
-                  children: [
-                    CustomText(labeltext: apiController.dviceId.value.toString(), fontsize: 16,color: Colors.blue,fontWeight: FontWeight.w600),
-                    SizedBox(width: 5,),
-                    Icon(Icons.copy,color: Colors.grey,)
-                  ],
-                )),)
+            CustomText(
+                labeltext: "ID : ",
+                fontsize: 16,
+                color: Colors.blue,
+                fontWeight: FontWeight.w700),
+            SizedBox(
+              height: 5.h,
+            ),
+            Obx(
+              () => InkWell(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(
+                        text: apiController.dviceId.value.toString()));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        margin: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).size.height - 100,
+                            right: 20,
+                            left: 20),
+                        backgroundColor: Colors.black.withOpacity(0.5),
+                        elevation: 10,
+                        duration: const Duration(seconds: 1),
+                        content: Center(child: CustomText(labeltext: "copyId".tr,color: Colors.white,)),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      CustomText(
+                          labeltext: apiController.dviceId.value.toString(),
+                          fontsize: 16,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w600),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.copy,
+                        color: Colors.grey,
+                      )
+                    ],
+                  )),
+            )
           ],
         ),
-        Container(width: 200.w, height: 0.2, color: Colors.blue,)
+        Container(
+          width: 200.w,
+          height: 0.2,
+          color: Colors.blue,
+        )
       ],
     );
   }
@@ -214,7 +245,11 @@ class ScreenRequestCheckMobile extends StatelessWidget {
             SizedBox(
               height: 10.h,
             ),
-            Obx(() => apiController.deviceIdMustvisible.isTrue? widgetDeviceIdhisse(context):const SizedBox(),),
+            Obx(
+              () => apiController.deviceIdMustvisible.isTrue
+                  ? widgetDeviceIdhisse(context)
+                  : const SizedBox(),
+            ),
             SizedBox(
               height: 5.h,
             ),

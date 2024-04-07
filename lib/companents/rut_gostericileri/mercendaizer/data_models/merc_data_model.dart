@@ -1,6 +1,5 @@
 import 'package:hive/hive.dart';
 import 'dart:convert';
-
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 part 'merc_data_model.g.dart';
 
@@ -59,9 +58,9 @@ class MercCustomersDatail {
   @HiveField(10)
   String? salesDirectorCode;
   @HiveField(11)
-  String? latitude;
+  double? latitude;
   @HiveField(12)
-  String? longitude;
+  double? longitude;
   @HiveField(13)
   String? district;
   @HiveField(14)

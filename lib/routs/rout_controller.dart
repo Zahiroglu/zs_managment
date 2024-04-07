@@ -14,7 +14,7 @@ import 'package:zs_managment/companents/main_screen/window/base_screen_windows.d
 import 'package:zs_managment/companents/rut_gostericileri/satis/exp_rout_datail/screen_rutsirasi_edit_exp.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifariselave_et.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifarisler.dart';
-import 'package:zs_managment/companents/ziyaret_tarixcesi/screen_ziyaret_giriscixislar_exp.dart';
+import 'package:zs_managment/companents/tapsiriqlar/screen_complate_cari_task.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import '../companents/base_downloads/screen_download_base.dart';
 import '../companents/live_track/screen_search_live_users.dart';
@@ -32,6 +32,7 @@ import '../companents/login/desktop/login_desktop_screen.dart';
 import '../companents/login/mobile/login_mobile_first_screen.dart';
 import '../companents/login/mobile/mobile_lisance_screen.dart';
 import '../companents/main_screen/mobile/base_screen_mobile.dart';
+import '../companents/tapsiriqlar/screen_new_task.dart';
 import '../companents/ziyaret_tarixcesi/screen_ziyaret_giriscixislar_merc.dart';
 
 class RouteHelper {
@@ -70,6 +71,8 @@ class RouteHelper {
   static const String screenExpRutSiraEdit = '/screenExpRutSiraEdit';
   static const String screenMercAdinaMusteriAt = '/screenMercAdinaMusteriAt';
   static const String searchLiveUsers = '/searchLiveUsers';
+  static const String createNewTask = '/createNewTask';
+  static const String screenComplateCariTask = '/screenComplateCariTask';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
@@ -105,6 +108,8 @@ class RouteHelper {
   static String getScreenExpRutSiraEdit() => screenExpRutSiraEdit;
   static String getScreenMercAdinaMusteriAt() => screenMercAdinaMusteriAt;
   static String getsearchLiveUsers() => searchLiveUsers;
+  static String getCreateNewTask() => createNewTask;
+  static String getScreenComplateCariTask() => screenComplateCariTask;
 
   static List<GetPage> routes = [
     GetPage(
@@ -286,13 +291,13 @@ class RouteHelper {
       return   ScreenZiyaretGirisCixis(modelGunlukGirisCixis: Get.arguments[0],modelCariler: Get.arguments[2],adSoyad: Get.arguments[1],);
       return  Container();
     }),
-    GetPage(
-        transition: Transition.upToDown,
-        transitionDuration: const Duration(milliseconds: 500),
-        name: screenZiyaretGirisCixisExp, page: () {
-      return   ScreenZiyaretGirisCixisExp(modelGunlukGirisCixis: Get.arguments[0],adSoyad: Get.arguments[1],modelCariler: Get.arguments[2],);
-      return  Container();
-    }),
+    // GetPage(
+    //     transition: Transition.upToDown,
+    //     transitionDuration: const Duration(milliseconds: 500),
+    //     name: screenZiyaretGirisCixisExp, page: () {
+    //   return   ScreenZiyaretGirisCixisExp(modelGunlukGirisCixis: Get.arguments[0],adSoyad: Get.arguments[1],modelCariler: Get.arguments[2],);
+    //   return  Container();
+    // }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
@@ -326,6 +331,20 @@ class RouteHelper {
         transitionDuration: const Duration(milliseconds: 500),
         name: searchLiveUsers, page: () {
       return   SearchLiveUsers(listUsers:Get.arguments);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: createNewTask, page: () {
+      return   ScreenCreateNewTask();
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeftWithFade,
+        transitionDuration: const Duration(milliseconds: 200),
+        name: screenComplateCariTask, page: () {
+      return   ScreenComplateCariTask(modelResponceTask: Get.arguments[0], loggedUserModel: Get.arguments[1]);
       return  Container();
     }),
   ];
