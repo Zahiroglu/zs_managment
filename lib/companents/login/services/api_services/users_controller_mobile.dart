@@ -61,8 +61,15 @@ class UserApiControllerMobile extends GetxController {
       dviceId.value = 'Failed to get deviceId.';
     }
     if (dviceId.value.isNotEmpty) {
-      getCompanyUrlByDivaceId();
-      //loginWithMobileDviceId(AppConstands.baseUrlsMain);
+      String val=await localUserServices.getCanGetBaseUrl();
+      if(val=="Bos"){
+        getCompanyUrlByDivaceId();
+
+      }else{
+        loginWithMobileDviceId(val);
+
+      }
+
     } else {
       Get.dialog(ShowInfoDialog(
         messaje: "Xeta bas verdi",
@@ -127,6 +134,7 @@ class UserApiControllerMobile extends GetxController {
         else {
           if (response.statusCode == 200) {
             String baseUrl=response.data['result'];
+            await localUserServices.addCanGetBaseUrl(baseUrl);
             loginWithMobileDviceId(baseUrl);
           } else {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);

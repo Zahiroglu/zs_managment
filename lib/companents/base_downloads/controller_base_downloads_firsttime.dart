@@ -354,7 +354,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                           fontsize: 16),
-                      Row(
+                      model.lastDownDay!.length>1?Row(
                         children: [
                           CustomText(
                               color:  model.musteDonwload == true?Colors.red:Get.isDarkMode?Colors.white:Colors.black,
@@ -368,7 +368,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
                               labeltext: "( ${model.lastDownDay!.substring(11, 16)} )"),
 
                         ],
-                      ),
+                      ):SizedBox(),
                       CustomText(
                         labeltext: model.info!,
                         maxline: 3,
@@ -453,7 +453,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
-          localGirisCixisServiz.clearAllGiris();
+        //  localGirisCixisServiz.clearAllGiris();
           if (guncelle) {
             listDownloadsFromLocalDb.remove(model);
             listDownloadsFromLocalDb.add(model);
@@ -495,7 +495,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           model.musteDonwload = false;
           await localBaseDownloads.addCariBaza(data);
           localBaseDownloads.addDownloadedBaseInfo(model);
-          localGirisCixisServiz.clearAllGiris();
+          //localGirisCixisServiz.clearAllGiris();
           if (guncelle) {
             listDownloadsFromLocalDb.remove(model);
             listDownloadsFromLocalDb.add(model);
@@ -933,116 +933,26 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
   void syncAllInfo() async {
     await localUserServices.init();
-    loggedUserModel=localUserServices.getLoggedUser();
-    await getLoggedUserInfo(loggedUserModel.tokenModel!, loggedUserModel.baseUrl!).whenComplete(() async => {
-    _donloadListiniDoldur(),
-        callLocalBases(),
-    listDonwloadsAll.clear(),
+    loggedUserModel = localUserServices.getLoggedUser();
+    _donloadListiniDoldur();
+    callLocalBases();
+    listDonwloadsAll.clear();
     for (var element in listDonwloads) {
-      listDonwloadsAll.add(element),
-    },
+      listDonwloadsAll.add(element);
+    }
     for (var element in listDownloadsFromLocalDb) {
-      listDonwloadsAll.add(element)
-    },
+      listDonwloadsAll.add(element);
+    }
     for (var element in listDonwloadsAll) {
-      listDonwloads.remove(element),
-      listDownloadsFromLocalDb.remove(element),
-      element.donloading == true,
-      listDownloadsFromLocalDb.add(element),
-      await melumatlariEndir(element, true).whenComplete(() => {
-        listDownloadsFromLocalDb.remove(element),
-        element.donloading == false,
-        listDownloadsFromLocalDb.add(element)
-      }),
-    },
-    update()
-    });
-
-  }
-
-  Future<void> getLoggedUserInfo(TokenModel modelToken, String baseUrl) async {
-    int dviceType = checkDviceType.getDviceType();
-    localUserServices.init();
-    DialogHelper.showLoading("istMelEndirilir".tr);
-    languageIndex = await getLanguageIndex();
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {},
-      ));
-    } else {
-      try {
-        final response = await ApiClient().dio().get(
-              "$baseUrl/api/v1/User/myinfo",
-              options: Options(
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer ${modelToken.accessToken}"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 404) {
-          DialogHelper.hideLoading();
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
-          if (response.statusCode == 200) {
-            DialogHelper.hideLoading();
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
-            CompanyModel modelCompany = CompanyModel.fromJson(baseResponce.result['company']);
-            LoggedUserModel modelLogged = LoggedUserModel(
-                baseUrl: baseUrl,
-                isLogged: true,
-                companyModel: modelCompany,
-                tokenModel: modelToken,
-                userModel: modelUser);
-            loggedUserModel==modelLogged;
-            localUserServices.init();
-            localUserServices.addUserToLocalDB(modelLogged);
-            Future.delayed(const Duration(milliseconds: 20),(){});
-            print("yeni logged melumatlar :"+modelLogged.toString());
-            // DrawerMenuController controller = Get.put(DrawerMenuController());
-            // controller.onInit();
-            // controller.addPermisionsInDrawerMenu(loggedUserModel);
-            update();
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
-            DialogHelper.hideLoading();
-          }
-        }
-      } on DioException catch (e) {
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "baglantierror".tr,
-          callback: () {},
-        ));
-        DialogHelper.hideLoading();
-      }
+      listDonwloads.remove(element);
+      listDownloadsFromLocalDb.remove(element);
+      element.donloading == true;
+      listDownloadsFromLocalDb.add(element);
+      await melumatlariEndir(element, true).whenComplete(() {
+        listDownloadsFromLocalDb.remove(element);
+        element.donloading == false;
+        listDownloadsFromLocalDb.add(element);
+      });
     }
   }
 

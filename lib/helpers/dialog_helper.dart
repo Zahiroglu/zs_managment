@@ -37,7 +37,7 @@ class DialogHelper {
   //show toast
   //show snack bar
   //show loading
-  static void showLoading([String? message,bool? barrier]) {
+  static void showLoading([String? message,bool? barrier=false]) {
     Get.dialog(
       barrierColor: Colors.transparent,
       barrierDismissible: barrier??true,

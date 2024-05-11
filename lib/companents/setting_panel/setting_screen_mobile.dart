@@ -527,7 +527,6 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
     Get.delete<SettingPanelController>();
     Get.delete<ControllerAnbar>();
     await localBazalar.clearLoggedUserInfo();
-    await localBazalar.clearAllGirisCixis();
     await localBazalar.clearAllBaseDownloads();
     Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
 

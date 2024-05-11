@@ -30,11 +30,9 @@ class _ShowSualDialogState extends State<ShowSualDialog> {
           actions: <Widget>[
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(5),
+                foregroundColor: Colors.black, backgroundColor: Colors.white, padding: EdgeInsets.all(5),
                 elevation: 15,
                 minimumSize: Size(100, 50),
-                primary: Colors.white,
-                onPrimary: Colors.black,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
@@ -45,11 +43,9 @@ class _ShowSualDialogState extends State<ShowSualDialog> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(5),
+                foregroundColor: Colors.black, backgroundColor: Colors.white, padding: const EdgeInsets.all(5),
                 elevation: 15,
                 minimumSize: Size(100, 50),
-                primary: Colors.white,
-                onPrimary: Colors.black,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),

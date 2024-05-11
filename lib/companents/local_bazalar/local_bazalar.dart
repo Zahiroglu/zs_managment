@@ -24,7 +24,7 @@ class LocalBazalar{
 
   clearAllGirisCixis() async {
     await  localGirisCixisServiz.init();
-    await localGirisCixisServiz.clearAllGiris();
+  //  await localGirisCixisServiz.clearAllGiris();
   }
 
   clearLoggedUserInfo() async {

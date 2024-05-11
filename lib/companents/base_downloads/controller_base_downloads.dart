@@ -47,9 +47,12 @@ class ControllerBaseDownloads extends GetxController {
   late CheckDviceType checkDviceType = CheckDviceType();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   LocalUserServices localUserServices = LocalUserServices();
-  RxList<ModelDownloads> listDonwloads = List<ModelDownloads>.empty(growable: true).obs;
-  RxList<ModelDownloads> listDownloadsFromLocalDb = List<ModelDownloads>.empty(growable: true).obs;
-  RxList<ModelDownloads> listDonwloadsAll = List<ModelDownloads>.empty(growable: true).obs;
+  RxList<ModelDownloads> listDonwloads = List<ModelDownloads>.empty(
+      growable: true).obs;
+  RxList<ModelDownloads> listDownloadsFromLocalDb = List<ModelDownloads>.empty(
+      growable: true).obs;
+  RxList<ModelDownloads> listDonwloadsAll = List<ModelDownloads>.empty(
+      growable: true).obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
   String soaphost = "193.105.123.215";
@@ -58,17 +61,28 @@ class ControllerBaseDownloads extends GetxController {
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
   RxBool davamEtButonuGorunsun = false.obs;
   String languageIndex = "az";
-  ExeptionHandler exeptionHandler=ExeptionHandler();
-  RxBool ifUserMustLocateAllWordDay=false.obs;
-  ModelAppSetting modelsetting  =ModelAppSetting(mapsetting: null, girisCixisType: "",userStartWork: false);
+  ExeptionHandler exeptionHandler = ExeptionHandler();
+  RxBool ifUserMustLocateAllWordDay = false.obs;
+  ModelAppSetting modelsetting = ModelAppSetting(
+      mapsetting: null, girisCixisType: "", userStartWork: false);
   List<AvailableMap> listApps = [];
-  late AvailableMap selectedApp=AvailableMap(mapName: MapType.google.name.tr, mapType: MapType.google, icon:Icon(Icons.map).toString());
+  late AvailableMap selectedApp = AvailableMap(mapName: MapType.google.name.tr,
+      mapType: MapType.google,
+      icon: Icon(Icons.map).toString());
   LocalAppSetting localAppSetting = LocalAppSetting();
-  RxString giriscixisScreenType="".obs;
-  RxBool userStartWork=false.obs;
-  late Rx<ModelGirisCixisScreenType> selectedModelGirisCixis=ModelGirisCixisScreenType().obs;
-  late Rx<ModelAppSetting> modelAppSetting=ModelAppSetting().obs;
-  List<ModelGirisCixisScreenType> listGirisCixisType=[ModelGirisCixisScreenType(name: "map",icon: const Icon(Icons.map,color: Colors.green,),kod: "map"),ModelGirisCixisScreenType(name: "list",icon: const Icon(Icons.list_alt),kod: "list")];
+  RxString giriscixisScreenType = "".obs;
+  RxBool userStartWork = false.obs;
+  late Rx<
+      ModelGirisCixisScreenType> selectedModelGirisCixis = ModelGirisCixisScreenType()
+      .obs;
+  late Rx<ModelAppSetting> modelAppSetting = ModelAppSetting().obs;
+  List<ModelGirisCixisScreenType> listGirisCixisType = [
+    ModelGirisCixisScreenType(name: "map",
+        icon: const Icon(Icons.map, color: Colors.green,),
+        kod: "map"),
+    ModelGirisCixisScreenType(
+        name: "list", icon: const Icon(Icons.list_alt), kod: "list")
+  ];
 
   @override
   onInit() {
@@ -82,48 +96,54 @@ class ControllerBaseDownloads extends GetxController {
     listApps = await MapLauncher.installedMaps;
     await localAppSetting.init();
     ModelAppSetting modelAppSetting = await localAppSetting.getAvaibleMap();
-    modelsetting=modelAppSetting;
-    print("Model Setting :"+modelAppSetting.toString());
-    if(modelAppSetting.mapsetting!=null) {
-      ModelMapApp modelMapApp=modelAppSetting.mapsetting!;
-      CustomMapType? customMapType=modelMapApp.mapType;
-      MapType mapType=MapType.values[customMapType!.index];
+    modelsetting = modelAppSetting;
+    print("Model Setting :" + modelAppSetting.toString());
+    if (modelAppSetting.mapsetting != null) {
+      ModelMapApp modelMapApp = modelAppSetting.mapsetting!;
+      CustomMapType? customMapType = modelMapApp.mapType;
+      MapType mapType = MapType.values[customMapType!.index];
       if (modelMapApp.name == "null") {
         selectedApp = listApps.first;
       } else {
-          selectedApp =  AvailableMap(mapName: modelMapApp.name!,
-              mapType: mapType,
-              icon: modelMapApp.icon!);
+        selectedApp = AvailableMap(mapName: modelMapApp.name!,
+            mapType: mapType,
+            icon: modelMapApp.icon!);
       }
     }
-    if(modelAppSetting.girisCixisType!=null){
-      giriscixisScreenType.value=modelAppSetting.girisCixisType!;
-    }else{
-      giriscixisScreenType.value="map";
+    if (modelAppSetting.girisCixisType != null) {
+      giriscixisScreenType.value = modelAppSetting.girisCixisType!;
+    } else {
+      giriscixisScreenType.value = "map";
     }
-    if(modelAppSetting.userStartWork!=null){
-      userStartWork.value=modelAppSetting.userStartWork!;
-    }else{
-      userStartWork.value=false;
+    if (modelAppSetting.userStartWork != null) {
+      userStartWork.value = modelAppSetting.userStartWork!;
+    } else {
+      userStartWork.value = false;
     }
-    if(giriscixisScreenType.isNotEmpty){
-      selectedModelGirisCixis.value= listGirisCixisType.where((element) => element.kod==giriscixisScreenType.value).first;
-    }else{
-      selectedModelGirisCixis.value=listGirisCixisType.first;
+    if (giriscixisScreenType.isNotEmpty) {
+      selectedModelGirisCixis.value = listGirisCixisType
+          .where((element) => element.kod == giriscixisScreenType.value)
+          .first;
+    } else {
+      selectedModelGirisCixis.value = listGirisCixisType.first;
     }
     update();
   }
 
   Future<void> saveChangedSettingtoDb() async {
-    modelsetting.userStartWork=true;
+    modelsetting.userStartWork = true;
     await localAppSetting.addSelectedMyTypeToLocalDB(modelsetting);
     getAPPlist();
   }
+
   _donloadListiniDoldur() async {
     await localUserServices.init();
-    List<ModelUserPermissions> listUsersPermitions = localUserServices.getLoggedUser().userModel!.permissions!;
+    List<ModelUserPermissions> listUsersPermitions = localUserServices
+        .getLoggedUser()
+        .userModel!
+        .permissions!;
     for (var element in listUsersPermitions) {
-      print("permiton :"+element.toString());
+      print("permiton :" + element.toString());
       switch (element.code) {
         case "myConnectedUsers":
           listDonwloads.add(ModelDownloads(
@@ -161,7 +181,6 @@ class ControllerBaseDownloads extends GetxController {
               lastDownDay: "",
               musteDonwload: true));
           break;
-
       }
     }
   }
@@ -181,14 +200,18 @@ class ControllerBaseDownloads extends GetxController {
     dataLoading = true.obs;
     await localBaseSatis.init();
     loggedUserModel = localUserServices.getLoggedUser();
-    ifUserMustLocateAllWordDay.value==loggedUserModel.userModel!.permissions!.any((element) => element.code=="liveAllDay");
-    listDownloadsFromLocalDb.value = localBaseDownloads.getAllDownLoadBaseList();
-    getMustDownloadBase(loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
-    if (localBaseDownloads.checkIfUserMustDonwloadsBase(loggedUserModel.userModel!.roleId!)) {
+    ifUserMustLocateAllWordDay.value ==
+        loggedUserModel.userModel!.permissions!.any((element) => element.code ==
+            "liveAllDay");
+    listDownloadsFromLocalDb.value =
+        localBaseDownloads.getAllDownLoadBaseList();
+    getMustDownloadBase(
+        loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
+    if (localBaseDownloads.checkIfUserMustDonwloadsBase(
+        loggedUserModel.userModel!.roleId!)) {
       davamEtButonuGorunsun.value = false;
-    }else{
+    } else {
       davamEtButonuGorunsun.value = true;
-
     }
     update();
   }
@@ -200,81 +223,83 @@ class ControllerBaseDownloads extends GetxController {
         children: [
           listDonwloads.isNotEmpty
               ? Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: CustomText(
-                        labeltext: "baseMustDownload".tr,
-                        fontsize: 18,
-                        color: Colors.black,
-                      ),
-                    ),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white10, width: 2),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(15)),
-                          color: Colors.white),
-                      child: SizedBox(
-                        height: listDonwloads.length * 80,
-                        child: ListView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: const EdgeInsets.all(2),
-                          scrollDirection: Axis.vertical,
-                          children: listDonwloads
-                              .map((e) => Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: itemsEndirilmeliBazalar(e, context),
-                                  ))
-                              .toList(),
-                        ),
-                      ),
-                    )
-                  ],
-                )
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: CustomText(
+                  labeltext: "baseMustDownload".tr,
+                  fontsize: 18,
+                  color: Colors.black,
+                ),
+              ),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white10, width: 2),
+                    borderRadius:
+                    const BorderRadius.all(Radius.circular(15)),
+                    color: Colors.white),
+                child: SizedBox(
+                  height: listDonwloads.length * 80,
+                  child: ListView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(2),
+                    scrollDirection: Axis.vertical,
+                    children: listDonwloads
+                        .map((e) =>
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: itemsEndirilmeliBazalar(e, context),
+                        ))
+                        .toList(),
+                  ),
+                ),
+              )
+            ],
+          )
               : const SizedBox(),
           SizedBox(
             height: listDonwloads.isNotEmpty ? 30 : 0,
           ),
           listDownloadsFromLocalDb.isNotEmpty
               ? Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: CustomText(
-                        color: Colors.black,
-                        labeltext: "baseDownloaded".tr,
-                        fontsize: 18,
-                      ),
-                    ),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(15)),
-                          color: Colors.white,
-                          border: Border.all(color: Colors.green, width: 1)),
-                      child: SizedBox(
-                        height: listDownloadsFromLocalDb.length * 100,
-                        child: ListView(
-                          physics: NeverScrollableScrollPhysics(),
-                          padding: const EdgeInsets.all(0),
-                          scrollDirection: Axis.vertical,
-                          children: listDownloadsFromLocalDb
-                              .map((e) => Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child:
-                                        itemsGuncellenmeliBazalar(e, context),
-                                  ))
-                              .toList(),
-                        ),
-                      ),
-                    )
-                  ],
-                )
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: CustomText(
+                  color: Colors.black,
+                  labeltext: "baseDownloaded".tr,
+                  fontsize: 18,
+                ),
+              ),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                    borderRadius:
+                    const BorderRadius.all(Radius.circular(15)),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.green, width: 1)),
+                child: SizedBox(
+                  height: listDownloadsFromLocalDb.length * 100,
+                  child: ListView(
+                    physics: NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(0),
+                    scrollDirection: Axis.vertical,
+                    children: listDownloadsFromLocalDb
+                        .map((e) =>
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child:
+                          itemsGuncellenmeliBazalar(e, context),
+                        ))
+                        .toList(),
+                  ),
+                ),
+              )
+            ],
+          )
               : SizedBox(),
         ]);
   }
@@ -344,15 +369,23 @@ class ControllerBaseDownloads extends GetxController {
                       Row(
                         children: [
                           CustomText(
-                              color:  model.musteDonwload == true?Colors.red:Get.isDarkMode?Colors.white:Colors.black,
+                              color: model.musteDonwload == true
+                                  ? Colors.red
+                                  : Get.isDarkMode ? Colors.white : Colors
+                                  .black,
                               fontsize: 12,
                               labeltext:
-                              "${"lastRefresh".tr}: ${model.lastDownDay!.substring(0, 10)}"),
+                              "${"lastRefresh".tr}: ${model.lastDownDay!
+                                  .substring(0, 10)}"),
                           SizedBox(width: 5,),
                           CustomText(
-                              color:  model.musteDonwload == true?Colors.red:Get.isDarkMode?Colors.white:Colors.black,
+                              color: model.musteDonwload == true
+                                  ? Colors.red
+                                  : Get.isDarkMode ? Colors.white : Colors
+                                  .black,
                               fontsize: 12,
-                              labeltext: "( ${model.lastDownDay!.substring(11, 16)} )"),
+                              labeltext: "( ${model.lastDownDay!.substring(
+                                  11, 16)} )"),
 
                         ],
                       ),
@@ -363,7 +396,7 @@ class ControllerBaseDownloads extends GetxController {
                         color: Colors.black,
                         fontsize: 12,
                       ),
-                      model.musteDonwload == true? Row(
+                      model.musteDonwload == true ? Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           const Icon(
@@ -383,11 +416,11 @@ class ControllerBaseDownloads extends GetxController {
                           ),
 
                         ],
-                      ):SizedBox()
+                      ) : SizedBox()
                     ],
                   ),
                 ),
-                model.donloading!?FlutterLogo():InkWell(
+                model.donloading! ? FlutterLogo() : InkWell(
                     onTap: () {
                       melumatlariEndir(model, true);
                     },
@@ -400,10 +433,13 @@ class ControllerBaseDownloads extends GetxController {
     );
   }
 
-  getMustDownloadBase(int roleId, List<ModelDownloads> listDownloadsFromLocalDb) {
+  getMustDownloadBase(int roleId,
+      List<ModelDownloads> listDownloadsFromLocalDb) {
     for (var e in listDownloadsFromLocalDb) {
       if (listDonwloads.any((element) => element.code == e.code)) {
-        listDonwloads.remove(listDonwloads.where((a) => a.code == e.code).first);
+        listDonwloads.remove(listDonwloads
+            .where((a) => a.code == e.code)
+            .first);
       }
     }
     dataLoading = false.obs;
@@ -440,7 +476,6 @@ class ControllerBaseDownloads extends GetxController {
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
-          localGirisCixisServiz.clearAllGiris();
           if (guncelle) {
             listDownloadsFromLocalDb.remove(model);
             listDownloadsFromLocalDb.add(model);
@@ -451,14 +486,15 @@ class ControllerBaseDownloads extends GetxController {
         break;
       case "enter":
         await localGirisCixisServiz.init();
-        loggedUserModel =  localUserServices.getLoggedUser();
-        print("loggedUserModel :"+loggedUserModel.toString());
-        if(loggedUserModel.userModel!.moduleId==3){
+        loggedUserModel = localUserServices.getLoggedUser();
+        print("loggedUserModel :" + loggedUserModel.toString());
+        if (loggedUserModel.userModel!.moduleId == 3) {
           List<MercDataModel> data = [];
-          if(loggedUserModel.userModel!.roleId==21||loggedUserModel.userModel!.roleId==22){
-           // data = await getAllMercCariBazaMotivasiya();
+          if (loggedUserModel.userModel!.roleId == 21 ||
+              loggedUserModel.userModel!.roleId == 22) {
+            // data = await getAllMercCariBazaMotivasiya();
             data = await getAllMercCariBazaMotivasiya();
-          }else{
+          } else {
             data = await getAllMercCariBazaMotivasiya();
           }
           if (data.isNotEmpty) {
@@ -474,27 +510,28 @@ class ControllerBaseDownloads extends GetxController {
               listDownloadsFromLocalDb.add(model);
             }
           }
-        } else{
-        List<ModelCariler> data = await getAllCustomers();
-        if (data.isNotEmpty) {
-          listDonwloads.remove(model);
-          model.lastDownDay = DateTime.now().toIso8601String();
-          model.musteDonwload = false;
-          await localBaseDownloads.addCariBaza(data);
-          localBaseDownloads.addDownloadedBaseInfo(model);
-          localGirisCixisServiz.clearAllGiris();
-          if (guncelle) {
-            listDownloadsFromLocalDb.remove(model);
-            listDownloadsFromLocalDb.add(model);
-          } else {
-            listDownloadsFromLocalDb.add(model);
+        } else {
+          List<ModelCariler> data = await getAllCustomers();
+          if (data.isNotEmpty) {
+            listDonwloads.remove(model);
+            model.lastDownDay = DateTime.now().toIso8601String();
+            model.musteDonwload = false;
+            await localBaseDownloads.addCariBaza(data);
+            localBaseDownloads.addDownloadedBaseInfo(model);
+            if (guncelle) {
+              listDownloadsFromLocalDb.remove(model);
+              listDownloadsFromLocalDb.add(model);
+            } else {
+              listDownloadsFromLocalDb.add(model);
+            }
           }
-        }}
+        }
       case "myRut":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
-        if (loggedUserModel.userModel!.moduleId == 3) //merc cari baza endirmek ucundur
-        {
+        if (loggedUserModel.userModel!.moduleId ==
+            3) //merc cari baza endirmek ucundur
+            {
           List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
           if (data.isNotEmpty) {
             listDonwloads.remove(model);
@@ -537,39 +574,38 @@ class ControllerBaseDownloads extends GetxController {
     } else {
       try {
         final response = await ApiClient().dio().get(
-              "${loggedUserModel.baseUrl}/api/v1/User/my-connected-users",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
+          "${loggedUserModel.baseUrl}/api/v1/User/my-connected-users",
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
 
 
-          if (response.statusCode == 200) {
-            var userlist = json.encode(response.data['result']);
-            List listuser = jsonDecode(userlist);
-            print("list :" + listuser.length.toString());
-            for (var i in listuser) {
-              listUsers.add(UserModel(
-                roleName: i['roleName'],
-                roleId: i['roleId'],
-                code: i['code'],
-                name: i['fullName'],
-                gender: 0,
-              ));
-            }
-          } else {
-            exeptionHandler.handleExeption(response);
+        if (response.statusCode == 200) {
+          var userlist = json.encode(response.data['result']);
+          List listuser = jsonDecode(userlist);
+          print("list :" + listuser.length.toString());
+          for (var i in listuser) {
+            listUsers.add(UserModel(
+              roleName: i['roleName'],
+              roleId: i['roleId'],
+              code: i['code'],
+              name: i['fullName'],
+              gender: 0,
+            ));
           }
-
+        } else {
+          exeptionHandler.handleExeption(response);
+        }
       } on DioException catch (e) {
         if (e.response != null) {
           print(e.response!.data);
@@ -625,43 +661,42 @@ class ControllerBaseDownloads extends GetxController {
     } else {
       try {
         final response = await ApiClient().dio().post(
-              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
-              data: jsonEncode(secilmisTemsilciler),
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
+          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
+          data: jsonEncode(secilmisTemsilciler),
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
 
-          if (response.statusCode == 200) {
-            var dataModel = json.encode(response.data['result']);
-            print("dataModel :" + dataModel.toString());
-            List listuser = jsonDecode(dataModel);
-            for (var i in listuser) {
-              var dataCus = json.encode(i['customers']);
-              var temsilciKodu = i['user']['code'];
-              print("temsilciKodu :" + temsilciKodu.toString());
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['result']);
+          print("dataModel :" + dataModel.toString());
+          List listuser = jsonDecode(dataModel);
+          for (var i in listuser) {
+            var dataCus = json.encode(i['customers']);
+            var temsilciKodu = i['user']['code'];
+            print("temsilciKodu :" + temsilciKodu.toString());
 
-              List listDataCustomers = jsonDecode(dataCus);
-              for (var a in listDataCustomers) {
-                ModelCariler model = ModelCariler.fromJson(a);
-                model.forwarderCode = temsilciKodu;
-                print("a custim :" + a.toString());
-                listUsers.add(model);
-              }
+            List listDataCustomers = jsonDecode(dataCus);
+            for (var a in listDataCustomers) {
+              ModelCariler model = ModelCariler.fromJson(a);
+              model.forwarderCode = temsilciKodu;
+              print("a custim :" + a.toString());
+              listUsers.add(model);
             }
-          } else {
-            exeptionHandler.handleExeption(response);
           }
-
+        } else {
+          exeptionHandler.handleExeption(response);
+        }
       } on DioException catch (e) {
         if (e.response != null) {
           print(e.response!.data);
@@ -683,7 +718,7 @@ class ControllerBaseDownloads extends GetxController {
   }
 
   ///Cari Merc Baza endirme/////////
-  Future< List<MercDataModel>> getAllMercCariBazaMotivasiya() async {
+  Future<List<MercDataModel>> getAllMercCariBazaMotivasiya() async {
     List<MercDataModel> listUsers = [];
     languageIndex = await getLanguageIndex();
     List<String> secilmisTemsilciler = [];
@@ -712,31 +747,30 @@ class ControllerBaseDownloads extends GetxController {
     } else {
       try {
         final response = await ApiClient().dio().post(
-              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
-              data: jsonEncode(secilmisTemsilciler),
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-          if (response.statusCode == 200) {
-            var dataModel = json.encode(response.data['result']);
-            List listuser = jsonDecode(dataModel);
-            for (var i in listuser) {
-              listUsers.add(MercDataModel.fromJson(i));
-            }
-          } else {
-            exeptionHandler.handleExeption(response);
+          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+          data: jsonEncode(secilmisTemsilciler),
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['result']);
+          List listuser = jsonDecode(dataModel);
+          for (var i in listuser) {
+            listUsers.add(MercDataModel.fromJson(i));
           }
-
+        } else {
+          exeptionHandler.handleExeption(response);
+        }
       } on DioException catch (e) {
         if (e.response != null) {
           print(e.response!.data);
@@ -752,7 +786,7 @@ class ControllerBaseDownloads extends GetxController {
     return listUsers;
   }
 
-  Future< List<MercDataModel>> getAllMercCariBaza() async {
+  Future<List<MercDataModel>> getAllMercCariBaza() async {
     List<MercDataModel> listUsers = [];
     languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
@@ -767,31 +801,30 @@ class ControllerBaseDownloads extends GetxController {
     } else {
       try {
         final response = await ApiClient().dio().get(
-              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
+          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
 
-          if (response.statusCode == 200) {
-            var dataModel = json.encode(response.data['result']);
-            List listuser = jsonDecode(dataModel);
-            for (var i in listuser) {
-              listUsers.add(MercDataModel.fromJson(i));
-            }
-          } else {
-            exeptionHandler.handleExeption(response);
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['result']);
+          List listuser = jsonDecode(dataModel);
+          for (var i in listuser) {
+            listUsers.add(MercDataModel.fromJson(i));
           }
-
+        } else {
+          exeptionHandler.handleExeption(response);
+        }
       } on DioException catch (e) {
         if (e.response != null) {
           print(e.response!.data);
@@ -822,7 +855,9 @@ class ControllerBaseDownloads extends GetxController {
 
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
     String rutgun = "Sef";
-    int hefteningunu = DateTime.now().weekday;
+    int hefteningunu = DateTime
+        .now()
+        .weekday;
     switch (hefteningunu) {
       case 1:
         if (selectedModel.days!.any((element) => element.day == 1)) {
@@ -896,7 +931,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
   Future _parsingAnbar(var _response) async {
     List<ModelAnbarRapor> list_mallar = [];
-    var _document =XmlDocument.parse(_response);
+    var _document = XmlDocument.parse(_response);
     Iterable<XmlElement> items = _document.findAllElements('Table');
     items.map((XmlElement item) {
       var _kode = _getValue(item.findElements("STOK_KOD"));
@@ -920,209 +955,117 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
   void syncAllInfo() async {
     await localUserServices.init();
-    loggedUserModel=localUserServices.getLoggedUser();
-    await getLoggedUserInfo(loggedUserModel.tokenModel!, loggedUserModel.baseUrl!).whenComplete(() async => {
-    _donloadListiniDoldur(),
-        callLocalBases(),
-    listDonwloadsAll.clear(),
+    loggedUserModel = localUserServices.getLoggedUser();
+    _donloadListiniDoldur();
+    callLocalBases();
+    listDonwloadsAll.clear();
     for (var element in listDonwloads) {
-      listDonwloadsAll.add(element),
-    },
+      listDonwloadsAll.add(element);
+    }
     for (var element in listDownloadsFromLocalDb) {
-      listDonwloadsAll.add(element)
-    },
+      listDonwloadsAll.add(element);
+    }
     for (var element in listDonwloadsAll) {
-      listDonwloads.remove(element),
-      listDownloadsFromLocalDb.remove(element),
-      element.donloading == true,
-      listDownloadsFromLocalDb.add(element),
-      await melumatlariEndir(element, true).whenComplete(() => {
-        listDownloadsFromLocalDb.remove(element),
-        element.donloading == false,
-        listDownloadsFromLocalDb.add(element)
-      }),
-    },
-    update()
-    });
-
-  }
-
-  Future<void> getLoggedUserInfo(TokenModel modelToken, String baseUrl) async {
-    int dviceType = checkDviceType.getDviceType();
-    localUserServices.init();
-    DialogHelper.showLoading("istMelEndirilir".tr);
-    languageIndex = await getLanguageIndex();
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {},
-      ));
-    } else {
-      try {
-        final response = await ApiClient().dio().get(
-              "$baseUrl/api/v1/User/myinfo",
-              options: Options(
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer ${modelToken.accessToken}"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 404) {
-          DialogHelper.hideLoading();
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
-          if (response.statusCode == 200) {
-            DialogHelper.hideLoading();
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
-            CompanyModel modelCompany = CompanyModel.fromJson(baseResponce.result['company']);
-            LoggedUserModel modelLogged = LoggedUserModel(
-                baseUrl: baseUrl,
-                isLogged: true,
-                companyModel: modelCompany,
-                tokenModel: modelToken,
-                userModel: modelUser);
-            loggedUserModel==modelLogged;
-            localUserServices.init();
-            localUserServices.addUserToLocalDB(modelLogged);
-            Future.delayed(const Duration(milliseconds: 20),(){});
-            print("yeni logged melumatlar :"+modelLogged.toString());
-            // DrawerMenuController controller = Get.put(DrawerMenuController());
-            // controller.onInit();
-            // controller.addPermisionsInDrawerMenu(loggedUserModel);
-            update();
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
-            DialogHelper.hideLoading();
-          }
-        }
-      } on DioException catch (e) {
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "baglantierror".tr,
-          callback: () {},
-        ));
-        DialogHelper.hideLoading();
-      }
+      listDonwloads.remove(element);
+      listDownloadsFromLocalDb.remove(element);
+      element.donloading == true;
+      listDownloadsFromLocalDb.add(element);
+      await melumatlariEndir(element, true).whenComplete(() {
+        listDownloadsFromLocalDb.remove(element);
+        element.donloading == false;
+        listDownloadsFromLocalDb.add(element);
+      });
     }
   }
+    ///GETGiris cixis
+    Future<List<ModelCariler>> getAllGirisCixis() async {
+      List<ModelCariler> listUsers = [];
+      LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
+      var data = {
+        "userCode": loggedUserModel.userModel!.code!,
+        "userPosition": loggedUserModel.userModel!.roleId!,
+        "startDate": "",
+        "endDate": ""
+      };
+      int dviceType = checkDviceType.getDviceType();
+      String accesToken = loggedUserModel.tokenModel!.accessToken!;
+      languageIndex = await getLanguageIndex();
 
+      final connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult == ConnectivityResult.none) {
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.network_locked_outlined,
+          messaje: "internetError".tr,
+          callback: () {},
+        ));
+      } else {
+        try {
+          final response = await ApiClient().dio().post(
+            "${loggedUserModel
+                .baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
+            data: data,
+            options: Options(
+              receiveTimeout: const Duration(seconds: 60),
+              headers: {
+                'Lang': languageIndex,
+                'Device': dviceType,
+                'abs': '123456',
+                "Authorization": "Bearer $accesToken"
+              },
+              validateStatus: (_) => true,
+              contentType: Headers.jsonContentType,
+              responseType: ResponseType.json,
+            ),
+          );
+          if (response.statusCode == 404) {
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error,
+              messaje: "baglantierror".tr,
+              callback: () {},
+            ));
+          } else {
+            if (response.statusCode == 200) {
+              var dataModel = json.encode(response.data['result']);
+              List listuser = jsonDecode(dataModel);
+              for (var i in listuser) {
+                var dataCus = json.encode(i['customers']);
+                var temsilciKodu = i['user']['code'];
+                print("temsilciKodu :" + temsilciKodu.toString());
 
-  ///GETGiris cixis
-  Future<List<ModelCariler>> getAllGirisCixis() async {
-    List<ModelCariler> listUsers = [];
-    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
-    var data={
-      "userCode": loggedUserModel.userModel!.code!,
-      "userPosition": loggedUserModel.userModel!.roleId!,
-      "startDate": "",
-      "endDate": ""
-    };
-    int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    languageIndex = await getLanguageIndex();
-
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {},
-      ));
-    } else {
-      try {
-        final response = await ApiClient().dio().post(
-          "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
-          data: data,
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        if (response.statusCode == 404) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
-          if (response.statusCode == 200) {
-            var dataModel = json.encode(response.data['result']);
-            List listuser = jsonDecode(dataModel);
-            for (var i in listuser) {
-              var dataCus = json.encode(i['customers']);
-              var temsilciKodu = i['user']['code'];
-              print("temsilciKodu :" + temsilciKodu.toString());
-
-              List listDataCustomers = jsonDecode(dataCus);
-              for (var a in listDataCustomers) {
-                ModelCariler model = ModelCariler.fromJson(a);
-                model.forwarderCode = temsilciKodu;
-                print("a custim :" + a.toString());
-                listUsers.add(model);
+                List listDataCustomers = jsonDecode(dataCus);
+                for (var a in listDataCustomers) {
+                  ModelCariler model = ModelCariler.fromJson(a);
+                  model.forwarderCode = temsilciKodu;
+                  print("a custim :" + a.toString());
+                  listUsers.add(model);
+                }
               }
+            } else {
+              BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+              Get.dialog(ShowInfoDialog(
+                icon: Icons.error_outline,
+                messaje: baseResponce.exception!.message.toString(),
+                callback: () {},
+              ));
             }
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
           }
+        } on DioException catch (e) {
+          if (e.response != null) {
+            print(e.response!.data);
+            print(e.response!.headers);
+            print(e.response!.requestOptions);
+          } else {
+            // Something happened in setting up or sending the request that triggered an Error
+            print(e.requestOptions);
+            print(e.message);
+          }
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error_outline,
+            messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+            callback: () {},
+          ));
         }
-      } on DioException catch (e) {
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
       }
+      return listUsers;
     }
-    return listUsers;
   }
-
-}

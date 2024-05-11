@@ -141,7 +141,7 @@ class CustomInterceptorHidden extends Interceptor {
     Get.delete<SettingPanelController>();
     Get.delete<ControllerAnbar>();
     await localBazalar.clearLoggedUserInfo();
-    await localBazalar.clearAllGirisCixis();
+    //await localBazalar.clearAllGirisCixis();
     await localBazalar.clearAllBaseDownloads();
     Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
 

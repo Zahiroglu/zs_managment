@@ -335,7 +335,12 @@ class LocalBaseDownloads {
   Future<void> addConnectedUsers(List<UserModel> listUser) async {
     await boxAnbarBaza.clear();
     for (UserModel model in listUser) {
-      await boxListConnectedUsers.put(model.name!, model);
+      if(model.name==null){
+        await boxListConnectedUsers.put(model.code!, model);
+      }else{
+        await boxListConnectedUsers.put(model.name!, model);
+
+      }
     }
   }
 
