@@ -38,14 +38,11 @@ class CustomInterceptorHidden extends Interceptor {
   }
 
   @override
-  Future<void> onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     await localUserServices.init();
     String token = localUserServices.getLoggedUser().tokenModel!.accessToken!;
-    String refresh =
-        localUserServices.getLoggedUser().tokenModel!.refreshToken!;
-    print(
-        'Request[=> PATH:${options.path}] data :${options.data} refresj :${refresh}');
+    String refresh = localUserServices.getLoggedUser().tokenModel!.refreshToken!;
+    print('Request[=> PATH:${options.path}] data :${options.data} refresj :${refresh}');
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     }
@@ -55,12 +52,25 @@ class CustomInterceptorHidden extends Interceptor {
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
     print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
-     if (response.statusCode != 200) {
+    if (response.statusCode != 200) {
+      if(response.statusCode == 404){
+        Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
+      }
       if (response.statusCode == 401) {
         int statusrefresh = await refreshAccessToken();
         if (statusrefresh == 200) {
           return handler.resolve(await _retry(response.requestOptions));
         }
+      }
+      else{
+        Get.dialog(ShowInfoDialog(
+          color: Colors.red,
+          icon: Icons.error_outline,
+          messaje: "Xeta bas verdi",
+          callback: () {
+            Get.back();
+          },
+        ));
       }
     }
     super.onResponse(response, handler);
@@ -69,6 +79,14 @@ class CustomInterceptorHidden extends Interceptor {
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
     print("error :" + err.toString());
+    Get.dialog(ShowInfoDialog(
+      color: Colors.red,
+      icon: Icons.error_outline,
+      messaje: err.toString(),
+      callback: () {
+        Get.back();
+      },
+    ));
     super.onError(err, handler);
   }
 
@@ -122,30 +140,23 @@ class CustomInterceptorHidden extends Interceptor {
             responseType: ResponseType.json,
           ),
         );
+        print("responce refresh token :" + response.data.toString());
         if (response.statusCode == 200) {
           TokenModel model = TokenModel.fromJson(response.data['result']);
           loggedUserModel.tokenModel = model;
-          localUserServices.addUserToLocalDB(loggedUserModel);
-          succes = 200;
+          await localUserServices.addUserToLocalDB(loggedUserModel).whenComplete(() => succes = 200);
+        } else {
+          if (!isLiveTrackRequest) {
+            succes == response.statusCode;
+          }
         }
       } on DioException catch (e) {
-       print(e.error);
+        print(e.error);
       }
     }
     return succes;
   }
 
-  Future<void> _sistemiYenidenBaslat() async {
-    Get.delete<DrawerMenuController>();
-    Get.delete<UsersApiController>();
-    Get.delete<SettingPanelController>();
-    Get.delete<ControllerAnbar>();
-    await localBazalar.clearLoggedUserInfo();
-    //await localBazalar.clearAllGirisCixis();
-    await localBazalar.clearAllBaseDownloads();
-    Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-
-  }
 
 }
 

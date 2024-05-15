@@ -21,9 +21,12 @@ import '../../../helpers/exeption_handler.dart';
 import '../../../widgets/simple_info_dialog.dart';
 import '../../local_bazalar/local_users_services.dart';
 import '../../login/models/logged_usermodel.dart';
+import '../model/model_my_connecteduserslocations.dart';
 
 class ControllerLiveTrack extends GetxController{
   RxList<ModelLiveTrack> listTrackdata = List<ModelLiveTrack>.empty(growable: true).obs;
+  Rx<MyConnectedUsersCurrentLocation> modelMuyConnectUsers=MyConnectedUsersCurrentLocation().obs;
+
   RxList<UserModel> listAllConnectedUsers = List<UserModel>.empty(growable: true).obs;
   RxList<UserModel> listIslemeyenUsers = List<UserModel>.empty(growable: true).obs;
   RxBool dataLoading = true.obs;
@@ -75,6 +78,7 @@ class ControllerLiveTrack extends GetxController{
    dataLoading.value=true;
    listTrackdata.clear();
    listTrackdata.value=await getAllDataFromServer();
+   fillMarkersByListTrack(listTrackdata.value);
    dataLoading.value=false;
    update();
   }
@@ -253,13 +257,12 @@ class ControllerLiveTrack extends GetxController{
 
         if (response.statusCode == 200) {
           var dataModel = json.encode(response.data['result']);
-          List listuser = jsonDecode(dataModel);
-          for (var i in listuser) {
-            if(i['currentLocation']!=null) {
-              listTrack.add(ModelLiveTrack.fromJson(i));
-            }}
-          sonYenilenme.value=DateTime.now().toIso8601String();
-          fillMarkersByListTrack(listTrack);
+            modelMuyConnectUsers.value = MyConnectedUsersCurrentLocation.fromJson(jsonDecode(dataModel));
+            sonYenilenme.value = DateTime.now().toIso8601String();
+            for (var element in modelMuyConnectUsers.value.userLocation!) {
+              listTrack.add(element);
+            }
+         // listTrack=modelMuyConnectUsers.value.userLocation!;
 
         }
       } on DioException catch (e) {

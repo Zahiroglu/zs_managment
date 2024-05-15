@@ -11,9 +11,7 @@ class LocalBazalar{
   LocalUserServices localUserServices=LocalUserServices();
   LocalGirisCixisServiz localGirisCixisServiz=LocalGirisCixisServiz();
   LocalBaseDownloads localBaseDownloads=LocalBaseDownloads();
-  deleteAllBases(){
-     Hive.deleteFromDisk();
-  }
+  deleteAllBases(){Hive.deleteFromDisk();}
 
 
   clearAllBaseDownloads() async {
@@ -29,7 +27,7 @@ class LocalBazalar{
 
   clearLoggedUserInfo() async {
    await  localUserServices.init();
-   await localUserServices.clearLoggedUserInfo();
+   await localUserServices.clearALLdata();
   }
 
 }

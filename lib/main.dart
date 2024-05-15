@@ -1,3 +1,4 @@
+import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -27,6 +28,29 @@ import 'language/localization_controller.dart';
 import 'language/utils/messages.dart';
 import 'package:hive/hive.dart';
 
+void backgroundFetchHeadlessTask(HeadlessTask task) async {
+  var taskId = task.taskId;
+  var timeout = task.timeout;
+  if (timeout) {
+    print("[BackgroundFetch] Headless task timed-out: $taskId");
+    BackgroundFetch.finish(taskId);
+    return;
+  }
+
+  print("[BackgroundFetch] Headless event received: $taskId");
+
+  if (taskId == 'flutter_background_fetch') {
+    BackgroundFetch.scheduleTask(TaskConfig(
+        taskId: "com.transistorsoft.customtask",
+        delay: 5000,
+        periodic: true,
+        forceAlarmManager: false,
+        stopOnTerminate: false,
+        enableHeadless: true
+    ));
+  }
+  BackgroundFetch.finish(taskId);
+}
 
 Future<void>  main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +79,8 @@ Future<void>  main() async{
   Hive.registerAdapter(MercCustomersDatailAdapter());
   Hive.registerAdapter(SellingDataAdapter());
   Hive.registerAdapter(UserMercAdapter());
+  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+
 }
 
 class MyApp extends StatefulWidget {

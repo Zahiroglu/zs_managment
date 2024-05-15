@@ -79,7 +79,7 @@ class _DashborudScreenMobileState extends State<DashborudScreenMobile> {
                               padding: const EdgeInsets.all(8.0).copyWith(top: 5),
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
-                                    color: Colors.red.shade100,
+                                    color: Colors.white.withOpacity(0.2),
                                     border: Border.all(color: Colors.black.withOpacity(0.2),width: 0.2),
                                     borderRadius: BorderRadius.circular(10)
                                 ),

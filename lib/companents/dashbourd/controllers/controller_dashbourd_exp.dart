@@ -416,7 +416,7 @@ class ControllerDashBorudExp extends GetxController {
   Future<void> stopTodayWork() async {
     await localAppSetting.init();
     modelAppSetting = await localAppSetting.getAvaibleMap();
-    modelAppSetting.userStartWork=false;
+    modelAppSetting.userStartWork==false;
     localAppSetting.addSelectedMyTypeToLocalDB(modelAppSetting);
     Get.offAllNamed(RouteHelper.bazaDownloadMobile);
   }

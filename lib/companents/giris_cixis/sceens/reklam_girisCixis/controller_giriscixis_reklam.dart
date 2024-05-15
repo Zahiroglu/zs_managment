@@ -47,6 +47,7 @@ import 'package:zs_managment/widgets/sual_dialog.dart';
 
 import '../../../../dio_config/custim_interceptor.dart';
 import '../../../../helpers/exeption_handler.dart';
+import '../../../backgroud_task/bacground_task.dart';
 import '../../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import '../../../tapsiriqlar/model_task_responce.dart';
 
@@ -101,7 +102,8 @@ class ControllerGirisCixisReklam extends GetxController {
       List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
   Rx<UserModel> selectedTemsilci = UserModel(code: "", name: "hamisi".tr).obs;
-  BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
+  //BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
+  BackGroudTask backgroudLocationServiz = BackGroudTask();
   late CheckDviceType checkDviceType = CheckDviceType();
   ExeptionHandler exeptionHandler = ExeptionHandler();
 
@@ -111,6 +113,7 @@ class ControllerGirisCixisReklam extends GetxController {
 
   @override
   Future<void> onInit() async {
+    backgroudLocationServiz.initPlatformState();
     await userService.init();
     loggedUserModel = userService.getLoggedUser();
     await localBaseDownloads.init();
@@ -531,7 +534,7 @@ class ControllerGirisCixisReklam extends GetxController {
             ctKassaDialog.text = "";
             ctCixisQeyd.text = "";
             update();
-            backgroudLocationServiz.stopServiz();
+            backgroudLocationServiz.stopBackGroundFetch();
           }
           Get.back();
         }));
@@ -1919,9 +1922,6 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   Widget cardSifarisler(BuildContext context) {
-    loggedUserModel.userModel!.permissions!.forEach((element) {
-      print("permitions :" + element.toString());
-    });
     bool canSell = loggedUserModel.userModel!.permissions!
         .any((element) => element.code == "canSell");
     bool canCash = loggedUserModel.userModel!.permissions!
@@ -2267,7 +2267,7 @@ class ControllerGirisCixisReklam extends GetxController {
     rightSideMenuVisible.value = true;
     sndeQalmaVaxtiniHesabla();
     getSatisMelumatlariByCary();
-    backgroudLocationServiz.startServiz();
+    backgroudLocationServiz.startBackgorundFetck();
     listTapsiriqlar.value = ModelResponceTask().getListOfTask();
     update();
   }
@@ -2320,7 +2320,6 @@ class ControllerGirisCixisReklam extends GetxController {
         if (response.statusCode == 200) {
           cixisiLocaldaTesdiqle(currentLocation, uzaqliq, myTime, qeyd);
           DialogHelper.hideLoading();
-          Get.back();
         } else {
           exeptionHandler.handleExeption(response);
         }
@@ -2371,7 +2370,7 @@ class ControllerGirisCixisReklam extends GetxController {
     DrawerMenuController controller = Get.put(DrawerMenuController());
     controller.onInit();
     controller.addPermisionsInDrawerMenu(loggedUserModel);
-    backgroudLocationServiz.stopServiz();
+    backgroudLocationServiz.stopBackGroundFetch();
     getAllDataFormLocale();
     listTapsiriqlar.clear();
     update();

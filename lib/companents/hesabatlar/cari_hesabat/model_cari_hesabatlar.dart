@@ -7,6 +7,7 @@ class ModelCariHesabatlar {
   Color? color;
   String? routName;
   bool? needDate;
+  bool? needTime;
   String? key;
 
   ModelCariHesabatlar(
@@ -14,6 +15,7 @@ class ModelCariHesabatlar {
       this.icon,
       this.color,
       this.routName,
+      this.needTime,
       this.needDate,
       this.key});
 
@@ -72,11 +74,21 @@ class ModelCariHesabatlar {
         color: Colors.green,
         routName: RouteHelper.getScreenMercRoutDatail(),
         needDate: false,
+        needTime: false,
         key: "trhesabat"));
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Temsilci ziyaret hesabati",
         icon: Icons.visibility,
         color: Colors.blue,
+        needTime: false,
+        //routName: RouteHelper.getCariSatilanCesidRaporu(),
+        needDate: true,
+        key: "tzhesab"));
+    cariHesabatlar.add(ModelCariHesabatlar(
+        label: "Cali izleme hesabati",
+        icon: Icons.spatial_tracking_outlined,
+        color: Colors.yellow,
+        needTime: true,
         //routName: RouteHelper.getCariSatilanCesidRaporu(),
         needDate: true,
         key: "tzhesab"));

@@ -64,7 +64,6 @@ class UserApiControllerMobile extends GetxController {
       String val=await localUserServices.getCanGetBaseUrl();
       if(val=="Bos"){
         getCompanyUrlByDivaceId();
-
       }else{
         loginWithMobileDviceId(val);
 
@@ -95,6 +94,8 @@ class UserApiControllerMobile extends GetxController {
 
   Future<void> getCompanyUrlByDivaceId() async {
     changeLoading();
+    print("Company url: servizi cagrildi :"+ "${AppConstands.baseUrlsMain}v1/User/serviceurl-by-device");
+
     languageIndex = await getLanguageIndex();
     dviceType = checkDviceType.getDviceType();
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -122,6 +123,8 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
+        print("Request url:"+response.requestOptions.path);
+        print("Request:"+response.data.toString());
         if (response.statusCode == 404) {
           changeLoading();
           basVerenXeta = "baglantierror".tr;

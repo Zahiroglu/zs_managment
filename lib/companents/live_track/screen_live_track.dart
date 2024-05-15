@@ -335,7 +335,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                   controllerGirisCixis.getAllDatFromServer();
                 },
               ),
-            )):SizedBox(),
+            )):const SizedBox(),
         controllerGirisCixis.dataLoading.isFalse?Positioned(
           left: 18,
             top: 45,
@@ -343,7 +343,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               children: [
                 controllerGirisCixis.sonYenilenme.isEmpty?SizedBox(): CustomText(labeltext:"Son yenilenme : "+ controllerGirisCixis.sonYenilenme.value.substring(11,19)??"",color: Colors.black,fontsize: 8),
               ],
-            )):SizedBox(),
+            )):const SizedBox(),
         controllerGirisCixis.dataLoading.isTrue?Positioned(
           left: MediaQuery.of(context).size.width*0.3,
             top: 50,
@@ -354,14 +354,14 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                 border: Border.all(color: Colors.white)
                 
               ),
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(color: Colors.white,strokeWidth: 1,)),
-                  SizedBox(width: 10,),
+                  const SizedBox(width: 10,),
                   CustomText(labeltext: "mDeyisdirilir".tr+"...",color: Colors.white,),
                 ],
               ),
@@ -395,7 +395,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                           ),
                           child: SizedBox(
                               width: 20,
-                              child: Center(child: CustomText(labeltext: "5",color: Colors.white,fontWeight: FontWeight.bold,fontsize: 12,)))))
+                              child: Center(child: CustomText(labeltext: controllerGirisCixis.modelMuyConnectUsers.value.notInWorkUserCount.toString(),color: Colors.white,fontWeight: FontWeight.bold,fontsize: 12,)))))
                 ],
               ),
             )),
@@ -429,7 +429,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                           ),
                           child: SizedBox(
                               width: 20,
-                              child: Center(child: CustomText(labeltext: "150",color: Colors.white,fontWeight: FontWeight.bold,fontsize: 12,)))))
+                              child: Center(child: CustomText(labeltext: controllerGirisCixis.modelMuyConnectUsers.value.errorCount.toString(),color: Colors.white,fontWeight: FontWeight.bold,fontsize: 12,)))))
                 ],
               ),
             )),
