@@ -150,7 +150,7 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomText(
-                          labeltext: element.name!,
+                          labeltext: element.name??"Melumat tapilmadi",
                           fontsize: 16,
                           fontWeight: FontWeight.w800,
                         ),

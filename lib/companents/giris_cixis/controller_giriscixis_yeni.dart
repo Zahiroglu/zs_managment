@@ -12,7 +12,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:ntp/ntp.dart';
-import 'package:zs_managment/companents/giris_cixis/bacgroud_location_serviz.dart';
+import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_request_giriscixis.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
@@ -483,7 +483,7 @@ class ControllerGirisCixisYeni extends GetxController {
             ctKassaDialog.text = "";
             ctCixisQeyd.text = "";
             update();
-            backgroudLocationServiz.stopServiz();
+            backgroudLocationServiz.stopBackGroundFetch();
 
           }
           Get.back();
@@ -1974,7 +1974,7 @@ class ControllerGirisCixisYeni extends GetxController {
     rightSideMenuVisible.value = true;
     sndeQalmaVaxtiniHesabla();
     getSatisMelumatlariByCary();
-    backgroudLocationServiz.startServiz();
+    backgroudLocationServiz.startBackgorundFetck(modela,currentLocation);
     // startconfigBacgroundService();
     update();
   }
@@ -2058,7 +2058,7 @@ class ControllerGirisCixisYeni extends GetxController {
     DrawerMenuController controller=Get.put(DrawerMenuController());
     controller.onInit();
     controller.addPermisionsInDrawerMenu(loggedUserModel);
-    backgroudLocationServiz.stopServiz();
+    backgroudLocationServiz.stopBackGroundFetch();
     update();
   }
 

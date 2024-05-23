@@ -888,8 +888,7 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
     final PictureRecorder pictureRecorder = PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
     final Paint paint1 = Paint()
-      ..color =
-          model.rutGunu == "Duz" ? Colors.lightBlueAccent : Colors.transparent;
+      ..color = model.rutGunu == "Duz" ? Colors.lightBlueAccent : Colors.transparent;
     canvas.drawCircle(Offset(size / 3.5, size / 2.7), size / 10.0, paint1);
     var icon = Icons.local_grocery_store;
     TextPainter textPainter = TextPainter(textDirection: TextDirection.rtl);

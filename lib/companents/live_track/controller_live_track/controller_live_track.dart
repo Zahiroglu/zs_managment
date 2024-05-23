@@ -26,7 +26,6 @@ import '../model/model_my_connecteduserslocations.dart';
 class ControllerLiveTrack extends GetxController{
   RxList<ModelLiveTrack> listTrackdata = List<ModelLiveTrack>.empty(growable: true).obs;
   Rx<MyConnectedUsersCurrentLocation> modelMuyConnectUsers=MyConnectedUsersCurrentLocation().obs;
-
   RxList<UserModel> listAllConnectedUsers = List<UserModel>.empty(growable: true).obs;
   RxList<UserModel> listIslemeyenUsers = List<UserModel>.empty(growable: true).obs;
   RxBool dataLoading = true.obs;

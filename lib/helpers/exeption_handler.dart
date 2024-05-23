@@ -22,8 +22,7 @@ class ExeptionHandler{
       try {
         print("exeption sr=tatus code : text:" + dataResponce.toString());
         if (dataResponce.statusCode != 404) {
-          ModelExceptions model = ModelExceptions.fromJson(
-              dataResponce.data['exception']);
+          ModelExceptions model = ModelExceptions.fromJson(dataResponce.data['exception']);
           Get.dialog(ShowInfoDialog(
             color: model.level == "Error" ? Colors.red : Colors.yellow,
             icon: model.level == "Error" ? Icons.error : Icons.info_outlined,

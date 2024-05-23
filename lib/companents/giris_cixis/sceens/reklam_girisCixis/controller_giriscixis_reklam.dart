@@ -12,7 +12,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:ntp/ntp.dart';
-import 'package:zs_managment/companents/giris_cixis/bacgroud_location_serviz.dart';
+import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_request_giriscixis.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
@@ -48,6 +48,7 @@ import 'package:zs_managment/widgets/sual_dialog.dart';
 import '../../../../dio_config/custim_interceptor.dart';
 import '../../../../helpers/exeption_handler.dart';
 import '../../../backgroud_task/bacground_task.dart';
+import '../../../permitions/permitions_controller.dart';
 import '../../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import '../../../tapsiriqlar/model_task_responce.dart';
 
@@ -74,38 +75,31 @@ class ControllerGirisCixisReklam extends GetxController {
           mapName: CustomMapType.google.name,
           mapType: MapType.google,
           icon:
-              'packages/map_launcher/assets/icons/${CustomMapType.google}.svg')
-      .obs;
+              'packages/map_launcher/assets/icons/${CustomMapType.google}.svg').obs;
   Rx<ModelRutPerform> modelRutPerform = ModelRutPerform().obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   List<String> listTab = ["girisCixislar".tr, "todeyRut".tr, "unVisited".tr];
   RxString selectedTabItem = "girisCixislar".tr.obs;
   Rx<ModelCariler> expandedItem = ModelCariler().obs;
   ScrollController listScrollController = ScrollController();
-  RxList<ModelTamItemsGiris> listTabItems =
-      List<ModelTamItemsGiris>.empty(growable: true).obs;
-  RxList<ModelCariler> listSelectedMusteriler =
-      List<ModelCariler>.empty(growable: true).obs;
-  RxList<ModelSifarislerTablesi> listTabSifarisler =
-      List<ModelSifarislerTablesi>.empty(growable: true).obs;
+  RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
+  RxList<ModelCariler> listSelectedMusteriler = List<ModelCariler>.empty(growable: true).obs;
+  RxList<ModelSifarislerTablesi> listTabSifarisler = List<ModelSifarislerTablesi>.empty(growable: true).obs;
   RxString snQalmaVaxti = "".obs;
   Timer? _timer;
   TextEditingController ctCixisQeyd = TextEditingController();
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
-  RxList<ModelCariHereket> listSifarisler =
-      List<ModelCariHereket>.empty(growable: true).obs;
-  RxList<ModelCariHereket> listIadeler =
-      List<ModelCariHereket>.empty(growable: true).obs;
-  RxList<ModelCariKassa> listKassa =
-      List<ModelCariKassa>.empty(growable: true).obs;
-  RxList<ModelCariKassa> selectedlistKassa =
-      List<ModelCariKassa>.empty(growable: true).obs;
+  RxList<ModelCariHereket> listSifarisler = List<ModelCariHereket>.empty(growable: true).obs;
+  RxList<ModelCariHereket> listIadeler = List<ModelCariHereket>.empty(growable: true).obs;
+  RxList<ModelCariKassa> listKassa = List<ModelCariKassa>.empty(growable: true).obs;
+  RxList<ModelCariKassa> selectedlistKassa = List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
   Rx<UserModel> selectedTemsilci = UserModel(code: "", name: "hamisi".tr).obs;
-  //BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
-  BackGroudTask backgroudLocationServiz = BackGroudTask();
+  BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
+  //BackGroudTask backgroudLocationServiz = BackGroudTask();
   late CheckDviceType checkDviceType = CheckDviceType();
   ExeptionHandler exeptionHandler = ExeptionHandler();
+  LocalPermissionsController permitionController=LocalPermissionsController();
 
   ///list tapsiriqlar
   RxList<ModelResponceTask> listTapsiriqlar =
@@ -113,7 +107,7 @@ class ControllerGirisCixisReklam extends GetxController {
 
   @override
   Future<void> onInit() async {
-    backgroudLocationServiz.initPlatformState();
+    //backgroudLocationServiz.initPlatformState();
     await userService.init();
     loggedUserModel = userService.getLoggedUser();
     await localBaseDownloads.init();
@@ -460,8 +454,9 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   ///giris ucun hazirliq
-  Future<void> pripareForEnter(Position currentLocation,
-      ModelCariler selectedModel, String uzaqliq) async {
+  Future<void> pripareForEnter(Position currentLocation, ModelCariler selectedModel, String uzaqliq) async {
+    if(await permitionController.checkBackgroundLocationPermission()){
+      if(await permitionController.checkNotyPermission()){
     DialogHelper.showLoading("Giris edilir...");
     await localDbGirisCixis.init();
     String lookupAddress = "time.google.com";
@@ -507,6 +502,16 @@ class ControllerGirisCixisReklam extends GetxController {
         DialogHelper.hideLoading();
         await _callApiForEnter(currentLocation, selectedModel, uzaqliq, myTime);
       }
+    }}else{
+        Get.dialog(ShowInfoDialog(messaje: "Programa bildiris icazesi verin", icon: Icons.nearby_error_outlined, callback: (){
+          permitionController.requestNotyPermission();
+          Get.back();
+        }));
+      }}else{
+      Get.dialog(ShowInfoDialog(messaje: "Programa konum icazesi verin ve 'Hemise' yetkisini secin!", icon: Icons.nearby_error_outlined, callback: (){
+        permitionController.requestBackgroundLocationPermission();
+        Get.back();
+      }));
     }
   }
 
@@ -700,8 +705,7 @@ class ControllerGirisCixisReklam extends GetxController {
         : SizedBox();
   }
 
-  Widget widgetShowListRutInfo(
-      BuildContext context, ScrollController listViewController) {
+  Widget widgetShowListRutInfo(BuildContext context, ScrollController listViewController) {
     ScreenUtil.init(context);
     return Column(
       children: [
@@ -1233,8 +1237,7 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   ///////////////////////////////////////////////////////////////////////
-  Future<void> changeTabItemsValue(
-      ModelTamItemsGiris element, Position currentLocation) async {
+  Future<void> changeTabItemsValue(ModelTamItemsGiris element, Position currentLocation) async {
     for (var element2 in listTabItems) {
       if (element2.label == element.label) {
         element2.selected = true;
@@ -1295,11 +1298,7 @@ class ControllerGirisCixisReklam extends GetxController {
     List<ModelCariler> list = [];
     for (ModelCariler element in listMusteriler) {
       String listmesafe = "0m";
-      double hesabMesafe = calculateDistance(
-          event.latitude,
-          event.longitude,
-          element.longitude ?? 0,
-          element.latitude ?? 0);
+      double hesabMesafe = calculateDistance(event.latitude, event.longitude, element.longitude ?? 0, element.latitude ?? 0);
       if (hesabMesafe > 1) {
         listmesafe = "${(hesabMesafe).round()} km";
       } else {
@@ -2162,8 +2161,7 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   ////cal Api servers for InOut
-  Future<void> _callApiForEnter(Position currentLocation,
-      ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
+  Future<void> _callApiForEnter(Position currentLocation, ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     ModelRequestGirisCixis model = ModelRequestGirisCixis(
@@ -2174,6 +2172,8 @@ class ControllerGirisCixisReklam extends GetxController {
         operationLongitude: currentLocation.longitude.toString(),
         operationType: "In",
         userCode: loggedUserModel.userModel!.code!.toString());
+    print("Giris model :"+model.toString());
+
     DialogHelper.hideLoading();
     DialogHelper.showLoading("girisEdilir".tr, false);
     String languageIndex = await getLanguageIndex();
@@ -2209,10 +2209,8 @@ class ControllerGirisCixisReklam extends GetxController {
             );
         // 404
         if (response.statusCode == 200) {
-          girisiLocaldaTesdiqleme(
-              currentLocation, selectedModel, uzaqliq, myTime);
+          girisiLocaldaTesdiqleme(currentLocation, selectedModel, uzaqliq, myTime);
           DialogHelper.hideLoading();
-          Get.back();
         } else {
           print("responce test :" + response.statusCode.toString());
           DialogHelper.hideLoading();
@@ -2231,10 +2229,8 @@ class ControllerGirisCixisReklam extends GetxController {
     }
   }
 
-  Future<void> girisiLocaldaTesdiqleme(Position currentLocation,
-      ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
-    createCircles(
-        selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
+  Future<void> girisiLocaldaTesdiqleme(Position currentLocation, ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
+    createCircles(selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
     ModelGirisCixis modela = ModelGirisCixis(
         cariad: selectedModel.name,
         ckod: selectedModel.code,
@@ -2254,26 +2250,23 @@ class ControllerGirisCixisReklam extends GetxController {
         marketgpsEynilik: selectedModel.latitude.toString(),
         marketgpsUzunluq: selectedModel.longitude.toString());
     await localDbGirisCixis.addSelectedGirisCixisDB(modela);
-    ModelCariler modelCari =
-        listCariler.where((a) => a.code == modela.ckod).first;
+    ModelCariler modelCari = listCariler.where((a) => a.code == modela.ckod).first;
     modelCari.ziyaret = "1";
     await localBase.updateModelCari(modelCari);
     marketeGirisEdilib.value = true;
     modelgirisEdilmis.value = modela;
-    addMarkersAndPlygane(
-        selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), currentLocation);
+    addMarkersAndPlygane(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), currentLocation);
     slidePanelVisible.value = false;
     leftSideMenuVisible.value = true;
     rightSideMenuVisible.value = true;
     sndeQalmaVaxtiniHesabla();
     getSatisMelumatlariByCary();
-    backgroudLocationServiz.startBackgorundFetck();
+    backgroudLocationServiz.startBackgorundFetck(modela,currentLocation);
     listTapsiriqlar.value = ModelResponceTask().getListOfTask();
     update();
   }
 
-  Future<void> _callApiForExit(Position currentLocation, String uzaqliq,
-      DateTime myTime, String qeyd) async {
+  Future<void> _callApiForExit(Position currentLocation, String uzaqliq, DateTime myTime, String qeyd) async {
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     ModelRequestGirisCixis model = ModelRequestGirisCixis(
@@ -2284,6 +2277,7 @@ class ControllerGirisCixisReklam extends GetxController {
         operationLongitude: currentLocation.longitude.toString(),
         operationType: "Out",
         userCode: loggedUserModel.userModel!.code!.toString());
+    print("Cixis model :"+model.toString());
     DialogHelper.hideLoading();
     DialogHelper.showLoading("cixisEdilir".tr, false);
     String languageIndex = await getLanguageIndex();
@@ -2340,21 +2334,19 @@ class ControllerGirisCixisReklam extends GetxController {
     }
   }
 
-  Future<void> cixisiLocaldaTesdiqle(Position currentLocation, String uzaqliq,
-      DateTime myTime, String qeyd) async {
+  Future<void> cixisiLocaldaTesdiqle(Position currentLocation, String uzaqliq, DateTime myTime, String qeyd) async {
     circles.clear();
     modelgirisEdilmis.value.cixisvaxt = myTime.toString();
     modelgirisEdilmis.value.cixisgps =
         "${currentLocation.longitude},${currentLocation.latitude}";
     modelgirisEdilmis.value.cixismesafe = uzaqliq;
     modelgirisEdilmis.value.qeyd = qeyd;
-    ModelCariler modelCari =
-        listCariler.where((a) => a.code == modelgirisEdilmis.value.ckod).first;
+    if(listCariler.any((a) => a.code == modelgirisEdilmis.value.ckod)){
+    ModelCariler modelCari = listCariler.where((a) => a.code == modelgirisEdilmis.value.ckod).first;
     modelCari.ziyaret = "2";
-    modelgirisEdilmis.value.rutgunu =
-        rutGununuYoxla(modelCari) == true ? "Duz" : "Sef";
+    modelgirisEdilmis.value.rutgunu = rutGununuYoxla(modelCari) == true ? "Duz" : "Sef";
     await localDbGirisCixis.updateSelectedValue(modelgirisEdilmis.value);
-    await localBase.updateModelCari(modelCari);
+    await localBase.updateModelCari(modelCari);}
     marketeGirisEdilib.value = false;
     slidePanelVisible.value = false;
     modelgirisEdilmis.value = ModelGirisCixis();

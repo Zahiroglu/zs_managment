@@ -93,6 +93,8 @@ dependencies:
   google_fonts: 6.1.0
   board_datetime_picker: ^1.6.5
   flutter_local_notifications: ^17.1.2
+  firebase_messaging: ^14.9.3
+  firebase_core: ^2.31.1
 
 dev_dependencies:
   flutter_test:

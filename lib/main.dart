@@ -1,4 +1,4 @@
-import 'package:background_fetch/background_fetch.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -26,37 +26,14 @@ import 'companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.da
 import 'language/lang_constants.dart';
 import 'language/localization_controller.dart';
 import 'language/utils/messages.dart';
-import 'package:hive/hive.dart';
 
-void backgroundFetchHeadlessTask(HeadlessTask task) async {
-  var taskId = task.taskId;
-  var timeout = task.timeout;
-  if (timeout) {
-    print("[BackgroundFetch] Headless task timed-out: $taskId");
-    BackgroundFetch.finish(taskId);
-    return;
-  }
-
-  print("[BackgroundFetch] Headless event received: $taskId");
-
-  if (taskId == 'flutter_background_fetch') {
-    BackgroundFetch.scheduleTask(TaskConfig(
-        taskId: "com.transistorsoft.customtask",
-        delay: 5000,
-        periodic: true,
-        forceAlarmManager: false,
-        stopOnTerminate: false,
-        enableHeadless: true
-    ));
-  }
-  BackgroundFetch.finish(taskId);
-}
 
 Future<void>  main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w'
+      ,appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',projectId: 'zscontrollsystem'));
   await Hive.initFlutter();
   Map<String, Map<String, String>> languages = await dep.init();
-  runApp(MyApp(languages: languages));
   Hive.registerAdapter(ModelAnbarRaporAdapter());
   Hive.registerAdapter(LoggedUserModelAdapter());
   Hive.registerAdapter(ModelAppSettingAdapter());
@@ -79,9 +56,10 @@ Future<void>  main() async{
   Hive.registerAdapter(MercCustomersDatailAdapter());
   Hive.registerAdapter(SellingDataAdapter());
   Hive.registerAdapter(UserMercAdapter());
-  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+  runApp(MyApp(languages: languages));
 
 }
+
 
 class MyApp extends StatefulWidget {
   final Map<String, Map<String, String>> languages;
@@ -125,6 +103,8 @@ class _MyAppState extends State<MyApp> {
       );
     });
   }
+
+
 }
 
 

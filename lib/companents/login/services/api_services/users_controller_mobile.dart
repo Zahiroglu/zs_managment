@@ -20,8 +20,9 @@ import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 export 'package:get/get.dart';
 import 'package:hive/hive.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../../local_bazalar/local_db_downloads.dart';
+import '../../../notifications/firebase_notificatins.dart';
 
 class UserApiControllerMobile extends GetxController {
   Dio dio = Dio();
@@ -37,11 +38,12 @@ class UserApiControllerMobile extends GetxController {
   String basVerenXeta = "";
   String languageIndex = "az";
   DrawerMenuController controller = Get.put(DrawerMenuController());
-
+  FirebaseNotyficationController fireTokenServiz=FirebaseNotyficationController();
   @override
   void onInit() {
     localUserServices.init();
     localBaseDownloads.init();
+
     initPlatformState();
     // TODO: implement onInit
     super.onInit();
@@ -65,6 +67,7 @@ class UserApiControllerMobile extends GetxController {
       if(val=="Bos"){
         getCompanyUrlByDivaceId();
       }else{
+        changeLoading();
         loginWithMobileDviceId(val);
 
       }
@@ -136,6 +139,7 @@ class UserApiControllerMobile extends GetxController {
         }
         else {
           if (response.statusCode == 200) {
+            changeLoading();
             String baseUrl=response.data['result'];
             await localUserServices.addCanGetBaseUrl(baseUrl);
             loginWithMobileDviceId(baseUrl);
@@ -151,6 +155,7 @@ class UserApiControllerMobile extends GetxController {
             ));
             if (baseResponce.code == 400) {
               deviceIdMustvisible.value = true;
+
             }
           }
         }
@@ -174,6 +179,12 @@ class UserApiControllerMobile extends GetxController {
     print("baseUrl :"+baseUrl.toString());
     languageIndex = await getLanguageIndex();
     dviceType = checkDviceType.getDviceType();
+    var data={
+    "deviceId": dviceId.value,
+    "firebaseId": await fireTokenServiz.getFireToken(),
+    "macAddress": "123-123-123-123"
+    };
+    print("Data :"+data.toString());
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
@@ -186,7 +197,7 @@ class UserApiControllerMobile extends GetxController {
     } else {
       try {
         final response = await dio.post(
-          "$baseUrl/api/v1/User/login-with-deviceid", data: {"deviceId": dviceId.value, "macAddress": "123-123-123-123"},
+          "$baseUrl/api/v1/User/login-with-deviceid", data:data,
           options: Options(
             // receiveTimeout: const Duration(seconds: 60),
             headers: {
@@ -446,4 +457,7 @@ class UserApiControllerMobile extends GetxController {
     await localBaseDownloads.init();
     return  localBaseDownloads.checkIfUserMustDonwloadsBaseFirstTime(roleId);
   }
+
+
+
 }

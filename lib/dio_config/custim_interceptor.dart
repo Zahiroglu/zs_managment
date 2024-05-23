@@ -54,6 +54,7 @@ class CustomInterceptor extends Interceptor {
     print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
      if (response.statusCode != 200) {
        if(response.statusCode == 404){
+         await localBazalar.claerBaseUrl();
          Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
        }
       if (response.statusCode == 401) {
@@ -78,16 +79,19 @@ class CustomInterceptor extends Interceptor {
 
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    print("error :" + err.toString());
-    Get.dialog(ShowInfoDialog(
-      color: Colors.red,
-      icon: Icons.error_outline,
-      messaje: err.toString(),
-      callback: () {
-        Get.back();
-      },
-    ));
-    super.onError(err, handler);
+    if(err.type == DioExceptionType.connectionTimeout){
+      await localBazalar.claerBaseUrl();
+      Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
+    }else {
+      Get.dialog(ShowInfoDialog(
+        color: Colors.red,
+        icon: Icons.error_outline,
+        messaje: err.toString(),
+        callback: () {
+          Get.back();
+        },
+      ));
+    }super.onError(err, handler);
   }
 
   Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {

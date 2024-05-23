@@ -57,7 +57,7 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 5.h),
+            const SizedBox(height: 5),
             Expanded(
                 flex: 2,
                 child: widgetHeader()),
@@ -84,11 +84,11 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
-                maxRadius: 30.w,
-                minRadius: 20.w,
+                maxRadius: 30,
+                minRadius: 20,
                 backgroundColor: Colors.white,
                 child:  Image.asset(
                   widget.userModel.userModel!.gender.toString() == "Qadin"
@@ -99,11 +99,11 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
               const SizedBox(width: 10,),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomText(labeltext: "${widget.userModel.userModel!.name} ${widget.userModel.userModel!.surname} - ${widget.userModel.userModel!.code}",fontWeight: FontWeight.w700,fontsize: 14.sp,overflow: TextOverflow.ellipsis,),
-                    SizedBox(width: 5.h,),
+                    SizedBox(width: 5,),
                     CustomText(labeltext: "${widget.userModel.userModel!.moduleName}",fontWeight: FontWeight.w500,fontsize: 12.sp,overflow: TextOverflow.ellipsis,),
                     CustomText(labeltext: "${widget.userModel.userModel!.roleName}",fontWeight: FontWeight.w500,fontsize: 12.sp,overflow: TextOverflow.ellipsis,),
 

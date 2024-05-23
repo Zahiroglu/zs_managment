@@ -19,6 +19,7 @@ import '../../../routs/rout_controller.dart';
 import '../../../utils/checking_dvice_type.dart';
 import '../../../widgets/simple_info_dialog.dart';
 import '../../connected_users/model_main_inout.dart';
+import '../../live_track/model/model_my_connecteduserslocations.dart';
 import '../../local_bazalar/local_users_services.dart';
 import '../../login/models/base_responce.dart';
 import '../../login/models/logged_usermodel.dart';
@@ -26,14 +27,18 @@ import '../../login/models/user_model.dart';
 import '../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'liveTrack/model_live_track_map.dart';
+
 class WidgetHesabatListItemsUser extends StatefulWidget {
   BuildContext context;
   ModelCariHesabatlar modelCariHesabatlar;
   String userCode;
   String roleId;
+  Function onclick;
 
   WidgetHesabatListItemsUser(
-      {required this.modelCariHesabatlar,
+      {required this.onclick,
+      required this.modelCariHesabatlar,
       required this.context,
       required this.userCode,
       required this.roleId,
@@ -335,7 +340,7 @@ class _WidgetHesabatListItemsUserState
                             pickerType: DateTimePickerType.datetime,
                           );
                           if (result != null) {
-                            setState(() => ctFistDay.text = result.toString());
+                            setState(() => ctFistDay.text = result.toString().substring(0,16));
                           }
                         },
                         // suffixIcon: Icons.date_range,
@@ -377,7 +382,7 @@ class _WidgetHesabatListItemsUserState
                             pickerType: DateTimePickerType.datetime,
                           );
                           if (result != null) {
-                            setState(() => ctLastDay.text = result.toString());
+                            setState(() => ctLastDay.text = result.toString().substring(0,16));
                           }
                         },
                         // suffixIcon: Icons.date_range,
@@ -452,17 +457,51 @@ class _WidgetHesabatListItemsUserState
   }
 
   Future<void> _intenReqPage() async {
-    DialogHelper.showLoading("cmendirilir".tr);
     switch (widget.modelCariHesabatlar.key) {
       case "trhesabat":
+        DialogHelper.showLoading("cmendirilir".tr);
         List<ModelMainInOut> listGirisCixis = [];
         List<UserModel> listUsers = [];
         MercDataModel modela = await getAllCustomersMerc(widget.userCode);
-        await getAllGirisCixis(widget.userCode, widget.roleId);
+        listGirisCixis=await getAllGirisCixis(widget.userCode, widget.roleId);
         DialogHelper.hideLoading();
         if (modela.user != null) {
-          Get.toNamed(RouteHelper.screenMercRoutDatail,
-              arguments: [modela, listGirisCixis, listUsers]);
+          Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela, listGirisCixis, listUsers]);
+        } else {
+          Get.dialog(ShowInfoDialog(
+              messaje: "mtapilmadi".tr,
+              icon: Icons.error,
+              callback: () {
+                Get.back();
+                Get.back();
+              }));
+        }
+        break;
+        case "tzhesab":
+        DialogHelper.showLoading("tzhesab".tr);
+        List<ModelMainInOut> listGirisCixis=await getAllGirisCixis(widget.userCode, widget.roleId);
+        DialogHelper.hideLoading();
+        if (listGirisCixis.isNotEmpty) {
+          Get.toNamed(RouteHelper.screenTemZiyaret, arguments: [listGirisCixis]);
+        } else {
+          Get.dialog(ShowInfoDialog(
+              messaje: "mtapilmadi".tr,
+              icon: Icons.error,
+              callback: () {
+                Get.back();
+                Get.back();
+              }));
+        }
+        break;
+    }switch (widget.modelCariHesabatlar.key) {
+      case "tizlemehesab":
+        DialogHelper.showLoading(widget.modelCariHesabatlar.label!.tr);
+
+        List<MyConnectedUsersCurrentLocationReport> listGirisCixis = [];
+        listGirisCixis=await getMyConnectedUsersCurrentLocations(widget.userCode, widget.roleId);
+        DialogHelper.hideLoading();
+        if (listGirisCixis.isNotEmpty) {
+          Get.toNamed(RouteHelper.screenLiveTrackReport,arguments: [listGirisCixis]);
         } else {
           Get.dialog(ShowInfoDialog(
               messaje: "mtapilmadi".tr,
@@ -554,20 +593,26 @@ class _WidgetHesabatListItemsUserState
     return listUsers;
   }
 
-  Future<List<ModelMainInOut>> getAllGirisCixis(
-      String temsilcikodu, String roleId) async {
+  Future<List<ModelMainInOut>> getAllGirisCixis(String temsilcikodu, String roleId) async {
     List<ModelMainInOut> listGirisCixis = [];
     final now = DateTime.now();
     var date = DateTime(now.year, now.month, 1).toString();
     DateTime dateParse = DateTime.parse(date);
-    String ilkGun = intl.DateFormat('yyyy/MM/dd hh:mm').format(dateParse);
-    String songun = intl.DateFormat('yyyy/MM/dd hh:mm').format(now);
+    //String ilkGun = intl.DateFormat('yyyy-MM-dd hh:mm').format(dateParse);
+    String ilkGun = intl.DateFormat('yyyy-MM-dd').format(dateParse);
+    //String songun = intl.DateFormat('yyyy-MM-dd hh:mm').format(now);
+    String songun = intl.DateFormat('yyyy-MM-dd').format(now);
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     var data = {
-      "userCode": loggedUserModel.userModel!.code!,
-      "userPosition": loggedUserModel.userModel!.roleId!,
-      "startDate": ilkGun,
-      "endDate": songun
+
+        "user": [
+          {
+            "code": temsilcikodu,
+            "role": roleId
+          }
+        ],
+        "startDate": ilkGun,
+        "endDate": songun
     };
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -636,6 +681,98 @@ class _WidgetHesabatListItemsUserState
           icon: Icons.error_outline,
           messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
           callback: () {},
+        ));
+      }
+    }
+    return listGirisCixis;
+  }
+
+  Future<List<MyConnectedUsersCurrentLocationReport>> getMyConnectedUsersCurrentLocations(String temsilcikodu, String roleId) async {
+    List<MyConnectedUsersCurrentLocationReport> listGirisCixis = [];
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    var data = {
+      "user": [
+        {
+          "code": widget.userCode,
+          "role":widget.roleId
+        }
+      ],
+      "startDate": ctFistDay.text.toString().substring(0,16),
+      "endDate": ctLastDay.text.toString().substring(0,16)
+
+    };
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio().post(
+              "${loggedUserModel.baseUrl}/api/v1/InputOutput/live-tracking-by-user",
+              data: data,
+              options: Options(
+                headers: {
+                  'Lang': languageIndex,
+                  'Device': dviceType,
+                  'abs': '123456',
+                  "Authorization": "Bearer $accesToken"
+                },
+                validateStatus: (_) => true,
+                contentType: Headers.jsonContentType,
+                responseType: ResponseType.json,
+              ),
+            );
+        if (response.statusCode == 404) {
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "baglantierror".tr,
+            callback: () {
+              Get.back();
+            },
+          ));
+        } else {
+          if (response.statusCode == 200) {
+            var dataModel = json.encode(response.data['result']);
+            List listuser = jsonDecode(dataModel);
+            for (var i in listuser) {
+              MyConnectedUsersCurrentLocationReport model = MyConnectedUsersCurrentLocationReport.fromJson(i);
+              print("model :" + model.toString());
+              listGirisCixis.add(model);
+            }
+          } else {
+            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {
+                Get.back();
+              },
+            ));
+          }
+        }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {
+            Get.back();
+          },
         ));
       }
     }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "281974451758",
+    "project_id": "zscontrollsystem",
+    "storage_bucket": "zscontrollsystem.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:281974451758:android:b37adf32a79ddfd0f1b9bf",
+        "android_client_info": {
+          "package_name": "com.example.zs_managment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

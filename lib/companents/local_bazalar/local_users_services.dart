@@ -53,9 +53,13 @@ class LocalUserServices {
   clearALLdata() {
     late Box loggedUserBox = Hive.box("LoggedUsers");
     late Box loggedLanguage = Hive.box("myLanguage");
-    late Box canGetBaseUrl = Hive.box("canGetBaseUrl");
+   // late Box canGetBaseUrl = Hive.box("canGetBaseUrl");
     loggedLanguage.clear();
     loggedUserBox.clear();
+    canGetBaseUrl.clear();
+  }
+  clearBaseUrl() {
+    late Box canGetBaseUrl = Hive.box("canGetBaseUrl");
     canGetBaseUrl.clear();
   }
   clearLoggedUserInfo() {

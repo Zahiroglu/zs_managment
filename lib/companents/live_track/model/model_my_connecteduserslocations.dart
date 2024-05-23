@@ -18,7 +18,7 @@ class MyConnectedUsersCurrentLocation {
   String toRawJson() => json.encode(toJson());
 
   factory MyConnectedUsersCurrentLocation.fromJson(Map<String, dynamic> json) => MyConnectedUsersCurrentLocation(
-    userLocation: List<ModelLiveTrack>.from(json["userLocation"].map((x) => ModelLiveTrack.fromJson(x))),
+    userLocation:json["userLocation"]!=null? List<ModelLiveTrack>.from(json["userLocation"].map((x) => ModelLiveTrack.fromJson(x))):[],
     notInWorkUserCount: json["notInWorkUserCount"],
     errorCount: json["errorCount"],
   );

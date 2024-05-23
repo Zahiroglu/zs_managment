@@ -17,6 +17,8 @@ import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/s
 import 'package:zs_managment/companents/tapsiriqlar/screen_complate_cari_task.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import '../companents/base_downloads/screen_download_base.dart';
+import '../companents/hesabatlar/user_hesabatlar/liveTrack/screen_livetrack_report.dart';
+import '../companents/hesabatlar/user_hesabatlar/temsilci_uzrez_ziyaret_hesabati/temsilci_uzre_ziyaret_hesabati.dart';
 import '../companents/live_track/screen_search_live_users.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/merc_cari_edit.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/screen_rutsirasi_edit.dart';
@@ -71,8 +73,10 @@ class RouteHelper {
   static const String screenExpRutSiraEdit = '/screenExpRutSiraEdit';
   static const String screenMercAdinaMusteriAt = '/screenMercAdinaMusteriAt';
   static const String searchLiveUsers = '/searchLiveUsers';
+  static const String screenLiveTrackReport = '/screenLiveTrackReport';
   static const String createNewTask = '/createNewTask';
   static const String screenComplateCariTask = '/screenComplateCariTask';
+  static const String screenTemZiyaret = '/screenTemZiyaret';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
@@ -108,10 +112,26 @@ class RouteHelper {
   static String getScreenExpRutSiraEdit() => screenExpRutSiraEdit;
   static String getScreenMercAdinaMusteriAt() => screenMercAdinaMusteriAt;
   static String getsearchLiveUsers() => searchLiveUsers;
+  static String getscreenLiveTrackReport() => screenLiveTrackReport;
   static String getCreateNewTask() => createNewTask;
   static String getScreenComplateCariTask() => screenComplateCariTask;
+  static String getScreenTemZiyaret() => screenTemZiyaret;
 
   static List<GetPage> routes = [
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenTemZiyaret, page: () {
+      return   TemsilciUzreZiyaretHesabati(listGirisCixis: Get.arguments[0],);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenLiveTrackReport, page: () {
+      return   ScreenLiveTrackReport(listGirisCixis: Get.arguments[0],);
+      return  Container();
+    }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),

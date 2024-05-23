@@ -31,6 +31,43 @@ class NotyBackgroundTrack{
 
   static IOSNotificationDetails() {}
 
+  static showBigTextNotificationUpdate({int id=1,required String title, required String body, required FlutterLocalNotificationsPlugin fln}) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+    const AndroidNotificationDetails(
+      'you_can_name_it_whatever1',
+      'channel_namenew',
+      ongoing: false,
+      autoCancel: false,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('navsound'),
+      //sound:('notification'),
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+    var not= NotificationDetails(android: androidPlatformChannelSpecifics,
+      iOS: IOSNotificationDetails(),
+    );
+    await fln.show(id, title, body,not );
+  }
+  static showFireBaseNoty({int id=2,required String title, required String body, required FlutterLocalNotificationsPlugin fln}) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+    const AndroidNotificationDetails(
+      'you_can_name_it_whatever1',
+      'channel_namenew',
+      ongoing: false,
+      autoCancel: false,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('navsound'),
+      //sound:('notification'),
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+    var not= NotificationDetails(android: androidPlatformChannelSpecifics,
+      iOS: IOSNotificationDetails(),
+    );
+    await fln.show(id, title, body,not );
+  }
+
 
 
 }

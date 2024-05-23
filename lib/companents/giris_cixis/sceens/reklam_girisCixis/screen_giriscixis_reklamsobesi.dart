@@ -152,9 +152,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
                   .where((p) => p.selected == true)
                   .first,
               position);
-          funFlutterToast("Cureent loc :" +
-              _currentLocation.longitude.toString() +
-              _currentLocation.latitude.toString());
+          funFlutterToast("Current loc :${_currentLocation.longitude}${_currentLocation.latitude}");
         }});
       _positionStreamSubscription?.pause();
     }
@@ -910,7 +908,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
               flex: 3,
                   child: CustomElevetedButton(
                                 cllback: () {
-                  girisEt(selectedCariModel, secilenMarketdenUzaqliqString);
+                                  girisEt(selectedCariModel, secilenMarketdenUzaqliqString);
                                 },
                                 label: "Giris Et",
                                 width: 120,
@@ -1093,7 +1091,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
                                   icon: Icons.exit_to_app_rounded,
                                   elevation: 5,
                                   cllback: () async {
-                                    await controllerGirisCixis.pripareForEnter(_currentLocation, model, secilenMarketdenUzaqliqString);
+                                    await controllerGirisCixis.pripareForEnter(value, model, secilenMarketdenUzaqliqString);
                                     setState(() {
                                       selectedCariModel = ModelCariler();
                                     });
@@ -1452,7 +1450,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
                                   icon: Icons.exit_to_app_rounded,
                                   elevation: 5,
                                   cllback: () {
-                                    cixisEt(secilenMarketdenUzaqliqString);
+                                    cixisEt(secilenMarketdenUzaqliqString,value);
                                     Get.back();
                                   },
                                   label: "cixiset".tr)
@@ -1482,9 +1480,9 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> {
     });
   }
 
-  Future<void> cixisEt(String uzaqliq) async {
+  Future<void> cixisEt(String uzaqliq, Position value) async {
     await controllerGirisCixis.pripareForExit(
-        _currentLocation, uzaqliq);
+        value, uzaqliq);
     setState(() {});
   }
 }

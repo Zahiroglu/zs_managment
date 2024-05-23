@@ -77,7 +77,7 @@ class _MainScreenMobileState extends State<MainScreenMobile> {
             key: _key,
             drawer: melumatYuklendi?Drawer(
               backgroundColor: Colors.transparent,
-              width: ScreenUtil.defaultSize.width*0.8,
+              width: MediaQuery.of(context).size.width*0.75,
               child: CustomDrawerMobile(
                 drawerMenuController: drawerMenuController,
                 userModel: userServices.getLoggedUser(),

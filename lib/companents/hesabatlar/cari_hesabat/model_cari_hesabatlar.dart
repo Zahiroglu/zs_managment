@@ -91,7 +91,7 @@ class ModelCariHesabatlar {
         needTime: true,
         //routName: RouteHelper.getCariSatilanCesidRaporu(),
         needDate: true,
-        key: "tzhesab"));
+        key: "tizlemehesab"));
 
     return cariHesabatlar;
   }

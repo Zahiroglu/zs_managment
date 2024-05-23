@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:background_fetch/background_fetch.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
+import 'package:location/location.dart';
 
 import '../../dio_config/api_client_live.dart';
 import '../../utils/checking_dvice_type.dart';
@@ -11,19 +14,22 @@ import '../local_bazalar/local_users_services.dart';
 import '../login/models/logged_usermodel.dart';
 import '../notifications/noty_background_track.dart';
 class BackGroudTask{
+  final Location location = Location();
+  late LocationData _locationData;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   LocalUserServices userService = LocalUserServices();
   late CheckDviceType checkDviceType = CheckDviceType();
-
+  //late Position position;
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
+    location.enableBackgroundMode(enable: true);
     NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
     // Load persisted fetch events from SharedPreferences
     // Configure BackgroundFetch.
     try {
       var status = await BackgroundFetch.configure(BackgroundFetchConfig(
-          minimumFetchInterval: 15,
-          forceAlarmManager: false,
+          minimumFetchInterval: 1,
+          forceAlarmManager: true,
           stopOnTerminate: false,
           startOnBoot: true,
           enableHeadless: true,
@@ -39,7 +45,7 @@ class BackGroudTask{
       // where device must be powered (and delay will be throttled by the OS).
       BackgroundFetch.scheduleTask(TaskConfig(
           taskId: "com.transistorsoft.customtask",
-          delay: 10000,
+          delay: 5000,
           startOnBoot: true,
           periodic: true,
           forceAlarmManager: true,
@@ -55,16 +61,8 @@ class BackGroudTask{
   }
 
   void _onBackgroundFetch(String taskId) async {
-    print("[BackgroundFetch] Event received: $taskId");
+    print(DateTime.now().toString()+"[BackgroundFetch] Event received: $taskId");
     sendDataToServer();
-
-    // Persist fetch events in SharedPreferences
-    // if (taskId == "flutter_background_fetch") {
-    //   // Perform an example HTTP request.
-    //   sendDataToServer();
-    // }
-    // IMPORTANT:  You must signal completion of your fetch task or the OS can punish your app
-    // for taking too long in the background.
     BackgroundFetch.finish(taskId);
   }
 
@@ -76,6 +74,9 @@ class BackGroudTask{
   Future showNotification() async {
    await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Markete giris etdiniz.Telefonu sondurmeyin", fln: flutterLocalNotificationsPlugin);
   }
+  Future showNotificationUpdate(LocationData locationData) async {
+    await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet", body: "Location yenilendi "+DateTime.now().toString()+"Gps :"+locationData.latitude.toString()+","+locationData.longitude.toString(), fln: flutterLocalNotificationsPlugin);
+  }
 
   void _onBackgroundFetchTimeout(String taskId) {
     print("[BackgroundFetch] TIMEOUT: $taskId");
@@ -86,6 +87,7 @@ class BackGroudTask{
   startBackgorundFetck(){
     BackgroundFetch.start().then((status) async {
       await showNotification();
+      sendDataToServer();
       print('[BackgroundFetch] start success: $status');
     }).catchError((e) {
       print('[BackgroundFetch] start FAILURE: $e');
@@ -93,18 +95,65 @@ class BackGroudTask{
   }
 
   stopBackGroundFetch(){
-    BackgroundFetch.stop().then((status) {
+    BackgroundFetch.stop().then((status) async {
+      await flutterLocalNotificationsPlugin.cancel(0);
+      sendDataToServer();
       print('[BackgroundFetch] stop success: $status');
     });
   }
 
   void sendDataToServer() async{
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    _sendInfoToDatabase(position);
+    print(DateTime.now().toString()+"Location serviz cagrildi");
+    _locationData = await location.getLocation();
+    showNotificationUpdate(_locationData);
+    _sendInfoToDatabase2(_locationData.latitude!,_locationData.longitude!);
   }
 
+  Future<void> _sendInfoToDatabase2(double latitude,double lng) async {
+    await userService.init();
+    print(DateTime.now().toString()+"Api cagrildi :");
+
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    String languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    var data = {
+      "userCode": loggedUserModel.userModel!.code!,
+      "userPosition": loggedUserModel.userModel!.roleId!,
+      "userFullName":
+      "${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!.surname!}",
+      "latitude": latitude,
+      "longitude": lng,
+      "locationDate": DateTime.now().toString()
+    };
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      /// baglanti xetasi var
+    } else {
+      final response = await ApiClientLive().dio().post(
+        "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
+        data: data,
+        options: Options(
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'abs': '123456',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        print("melumat sisteme gonderildi : " + data.toString());
+      }
+    }
+  }
   Future<void> _sendInfoToDatabase(Position location) async {
     await userService.init();
+    print(DateTime.now().toString()+"Api cagrildi :");
+
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
@@ -126,7 +175,6 @@ class BackGroudTask{
         "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
         data: data,
         options: Options(
-          receiveTimeout: const Duration(seconds: 60),
           headers: {
             'Lang': languageIndex,
             'Device': dviceType,

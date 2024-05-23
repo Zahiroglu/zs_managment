@@ -42,4 +42,9 @@ class ModelRequestGirisCixis {
     "operationLongitude": operationLongitude,
     "note": note,
   };
+
+  @override
+  String toString() {
+    return 'ModelRequestGirisCixis{userCode: $userCode, userPosition: $userPosition, customerCode: $customerCode, operationType: $operationType, operationLatitude: $operationLatitude, operationLongitude: $operationLongitude, note: $note}';
+  }
 }

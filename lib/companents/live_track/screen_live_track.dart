@@ -366,7 +366,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                 ],
               ),
             )):SizedBox(),
-        Positioned(
+        controllerGirisCixis.dataLoading.isFalse?Positioned(
             left: 5,
             top: 70,
             child: InkWell(
@@ -398,8 +398,8 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                               child: Center(child: CustomText(labeltext: controllerGirisCixis.modelMuyConnectUsers.value.notInWorkUserCount.toString(),color: Colors.white,fontWeight: FontWeight.bold,fontsize: 12,)))))
                 ],
               ),
-            )),
-        Positioned(
+            )):SizedBox(),
+        controllerGirisCixis.dataLoading.isFalse?Positioned(
             left: 5,
             top: 130,
             child: InkWell(
@@ -432,7 +432,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                               child: Center(child: CustomText(labeltext: controllerGirisCixis.modelMuyConnectUsers.value.errorCount.toString(),color: Colors.white,fontWeight: FontWeight.bold,fontsize: 12,)))))
                 ],
               ),
-            )),
+            )):SizedBox(),
 
         Positioned(
             top: 20,
@@ -785,7 +785,9 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
         child: Column(
           children: [
             //WidgetRuthesabatlar(roleId: controllerGirisCixis.selectedModel.value.currentLocation!.userPosition.!,height: 100,temsilciKodu: controllerGirisCixis.selectedModel.value.userCode!),
-            WidgetRuthesabatlar(roleId: 21,height: 100,temsilciKodu: controllerGirisCixis.selectedModel.value.userCode!),
+            WidgetRuthesabatlar(roleId: controllerGirisCixis.selectedModel.value.userPosition.toString(),height: 100,temsilciKodu: controllerGirisCixis.selectedModel.value.userCode!, onClick: (){
+              controllerGirisCixis.timer!.cancel();
+            },),
           ],
         ),
       ),

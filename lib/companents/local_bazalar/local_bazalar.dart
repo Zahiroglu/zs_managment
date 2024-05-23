@@ -30,4 +30,9 @@ class LocalBazalar{
    await localUserServices.clearALLdata();
   }
 
+  claerBaseUrl() async {
+    await  localUserServices.init();
+    await localUserServices.clearBaseUrl();
+  }
+
 }

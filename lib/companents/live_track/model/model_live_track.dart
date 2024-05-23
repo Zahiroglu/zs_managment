@@ -37,6 +37,7 @@ class ModelLiveTrack {
   };
 }
 
+
 class CurrentLocation {
   String? userCode;
   String? userPosition;
@@ -46,6 +47,10 @@ class CurrentLocation {
   String? locationDate;
   String? speed;
   bool? isOnline;
+  String? pastInputCustomerCode;
+  String? pastInputCustomerName;
+  String? inputCustomerDistance;
+  double? batteryLevel;
 
   CurrentLocation({
     this.userCode,
@@ -56,6 +61,10 @@ class CurrentLocation {
     this.locationDate,
     this.speed,
     this.isOnline,
+    this.pastInputCustomerCode,
+    this.pastInputCustomerName,
+    this.inputCustomerDistance,
+    this.batteryLevel,
   });
 
   factory CurrentLocation.fromRawJson(String str) => CurrentLocation.fromJson(json.decode(str));
@@ -63,14 +72,18 @@ class CurrentLocation {
   String toRawJson() => json.encode(toJson());
 
   factory CurrentLocation.fromJson(Map<String, dynamic> json) => CurrentLocation(
-    userCode: json["userCode"]??"",
-    userPosition: json["userPosition"]??"",
-    userFullName: json["userFullName"]??"",
-    latitude: json["latitude"]??"",
-    longitude: json["longitude"]??"",
-    locationDate: json["locationDate"]??"",
-    speed: json["speed"]??"",
-    isOnline: json["isOnline"]??false,
+    userCode: json["userCode"],
+    userPosition: json["userPosition"],
+    userFullName: json["userFullName"],
+    latitude: json["latitude"],
+    longitude: json["longitude"],
+    locationDate: json["locationDate"],
+    speed: json["speed"],
+    isOnline: json["isOnline"],
+    pastInputCustomerCode: json["pastInputCustomerCode"],
+    pastInputCustomerName: json["pastInputCustomerName"],
+    inputCustomerDistance: json["inputCustomerDistance"],
+    batteryLevel: json["batteryLevel"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -82,6 +95,10 @@ class CurrentLocation {
     "locationDate": locationDate,
     "speed": speed,
     "isOnline": isOnline,
+    "pastInputCustomerCode": pastInputCustomerCode,
+    "pastInputCustomerName": pastInputCustomerName,
+    "inputCustomerDistance": inputCustomerDistance,
+    "batteryLevel": batteryLevel,
   };
 }
 
@@ -129,16 +146,18 @@ class LastInoutAction {
   factory LastInoutAction.fromJson(Map<String, dynamic> json) => LastInoutAction(
     customerCode: json["customerCode"]??"",
     customerName: json["customerName"]??"",
-    customerLatitude: json["customerLatitude"]??"",
-    customerLongitude: json["customerLongitude"]??"",
+    customerLatitude: json["customerLongitude"]??"",
+    customerLongitude: json["customerLatitude"]??"",
     inDate: json["inDate"]??"",
     inLatitude: json["inLatitude"]??"",
     inLongitude: json["inLongitude"]??"",
     inNote: json["inNote"]??"",
+    inDistance: json["inDistance"]??"",
     outDate: json["outDate"]??"",
     outLatitude: json["outLatitude"]??"",
     outLongitude: json["outLongitude"]??"",
     outNote: json["outNote"]??"",
+    outDistance: json["outDistance"]??"",
     workTimeInCustomer: json["workTimeInCustomer"]??"",
     inDt: DateTime.parse(json["inDt"]),
   );
@@ -152,10 +171,12 @@ class LastInoutAction {
     "inLatitude": inLatitude,
     "inLongitude": inLongitude,
     "inNote": inNote,
+    "inDistance": inDistance,
     "outDate": outDate,
     "outLatitude": outLatitude,
     "outLongitude": outLongitude,
     "outNote": outNote,
+    "outDistance": outDistance,
     "workTimeInCustomer": workTimeInCustomer,
     "inDt": inDt?.toIso8601String(),
   };

@@ -10,6 +10,7 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 import '../../local_bazalar/local_users_services.dart';
+import '../../notifications/firebase_notificatins.dart';
 
 class LoginMobileFirstScreen extends StatefulWidget {
   const LoginMobileFirstScreen({Key? key}) : super(key: key);
@@ -23,6 +24,7 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
   int slideIndex = 0;
   late PageController controller;
   LocalUserServices userLocalService=LocalUserServices();
+  FirebaseNotyficationController firebaseNotyficationController=FirebaseNotyficationController();
 
   Widget _buildPageIndicator(bool isCurrentPage) {
     return Container(
@@ -44,13 +46,15 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
   }
 
   @override
-  void initState() {
+  initState()  {
     // TODO: implement initState
     super.initState();
     userLocalService.init();
     mySLides = getSlides();
     controller = PageController(initialPage: slideIndex);
     controller.addListener(() => _changeIndex());
+    firebaseNotyficationController.reguestForFirebaseNoty();
+    firebaseNotyficationController.fireBaseMessageInit();
   }
 
   _changeIndex() {

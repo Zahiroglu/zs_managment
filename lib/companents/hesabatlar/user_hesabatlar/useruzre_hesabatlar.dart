@@ -6,12 +6,13 @@ import 'package:zs_managment/companents/hesabatlar/user_hesabatlar/widgetHesabat
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 class WidgetRuthesabatlar extends StatefulWidget {
-  int roleId;
+  String roleId;
   String temsilciKodu;
   double height;
+  Function onClick;
 
   WidgetRuthesabatlar(
-      {required this.roleId, required this.temsilciKodu, required this.height, super.key});
+      {required this.onClick,required this.roleId, required this.temsilciKodu, required this.height, super.key});
 
   @override
   State<WidgetRuthesabatlar> createState() => _WidgetRuthesabatlarState();
@@ -67,7 +68,9 @@ class _WidgetRuthesabatlarState extends State<WidgetRuthesabatlar> {
                       .getAllUserHesabatlarListy()
                       .map((e) => WidgetHesabatListItemsUser(
                             context: context,
-                            modelCariHesabatlar: e, userCode: widget.temsilciKodu,roleId: widget.roleId.toString(),
+                            modelCariHesabatlar: e, userCode: widget.temsilciKodu,roleId: widget.roleId.toString(), onclick: (){
+                              widget.onClick.call();
+                  },
                           ))
                       .toList(),
                 ),
