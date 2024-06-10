@@ -41,17 +41,19 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       modelModules: (fields[21] as List?)?.cast<ModelModule>(),
       connections: (fields[22] as List?)?.cast<ModelUserConnection>(),
       permissions: (fields[23] as List?)?.cast<ModelUserPermissions>(),
-      expDate: fields[24] as int?,
-      addDateStr: fields[25] as String?,
-      requestNumber: fields[26] as String?,
-      lastOnlineDate: fields[27] as String?,
+      draweItems: (fields[24] as List?)?.cast<ModelUserPermissions>(),
+      expDate: fields[25] as int?,
+      addDateStr: fields[26] as String?,
+      requestNumber: fields[27] as String?,
+      lastOnlineDate: fields[28] as String?,
+      active: fields[29] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(28)
+      ..writeByte(30)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -101,13 +103,17 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(23)
       ..write(obj.permissions)
       ..writeByte(24)
-      ..write(obj.expDate)
+      ..write(obj.draweItems)
       ..writeByte(25)
-      ..write(obj.addDateStr)
+      ..write(obj.expDate)
       ..writeByte(26)
-      ..write(obj.requestNumber)
+      ..write(obj.addDateStr)
       ..writeByte(27)
-      ..write(obj.lastOnlineDate);
+      ..write(obj.requestNumber)
+      ..writeByte(28)
+      ..write(obj.lastOnlineDate)
+      ..writeByte(29)
+      ..write(obj.active);
   }
 
   @override

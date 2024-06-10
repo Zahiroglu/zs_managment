@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -52,7 +51,6 @@ class _UserPanelWindosScreenState extends State<UserPanelWindosScreen>
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Obx(() =>
@@ -94,7 +92,7 @@ class _UserPanelWindosScreenState extends State<UserPanelWindosScreen>
                   controller.openUserInfoTable.value = false;
                 });
               },
-              sizeWidght: ScreenUtil.defaultSize.width * 1.2,
+              sizeWidght: MediaQuery.of(context).size.width * 1.2,
               model: controller.getSelectedUser(), //burda istifadeci Modeli olmalidir
             ))
             : const SizedBox()
@@ -112,9 +110,9 @@ class _UserPanelWindosScreenState extends State<UserPanelWindosScreen>
             //color: Colors.black,
             fontWeight: FontWeight.bold,
             latteSpacer: 1,
-            fontsize: 8.sp),
-        SizedBox(
-          width: 15.w,
+            fontsize: 8),
+        const SizedBox(
+          width: 15,
         ),
         CustomElevetedButton(
           icon: Icons.person_add_alt,
@@ -133,8 +131,8 @@ class _UserPanelWindosScreenState extends State<UserPanelWindosScreen>
                   );
                 });
           },
-          width: 40.w,
-          height: 35.h,
+          width: 40,
+          height: 35,
           elevation: 5,
           label: "newUser".tr,
         ),
@@ -198,7 +196,7 @@ class _UserPanelWindosScreenState extends State<UserPanelWindosScreen>
                         ),
                       ),
                       SizedBox(
-                        width: 5.w,
+                        width: 5,
                       ),
                       CustomElevetedButton(
                         icon: Icons.search,
@@ -216,7 +214,7 @@ class _UserPanelWindosScreenState extends State<UserPanelWindosScreen>
                         label: "axtar".tr,
                       ),
                       SizedBox(
-                        width: 5.w,
+                        width: 5,
                       ),
                       Obx(() =>
                       controller.listUsers!.isEmpty ? SizedBox() : CustomElevetedButton(
@@ -307,7 +305,7 @@ class _UserPanelWindosScreenState extends State<UserPanelWindosScreen>
             fontsize: labelSize,
             fontWeight: FontWeight.w700),
         SizedBox(
-          width: 5.w,
+          width: 5,
         ),
         CustomText(
             color: Colors.blue,

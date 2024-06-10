@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:get/get.dart';
 import '../../../widgets/custom_text_field.dart';
@@ -30,7 +29,6 @@ class _ScreenSearchMusteriState extends State<ScreenSearchMusteri> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
       child: SafeArea(
         child: Scaffold(
@@ -288,7 +286,7 @@ class _ScreenSearchMusteriState extends State<ScreenSearchMusteri> {
                 width: 5,
               ),
               SizedBox(
-                width: ScreenUtil.defaultSize.width / 1.7,
+                width: MediaQuery.of(context).size.width / 1.7,
                 child: CustomText(
                   overflow: TextOverflow.ellipsis,
                   maxline: 1,

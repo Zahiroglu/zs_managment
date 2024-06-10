@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -114,7 +113,7 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
                     ),
                   )),
               SizedBox(
-                height: 100,
+                height: 60,
                 child: Ink(
                   decoration: const ShapeDecoration(
                     color: Colors.blue,

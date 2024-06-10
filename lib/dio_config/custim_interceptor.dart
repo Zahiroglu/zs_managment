@@ -42,7 +42,7 @@ class CustomInterceptor extends Interceptor {
     await localUserServices.init();
     String token = localUserServices.getLoggedUser().tokenModel!.accessToken!;
     String refresh = localUserServices.getLoggedUser().tokenModel!.refreshToken!;
-    print('Request[=> PATH:${options.path}] data :${options.data} refresj :${refresh}');
+    print('Request[=> PATH:${options.path}] data :${options.data} ');
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     }
@@ -64,14 +64,7 @@ class CustomInterceptor extends Interceptor {
         }
       }
       else{
-        Get.dialog(ShowInfoDialog(
-          color: Colors.red,
-          icon: Icons.error_outline,
-          messaje: "Xeta bas verdi",
-          callback: () {
-            Get.back();
-          },
-        ));
+        Get.back();
       }
     }
     super.onResponse(response, handler);
@@ -165,7 +158,7 @@ class CustomInterceptor extends Interceptor {
   Future<void> _sistemiYenidenBaslat() async {
     Get.delete<DrawerMenuController>();
     Get.delete<UsersApiController>();
-    Get.delete<SettingPanelController>();
+    //Get.delete<SettingPanelController>();
     Get.delete<ControllerAnbar>();
     await localBazalar.clearLoggedUserInfo();
     await localBazalar.clearAllBaseDownloads();
@@ -211,7 +204,7 @@ class ModelExceptions {
         code: json["code"],
         message: json["message"],
         level: json["level"],
-        validationMessage: json["validationMessage"],
+        validationMessage: json["validationMessage"].toString(),
       );
 
   Map<String, dynamic> toJson() => {

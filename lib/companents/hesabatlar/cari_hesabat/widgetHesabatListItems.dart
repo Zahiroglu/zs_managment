@@ -5,6 +5,7 @@ import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesab
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
+import 'package:zs_managment/widgets/simple_info_dialog.dart';
 
 class WidgetHesabatListItemsCari extends StatefulWidget {
   BuildContext context;
@@ -190,7 +191,7 @@ class _WidgetHesabatListItemsCariState extends State<WidgetHesabatListItemsCari>
                         obscureText: false,
                         updizayn: true,
                         onTopVisible: () {
-                          callDatePicker(true);
+                          callDatePicker(false);
                         },
                         // suffixIcon: Icons.date_range,
                         hasBourder: true,
@@ -264,9 +265,14 @@ class _WidgetHesabatListItemsCariState extends State<WidgetHesabatListItemsCari>
   }
 
   void _intenReqPage() {
-    //ctFistDay.clear();
-    //ctLastDay.clear();
-    Get.back();
-    Get.toNamed(widget.modelCariHesabatlar.routName!,arguments: [ctFistDay.text,ctLastDay.text,widget.ckod]);
+   if(widget.modelCariHesabatlar.isAktiv!){
+     Get.back();
+     Get.toNamed(widget.modelCariHesabatlar.routName!,arguments: [ctFistDay.text,ctLastDay.text,widget.ckod,widget.cAd]);
+   }else{
+     Get.dialog(ShowInfoDialog(messaje: "hesbatAktivDeyil".tr, icon: Icons.unpublished, callback: (){
+       Get.back();
+     }));
+   }
+
   }
 }

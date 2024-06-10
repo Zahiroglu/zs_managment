@@ -3,12 +3,13 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
+
+import '../../giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
 
 class ControllerSifarisDetal extends GetxController {
   LocalBaseSatis localBaseSatis = LocalBaseSatis();

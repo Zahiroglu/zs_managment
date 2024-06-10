@@ -1,7 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:lottie/lottie.dart';
 
 import 'custom_responsize_textview.dart';
@@ -14,15 +12,14 @@ class LoagindAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Lottie.asset(
-              height: 200.h,
-                  width: 250.w,
+              height: 200,
+                  width: 250,
                   icon!,
                   filterQuality: FilterQuality.high,
                   repeat: true,

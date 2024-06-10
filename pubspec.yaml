@@ -40,9 +40,7 @@ dependencies:
   #local db
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  #screen size
-  flutter_screenutil: ^5.7.0
-  #for animated lotie
+   #for animated lotie
   lottie: ^2.3.2
   #for using platform
   android_id: ^0.3.3
@@ -95,6 +93,8 @@ dependencies:
   flutter_local_notifications: ^17.1.2
   firebase_messaging: ^14.9.3
   firebase_core: ^2.31.1
+  open_settings: ^2.0.2
+  syncfusion_flutter_core: ^21.2.10
 
 dev_dependencies:
   flutter_test:

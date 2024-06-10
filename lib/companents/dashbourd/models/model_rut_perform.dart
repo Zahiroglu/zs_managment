@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
+
+import '../../giris_cixis/models/model_customers_visit.dart';
 
 class ModelRutPerform {
   int? snSayi;
@@ -13,7 +14,8 @@ class ModelRutPerform {
   int? ziyaretEdilmeyen;
   List<ModelCariler>? listGunlukRut;
   List<ModelCariler>? listZiyaretEdilmeyen;
-  List<ModelGirisCixis>? listGirisCixislar;
+  List<ModelCustuomerVisit>? listGirisCixislar;
+  List<ModelCustuomerVisit>? listGonderilmeyenZiyaretler;
 
   ModelRutPerform({
     this.snSayi,
@@ -26,6 +28,7 @@ class ModelRutPerform {
     this.listGirisCixislar,
     this.listGunlukRut,
     this.listZiyaretEdilmeyen,
+    this.listGonderilmeyenZiyaretler,
   });
 
   ModelRutPerform copyWith({

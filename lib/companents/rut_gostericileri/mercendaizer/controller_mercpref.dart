@@ -6,7 +6,6 @@ import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_merc_customers_edit.dart';
-import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -14,6 +13,7 @@ import 'package:zs_managment/widgets/widget_rutgunu.dart';
 import 'package:intl/intl.dart' as intl;
 
 import '../../connected_users/model_main_inout.dart';
+import '../../giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
 
 class ControllerMercPref extends GetxController {
   RxList<MercCustomersDatail> listMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;

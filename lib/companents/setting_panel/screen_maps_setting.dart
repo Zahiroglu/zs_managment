@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/giris_cixis/companents/dialog_selectmapapp.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
@@ -82,7 +81,6 @@ class _ScreenMapsSettingState extends State<ScreenMapsSetting> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
       child: SafeArea(
         child: Scaffold(
@@ -190,7 +188,7 @@ class _ScreenMapsSettingState extends State<ScreenMapsSetting> {
 
   Widget widgetChouseAppForUse() {
     return SizedBox(
-      width: ScreenUtil.defaultSize.width,
+      width: MediaQuery.of(context).size.width,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -290,7 +288,7 @@ class _ScreenMapsSettingState extends State<ScreenMapsSetting> {
 
   widgetGiriscixistypeSec() {
     return SizedBox(
-        width: ScreenUtil.defaultSize.width,
+        width: MediaQuery.of(context).size.width,
         child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

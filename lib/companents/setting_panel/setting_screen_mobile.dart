@@ -15,8 +15,6 @@ import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/thema/thema_controller.dart';
 import 'package:zs_managment/thema/theme_constants.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:zs_managment/widgets/custom_switch.dart';
 
 class SettingScreenMobile extends StatefulWidget {
   DrawerMenuController drawerMenuController;
@@ -35,7 +33,6 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(child:
         GetBuilder<LocalizationController>(builder: (localizationController) {
       return  Scaffold(
@@ -103,15 +100,17 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
           )));
     }));
   }
+
   void _openDrawer() {
     widget.drawerMenuController.openDrawer();
     setState(() {
     });
   }
+
   Widget widgetHeaderFull(LocalizationController localizationController) {
     return SizedBox(
       child: Container(
-        height: ScreenUtil.defaultSize.height * 0.38,
+        height: MediaQuery.of(context).size.height * 0.4,
         decoration: BoxDecoration(
             color: Colors.blue.withOpacity(0.6),
             borderRadius: const BorderRadius.only(
@@ -120,11 +119,11 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
         child: Obx(() => Column(
           children: [
             Container(
-              height: 20.h,
+              height: 20,
             ),
             CircleAvatar(
-              maxRadius: 50.w,
-              minRadius: 50.w,
+              maxRadius: 50,
+              minRadius: 50,
               backgroundColor: Colors.white,
               child: Image.asset(
                 settingPanelController.modelModule.value.gender.toString() == "1"
@@ -132,8 +131,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                     : "images/imageman.png",
               ),
             ),
-            SizedBox(
-              height: 10.h,
+            const SizedBox(
+              height: 10,
             ),
             CustomText(
               labeltext: "${settingPanelController.modelModule.value.username!} ${settingPanelController.modelModule.value.surname}",
@@ -145,23 +144,23 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
               themaController.isDark.isTrue ? Colors.white : Colors.black,
             ),
             SizedBox(
-              height: 5.h,
+              height: 10,
             ),
             Obx(() => CustomText(
               labeltext:
               "${settingPanelController.modelModule.value.moduleName} | ${settingPanelController.modelModule.value.roleName}",
               fontWeight: FontWeight.w700,
-              fontsize: 14.sp,
+              fontsize: 14,
               overflow: TextOverflow.ellipsis,
               color:
               themaController.isDark.isTrue ? Colors.white : Colors.black,
             )),
             SizedBox(
-              height: 10.h,
+              height: 10,
             ),
             Container(
-              margin: EdgeInsets.only(left: 30.w, right: 30.w),
-              padding: EdgeInsets.only(top: 5.h, bottom: 5.h),
+              margin: EdgeInsets.only(left: 30, right: 30),
+              padding: EdgeInsets.only(top: 5, bottom: 5),
               decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
                   borderRadius: const BorderRadius.all(Radius.circular(10))),
@@ -206,7 +205,6 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                             setState(() {
                             });
                           },
-                          isDestop: false,
                           localizationController: localizationController,
                         )
                       ],
@@ -229,7 +227,7 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
         children: [
           widgetPersonalInfo(model, themaController),
           SizedBox(
-            height: 5.h,
+            height: 5,
           ),
           widgetPersonalPermisions(model, themaController),
         ],
@@ -239,7 +237,7 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
 
   Widget widgetPersonalInfo(UserModel model, ThemaController themaController) {
     return Container(
-      width: ScreenUtil.defaultSize.width,
+      width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(color: Colors.grey.withOpacity(0.01)),
       child: Column(
@@ -259,8 +257,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
           Row(
             children: [
               const Icon(Icons.place_outlined),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                 color:
@@ -268,8 +266,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                 labeltext: "${"region".tr.toUpperCase()} : ",
                 fontWeight: FontWeight.w600,
               ),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                   color: themaController.isDark.isTrue
@@ -278,14 +276,14 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                   labeltext: model.regionName.toString().toUpperCase() ?? "Bos")
             ],
           ),
-          SizedBox(
-            height: 10.h,
+          const SizedBox(
+            height: 10,
           ),
           Row(
             children: [
               const Icon(Icons.date_range),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                 color:
@@ -293,8 +291,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                 labeltext: "${"birthDay".tr.toUpperCase()} : ",
                 fontWeight: FontWeight.w600,
               ),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                   color: themaController.isDark.isTrue
@@ -304,14 +302,14 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                       model.birthdate.toString().toUpperCase() ??"")
             ],
           ),
-          SizedBox(
-            height: 10.h,
+          const SizedBox(
+            height: 10,
           ),
           Row(
             children: [
               const Icon(Icons.code),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                 color:
@@ -319,8 +317,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                 labeltext: "${"userCode".tr.toUpperCase()} : ",
                 fontWeight: FontWeight.w600,
               ),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                 labeltext: model.code ?? "".toUpperCase() ?? "",
@@ -329,14 +327,14 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
               )
             ],
           ),
-          SizedBox(
-            height: 10.h,
+          const SizedBox(
+            height: 10,
           ),
           Row(
             children: [
               const Icon(Icons.phone_android_outlined),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                 color:
@@ -344,8 +342,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                 labeltext: "${"userPhone".tr.toUpperCase()} : ",
                 fontWeight: FontWeight.w600,
               ),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                 labeltext: model.phone.toString() ?? "",
@@ -354,14 +352,14 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
               )
             ],
           ),
-          SizedBox(
-            height: 10.h,
+          const SizedBox(
+            height: 10,
           ),
           Row(
             children: [
               const Icon(Icons.email_outlined),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                 color:
@@ -369,8 +367,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                 labeltext: "${"email".tr.toUpperCase()} : ",
                 fontWeight: FontWeight.w600,
               ),
-              SizedBox(
-                width: 10.w,
+              const SizedBox(
+                width: 10,
               ),
               CustomText(
                   color: themaController.isDark.isTrue
@@ -379,8 +377,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                   labeltext: model.email.toString() ?? "")
             ],
           ),
-          SizedBox(
-            height: 10.h,
+          const SizedBox(
+            height: 10,
           ),
         ],
       ),
@@ -389,7 +387,7 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
 
   Widget widgetPersonalPermisions(UserModel model, ThemaController themaController) {
     return Container(
-      width: ScreenUtil.defaultSize.width,
+      width: MediaQuery.of(context).size.width,
       margin: const EdgeInsets.all(5),
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(color: Colors.green.withOpacity(0.1)),
@@ -432,8 +430,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                     Icons.logout,
                     color: Colors.red,
                   ),
-                  SizedBox(
-                    width: 5.w,
+                  const SizedBox(
+                    width: 5,
                   ),
                   CustomText(
                     color: Colors.red,
@@ -457,8 +455,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                     Icons.refresh_outlined,
                     color: Colors.blue,
                   ),
-                  SizedBox(
-                    width: 5.w,
+                  const SizedBox(
+                    width: 5,
                   ),
                   CustomText(
                     color: Colors.blue,
@@ -486,8 +484,8 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 iconsufix,
-                SizedBox(
-                  width: 5.w,
+                const SizedBox(
+                  width: 5,
                 ),
                 CustomText(
                     color: themaController.isDark.isTrue
@@ -524,7 +522,7 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
     Get.delete<DrawerMenuController>();
     Get.delete<UsersApiController>();
     Get.delete<UserApiControllerMobile>();
-    Get.delete<SettingPanelController>();
+   // Get.delete<SettingPanelController>();
     Get.delete<ControllerAnbar>();
     await localBazalar.clearLoggedUserInfo();
     await localBazalar.clearAllBaseDownloads();

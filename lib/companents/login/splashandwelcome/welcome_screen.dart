@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
@@ -40,11 +39,8 @@ class _WellCameScreenState extends State<WellCameScreen> with TickerProviderStat
     localUserServices.init();
     localBaseDownloads.init();
     checkDviceType = CheckDviceType();
-    animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2))
-          ..forward();
-    animation =
-        CurvedAnimation(parent: animationController, curve: Curves.decelerate);
+    animationController = AnimationController(vsync: this, duration: const Duration(seconds: 2))..forward();
+    animation = CurvedAnimation(parent: animationController, curve: Curves.decelerate);
     timer = Timer(const Duration(seconds: 3), () async {
       final connectivityResult = await (Connectivity().checkConnectivity());
       getUser(connectivityResult);
@@ -86,7 +82,6 @@ class _WellCameScreenState extends State<WellCameScreen> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -98,20 +93,20 @@ class _WellCameScreenState extends State<WellCameScreen> with TickerProviderStat
             child: Center(
                 child: Image.asset(
               "images/zs6.png",
-              width: 200.w,
-              height: 200.h,
+              width: 200,
+              height: 200,
             )),
           ),
-          SizedBox(
-            height: 20.h,
+          const SizedBox(
+            height: 20,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              CustomText(labeltext: 'welcome', fontsize: 18.sp, maxline: 2),
-              SizedBox(
-                width: 5.w,
+              CustomText(labeltext: 'welcome', fontsize: 18, maxline: 2),
+              const SizedBox(
+                width: 5,
               ),
             ],
           )

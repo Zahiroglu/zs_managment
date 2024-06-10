@@ -304,7 +304,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
 
   widgetInfoHesabatlar(BuildContext context) {
     return Obx(() => WidgetCarihesabatlar(
-        cad: widget.controllerMercPref.selectedMercBaza.value.user!.name, ckod: widget.controllerMercPref.selectedMercBaza.value.user!.code, height: 100));
+        cad: widget.controllerMercPref.selectedCustomers.value.name!, ckod: widget.controllerMercPref.selectedCustomers.value.code!, height: 100));
   }
 
   Widget _infoMarketRout(MercCustomersDatail element, BuildContext context) {

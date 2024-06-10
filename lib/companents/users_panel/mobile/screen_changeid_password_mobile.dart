@@ -1,22 +1,22 @@
+
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:hive/hive.dart';
-import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
-import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
-import 'package:zs_managment/helpers/dialog_helper.dart';
-import 'package:zs_managment/widgets/custom_eleveted_button.dart';
-import 'package:zs_managment/widgets/custom_responsize_textview.dart';
-import 'package:zs_managment/widgets/custom_text_field.dart';
 
-import '../../../constands/app_constands.dart';
 import '../../../dio_config/api_client.dart';
+import '../../../helpers/dialog_helper.dart';
 import '../../../utils/checking_dvice_type.dart';
+import '../../../widgets/custom_eleveted_button.dart';
+import '../../../widgets/custom_responsize_textview.dart';
+import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/simple_info_dialog.dart';
 import '../../local_bazalar/local_users_services.dart';
+import '../../login/models/logged_usermodel.dart';
+import '../../login/models/user_model.dart';
 
 class ChangePasswordAndDviceIdMobile extends StatefulWidget {
   int changeType;
@@ -58,10 +58,8 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
     // TODO: implement dispose
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
         color: Colors.transparent,
         child: Container(
@@ -69,11 +67,11 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
                 border: Border(),
                 borderRadius: BorderRadius.all(Radius.circular(20)),
                 color: Colors.white),
-           // height: ScreenUtil.defaultSize.height / 2,
-           // width: ScreenUtil.defaultSize.width / 2,
+            height: MediaQuery.of(context).size.height / 2,
+            width:MediaQuery.of(context).size.width / 2,
             margin: EdgeInsets.symmetric(
-                vertical: widget.changeType == 1 ? 280 : 330,
-                horizontal: widget.changeType == 1 ? 30: 20),
+                vertical: widget.changeType == 0 ? 230 : 280,
+                horizontal: widget.changeType == 0 ? 40 : 40),
             child: Column(
               children: [
                 Expanded(flex: 3, child: widgetHeader()),
@@ -91,29 +89,38 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
   Widget changeDviceId() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 80, maxWidth: 300),
-          child: CustomTextField(
-            borderColor: Colors.grey,
-            isImportant: true,
-            icon: Icons.mobile_friendly,
-            obscureText: false,
-            controller: cttextDviceId,
-            fontsize: 14,
-            hindtext: "mobId".tr,
-            inputType: TextInputType.text,
+        Padding(
+          padding: const EdgeInsets.only(left: 30),
+          child:CustomText(
+            labeltext: "mobId".tr,
+            color: Colors.red,
+            fontsize: 8,
           ),
         ),
+        Padding(
+        padding: const EdgeInsets.all(0).copyWith(left: 20,right: 20),
+        child: CustomTextField(
+              borderColor: Colors.grey,
+              isImportant: true,
+              icon: Icons.mobile_friendly,
+              obscureText: false,
+              controller: cttextDviceId,
+              fontsize: 14,
+              hindtext: "mobId".tr,
+              inputType: TextInputType.text,
+            ),
+      ),
+
         Padding(
           padding: const EdgeInsets.only(left: 10),
           child: cttextDviceIdError
               ? CustomText(
-                  labeltext: "mobId".tr,
-                  color: Colors.red,
-                  fontsize: 8,
-                )
+            labeltext: "mobId".tr,
+            color: Colors.red,
+            fontsize: 8,
+          )
               : const SizedBox(),
         )
       ],
@@ -125,8 +132,8 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 45.h, maxWidth: 60.w),
+        Padding(
+          padding: const EdgeInsets.all(0).copyWith(left: 20,right: 20),
           child: CustomTextField(
               borderColor: cttextUsernameError ? Colors.red : Colors.grey,
               isImportant: true,
@@ -142,14 +149,14 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
           padding: const EdgeInsets.only(left: 10),
           child: cttextUsernameError
               ? CustomText(
-                  labeltext: "icazeWinwosDialogUsername".tr,
-                  color: Colors.red,
-                  fontsize: 8,
-                )
+            labeltext: "icazeWinwosDialogUsername".tr,
+            color: Colors.red,
+            fontsize: 8,
+          )
               : const SizedBox(),
         ),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 45.h, maxWidth: 60.w),
+        Padding(
+          padding: const EdgeInsets.all(0).copyWith(left: 20,right: 20),
           child: CustomTextField(
               borderColor: cttextPasswordError ? Colors.red : Colors.grey,
               isImportant: true,
@@ -167,14 +174,15 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
               hindtext: 'password'.tr,
               fontsize: 14),
         ),
+
         Padding(
           padding: const EdgeInsets.only(left: 10),
           child: cttextPasswordError
               ? CustomText(
-                  labeltext: "icazeWinwosDialogPassword".tr,
-                  color: Colors.red,
-                  fontsize: 8,
-                )
+            labeltext: "icazeWinwosDialogPassword".tr,
+            color: Colors.red,
+            fontsize: 8,
+          )
               : const SizedBox(),
         ),
       ],
@@ -188,11 +196,12 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Spacer(),
+          const Spacer(),
+          const Spacer(),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: CustomText(
-                labeltext: "Deyisiklik Formu",
+                labeltext: "formChangePaasword".tr,
                 color: Colors.black,
                 fontsize: 18,
                 fontWeight: FontWeight.w700),
@@ -235,7 +244,7 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
 
   Future<void> changeDviceIdFromApi() async {
     var data = {"userId": widget.modelUser.id, "deviceId": cttextDviceId.text};
-    DialogHelper.showLoading("Melumatlar yoxlanir...", false);
+    DialogHelper.showLoading("mYoxlanilir".tr, false);
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -244,7 +253,7 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
@@ -252,23 +261,21 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
     } else {
       try {
         final response = await ApiClient().dio().put(
-              "${loggedUserModel.baseUrl}/api/v1/User/change-deviceid",
-              data: data,
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        print("chage id status code:"+response.statusCode.toString());
-
+          "${loggedUserModel.baseUrl}/api/v1/User/change-deviceid",
+          data: data,
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
         if (response.statusCode == 200) {
           DialogHelper.hideLoading();
           Get.dialog(ShowInfoDialog(
@@ -279,7 +286,7 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
           ));
 
         } else {
-          //DialogHelper.hideLoading();
+          DialogHelper.hideLoading();
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
             messaje: response.data.toString()??"Xeta Bas verdi",
@@ -316,7 +323,7 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
       "username": cttextUsername.text,
       "password": cttextPassword.text
     };
-    DialogHelper.showLoading("Melumatlar yoxlanir...", false);
+    DialogHelper.showLoading("mYoxlanilir".tr, false);
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -325,29 +332,28 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
-          Get.back();
         },
       ));
     } else {
       try {
         final response = await ApiClient().dio().put(
-              "${loggedUserModel.baseUrl}/api/v1/User/change-username-password",
-              data: data,
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
+          "${loggedUserModel.baseUrl}/api/v1/User/change-username-password",
+          data: data,
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
         if (response.statusCode == 200) {
           DialogHelper.hideLoading();
           Get.dialog(ShowInfoDialog(

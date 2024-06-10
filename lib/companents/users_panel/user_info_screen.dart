@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_userconnnection.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/users_panel/controller/user_mainscreen_controller.dart';
 import 'package:zs_managment/companents/users_panel/delete_user/screen_delete_user.dart';
-import 'package:zs_managment/companents/users_panel/other_screens/screen_changeid_password.dart';
 import 'package:zs_managment/companents/users_panel/update_users/screen_update_user.dart';
-import 'package:zs_managment/sizeconfig/responsive_builder.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
+
+import 'mobile/screen_changeid_password_mobile.dart';
 
 class ScreenUserInfo extends StatefulWidget {
   LoggedUserModel loggedUserModel;
@@ -75,62 +72,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return FittedBox(child: _body());
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child:  Container(
-        decoration: const BoxDecoration(
-            color: Colors.lightBlueAccent,
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(15),bottomLeft: Radius.circular(15))
-        ),
-        height: ScreenUtil.defaultSize.height,
-        width: widget.sizeWidght,
-        child: Column(
-          children: [
-            widgetClouse(),
-            headerInfoUser(),
-            Container(
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: const BorderRadius.all(Radius.circular(10))
-              ),
-              margin:  EdgeInsets.symmetric(vertical: 2.w,horizontal: 10.h),
-              //padding: const EdgeInsets.all(5),
-              height: 40.h,
-              child: TabBar(
-                indicator: BoxDecoration(
-                  //border: Border.all(color: Colors.black),
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius:  BorderRadius.circular(10.0)
-                ) ,
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.white,
-                //indicatorSize: TabBarIndicatorSize.tab,
-                padding: const EdgeInsets.all(2),
-                controller: tabController,
-                tabs: listMelumatlar.map((e) => Center(child: CustomText(labeltext: e.tr,textAlign: TextAlign.center,maxline: 2,))).toList(),),
-            ),
-            SizedBox(height: 5.h,),
-            Expanded(
-              flex: 20,
-              child: PageView(
-                controller: controller,
-                children: [
-                  widgetGenralInfo(),
-                  widgetBaglantilarInfo(),
-                  widgetPermisonsInfo()
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: widgetFooter(),
-            )
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _body(){
@@ -161,9 +103,9 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                          border: Border.all(color: Colors.white),
                          borderRadius: const BorderRadius.all(Radius.circular(10))
                      ),
-                     margin:  EdgeInsets.symmetric(vertical: 2.w,horizontal: 10.h),
+                     margin:  EdgeInsets.symmetric(vertical: 2,horizontal: 10),
                      //padding: const EdgeInsets.all(5),
-                     height: 40.h,
+                     height: 40,
                      child: TabBar(
                        indicator: BoxDecoration(
                          //border: Border.all(color: Colors.black),
@@ -244,15 +186,15 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
       Padding(
         padding: const EdgeInsets.all(2.0),
         child: Image.asset(
-          widget.model.gender == "Kisi"
+          widget.model.gender==0
               ? "images/imageman.png"
               : "images/imagewoman.png",
-          width: 60.w,
-          height: 60.h,
+          width: 60,
+          height: 60,
         ),
       ),
-      SizedBox(
-        height: 5.h,
+      const SizedBox(
+        height: 5,
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -266,7 +208,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
         ),
       ),
       Padding(
-        padding:  EdgeInsets.symmetric(horizontal: 20.w,vertical: 5.h),
+        padding:  EdgeInsets.symmetric(horizontal: 20,vertical: 5),
         child: CustomText(
           textAlign: TextAlign.center,
           maxline: 1,
@@ -289,10 +231,10 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding:  EdgeInsets.symmetric(horizontal: 10.h),
+              padding:  EdgeInsets.symmetric(horizontal: 10),
               child: Column(children: [
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -307,7 +249,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -322,7 +264,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -337,7 +279,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -352,7 +294,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -367,7 +309,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     // width: double.maxFinite,
                     child: Column(
@@ -382,7 +324,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                               children: [
                                 CustomText(labeltext: "WINDOWS",color: Colors.white, ),
                                 IconButton(onPressed: (){
-                                  Get.dialog(ChangePasswordAndDviceId(changeType: 0,modelUser: widget.model,));
+                                  Get.dialog(ChangePasswordAndDviceIdMobile(changeType: 0,modelUser: widget.model,));
                                 }, icon: const Icon(Icons.change_circle_outlined))
                               ],
                             ):const SizedBox(),
@@ -397,7 +339,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                               children: [
                                 CustomText(labeltext: "MOBILE",color: Colors.white, ),
                                 IconButton(onPressed: (){
-                                  Get.dialog(ChangePasswordAndDviceId(changeType: 1,modelUser: widget.model,));
+                                  Get.dialog(ChangePasswordAndDviceIdMobile(changeType: 1,modelUser: widget.model,));
                                 }, icon: const Icon(Icons.change_circle_outlined))
                                 // Checkbox(value: widget.model.deviceLogin!?true:false, onChanged: (value){})
                               ],
@@ -572,7 +514,7 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
 
   Widget widgetFooter() {
     return Container(
-      margin:  EdgeInsets.only(left: 5.w,right: 5.w,bottom: 5.h),
+      margin:  EdgeInsets.only(left: 5,right: 5,bottom: 5),
       height: 50,
       width: double.infinity,
       child: Row(

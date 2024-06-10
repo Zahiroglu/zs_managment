@@ -21,6 +21,7 @@ class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
 
   @override
   void initState() {
+    print("Ckod :"+widget.ckod.toString()+" Cad :"+widget.cad.toString());
     // TODO: implement initState
     super.initState();
   }

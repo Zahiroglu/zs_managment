@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:collection';
-import 'dart:ffi';
 import 'dart:math';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -21,18 +18,14 @@ import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart'
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
-import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_list.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
-import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
-import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
 import 'package:zs_managment/global_models/model_maptypeapp.dart';
@@ -45,12 +38,13 @@ import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
 
+import '../../../../dio_config/api_client_live.dart';
 import '../../../../dio_config/custim_interceptor.dart';
 import '../../../../helpers/exeption_handler.dart';
-import '../../../backgroud_task/bacground_task.dart';
 import '../../../permitions/permitions_controller.dart';
 import '../../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import '../../../tapsiriqlar/model_task_responce.dart';
+import '../../models/model_customers_visit.dart';
 
 class ControllerGirisCixisReklam extends GetxController {
   RxList<ModelCariler> listCariler =
@@ -62,7 +56,7 @@ class ControllerGirisCixisReklam extends GetxController {
   LocalGirisCixisServiz localDbGirisCixis = LocalGirisCixisServiz();
   LocalBaseDownloads localBase = LocalBaseDownloads();
   RxBool marketeGirisEdilib = false.obs;
-  Rx<ModelGirisCixis> modelgirisEdilmis = ModelGirisCixis().obs;
+  Rx<ModelCustuomerVisit> modelgirisEdilmis = ModelCustuomerVisit().obs;
   RxSet<map.Marker> markers = RxSet();
   RxBool leftSideMenuVisible = true.obs;
   RxBool rightSideMenuVisible = true.obs;
@@ -95,11 +89,13 @@ class ControllerGirisCixisReklam extends GetxController {
   RxList<ModelCariKassa> selectedlistKassa = List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
   Rx<UserModel> selectedTemsilci = UserModel(code: "", name: "hamisi".tr).obs;
+
   BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
+
   //BackGroudTask backgroudLocationServiz = BackGroudTask();
   late CheckDviceType checkDviceType = CheckDviceType();
   ExeptionHandler exeptionHandler = ExeptionHandler();
-  LocalPermissionsController permitionController=LocalPermissionsController();
+  LocalPermissionsController permitionController = LocalPermissionsController();
 
   ///list tapsiriqlar
   RxList<ModelResponceTask> listTapsiriqlar =
@@ -148,7 +144,7 @@ class ControllerGirisCixisReklam extends GetxController {
     listCariler.clear();
     await localDbGirisCixis.init();
     modelgirisEdilmis.value = await localDbGirisCixis.getGirisEdilmisMarket();
-    if (modelgirisEdilmis.value.girisvaxt == null) {
+    if (modelgirisEdilmis.value.inDate == null) {
       getAllDataFormLocale();
       if (loggedUserModel.userModel!.roleId == 23 ||
           loggedUserModel.userModel!.roleId == 24) {
@@ -161,8 +157,10 @@ class ControllerGirisCixisReklam extends GetxController {
     } else {
       listTapsiriqlar.value = ModelResponceTask().getListOfTask();
       getAllDataFormLocale();
-      createCircles(double.parse(modelgirisEdilmis.value.marketgpsUzunluq!),double.parse(modelgirisEdilmis.value.marketgpsEynilik!),
-          modelgirisEdilmis.value.ckod!);
+      createCircles(
+          double.parse(modelgirisEdilmis.value.customerLatitude!),
+          double.parse(modelgirisEdilmis.value.customerLongitude!),
+          modelgirisEdilmis.value.customerCode!);
       marketeGirisEdilib.value = true;
       slidePanelVisible.value = false;
     }
@@ -219,7 +217,7 @@ class ControllerGirisCixisReklam extends GetxController {
     snQalmaVaxti = "".obs;
     if (marketeGirisEdilib.isTrue) {
       DateTime timeGiris =
-          DateTime.parse(modelgirisEdilmis.value.girisvaxt.toString());
+          DateTime.parse(modelgirisEdilmis.value.inDate.toString());
       snQalmaVaxti.value =
           carculateTimeDistace(timeGiris.toString(), DateTime.now().toString());
       _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
@@ -292,6 +290,20 @@ class ControllerGirisCixisReklam extends GetxController {
           selected: false,
           color: Colors.green));
     }
+    if (modelRutPerform.value.listGonderilmeyenZiyaretler!.isNotEmpty) {
+      listTabItems.insert(
+          0,
+          ModelTamItemsGiris(
+              icon: Icons.unpublished,
+              label: "gonderilmeyenler".tr,
+              girisSayi:
+                  modelRutPerform.value.listGonderilmeyenZiyaretler!.length,
+              keyText: "gz",
+              marketSayi:
+                  modelRutPerform.value.listGonderilmeyenZiyaretler!.length,
+              selected: false,
+              color: Colors.red));
+    }
 
     update();
   } // bu gune aid rut gunleri,ziyaretler v.s Local bazadan
@@ -335,12 +347,12 @@ class ControllerGirisCixisReklam extends GetxController {
     listTabSifarisler.clear();
     listIadeler.clear();
     listKassa.clear();
-    listSifarisler.value =
-        localBaseSatis.getAllHereketbyCariKod(modelgirisEdilmis.value.ckod!);
-    listIadeler.value =
-        localBaseSatis.getAllIadelerbyCariKod(modelgirisEdilmis.value.ckod!);
-    listKassa.value =
-        localBaseSatis.getAllKassabyCariKod(modelgirisEdilmis.value.ckod!);
+    listSifarisler.value = localBaseSatis
+        .getAllHereketbyCariKod(modelgirisEdilmis.value.customerCode!);
+    listIadeler.value = localBaseSatis
+        .getAllIadelerbyCariKod(modelgirisEdilmis.value.customerCode!);
+    listKassa.value = localBaseSatis
+        .getAllKassabyCariKod(modelgirisEdilmis.value.customerCode!);
     bool canSell = loggedUserModel.userModel!.permissions!
         .any((element) => element.code == "canSell");
     bool canCash = loggedUserModel.userModel!.permissions!
@@ -391,8 +403,7 @@ class ControllerGirisCixisReklam extends GetxController {
     };
   }
 
-  void addMarkersAndPlygane(
-      String latitude, String longitude, Position currentLocation) {
+  void addMarkersAndPlygane(String latitude, String longitude, Position currentLocation) {
     polygon.clear();
     pointsPoly.clear();
     pointsPoly
@@ -453,147 +464,6 @@ class ControllerGirisCixisReklam extends GetxController {
     return rutgun;
   }
 
-  ///giris ucun hazirliq
-  Future<void> pripareForEnter(Position currentLocation, ModelCariler selectedModel, String uzaqliq) async {
-    if(await permitionController.checkBackgroundLocationPermission()){
-      if(await permitionController.checkNotyPermission()){
-    DialogHelper.showLoading("Giris edilir...");
-    await localDbGirisCixis.init();
-    String lookupAddress = "time.google.com";
-    DateTime myTime = DateTime.now();
-    DateTime ntpTime = DateTime.now();
-    myTime = DateTime.now();
-    try {
-      final int offset = await NTP.getNtpOffset(
-          localTime: myTime, lookUpAddress: lookupAddress);
-      ntpTime = myTime.add(Duration(milliseconds: offset));
-    } catch (ex) {
-      Get.dialog(
-        ShowInfoDialog(
-            messaje: "Sebeke xetasi movcuddur",
-            icon: Icons.phonelink_erase_rounded,
-            callback: (val) {
-              Get.back();
-            }),
-      );
-    }
-    int ferq = myTime.difference(ntpTime).inMinutes;
-    if (ferq > 1) {
-      Get.dialog(
-        ShowInfoDialog(
-            messaje: "Vaxt ayarlarini duzeldin!",
-            icon: Icons.phonelink_erase_rounded,
-            callback: (val) {
-              DialogHelper.hideLoading();
-              Get.back();
-            }),
-      );
-    } else {
-      if (currentLocation.isMocked) {
-        Get.dialog(
-          ShowInfoDialog(
-              messaje: "Telefonda fake location aktivdir.Sondurun!",
-              icon: Icons.phonelink_erase_rounded,
-              callback: (val) {
-                Get.back();
-              }),
-        );
-      } else {
-        DialogHelper.hideLoading();
-        await _callApiForEnter(currentLocation, selectedModel, uzaqliq, myTime);
-      }
-    }}else{
-        Get.dialog(ShowInfoDialog(messaje: "Programa bildiris icazesi verin", icon: Icons.nearby_error_outlined, callback: (){
-          permitionController.requestNotyPermission();
-          Get.back();
-        }));
-      }}else{
-      Get.dialog(ShowInfoDialog(messaje: "Programa konum icazesi verin ve 'Hemise' yetkisini secin!", icon: Icons.nearby_error_outlined, callback: (){
-        permitionController.requestBackgroundLocationPermission();
-        Get.back();
-      }));
-    }
-  }
-
-  void girisiSil() async {
-    Get.dialog(ShowSualDialog(
-        messaje:
-            "Girisi silseniz butun emeliyyatlar silinecek.Silmeye eminsiniz?",
-        callBack: (va) async {
-          if (va) {
-            _timer!.cancel();
-            circles.clear();
-            polygon.clear();
-            pointsPoly.clear();
-            await localDbGirisCixis.init();
-            await localDbGirisCixis.deleteItem(modelgirisEdilmis.value.ckod!,
-                modelgirisEdilmis.value.girisvaxt!);
-            ModelCariler modelCari = listCariler
-                .where((a) => a.code == modelgirisEdilmis.value.ckod)
-                .first;
-            modelCari.ziyaret = "0";
-            await localBase.updateModelCari(modelCari);
-            marketeGirisEdilib.value = false;
-            modelgirisEdilmis.value = ModelGirisCixis();
-            getSatisMelumatlari();
-            ctKassaDialog.text = "";
-            ctCixisQeyd.text = "";
-            update();
-            backgroudLocationServiz.stopBackGroundFetch();
-          }
-          Get.back();
-        }));
-  }
-
-  ///cixis ucun hazirliq
-  pripareForExit(Position currentLocation, String uzaqliq) async {
-    await localDbGirisCixis.init();
-    DialogHelper.showLoading("Cixis edilir...");
-    String lookupAddress = "time.google.com";
-    DateTime myTime = DateTime.now();
-    DateTime ntpTime = DateTime.now();
-    myTime = DateTime.now();
-    try {
-      final int offset = await NTP.getNtpOffset(
-          localTime: myTime, lookUpAddress: lookupAddress);
-      ntpTime = myTime.add(Duration(milliseconds: offset));
-    } catch (ex) {
-      Get.dialog(
-        ShowInfoDialog(
-            messaje: "Sebeke xetasi movcuddur",
-            icon: Icons.phonelink_erase_rounded,
-            callback: (val) {
-              Get.back();
-            }),
-      );
-    }
-    int ferq = myTime.difference(ntpTime).inMinutes;
-    if (ferq > 5) {
-      Get.dialog(
-        ShowInfoDialog(
-            messaje: "Vaxt ayarlarini duzeldin!",
-            icon: Icons.phonelink_erase_rounded,
-            callback: (val) {
-              Get.back();
-            }),
-      );
-    } else {
-      if (currentLocation.isMocked) {
-        Get.dialog(
-          ShowInfoDialog(
-              messaje: "Telefonda Fake Location aktivdir.Sondurun!",
-              icon: Icons.phonelink_erase_rounded,
-              callback: (val) {
-                Get.back();
-              }),
-        );
-      } else {
-        _callApiForExit(currentLocation, uzaqliq, myTime, ctCixisQeyd.text);
-        DialogHelper.hideLoading();
-      }
-    }
-  }
-
   String carculateTimeDistace(String? girisvaxt, String? cixisvaxt) {
     Duration difference =
         DateTime.parse(cixisvaxt!).difference(DateTime.parse(girisvaxt!));
@@ -610,10 +480,9 @@ class ControllerGirisCixisReklam extends GetxController {
     int hours = 0;
     int minutes = 0;
     modelRutPerform.value.listGirisCixislar!
-        .where((element) => element.ckod == kod!)
+        .where((element) => element.customerCode == kod!)
         .forEach((element) {
-      Duration difference = DateTime.parse(element.cixisvaxt!)
-          .difference(DateTime.parse(element.girisvaxt!));
+      Duration difference = element.outDate!.difference(element.inDate!);
       hours = hours + difference.inHours % 24;
       minutes = minutes + difference.inMinutes % 60;
     });
@@ -626,7 +495,7 @@ class ControllerGirisCixisReklam extends GetxController {
 
   (String, int) checkIfVisited(String s) {
     if (modelRutPerform.value.listGirisCixislar!
-        .where((element) => element.ckod == s)
+        .where((element) => element.customerCode == s)
         .isNotEmpty) {
       return ("Bu gun ziyaret edilib", 1);
     } else {
@@ -706,7 +575,6 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   Widget widgetShowListRutInfo(BuildContext context, ScrollController listViewController) {
-    ScreenUtil.init(context);
     return Column(
       children: [
         Padding(
@@ -743,12 +611,12 @@ class ControllerGirisCixisReklam extends GetxController {
     );
   }
 
-  Widget widgetListGirisItems(ModelGirisCixis model) {
+  Widget widgetListGirisItems(ModelCustuomerVisit model) {
     return Stack(
       children: [
         Card(
           elevation: 5,
-          shadowColor: model.rutgunu == "Sef" ? Colors.red : Colors.green,
+          shadowColor: model.isRutDay == true ? Colors.red : Colors.green,
           margin:
               const EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 5),
           child: Container(
@@ -762,7 +630,7 @@ class ControllerGirisCixisReklam extends GetxController {
                   children: [
                     Expanded(
                         child: CustomText(
-                      labeltext: model.cariad!,
+                      labeltext: model.customerName!,
                       fontsize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue,
@@ -786,7 +654,8 @@ class ControllerGirisCixisReklam extends GetxController {
                     SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: model.girisvaxt!.substring(11, 19)),
+                    CustomText(
+                        labeltext: model.inDate.toString()!.substring(11, 19)),
                   ],
                 ),
                 const SizedBox(
@@ -804,7 +673,8 @@ class ControllerGirisCixisReklam extends GetxController {
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: model.cixisvaxt!.substring(11, 19)),
+                    CustomText(
+                        labeltext: model.outDate.toString().substring(11, 19)),
                     const SizedBox(
                       width: 10,
                     ),
@@ -825,14 +695,15 @@ class ControllerGirisCixisReklam extends GetxController {
                     ),
                     CustomText(
                         labeltext: carculateTimeDistace(
-                            model.girisvaxt!, model.cixisvaxt!)),
+                            model.inDate.toString(), model.outDate.toString())),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     CustomText(
-                        labeltext: "${model.girisvaxt!.substring(0, 11)}"),
+                        labeltext:
+                            "${model.outDate.toString().substring(0, 11)}"),
                   ],
                 ),
               ],
@@ -847,12 +718,14 @@ class ControllerGirisCixisReklam extends GetxController {
               decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(
-                      color: model.rutgunu == "Sef" ? Colors.red : Colors.green,
+                      color:
+                          model.isRutDay == false ? Colors.red : Colors.green,
                       width: 0.4),
                   borderRadius: BorderRadius.circular(5)),
               child: CustomText(
-                labeltext: model.rutgunu == "Sef" ? "Rutdan kenar" : "Rut gunu",
-                color: model.rutgunu == "Sef" ? Colors.red : Colors.green,
+                labeltext:
+                    model.isRutDay == false ? "rutdanKenar".tr : "rutgunu".tr,
+                color: model.isRutDay == false ? Colors.red : Colors.green,
               ),
             ))
       ],
@@ -1091,7 +964,7 @@ class ControllerGirisCixisReklam extends GetxController {
                 width: 5,
               ),
               SizedBox(
-                width: ScreenUtil.defaultSize.width / 1.7,
+                width: MediaQuery.of(Get.context!).size.width / 1.7,
                 child: CustomText(
                   overflow: TextOverflow.ellipsis,
                   maxline: 1,
@@ -1293,12 +1166,12 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  List<ModelCariler> carculateDistanceList(
-      List<ModelCariler> listMusteriler, Position event) {
+  List<ModelCariler> carculateDistanceList(List<ModelCariler> listMusteriler, Position event) {
     List<ModelCariler> list = [];
     for (ModelCariler element in listMusteriler) {
       String listmesafe = "0m";
-      double hesabMesafe = calculateDistance(event.latitude, event.longitude, element.longitude ?? 0, element.latitude ?? 0);
+      double hesabMesafe = calculateDistance(event.latitude, event.longitude,
+          element.longitude ?? 0, element.latitude ?? 0);
       if (hesabMesafe > 1) {
         listmesafe = "${(hesabMesafe).round()} km";
       } else {
@@ -1533,30 +1406,29 @@ class ControllerGirisCixisReklam extends GetxController {
     );
   }
 
-  Widget widgetListItemsSifarisler(
-      ModelSifarislerTablesi elementAt, BuildContext context) {
+  Widget widgetListItemsSifarisler(ModelSifarislerTablesi elementAt, BuildContext context) {
     return InkWell(
       onTap: () async {
         switch (elementAt.type) {
           case "s":
             ModelCariler model = listCariler
-                .where((p) => p.code == modelgirisEdilmis.value.ckod)
+                .where((p) => p.code == modelgirisEdilmis.value.customerCode)
                 .first;
             var deyer = await Get.toNamed(RouteHelper.getScreenSatis(),
                 arguments: [model, "s"]);
             if (deyer == "OK") {
-              getSatisMelumatlariByCary();
+              await getSatisMelumatlariByCary();
             }
 
             break;
           case "i":
             ModelCariler model = listCariler
-                .where((p) => p.code == modelgirisEdilmis.value.ckod)
+                .where((p) => p.code == modelgirisEdilmis.value.customerCode)
                 .first;
             String deyer = await Get.toNamed(RouteHelper.getScreenSatis(),
                 arguments: [model, "i"]);
             if (deyer == "OK") {
-              getSatisMelumatlariByCary();
+              await getSatisMelumatlariByCary();
             }
           case "k":
             Get.dialog(
@@ -1658,7 +1530,7 @@ class ControllerGirisCixisReklam extends GetxController {
         .fold(0.0, (sum, element) => sum + element.netSatis!);
 
     return modelRutPerform.value.listGirisCixislar!
-            .where((a) => a.ckod == e.code)
+            .where((a) => a.customerCode == e.code)
             .isNotEmpty
         ? SizedBox(
             height: 70,
@@ -1722,7 +1594,8 @@ class ControllerGirisCixisReklam extends GetxController {
                           CustomText(
                             fontsize: 10,
                             labeltext: modelRutPerform.value.listGirisCixislar!
-                                .where((element) => element.ckod == e.code)
+                                .where(
+                                    (element) => element.customerCode == e.code)
                                 .length
                                 .toString(),
                             fontWeight: FontWeight.normal,
@@ -2066,7 +1939,8 @@ class ControllerGirisCixisReklam extends GetxController {
                                 selectedlistKassa.clear();
                                 selectedlistKassa.add(ModelCariKassa(
                                     gonderildi: false,
-                                    cariKod: modelgirisEdilmis.value.ckod!,
+                                    cariKod:
+                                        modelgirisEdilmis.value.customerCode!,
                                     tarix: DateTime.now().toString(),
                                     kassaMebleg: double.parse(
                                         ctKassaDialog.text.toString())));
@@ -2160,196 +2034,502 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  ////cal Api servers for InOut
-  Future<void> _callApiForEnter(Position currentLocation, ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
-    await userService.init();
-    LoggedUserModel loggedUserModel = userService.getLoggedUser();
-    ModelRequestGirisCixis model = ModelRequestGirisCixis(
-        userPosition: loggedUserModel.userModel!.roleId!.toString(),
-        customerCode: selectedModel.code!.toString(),
-        note: "",
-        operationLatitude: currentLocation.latitude.toString(),
-        operationLongitude: currentLocation.longitude.toString(),
-        operationType: "In",
-        userCode: loggedUserModel.userModel!.code!.toString());
-    print("Giris model :"+model.toString());
 
+  Future<String> getLanguageIndex() async {
+    return await Hive.box("myLanguage").get("langCode") ?? "az";
+  }
+
+  void funFlutterToast(String s, bool isSucces) {
+    Fluttertoast.showToast(
+        msg: s.tr,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1,
+        backgroundColor: isSucces ? Colors.green : Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
+  /////checkAllUnsendedVisits
+
+  ///giris ucun hazirliq
+  Future<void> pripareForEnter(Position currentLocation, ModelCariler selectedModel, double uzaqliq) async {
     DialogHelper.hideLoading();
-    DialogHelper.showLoading("girisEdilir".tr, false);
-    String languageIndex = await getLanguageIndex();
-    int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      DialogHelper.hideLoading();
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {
-          Get.back();
-        },
-      ));
-    } else {
-      try {
-        final response = await ApiClient().dio().post(
-              "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
-              data: model.toJson(),
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
+    if (await permitionController.checkBackgroundLocationPermission()) {
+      if (await permitionController.checkNotyPermission()) {
+        DialogHelper.showLoading("girisMelumatlariYoxlanir".tr);
+        await localDbGirisCixis.init();
+        String lookupAddress = "time.google.com";
+        DateTime myTime = DateTime.now();
+        DateTime ntpTime = DateTime.now();
+        myTime = DateTime.now();
+        try {
+          final int offset = await NTP.getNtpOffset(
+              localTime: myTime,
+              lookUpAddress: lookupAddress,
+              timeout: Duration(seconds: 10));
+          ntpTime = myTime.add(Duration(milliseconds: offset));
+          int ferq = myTime.difference(ntpTime).inMinutes;
+          if (ferq > 1 || ferq < -1) {
+            Get.dialog(
+              ShowInfoDialog(
+                  messaje: "phoneTimeError".tr,
+                  icon: Icons.phonelink_erase_rounded,
+                  callback: () {
+                    DialogHelper.hideLoading();
+                    Get.back();
+                    // OpenSettings.openDateSetting();
+                  }),
             );
-        // 404
-        if (response.statusCode == 200) {
-          girisiLocaldaTesdiqleme(currentLocation, selectedModel, uzaqliq, myTime);
-          DialogHelper.hideLoading();
-        } else {
-          print("responce test :" + response.statusCode.toString());
-          DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
+          } else {
+            if (currentLocation.isMocked) {
+              ShowInfoDialog(
+                  messaje: "phoneFikeLocationError".tr,
+                  icon: Icons.phonelink_erase_rounded,
+                  callback: () {
+                    DialogHelper.hideLoading();
+                    Get.back();
+                  });
+            } else {
+              DialogHelper.hideLoading();
+              checkAllVisits(currentLocation, selectedModel, uzaqliq, true);
+            }
+          }
+        } catch (ex) {
+          Get.dialog(
+            ShowInfoDialog(
+                messaje: "internetError".tr,
+                icon: Icons.signal_cellular_connected_no_internet_0_bar_sharp,
+                callback: () {
+                  Get.back();
+                }),
+          );
         }
-      } on DioException catch (e) {
-        DialogHelper.hideLoading();
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx and is also not 304.
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
+      } else {
+        Get.dialog(ShowInfoDialog(
+            messaje: "requestForNoty".tr,
+            icon: Icons.nearby_error_outlined,
+            callback: () {
+              permitionController.requestNotyPermission();
+              Get.back();
+            }));
+      }
+    } else {
+      Get.dialog(ShowInfoDialog(
+          messaje: "requestAlweysLocation".tr,
+          icon: Icons.nearby_error_outlined,
+          callback: () {
+            permitionController.requestBackgroundLocationPermission();
+            Get.back();
+          }));
+    }
+  }
+
+  void girisiSil() async {
+    Get.dialog(ShowSualDialog(
+        messaje:
+        "Girisi silseniz butun emeliyyatlar silinecek.Silmeye eminsiniz?",
+        callBack: (va) async {
+          if (va) {
+            _timer!.cancel();
+            circles.clear();
+            polygon.clear();
+            pointsPoly.clear();
+            await localDbGirisCixis.init();
+            // await localDbGirisCixis.deleteItem(modelgirisEdilmis.value.customerCode!,
+            //     modelgirisEdilmis.value.inDate.toString());
+            ModelCariler modelCari = listCariler
+                .where((a) => a.code == modelgirisEdilmis.value.customerCode)
+                .first;
+            modelCari.ziyaret = "0";
+            await localBase.updateModelCari(modelCari);
+            marketeGirisEdilib.value = false;
+            modelgirisEdilmis.value = ModelCustuomerVisit();
+            getSatisMelumatlari();
+            ctKassaDialog.text = "";
+            ctCixisQeyd.text = "";
+            update();
+            backgroudLocationServiz.stopBackGroundFetch();
+          }
+          Get.back();
+        }));
+  }
+
+  ///cixis ucun hazirliq
+  pripareForExit(Position currentLocation, double uzaqliq, ModelCariler selectedModel) async {
+    if (await permitionController.checkBackgroundLocationPermission()) {
+      if (await permitionController.checkNotyPermission()) {
+        await localDbGirisCixis.init();
+        DialogHelper.showLoading("cixisMelumatlariYoxlanir".tr);
+        String lookupAddress = "time.google.com";
+        DateTime myTime = DateTime.now();
+        DateTime ntpTime = DateTime.now();
+        myTime = DateTime.now();
+        try {
+          final int offset = await NTP.getNtpOffset(
+              localTime: myTime,
+              lookUpAddress: lookupAddress,
+              timeout: Duration(seconds: 10));
+          ntpTime = myTime.add(Duration(milliseconds: offset));
+          int ferq = myTime.difference(ntpTime).inMinutes;
+          if (ferq > 1 || ferq < -1) {
+            Get.dialog(
+              ShowInfoDialog(
+                  messaje: "phoneTimeError".tr,
+                  icon: Icons.phonelink_erase_rounded,
+                  callback: () {
+                    DialogHelper.hideLoading();
+                    Get.back();
+                    Get.back();
+                    // OpenSettings.openDateSetting();
+                  }),
+            );
+          } else {
+            if (currentLocation.isMocked) {
+              Get.dialog(
+                ShowInfoDialog(
+                    messaje: "phoneFikeLocationError".tr,
+                    icon: Icons.phonelink_erase_rounded,
+                    callback: () {
+                      Get.back();
+                      backgroudLocationServiz.sendErrorsToServers("Block", selectedModel.code.toString() + "adlimarkerBlockMock".tr);
+
+                    }),
+              );
+            } else {
+              DialogHelper.hideLoading();
+              checkAllVisits(currentLocation, selectedModel, uzaqliq, false);
+            }
+          }
+        } catch (ex) {
+          Get.dialog(
+            ShowInfoDialog(
+                messaje: "internetError".tr,
+                icon: Icons.phonelink_erase_rounded,
+                callback: () {
+                  Get.back();
+                }),
+          );
         }
+      } else {
+        Get.dialog(ShowInfoDialog(
+            messaje: "requestForNoty".tr,
+            icon: Icons.nearby_error_outlined,
+            callback: () {
+              permitionController.requestNotyPermission();
+              Get.back();
+            }));
+      }
+    } else {
+      Get.dialog(ShowInfoDialog(
+          messaje: "requestAlweysLocation".tr,
+          icon: Icons.nearby_error_outlined,
+          callback: () {
+            permitionController.requestBackgroundLocationPermission();
+            Get.back();
+          }));
+    }
+  }
+
+  Future<void> checkAllVisits(Position currentLocation, ModelCariler selectedModel, double uzaqliq, bool isEnter) async {
+    ModelCustuomerVisit modela = ModelCustuomerVisit();
+    if (isEnter) {
+      modela = ModelCustuomerVisit(
+          operationType: "in",
+          customerName: selectedModel.name,
+          customerCode: selectedModel.code,
+          inLatitude: currentLocation.latitude.toString(),
+          inLongitude: currentLocation.longitude.toString(),
+          inDistance: uzaqliq.toString(),
+          inDate: DateTime.now(),
+          gonderilme: "0",
+          outNote: "",
+          outLatitude: "0.0",
+          outLongitude: "0.0",
+          outDistance: "0",
+          outDate: null,
+          isRutDay: rutGununuYoxla(selectedModel),
+          inDt: DateTime.now(),
+          userFullName: userService.getLoggedUser().userModel!.name.toString(),
+          userCode: userService.getLoggedUser().userModel!.code.toString(),
+          userPosition:
+              userService.getLoggedUser().userModel!.roleId.toString(),
+          customerLatitude: selectedModel.latitude.toString(),
+          customerLongitude: selectedModel.longitude.toString());
+    } else {
+      modela = ModelCustuomerVisit(
+          operationType: "out",
+          customerName: modelgirisEdilmis.value.customerName,
+          customerCode: modelgirisEdilmis.value.customerCode,
+          inLatitude: modelgirisEdilmis.value.inLatitude,
+          inLongitude: modelgirisEdilmis.value.inLongitude,
+          inDistance: modelgirisEdilmis.value.inDistance,
+          inDate:
+              modelgirisEdilmis.value.inDate!.add(const Duration(seconds: 2)),
+          gonderilme: "0",
+          outNote: ctCixisQeyd.text,
+          outLatitude: currentLocation.latitude.toString(),
+          outLongitude: currentLocation.longitude.toString(),
+          outDistance: uzaqliq.toString(),
+          outDate: DateTime.now(),
+          isRutDay: modelgirisEdilmis.value.isRutDay,
+          inDt: modelgirisEdilmis.value.inDt,
+          userFullName: userService.getLoggedUser().userModel!.name.toString(),
+          userCode: userService.getLoggedUser().userModel!.code.toString(),
+          userPosition:
+              userService.getLoggedUser().userModel!.roleId.toString(),
+          workTimeInCustomer: carculateTimeDistace(
+              modelgirisEdilmis.value.inDate.toString(),
+              DateTime.now().toString()),
+          customerLatitude: modelgirisEdilmis.value.customerLatitude,
+          customerLongitude: modelgirisEdilmis.value.customerLongitude);
+    }
+    int countUnsended = localDbGirisCixis.getAllUnSendedGirisCixis().length;
+    if (countUnsended > 0) {
+      ModelCustuomerVisit model = localDbGirisCixis.getAllUnSendedGirisCixis().first;
+      await _callApiForSendUnsededs(model, currentLocation, uzaqliq, selectedModel, isEnter, modela);
+    } else {
+      if (isEnter) {
+        _callApiForVisits(currentLocation, uzaqliq, selectedModel, isEnter, modela);
+      } else {
+        _callApiForVisits(currentLocation, uzaqliq, selectedModel, isEnter, modela);
       }
     }
   }
 
-  Future<void> girisiLocaldaTesdiqleme(Position currentLocation, ModelCariler selectedModel, String uzaqliq, DateTime myTime) async {
-    createCircles(selectedModel.longitude!, selectedModel.latitude!, selectedModel.code!);
-    ModelGirisCixis modela = ModelGirisCixis(
-        cariad: selectedModel.name,
-        ckod: selectedModel.code,
-        girisgps: "${currentLocation.longitude},${currentLocation.latitude}",
-        girismesafe: uzaqliq,
-        girisvaxt: myTime.toString(),
-        gonderilme: "0",
-        qeyd: "",
-        cixisgps: "0.0",
-        cixismesafe: "0",
-        cixisvaxt: "0",
-        rutgunu: rutGununuYoxla(selectedModel) == true ? "Duz" : "Sef",
-        tarix: DateTime.now().toString(),
-        temsilciadi: userService.getLoggedUser().userModel!.name.toString(),
-        temsilcikodu: userService.getLoggedUser().userModel!.code.toString(),
-        vezifeId: userService.getLoggedUser().userModel!.roleId.toString(),
-        marketgpsEynilik: selectedModel.latitude.toString(),
-        marketgpsUzunluq: selectedModel.longitude.toString());
-    await localDbGirisCixis.addSelectedGirisCixisDB(modela);
-    ModelCariler modelCari = listCariler.where((a) => a.code == modela.ckod).first;
-    modelCari.ziyaret = "1";
-    await localBase.updateModelCari(modelCari);
-    marketeGirisEdilib.value = true;
-    modelgirisEdilmis.value = modela;
-    addMarkersAndPlygane(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), currentLocation);
-    slidePanelVisible.value = false;
-    leftSideMenuVisible.value = true;
-    rightSideMenuVisible.value = true;
-    sndeQalmaVaxtiniHesabla();
-    getSatisMelumatlariByCary();
-    backgroudLocationServiz.startBackgorundFetck(modela,currentLocation);
-    listTapsiriqlar.value = ModelResponceTask().getListOfTask();
+  Future<void> _callApiForSendUnsededs(ModelCustuomerVisit modelvisit, Position currentLocation, double uzaqliq, ModelCariler selectedModel, bool isEnter, ModelCustuomerVisit mainVisitModel) async {
+    DialogHelper.showLoading("Kohne melumatlar gonderilir");
+    print("_callApiForSendUnsededs seviz Callled");
+    await userService.init();
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    ModelRequestGirisCixis model = ModelRequestGirisCixis();
+    if (modelvisit.operationType == "in") {
+      model = ModelRequestGirisCixis(
+          userPosition: modelvisit.userPosition.toString(),
+          customerCode: modelvisit.customerCode.toString(),
+          note: "",
+          operationLatitude: modelvisit.inLatitude.toString(),
+          operationLongitude: modelvisit.inLongitude.toString(),
+          operationDate: modelvisit.inDate.toString(),
+          operationType: "In",
+          userCode: modelvisit.userCode.toString());
+    } else {
+      model = ModelRequestGirisCixis(
+          userPosition: modelvisit.userPosition.toString(),
+          customerCode: modelvisit.customerCode.toString(),
+          note: modelvisit.outNote.toString(),
+          operationLatitude: modelvisit.outLatitude.toString(),
+          operationLongitude: modelvisit.outLongitude.toString(),
+          operationType: "Out",
+          operationDate: modelvisit.outDate.toString(),
+          userCode: modelvisit.userCode.toString());
+    }
+    String languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    try {
+      final response = await ApiClientLive().dio().post(
+            "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
+            data: model.toJson(),
+            options: Options(
+              receiveTimeout: const Duration(seconds: 60),
+              headers: {
+                'Lang': languageIndex,
+                'Device': dviceType,
+                'abs': '123456',
+                "Authorization": "Bearer $accesToken"
+              },
+              validateStatus: (_) => true,
+              contentType: Headers.jsonContentType,
+              responseType: ResponseType.json,
+            ),
+          );
+      // 404
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        modelvisit.gonderilme = "1";
+        localDbGirisCixis.updateSelectedValue(modelvisit);
+        checkAllVisits(currentLocation, selectedModel, uzaqliq, isEnter);
+      } else {
+        if (ModelExceptions.fromJson(response.data['exception']).code != null) {
+          String expCode = ModelExceptions.fromJson(response.data['exception']).code.toString();
+          String messsaje = ModelExceptions.fromJson(response.data['exception']).message.toString();
+          if (expCode == "010") {
+            DialogHelper.hideLoading();
+            Get.dialog(ShowInfoDialog(
+                messaje: messsaje,
+                icon: Icons.error,
+                callback: () {
+                }));
+          } else if (expCode == "006") {
+            DialogHelper.hideLoading();
+            Get.dialog(ShowSualDialog(
+                messaje: "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
+                callBack: (val) {
+                  if(val){
+                    Get.offAllNamed(RouteHelper.mobileLoginFistScreen);
+                  }
+                }));
+          } else {
+            DialogHelper.hideLoading();
+            if (isEnter) {
+              girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, mainVisitModel, selectedModel);
+            } else {
+              cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, mainVisitModel);
+            }
+          }
+        }
+        else {
+          DialogHelper.hideLoading();
+        }
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        DialogHelper.hideLoading();
+        if (isEnter) {
+          girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, mainVisitModel, selectedModel);
+        } else {
+          cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, mainVisitModel);
+        }
+      } else {
+        Get.dialog(ShowInfoDialog(
+            messaje: e.message!,
+            icon: Icons.error,
+            callback: () {
+              DialogHelper.hideLoading();
+            }));
+      }
+    }
     update();
   }
 
-  Future<void> _callApiForExit(Position currentLocation, String uzaqliq, DateTime myTime, String qeyd) async {
+  Future<void> _callApiForVisits(Position currentLocation, double uzaqliq, ModelCariler selectedModel, bool isEnter, ModelCustuomerVisit modelVisit) async {
+    print("_callApiForVisits seviz Callled");
+    DialogHelper.showLoading("Kohne melumatlar gonderilir");
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
-    ModelRequestGirisCixis model = ModelRequestGirisCixis(
-        userPosition: loggedUserModel.userModel!.roleId!.toString(),
-        customerCode: modelgirisEdilmis.value.ckod!,
-        note: qeyd,
+    ModelRequestGirisCixis model = ModelRequestGirisCixis();
+    if (isEnter) {
+      model = ModelRequestGirisCixis(
+        userPosition: loggedUserModel.userModel!.roleId.toString(),
+        userCode: loggedUserModel.userModel!.code.toString(),
+        customerCode: selectedModel.code.toString(),
+        note: "",
         operationLatitude: currentLocation.latitude.toString(),
         operationLongitude: currentLocation.longitude.toString(),
-        operationType: "Out",
-        userCode: loggedUserModel.userModel!.code!.toString());
-    print("Cixis model :"+model.toString());
-    DialogHelper.hideLoading();
-    DialogHelper.showLoading("cixisEdilir".tr, false);
+        operationDate: DateTime.now().toString(),
+        operationType: "In",
+      );
+    } else {
+      model = ModelRequestGirisCixis(
+          userPosition: loggedUserModel.userModel!.roleId.toString(),
+          userCode: loggedUserModel.userModel!.code.toString(),
+          customerCode: modelgirisEdilmis.value.customerCode.toString(),
+          note: ctCixisQeyd.text,
+          operationLatitude: currentLocation.latitude.toString(),
+          operationLongitude: currentLocation.longitude.toString(),
+          operationDate: DateTime.now().toString(),
+          operationType: "Out");
+    }
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      DialogHelper.hideLoading();
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {
-          Get.back();
-        },
-      ));
-    } else {
-      try {
-        final response = await ApiClient().dio().post(
-          "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
-          data: model.toJson(),
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        if (response.statusCode == 200) {
-          cixisiLocaldaTesdiqle(currentLocation, uzaqliq, myTime, qeyd);
-          DialogHelper.hideLoading();
+    try {
+      final response = await ApiClientLive().dio().post(
+            "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
+            data: model.toJson(),
+            options: Options(
+              headers: {
+                'Lang': languageIndex,
+                'Device': dviceType,
+                'abs': '123456',
+                "Authorization": "Bearer $accesToken"
+              },
+              validateStatus: (_) => true,
+              contentType: Headers.jsonContentType,
+              responseType: ResponseType.json,
+            ),
+          );
+      // 404
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        modelVisit.gonderilme = "1";
+        if (isEnter) {
+          funFlutterToast("ugurluApiGiris", true);
+          girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
         } else {
-          exeptionHandler.handleExeption(response);
+          funFlutterToast("ugurluApiCixis", true);
+          cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
         }
-      } on DioException catch (e) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx and is also not 304.
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
+      } else {
+        if (ModelExceptions.fromJson(response.data['exception']).code != null) {
+          String expCode = ModelExceptions.fromJson(response.data['exception']).code.toString();
+          String messsaje = ModelExceptions.fromJson(response.data['exception']).message.toString();
+          if (expCode == "010") {
+            DialogHelper.hideLoading();
+            Get.dialog(ShowInfoDialog(
+                messaje: messsaje,
+                icon: Icons.error,
+                callback: () {
+                }));
+          } else if (expCode == "006") {
+            DialogHelper.hideLoading();
+            Get.dialog(ShowSualDialog(
+                messaje: "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
+                callBack: (val) {
+                  if(val){
+                    Get.offAllNamed(RouteHelper.mobileLoginFistScreen);
+                  }
+                }));
+          } else {
+            DialogHelper.hideLoading();
+            if (isEnter) {
+              funFlutterToast("errorApiGiris", false);
+              girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+            } else {
+              funFlutterToast("errorApiCixis", false);
+              cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
+            }
+          }
         } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
+          DialogHelper.hideLoading();
         }
       }
-
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        DialogHelper.hideLoading();
+        if (isEnter) {
+          funFlutterToast("errorApiGiris", false);
+          await girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+        } else {
+          funFlutterToast("errorApiCixis", false);
+          await cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
+        }
+      } else {
+        Get.dialog(ShowInfoDialog(
+            messaje: e.message!,
+            icon: Icons.error,
+            callback: () {
+              DialogHelper.hideLoading();
+            }));
+      }
     }
+    update();
   }
 
-  Future<void> cixisiLocaldaTesdiqle(Position currentLocation, String uzaqliq, DateTime myTime, String qeyd) async {
-    circles.clear();
-    modelgirisEdilmis.value.cixisvaxt = myTime.toString();
-    modelgirisEdilmis.value.cixisgps =
-        "${currentLocation.longitude},${currentLocation.latitude}";
-    modelgirisEdilmis.value.cixismesafe = uzaqliq;
-    modelgirisEdilmis.value.qeyd = qeyd;
-    if(listCariler.any((a) => a.code == modelgirisEdilmis.value.ckod)){
-    ModelCariler modelCari = listCariler.where((a) => a.code == modelgirisEdilmis.value.ckod).first;
-    modelCari.ziyaret = "2";
-    modelgirisEdilmis.value.rutgunu = rutGununuYoxla(modelCari) == true ? "Duz" : "Sef";
-    await localDbGirisCixis.updateSelectedValue(modelgirisEdilmis.value);
-    await localBase.updateModelCari(modelCari);}
+  Future<void> cixisiLocaldaTesdiqleLast(Position? currentLocation, double uzaqliq, String qeyd, ModelCustuomerVisit? modela) async {
+    if (listCariler.any((a) => a.code == modelgirisEdilmis.value.customerCode)) {
+      ModelCariler modelCari = listCariler
+          .where((a) => a.code == modelgirisEdilmis.value.customerCode)
+          .first;
+      modelCari.ziyaret = "2";
+      await localDbGirisCixis.addSelectedGirisCixisDB(modela!);
+      await localBase.updateModelCari(modelCari);
+    }
     marketeGirisEdilib.value = false;
     slidePanelVisible.value = false;
-    modelgirisEdilmis.value = ModelGirisCixis();
+    modelgirisEdilmis.value = ModelCustuomerVisit();
+    await localDbGirisCixis.addSelectedGirisCixisDB(modela!);
     _timer!.cancel();
     polygon.clear();
     pointsPoly.clear();
@@ -2368,9 +2548,129 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  Future<String> getLanguageIndex() async {
-    return await Hive.box("myLanguage").get("langCode") ?? "az";
+  Future<void> girisiLocaldaTesdiqleLast(Position? currentLocation, double uzaqliq, ModelCustuomerVisit? modela, ModelCariler? selectedModel) async {
+    createCircles(selectedModel!.longitude!, selectedModel.latitude!, selectedModel.code!);
+    ModelCariler modelCari = listCariler.where((a) => a.code == modela!.customerCode).first;
+    modelCari.ziyaret = "1";
+    await localBase.updateModelCari(modelCari);
+    await localDbGirisCixis.addSelectedGirisCixisDB(modela!);
+    marketeGirisEdilib.value = true;
+    modelgirisEdilmis.value = modela;
+    addMarkersAndPlygane(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), currentLocation!);
+    slidePanelVisible.value = false;
+    leftSideMenuVisible.value = true;
+    rightSideMenuVisible.value = true;
+    sndeQalmaVaxtiniHesabla();
+    await getSatisMelumatlariByCary();
+    backgroudLocationServiz.startBackgorundFetck(modela);
+    listTapsiriqlar.value = ModelResponceTask().getListOfTask();
+    update();
   }
+
+  Future<void> checkAllVisitsForTotalSend() async {
+    int countUnsended = localDbGirisCixis.getAllUnSendedGirisCixis().length;
+    if (countUnsended > 0) {
+      ModelCustuomerVisit model=localDbGirisCixis.getAllUnSendedGirisCixis().first;
+      _callApiForSendUnsededsTotalSend(model);
+    } else {
+     Get.dialog(ShowInfoDialog(messaje: "btMelumUgurlaGonde".tr, icon: Icons.verified, callback: (){}));
+    }
+  }
+
+  Future<void> _callApiForSendUnsededsTotalSend(ModelCustuomerVisit modelvisit) async {
+    DialogHelper.showLoading("allDataSending".tr);
+    await userService.init();
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    ModelRequestGirisCixis model = ModelRequestGirisCixis();
+    if (modelvisit.operationType == "in") {
+      model = ModelRequestGirisCixis(
+          userPosition: modelvisit.userPosition.toString(),
+          customerCode: modelvisit.customerCode.toString(),
+          note: "",
+          operationLatitude: modelvisit.inLatitude.toString(),
+          operationLongitude: modelvisit.inLongitude.toString(),
+          operationDate: modelvisit.inDate.toString(),
+          operationType: "In",
+          userCode: modelvisit.userCode.toString());
+    } else {
+      model = ModelRequestGirisCixis(
+          userPosition: modelvisit.userPosition.toString(),
+          customerCode: modelvisit.customerCode.toString(),
+          note: modelvisit.outNote.toString(),
+          operationLatitude: modelvisit.outLatitude.toString(),
+          operationLongitude: modelvisit.outLongitude.toString(),
+          operationType: "Out",
+          operationDate: modelvisit.outDate.toString(),
+          userCode: modelvisit.userCode.toString());
+    }
+    String languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    try {
+      final response = await ApiClientLive().dio().post(
+        "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
+        data: model.toJson(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'abs': '123456',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      // 404
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        modelvisit.gonderilme = "1";
+        localDbGirisCixis.updateSelectedValue(modelvisit);
+        checkAllVisitsForTotalSend();
+      } else {
+        if (ModelExceptions.fromJson(response.data['exception']).code != null) {
+          String expCode = ModelExceptions.fromJson(response.data['exception']).code.toString();
+          String messsaje = ModelExceptions.fromJson(response.data['exception']).message.toString();
+          if (expCode == "010") {
+            DialogHelper.hideLoading();
+            Get.dialog(ShowInfoDialog(
+                messaje: messsaje,
+                icon: Icons.error,
+                callback: () {
+                }));
+          } else if (expCode == "006") {
+            DialogHelper.hideLoading();
+            Get.dialog(ShowSualDialog(
+                messaje: "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
+                callBack: (val) {
+                  if(val){
+                    Get.offAllNamed(RouteHelper.mobileLoginFistScreen);
+                  }
+                }));
+          } else {
+            DialogHelper.hideLoading();
+          }
+        }
+        else {
+          DialogHelper.hideLoading();
+        }
+      }
+    } on DioException catch (e) {
+        DialogHelper.hideLoading();
+        Get.dialog(ShowInfoDialog(
+            messaje: e.message!,
+            icon: Icons.error,
+            callback: () {
+              DialogHelper.hideLoading();
+            }));
+
+    }
+    update();
+  }
+
+
 }
 
 class ModelSifarislerTablesi {
@@ -2382,4 +2682,33 @@ class ModelSifarislerTablesi {
 
   ModelSifarislerTablesi(
       {this.label, this.icon, this.summa, this.type, this.color});
+}
+
+class ModelTamItemsGiris {
+  String? label;
+  IconData? icon;
+  bool? selected;
+  int? marketSayi;
+  int? girisSayi;
+  String? keyText;
+  Color? color;
+
+  ModelTamItemsGiris(
+      {this.label,
+      this.icon,
+      this.selected,
+      this.marketSayi,
+      this.girisSayi,
+      this.keyText,
+      this.color});
+
+  @override
+  String toString() {
+    return 'ModelTamItemsGiris{label: $label, icon: $icon, selected: $selected, marketSayi: $marketSayi, girisSayi: $girisSayi, keyText: $keyText, color: $color}';
+  }
+}
+
+enum PositionItemType {
+  log,
+  position,
 }

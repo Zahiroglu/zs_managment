@@ -1,6 +1,5 @@
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:progress_stepper/progress_stepper.dart';
 import 'package:zs_managment/companents/login/models/model_regions.dart';
@@ -12,8 +11,7 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
 import 'package:zs_managment/widgets/widget_notdata_found.dart';
-
-import '../other_screens/screen_changeid_password.dart';
+import '../mobile/screen_changeid_password_mobile.dart';
 
 class ScreenUpdateUser extends StatefulWidget {
   UserModel model;
@@ -65,7 +63,6 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
         color: Colors.transparent,
         child: Container(
@@ -73,9 +70,9 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
               border: Border(),
               borderRadius: BorderRadius.all(Radius.circular(20)),
               color: Colors.white),
-          height: ScreenUtil.defaultSize.height,
-          width: ScreenUtil.defaultSize.width,
-          margin: EdgeInsets.symmetric(vertical: 50.h, horizontal: 50.w),
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          margin: const EdgeInsets.symmetric(vertical: 50, horizontal: 50),
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Obx(() => Column(
@@ -102,12 +99,12 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                                     )),
                               ],
                             ),
-                            SizedBox(
-                              height: 10.h,
+                            const SizedBox(
+                              height: 10,
                             ),
                             Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 5.h, horizontal: 10.w),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
                               child: widgetProgressStepper(context),
                             ),
                           ],
@@ -119,20 +116,20 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                         scrollDirection: Axis.horizontal,
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(left: 10.w),
+                            padding: const EdgeInsets.only(left: 10),
                             child: Obx(() => widgetScreenGeneralInfo(context)),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(left: 10.w),
+                            padding: const EdgeInsets.only(left: 10),
                             child:
                                 Obx(() => widgetScreenIlkinSecimler(context)),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(left: 10.w),
+                            padding: const EdgeInsets.only(left: 10),
                             child: widgetScreenBaglantilar(context),
                           ),
                           Padding(
-                              padding: EdgeInsets.only(left: 10.w),
+                              padding: const EdgeInsets.only(left: 10),
                               child: widgetScreenIcazeler(context)),
                         ],
                       ),
@@ -145,15 +142,14 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   SizedBox widgetFooter(BuildContext context) {
-    ScreenUtil.init(context);
     return SizedBox(
-        height: 35.h,
+        height: 35,
         child: Obx(() => Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 userController.selectedIndex.value > 0
                     ? SizedBox(
-                        height: 40.h,
+                        height: 40,
                         child: CustomElevetedButton(
                             icon: Icons.arrow_back,
                             elevation: 15,
@@ -165,12 +161,12 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                             surfaceColor: Colors.white,
                             borderColor: Colors.red.withOpacity(0.5)))
                     : const SizedBox(),
-                SizedBox(
-                  width: 5.w,
+                const SizedBox(
+                  width: 5,
                 ),
                 userController.canRegisterNewUser.value
                     ? SizedBox(
-                        height: 40.h,
+                        height: 40,
                         child: CustomElevetedButton(
                           clicble: true,
                             icon: Icons.change_circle,
@@ -184,7 +180,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                             borderColor: Colors.white.withOpacity(0.5)))
                     : userController.canUseNextButton.value
                         ? SizedBox(
-                            height: 40.h,
+                            height: 40,
                             child: CustomElevetedButton(
                                 icon: Icons.arrow_forward,
                                 elevation: 15,
@@ -202,22 +198,21 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   ProgressStepper widgetProgressStepper(BuildContext context) {
-    ScreenUtil.init(context);
     return ProgressStepper(
       onClick: (pos) {
         setState(() {});
       },
-      padding: 5.w,
+      padding: 5,
       currentStep: 0,
       progressColor: Colors.blueAccent.withOpacity(0.5),
       color: Colors.red.withOpacity(0.5),
-      width: 55.w * 4,
-      height: 25.h,
+      width: 55 * 4,
+      height: 25,
       stepCount: userController.listStepper.length,
       builder: (int index) {
         return Obx(() => index <= userController.selectedIndex.value
             ? Obx(() => ProgressStepWithArrow(
-                  width: 50.w,
+                  width: 50,
                   defaultColor: Colors.red.withOpacity(0.5),
                   progressColor: Colors.green.withOpacity(0.5),
                   wasCompleted: userController.selectedIndex.value >= index - 1,
@@ -231,7 +226,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                   ),
                 ))
             : Obx(() => ProgressStepWithChevron(
-                  width: 50.w,
+                  width: 50,
                   defaultColor: Colors.red.withOpacity(0.5),
                   progressColor: Colors.green.withOpacity(0.5),
                   wasCompleted: userController.selectedIndex.value >= index - 1,
@@ -249,39 +244,38 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
 
 /////////////Ilkin secimler hissesi/////////////////////////
   SingleChildScrollView widgetScreenIlkinSecimler(BuildContext context) {
-    ScreenUtil.init(context);
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.only(left: 2.w),
+        padding: const EdgeInsets.only(left: 2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             supHeaderMainScreens("fistSelectWindows", "fistSelectWindowsDes"),
-            SizedBox(
-              height: 10.h,
+            const SizedBox(
+              height: 10,
             ),
             userController.regionSecilmelidir.isTrue
                 ? widgetRegionSec(context)
                 : const SizedBox(),
-            SizedBox(
-              height: 10.h,
+            const SizedBox(
+              height: 10,
             ),
             Row(
               children: [
                 userController.regionSecildi.isTrue
                     ? widgetSobeSecimi(context)
                     : const SizedBox(),
-                SizedBox(
-                  width: 20.w,
+                const SizedBox(
+                  width: 20,
                 ),
                 userController.sobeSecildi.isTrue
                     ? widgetVezifeSecimi(context)
                     : const SizedBox(),
               ],
             ),
-            SizedBox(
-              height: 30.h,
+            const SizedBox(
+              height: 30,
             ),
             userController.vezifeSecildi.isTrue
                 ? Column(
@@ -293,16 +287,16 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                         fontWeight: FontWeight.w800,
                         fontsize: 18,
                       ),
-                      SizedBox(
-                        height: 10.h,
+                      const SizedBox(
+                        height: 10,
                       ),
                       widgetDviceIcaze(),
-                      SizedBox(
-                        height: 10.h,
+                      const SizedBox(
+                        height: 10,
                       ),
                     ],
                   )
-                : SizedBox(height: 0.h),
+                : const SizedBox(height: 0),
           ],
         ),
       ),
@@ -310,7 +304,6 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   Column widgetRegionSec(BuildContext context) {
-    ScreenUtil.init(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -319,12 +312,12 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
           fontsize: 16,
           fontWeight: FontWeight.bold,
         ),
-        SizedBox(
-          height: 10.h,
+        const SizedBox(
+          height: 10,
         ),
         SizedBox(
-            height: 30.h,
-            width: 60.w,
+            height: 30,
+            width: 60,
             child: DecoratedBox(
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -367,8 +360,8 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                                       borderRadius: BorderRadius.circular(
                                           5), //border raiuds of dropdown button
                                     ),
-                                    height: 40.h,
-                                    width: 40.w,
+                                    height: 40,
+                                    width: 40,
                                     child: Center(
                                         child: CustomText(
                                             labeltext: lang.name.toString())))),
@@ -388,7 +381,6 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   Column widgetSobeSecimi(BuildContext context) {
-    ScreenUtil.init(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -401,8 +393,8 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
           height: 10,
         ),
         SizedBox(
-            height: 30.h,
-            width: 60.w,
+            height: 30,
+            width: 60,
             child: DecoratedBox(
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -436,8 +428,8 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                             alignment: Alignment.center,
                             value: lang,
                             child: SizedBox(
-                                height: 40.h,
-                                width: 40.w,
+                                height: 40,
+                                width: 40,
                                 child: Center(
                                     child: CustomText(labeltext: lang.name!)))),
                       )
@@ -455,7 +447,6 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   Column widgetVezifeSecimi(BuildContext context) {
-    ScreenUtil.init(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -464,12 +455,12 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
           fontsize: 16,
           fontWeight: FontWeight.bold,
         ),
-        SizedBox(
-          height: 5.h,
+        const SizedBox(
+          height: 5,
         ),
         Obx(() => SizedBox(
-            height: 30.h,
-            width: 50.w,
+            height: 30,
+            width: 50,
             child: DecoratedBox(
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -504,8 +495,8 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                             alignment: Alignment.center,
                             value: lang,
                             child: SizedBox(
-                                height: 40.h,
-                                width: 40.w,
+                                height: 40,
+                                width: 40,
                                 child: Center(
                                     child: CustomText(
                                         labeltext: lang.name.toString())))),
@@ -524,7 +515,6 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   Widget widgetDviceIcaze() {
-    ScreenUtil.init(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -544,7 +534,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                   ),
                   ConstrainedBox(
                       constraints:
-                          BoxConstraints(minWidth: 50.w, maxWidth: 60.w),
+                          const BoxConstraints(minWidth: 50, maxWidth: 60),
                       child: CustomText(labeltext: "mcihazicaze".tr)),
                   userController.canUseMobile.value
                       ? widget.model.deviceId!.isNotEmpty
@@ -553,14 +543,14 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                      maxHeight: 40.h, maxWidth: 100.w),
+                                  constraints: const BoxConstraints(
+                                      maxHeight: 40, maxWidth: 100),
                                   child: Row(
                                     children: [
                                       CustomElevetedButton(
                                         label: "ID ${"change".tr}",
                                         cllback: () {
-                                          Get.dialog(ChangePasswordAndDviceId(
+                                          Get.dialog(ChangePasswordAndDviceIdMobile(
                                             changeType: 1,
                                             modelUser: widget.model,
                                           ));
@@ -579,10 +569,10 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                      minWidth: 80.w,
-                                      maxHeight: 40.h,
-                                      maxWidth: 120.w),
+                                  constraints: const BoxConstraints(
+                                      minWidth: 80,
+                                      maxHeight: 40,
+                                      maxWidth: 120),
                                   child: CustomTextField(
                                     borderColor:
                                         userController.cttextDviceIdError.value
@@ -614,7 +604,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
               )
             : const SizedBox(),
         SizedBox(
-            width: ScreenUtil.defaultSize.width * 2.7,
+            width: MediaQuery.of(context).size.width * 2.7,
             child: const Divider(
               color: Colors.grey,
             )),
@@ -633,7 +623,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                   ),
                   ConstrainedBox(
                       constraints:
-                          BoxConstraints(minWidth: 50.w, maxWidth: 60.w),
+                          const BoxConstraints(minWidth: 50, maxWidth: 60),
                       child: CustomText(labeltext: "wicazesi".tr)),
                   userController.canUseWindows.value
                       ? widget.model.username!.isNotEmpty
@@ -642,7 +632,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                                 CustomElevetedButton(
                                   label: "${"password".tr} ${"change".tr}",
                                   cllback: () {
-                                    Get.dialog(ChangePasswordAndDviceId(
+                                    Get.dialog(ChangePasswordAndDviceIdMobile(
                                       changeType: 0,
                                       modelUser: widget.model,
                                     ));
@@ -656,10 +646,10 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                      minWidth: 80.w,
-                                      maxHeight: 40.h,
-                                      maxWidth: 120.w),
+                                  constraints: const BoxConstraints(
+                                      minWidth: 80,
+                                      maxHeight: 40,
+                                      maxWidth: 120),
                                   child: CustomTextField(
                                       borderColor: userController
                                               .cttextUsernameError.value
@@ -687,10 +677,10 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                                       : const SizedBox(),
                                 ),
                                 ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                      minWidth: 80.w,
-                                      maxHeight: 40.h,
-                                      maxWidth: 120.w),
+                                  constraints: const BoxConstraints(
+                                      minWidth: 80,
+                                      maxHeight: 40,
+                                      maxWidth: 120),
                                   child: CustomTextField(
                                       borderColor: userController
                                               .cttextPasswordError.value
@@ -737,15 +727,14 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
 
 //////////Genel melumatlar hissesi/////////////////
   Column widgetScreenGeneralInfo(BuildContext context) {
-    ScreenUtil.init(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         supHeaderMainScreens(
             "personalInfoWindowsDes", "personalInfoWindowsDes"),
-        SizedBox(
-          height: 10.h,
+        const SizedBox(
+          height: 10,
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -754,17 +743,17 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
             Row(
               children: [
                 ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: 30.w),
+                    constraints: const BoxConstraints(minWidth: 30),
                     child: CustomText(labeltext: "userCode".tr)),
-                SizedBox(
-                  width: 5.w,
+                const SizedBox(
+                  width: 5,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                          minWidth: 60.w, maxHeight: 40.h, maxWidth: 80.w),
+                          minWidth: 60, maxHeight: 40, maxWidth: 80),
                       child: CustomTextField(
                         borderColor: userController.cttextCodeError.value
                             ? Colors.red
@@ -797,17 +786,17 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
             Row(
               children: [
                 ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: 30.w),
+                    constraints: BoxConstraints(minWidth: 30),
                     child: CustomText(labeltext: "userName".tr)),
                 SizedBox(
-                  width: 5.w,
+                  width: 5,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ConstrainedBox(
-                      constraints: BoxConstraints(
-                          minWidth: 60.w, maxHeight: 40.h, maxWidth: 80.w),
+                      constraints: const BoxConstraints(
+                          minWidth: 60, maxHeight: 40, maxWidth: 80),
                       child: CustomTextField(
                         borderColor: userController.cttextAdError.value
                             ? Colors.red
@@ -840,17 +829,17 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
             Row(
               children: [
                 ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: 30.w),
+                    constraints: BoxConstraints(minWidth: 30),
                     child: CustomText(labeltext: "usersurname".tr)),
-                SizedBox(
-                  width: 5.w,
+                const SizedBox(
+                  width: 5,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                          minWidth: 60.w, maxHeight: 40.h, maxWidth: 80.w),
+                          minWidth: 60, maxHeight: 40, maxWidth: 80),
                       child: CustomTextField(
                         borderColor: userController.cttextSoyadError.value
                             ? Colors.red
@@ -883,14 +872,14 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
             Row(
               children: [
                 ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: 30.w),
+                    constraints: BoxConstraints(minWidth: 30),
                     child: CustomText(labeltext: "email".tr)),
                 SizedBox(
-                  width: 5.w,
+                  width: 5,
                 ),
                 ConstrainedBox(
                   constraints: BoxConstraints(
-                      minWidth: 60.w, maxHeight: 40.h, maxWidth: 80.w),
+                      minWidth: 60, maxHeight: 40, maxWidth: 80),
                   child: CustomTextField(
                     icon: Icons.email_outlined,
                     obscureText: false,
@@ -905,17 +894,17 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
             Row(
               children: [
                 ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: 30.w),
+                    constraints: BoxConstraints(minWidth: 30),
                     child: CustomText(labeltext: "userPhone".tr)),
                 SizedBox(
-                  width: 5.w,
+                  width: 5,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                          minWidth: 60.w, maxHeight: 40.h, maxWidth: 80.w),
+                          minWidth: 60, maxHeight: 40, maxWidth: 80),
                       child: CustomTextField(
                         borderColor: userController.cttextTelefonError.value
                             ? Colors.red
@@ -948,10 +937,10 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
             Row(
               children: [
                 ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: 30.w),
+                    constraints: BoxConstraints(minWidth: 30),
                     child: CustomText(labeltext: "birthDay".tr)),
                 SizedBox(
-                  width: 5.w,
+                  width: 5,
                 ),
                 SizedBox(
                   height: 50,
@@ -976,15 +965,15 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
               ],
             ),
             SizedBox(
-              height: 5.h,
+              height: 5,
             ),
             Obx(() => Row(
                   children: [
                     ConstrainedBox(
-                        constraints: BoxConstraints(minWidth: 30.w),
+                        constraints: BoxConstraints(minWidth: 30),
                         child: CustomText(labeltext: "userGender".tr)),
                     SizedBox(
-                      width: 5.w,
+                      width: 5,
                     ),
                     Row(
                       children: [
@@ -995,7 +984,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                           dif: 50.0,
                           borderColor: Colors.transparent,
                           borderWidth: 0.5,
-                          height: 30.h,
+                          height: 30,
                           fittingMode: FittingMode.preventHorizontalOverlapping,
                           boxShadow: [
                             BoxShadow(
@@ -1046,7 +1035,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
 
 ////////Icazeler hissesi///////////////////////
   Column widgetScreenIcazeler(BuildContext context) {
-    ScreenUtil.init(context);
+   
     return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1058,7 +1047,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                 .toList(),
           ),
           SizedBox(
-            height: 280.h,
+            height: 280,
             child: Column(
               children: [
                 SizedBox(
@@ -1092,7 +1081,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                       ),
                     )),
                 SizedBox(
-                  height: 240.h,
+                  height: 240,
                   child: SingleChildScrollView(
                     child: Column(
                       children: userController.selectedPermitions
@@ -1109,7 +1098,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
 
   ///Baglantilar hissesi /////////////////////////
   Column widgetScreenBaglantilar(BuildContext context) {
-    ScreenUtil.init(context);
+    
     return Column(
       children: [
         userController.listUserConnections.isNotEmpty
@@ -1119,10 +1108,10 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                 children: [
                   supHeaderMainScreens("conWindows", "conWindowsDes"),
                   SizedBox(
-                    height: 10.h,
+                    height: 10,
                   ),
                   SizedBox(
-                    height: 50.h,
+                    height: 50,
                     child: Row(
                       children: userController.listGroupNameConnection
                           .map((element) =>
@@ -1140,13 +1129,13 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
               )
             : Center(
                 child: NoDataFound(
-                    width: 200.w, height: 200.h, title: "Baglanti Tapilmadi")),
+                    width: 200, height: 200, title: "Baglanti Tapilmadi")),
       ],
     );
   }
 
   Widget widgetIcazelerListiByGroupName(ModelSelectUserPermitions e) {
-    ScreenUtil.init(context);
+    
     return InkWell(
       onTap: () {
         userController.changeSelectedModelSelectUserPermitions(e);
@@ -1182,7 +1171,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   Widget supHeaderMainScreens(String basliq, String aciqlama) {
-    ScreenUtil.init(context);
+    
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1193,7 +1182,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
           fontsize: 16,
         ),
         SizedBox(
-          height: 5.h,
+          height: 5,
         ),
         CustomText(
           labeltext: aciqlama.tr,
@@ -1201,10 +1190,10 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
           fontsize: 12,
         ),
         SizedBox(
-          height: 10.h,
+          height: 10,
         ),
         Container(
-          height: 2.h,
+          height: 2,
           width: double.infinity,
           color: Colors.blueAccent.withOpacity(0.5),
         ),
@@ -1214,7 +1203,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
 
   Widget widgetBaglantiModulItems(
       ModelConnectionsTest element, BuildContext context) {
-    ScreenUtil.init(context);
+    
     return InkWell(
       onTap: () {
         userController.changeSelectedGroupConnected(element);
@@ -1225,8 +1214,8 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
               Container(
                 margin: const EdgeInsets.all(5),
                 padding: const EdgeInsets.all(5),
-                width: 40.w,
-                height: 35.h,
+                width: 40,
+                height: 35,
                 decoration: BoxDecoration(
                     color:
                         userController.selectedGroupName.value.id == element.id
@@ -1284,9 +1273,9 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   Widget widgetBaglantiItems(ModelMustConnect element, BuildContext context) {
-    ScreenUtil.init(context);
+    
     return ConstrainedBox(
-      constraints: BoxConstraints(minWidth: 150.w, minHeight: 40.h),
+      constraints: BoxConstraints(minWidth: 150, minHeight: 40),
       child: Container(
         margin: const EdgeInsets.all(5),
         decoration: BoxDecoration(border: Border.all(color: Colors.black12)),
@@ -1302,13 +1291,13 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                 children: [
                   CustomText(labeltext: element.connectionRoleName.toString()),
                   SizedBox(
-                    width: 1.w,
+                    width: 1,
                   ),
                   CustomText(labeltext: "bagsec"),
                 ],
               ),
               SizedBox(
-                width: 2.w,
+                width: 2,
               ),
               Expanded(
                   child: Wrap(
@@ -1331,7 +1320,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
   }
 
   Stack widgetSelectedUsers(User e) {
-    ScreenUtil.init(context);
+    
     return Stack(
       children: [
         Card(
@@ -1366,7 +1355,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
             children: [
               CustomText(labeltext: data.name!, fontsize: 16),
               SizedBox(
-                width: 5.w,
+                width: 5,
               ),
               Checkbox(
                   splashRadius: 5,

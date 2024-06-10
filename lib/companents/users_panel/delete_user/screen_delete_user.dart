@@ -1,7 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
@@ -34,7 +33,6 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
         color: Colors.transparent,
         child: Container(
@@ -42,9 +40,9 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
                 border: Border(),
                 borderRadius: BorderRadius.all(Radius.circular(20)),
                 color: Colors.white),
-            height: ScreenUtil.defaultSize.height / 2,
-            width: ScreenUtil.defaultSize.width / 2,
-            margin: EdgeInsets.symmetric(vertical: 200.h, horizontal: 140.w),
+            height:MediaQuery.of(context).size.height / 2,
+            width: MediaQuery.of(context).size.height / 2,
+            margin: const EdgeInsets.symmetric(vertical: 200, horizontal: 140),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +121,7 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
              border: Border.all(color: Colors.grey)
            ),
            
-           width: 110.w,
+           width: 110,
            child: Column(
              children: [ Row(
                children: [

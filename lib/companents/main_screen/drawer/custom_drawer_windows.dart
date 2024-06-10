@@ -6,7 +6,6 @@ import 'package:zs_managment/thema/theme_constants.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class CustomDrawerWindos extends StatefulWidget {
@@ -52,12 +51,11 @@ class _CustomDrawerWindosState extends State<CustomDrawerWindos> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Container(
-          margin: EdgeInsets.only(top: 20.h,bottom: 20.h),
+          margin: const EdgeInsets.only(top: 20,bottom: 20),
           alignment: Alignment.topCenter,
           decoration: BoxDecoration(
             borderRadius:  const BorderRadius.only(
@@ -65,7 +63,7 @@ class _CustomDrawerWindosState extends State<CustomDrawerWindos> {
                 bottomRight: Radius.circular(50)),
             color: colorPramary.withOpacity(0.4),
           ),
-          padding: EdgeInsets.only(top: 10.h,bottom: 10.h),
+          padding: const EdgeInsets.only(top: 10,bottom: 10),
           child: widget.drawerMenuController.getItemsMenu(widget.closeDrawer,true,widget.scaffoldkey),
         )
       ),

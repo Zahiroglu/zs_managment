@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/connected_users/controller_rout_detail_user.dart';
-import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/companents/rut_gostericileri/satis/exp_rout_datail/controller_exppref.dart';

@@ -32,8 +32,7 @@ class TemsilciUzreZiyaretHesabati extends StatefulWidget {
       _TemsilciUzreZiyaretHesabatiState();
 }
 
-class _TemsilciUzreZiyaretHesabatiState
-    extends State<TemsilciUzreZiyaretHesabati> {
+class _TemsilciUzreZiyaretHesabatiState extends State<TemsilciUzreZiyaretHesabati> {
   ControllerUserZiyaret controllerRoutDetailUser = Get.put(ControllerUserZiyaret());
   late CheckDviceType checkDviceType = CheckDviceType();
   String languageIndex = "az";
@@ -258,6 +257,7 @@ class _TemsilciUzreZiyaretHesabatiState
       ),
     );
   }
+
   Future<MercDataModel> getAllCustomersMerc(String temKod) async {
     MercDataModel listUsers = MercDataModel();
     languageIndex = await getLanguageIndex();
@@ -333,6 +333,7 @@ class _TemsilciUzreZiyaretHesabatiState
     }
     return listUsers;
   }
+
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }

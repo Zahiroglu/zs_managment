@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:android_id/android_id.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -7,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_company.dart';
+import 'package:zs_managment/companents/login/models/model_configrations.dart';
 import 'package:zs_managment/companents/login/models/model_token.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
@@ -97,8 +100,6 @@ class UserApiControllerMobile extends GetxController {
 
   Future<void> getCompanyUrlByDivaceId() async {
     changeLoading();
-    print("Company url: servizi cagrildi :"+ "${AppConstands.baseUrlsMain}v1/User/serviceurl-by-device");
-
     languageIndex = await getLanguageIndex();
     dviceType = checkDviceType.getDviceType();
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -126,7 +127,7 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        print("Request url:"+response.requestOptions.path);
+        print("Request url:"+response.requestOptions.headers.toString());
         print("Request:"+response.data.toString());
         if (response.statusCode == 404) {
           changeLoading();
@@ -134,12 +135,13 @@ class UserApiControllerMobile extends GetxController {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
             messaje: "baglantierror".tr,
-            callback: () {},
+            callback: () {
+              changeLoading();
+            },
           ));
         }
         else {
           if (response.statusCode == 200) {
-            changeLoading();
             String baseUrl=response.data['result'];
             await localUserServices.addCanGetBaseUrl(baseUrl);
             loginWithMobileDviceId(baseUrl);
@@ -210,7 +212,7 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        print("request:"+response.requestOptions.path);
+        print("request:"+response.requestOptions.headers.toString());
         print("responce:"+response.data.toString());
         if (response.statusCode == 404) {
           basVerenXeta = "baglantierror".tr;
@@ -305,10 +307,95 @@ class UserApiControllerMobile extends GetxController {
                 companyModel: modelCompany,
                 tokenModel: modelToken,
                 userModel: modelUser);
+            await getCompanyConfig(modelLogged);
+          } else {
+            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
+            basVerenXeta = baseResponce.exception!.message!;
+            Get.dialog(ShowInfoDialog(
+              icon: Icons.error_outline,
+              messaje: baseResponce.exception!.message.toString(),
+              callback: () {
+                changeLoading();
+              },
+            ));
+          }
+        }
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "baglantierror".tr,
+          callback: () {
+            changeLoading();
+          },
+        ));
+      }
+    }
+  }
+
+  Future<void> getCompanyConfig(LoggedUserModel modelLogged) async {
+    List<ModelConfigrations> listConfig=[];
+    languageIndex = await getLanguageIndex();
+    var data={
+      "dictionaryTypes": [
+        "Configurations"
+      ]
+    };
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+      changeLoading();
+    } else {
+      try {
+        final response = await dio.post(
+          "${modelLogged.baseUrl!}/api/v1/Dictionary",
+          data: data,
+          options: Options(
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer ${modelLogged.tokenModel!.accessToken}"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        if (response.statusCode == 404) {
+          changeLoading();
+          basVerenXeta = "baglantierror".tr;
+          Get.dialog(ShowInfoDialog(
+            icon: Icons.error,
+            messaje: "baglantierror".tr,
+            callback: () {},
+          ));
+        } else {
+
+          if (response.statusCode == 200) {
+            var listConfigs = json.encode(response.data['result']['Configurations']);
+            print("listConfigs :"+listConfigs.toString());
+            List list = jsonDecode(listConfigs);
+            for(var i in list){
+              ModelConfigrations model=ModelConfigrations.fromJson(i);
+              listConfig.add(model);
+            }
+            modelLogged.companyConfigModel=listConfig;
             localUserServices.init();
             localUserServices.addUserToLocalDB(modelLogged);
-            if (await checkUsersDownloads(modelUser.roleId)) {
-              /// if user must donwloads same base need enter
+            if (await checkUsersDownloads(modelLogged.userModel!.roleId)) {
               Future.delayed(const Duration(milliseconds: 20), () {Get.offNamed(RouteHelper.bazaDownloadMobile, arguments: [true,true]);
               });
             } else {
@@ -348,10 +435,11 @@ class UserApiControllerMobile extends GetxController {
     }
   }
 
-  Future<bool> loginWithMobileDviceIdForDrawerItems(TokenModel tokenmodel, String language) async {
+  Future<bool> loginWithMobileDviceIdForDrawerItems(String languageCode) async {
     DialogHelper.showLoading("Dil deyisdirilir...");
     bool isSucces = false;
-    languageIndex = await getLanguageIndex();
+    await localUserServices.init();
+    LoggedUserModel loggedUserModel=await localUserServices.getLoggedUser();
     dviceType = checkDviceType.getDviceType();
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
@@ -368,17 +456,17 @@ class UserApiControllerMobile extends GetxController {
     } else {
       try {
         final response = await ApiClient().dio().get(
-              "${localUserServices.getLoggedUser().baseUrl}/api/v1/User/myinfo",
+              "${loggedUserModel.baseUrl}/api/v1/User/myinfo",
               data: {
                 "deviceId": dviceId.value,
                 "macAddress": "123-123-123-123"
               },
               options: Options(
                 headers: {
-                  'Lang': language,
+                  'Lang': languageCode,
                   'Device': dviceType,
                   'abs': '123456',
-                  "Authorization": "Bearer ${tokenmodel.accessToken}"
+                  "Authorization": "Bearer ${loggedUserModel.tokenModel!.accessToken}"
                 },
                 validateStatus: (_) => true,
                 contentType: Headers.jsonContentType,
@@ -392,13 +480,16 @@ class UserApiControllerMobile extends GetxController {
           LoggedUserModel modelLogged = LoggedUserModel(
               isLogged: true,
               companyModel: modelCompany,
-              tokenModel: tokenmodel,
+              tokenModel:  loggedUserModel.tokenModel,
+              baseUrl: loggedUserModel.baseUrl,
               userModel: modelUser);
-          localUserServices.addUserToLocalDB(modelLogged);
+          await localUserServices.addUserToLocalDB(modelLogged);
+          //await Get.delete<DrawerMenuController>();
+          //await Get.delete<SettingPanelController>();
           DrawerMenuController drawerMenuController = Get.put(DrawerMenuController());
           SettingPanelController settingcontroller = Get.put(SettingPanelController());
-          settingcontroller.getCurrentLoggedUserFromLocale(modelUser);
-          drawerMenuController.addPermisionsInDrawerMenu(modelLogged);
+          await settingcontroller.getCurrentLoggedUserFromLocale(modelUser);
+          await drawerMenuController.addPermisionsInDrawerMenu(modelLogged);
           isSucces = true;
           DialogHelper.hideLoading();
         } else if (response.statusCode == 404) {
@@ -427,9 +518,7 @@ class UserApiControllerMobile extends GetxController {
         }
       } on DioException catch (e) {
         DialogHelper.hideLoading();
-        if (e.type == DioException.connectionTimeout(
-                timeout: const Duration(milliseconds: 15),
-                requestOptions: e.requestOptions)) {
+        if (e.type == DioException.connectionTimeout(timeout: const Duration(milliseconds: 15), requestOptions: e.requestOptions)) {
           Get.dialog(ShowInfoDialog(
             icon: Icons.error_outline,
             messaje: e.message!,

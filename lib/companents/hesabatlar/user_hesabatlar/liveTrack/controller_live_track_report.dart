@@ -220,7 +220,7 @@ class ControllerLiveTrackReport extends GetxController{
   }
 
   Widget widgetCustomInfo(MyConnectedUsersCurrentLocationReport element) {
-    return WidgetInfoWindow(controllerGirisCixis: this,element: element,width: Get.width*0.6,height: 150,);
+    return WidgetInfoWindow(controllerGirisCixis: this,element: element,width: Get.width*0.9,height: 200,);
   }
 
 

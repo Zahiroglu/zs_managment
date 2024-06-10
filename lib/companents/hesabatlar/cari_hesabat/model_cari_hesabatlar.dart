@@ -9,6 +9,7 @@ class ModelCariHesabatlar {
   bool? needDate;
   bool? needTime;
   String? key;
+  bool? isAktiv;
 
   ModelCariHesabatlar(
       {this.label,
@@ -17,6 +18,7 @@ class ModelCariHesabatlar {
       this.routName,
       this.needTime,
       this.needDate,
+      this.isAktiv,
       this.key});
 
   List<ModelCariHesabatlar> getAllCariHesabatlarListy() {
@@ -27,6 +29,7 @@ class ModelCariHesabatlar {
         color: Colors.green,
         routName: RouteHelper.getCariZiyaretHesabatlari(),
         needDate: true,
+        isAktiv: true,
         key: "cZiyaretH"));
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Cari cesid hesabati",
@@ -34,6 +37,7 @@ class ModelCariHesabatlar {
         color: Colors.black45,
         routName: RouteHelper.getCariSatilanCesidRaporu(),
         needDate: true,
+        isAktiv: true,
         key: "cCesidH"));
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Cari satis hesabati",
@@ -41,6 +45,7 @@ class ModelCariHesabatlar {
         color: Colors.redAccent,
         routName: RouteHelper.getCariSatisHesabati(),
         needDate: true,
+        isAktiv: true,
         key: "cSatisH"));
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Cari muqavile hesabati",
@@ -48,6 +53,7 @@ class ModelCariHesabatlar {
         color: Colors.blue,
         routName: RouteHelper.getCariMuqavilelerHesabati(),
         needDate: false,
+        isAktiv: false,
         key: "cMusavileH"));
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Taninan mallar hesabati",
@@ -55,6 +61,7 @@ class ModelCariHesabatlar {
         color: Colors.deepPurple,
         routName: RouteHelper.getCariTaninanMallarHesabati(),
         needDate: false,
+        isAktiv: false,
         key: "cTanMallarH"));
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Zay mallar hesabati",
@@ -62,6 +69,7 @@ class ModelCariHesabatlar {
         color: Colors.red,
         routName: RouteHelper.getCariQaytarmaRaporu(),
         needDate: true,
+        isAktiv: true,
         key: "cZayMalH"));
 
     return cariHesabatlar;
@@ -85,13 +93,21 @@ class ModelCariHesabatlar {
         needDate: true,
         key: "tzhesab"));
     cariHesabatlar.add(ModelCariHesabatlar(
-        label: "Cali izleme hesabati",
+        label: "Temsilci izleme hesabati",
         icon: Icons.spatial_tracking_outlined,
-        color: Colors.yellow,
+        color: Colors.grey,
         needTime: true,
         //routName: RouteHelper.getCariSatilanCesidRaporu(),
         needDate: true,
         key: "tizlemehesab"));
+    cariHesabatlar.add(ModelCariHesabatlar(
+        label: "Temsilci xetalar raporu",
+        icon: Icons.error,
+        color: Colors.red,
+        needTime: true,
+        //routName: RouteHelper.getCariSatilanCesidRaporu(),
+        needDate: true,
+        key: "terror"));
 
     return cariHesabatlar;
   }

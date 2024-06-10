@@ -5,18 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' as getx;
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/anbar/screan_anbar_esas.dart';
 import 'package:zs_managment/companents/connected_users/rout_detail_users_screen.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
-import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_umumilist.dart';
 import 'package:zs_managment/companents/live_track/screen_live_track.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/dashbourd_screen_mobile.dart';
-import 'package:zs_managment/companents/giris_cixis/sceens/satisGirisCixis/screen_giriscixis_list.dart';
-import 'package:zs_managment/companents/giris_cixis/sceens/yeni_giriscixis_map.dart';
+import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/yeni_giriscixis_map.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
@@ -31,19 +27,15 @@ import 'package:zs_managment/companents/setting_panel/setting_panel_controller.d
 import 'package:zs_managment/companents/setting_panel/setting_screen_mobile.dart';
 import 'package:zs_managment/companents/users_panel/user_panel_windows_screen.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
-import 'package:zs_managment/main.dart';
-import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
-import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
 import '../../base_downloads/screen_download_base.dart';
-import '../../giris_cixis/sceens/yeni_girisCixis.dart';
+import '../../hesabatlar/wrong_entries/screen_wrongEntries.dart';
 import '../../local_bazalar/local_bazalar.dart';
 import '../../tapsiriqlar/screen_tasks.dart';
 import '../../users_panel/mobile/users_panel_mobile_screen.dart';
-import 'package:zs_managment/language/utils/dep.dart' as dep;
 
 class DrawerMenuController extends getx.GetxController {
   getx.RxList<SelectionButtonData> drawerMenus = List<SelectionButtonData>.empty(growable: true).obs;
@@ -97,9 +89,13 @@ class DrawerMenuController extends getx.GetxController {
   Future<List<SelectionButtonData>> addPermisionsInDrawerMenu(LoggedUserModel loggedUser) async {
     dviceType = checkDviceType.getDviceType();
     drawerMenus.clear();
+    drawerMenus.forEach((element) {
+      print("Drawr :"+element.label.toString());
+
+    });
     SelectionButtonData dashboard = SelectionButtonData(
         icon: Icons.dashboard,
-        label: "dashboard".tr,
+        label: "dashboard",
         activeIcon: Icons.dashboard_outlined,
         totalNotif: 0,
         statickField: false,
@@ -107,7 +103,7 @@ class DrawerMenuController extends getx.GetxController {
         codename: "dashboard");
     SelectionButtonData buttondownloads = SelectionButtonData(
         icon: Icons.upcoming,
-        label: "dovnloads",
+        label: "yuklemeler",
         activeIcon: Icons.upcoming_outlined,
         totalNotif: 0,
         statickField: false,
@@ -160,7 +156,7 @@ class DrawerMenuController extends getx.GetxController {
       drawerMenus.insert(2,buttonSatis);
     }
     if (loggedUser.userModel != null) {
-      for (var element in loggedUser.userModel!.permissions!.where((element) => element.category == 1)) {
+      for (var element in loggedUser.userModel!.draweItems!.where((element) => element.category == 1)) {
         IconData icon = IconData(element.icon!, fontFamily: 'MaterialIcons');
         IconData iconSelected = IconData(element.selectIcon!, fontFamily: 'MaterialIcons');
         SelectionButtonData buttonData = SelectionButtonData(
@@ -571,8 +567,7 @@ class DrawerMenuController extends getx.GetxController {
                  .moduleId == 3) {
                pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
              } else {
-               pageView =
-                   ScreenGirisCixisUmumiList(drawerMenuController: this,);
+               //pageView = ScreenGirisCixisUmumiList(drawerMenuController: this,);
              }
            }
          } else {
@@ -614,6 +609,9 @@ class DrawerMenuController extends getx.GetxController {
         break;
       case "task":
         pageView= ScreenTask(drawerMenuController: this,);
+        break;
+        case "wrongEntries":
+        pageView= WrongEntriesRepors(drawerMenuController: this,);
         break;
     }
     selectedIndex.value = drawerIndexdata;

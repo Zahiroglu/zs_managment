@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
+import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
@@ -13,10 +13,15 @@ import 'package:zs_managment/language/utils/dep.dart' as dep;
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/thema/thema_controller.dart';
 import 'package:zs_managment/thema/theme_constants.dart';
+import 'companents/backgroud_task/backgroud_errors/model_back_error.dart';
+import 'companents/backgroud_task/backgroud_errors/model_user_current_location_reqeust.dart';
 import 'companents/base_downloads/models/model_cariler.dart';
 import 'companents/base_downloads/models/model_downloads.dart';
+import 'companents/giris_cixis/models/model_customers_visit.dart';
+import 'companents/local_bazalar/local_giriscixis.dart';
 import 'companents/login/models/logged_usermodel.dart';
 import 'companents/login/models/model_company.dart';
+import 'companents/login/models/model_configrations.dart';
 import 'companents/login/models/model_regions.dart';
 import 'companents/login/models/model_token.dart';
 import 'companents/login/models/model_userconnnection.dart';
@@ -30,16 +35,18 @@ import 'language/utils/messages.dart';
 
 Future<void>  main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w'
-      ,appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',projectId: 'zscontrollsystem'));
+  await Firebase.initializeApp(options: FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w',appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',projectId: 'zscontrollsystem'));
   await Hive.initFlutter();
   Map<String, Map<String, String>> languages = await dep.init();
+  Hive.registerAdapter(ModelConfigrationsAdapter());
+  Hive.registerAdapter(ModelBackErrorsAdapter());
+  Hive.registerAdapter(ModelUsercCurrentLocationReqeustAdapter());
   Hive.registerAdapter(ModelAnbarRaporAdapter());
   Hive.registerAdapter(LoggedUserModelAdapter());
   Hive.registerAdapter(ModelAppSettingAdapter());
   Hive.registerAdapter(ModelMapAppAdapter());
   Hive.registerAdapter(CustomMapTypeAdapter());
-  Hive.registerAdapter(ModelGirisCixisAdapter());
+  Hive.registerAdapter(ModelCustuomerVisitAdapter());
   Hive.registerAdapter(CompanyModelAdapter());
   Hive.registerAdapter(ModelRegionsAdapter());
   Hive.registerAdapter(TokenModelAdapter());
@@ -69,15 +76,36 @@ class MyApp extends StatefulWidget {
 }
 
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
+  BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
+  LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+
+    bool isUpDestroyed=state==AppLifecycleState.detached;
+    if(isUpDestroyed){
+      await localGirisCixisServiz.init();
+      ModelCustuomerVisit model=await localGirisCixisServiz.getGirisEdilmisMarket();
+      if(model.inDate!=null) {
+       // await backgroudLocationServiz.stopBackGroundFetch();
+        //await backgroudLocationServiz.startBackgorundFetck(model);
+      }}
+
+    // TODO: implement didChangeAppLifecycleState
+    super.didChangeAppLifecycleState(state);
   }
 
   @override

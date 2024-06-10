@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_userconnnection.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/users_panel/controller/user_mainscreen_controller.dart';
 import 'package:zs_managment/companents/users_panel/delete_user/screen_delete_user.dart';
 import 'package:zs_managment/companents/users_panel/mobile/screen_changeid_password_mobile.dart';
 import 'package:zs_managment/companents/users_panel/mobile/screen_update_user_mobile.dart';
-import 'package:zs_managment/companents/users_panel/other_screens/screen_changeid_password.dart';
-import 'package:zs_managment/companents/users_panel/update_users/screen_update_user.dart';
-import 'package:zs_managment/sizeconfig/responsive_builder.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -77,7 +71,6 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
       color: Colors.transparent,
       child: Scaffold(
@@ -115,8 +108,18 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                      //padding: const EdgeInsets.all(5),
                      height: 60,
                      child: TabBar(
+                       dividerColor: Colors.transparent,
                        indicator: BoxDecoration(
-                         border: Border.all(color: Colors.white),
+                         color: Colors.white,
+                         boxShadow: const [
+                           BoxShadow(
+                             color: Colors.black26,
+                             blurRadius: 5,
+                             offset: Offset(1,1),
+                             spreadRadius: 1
+                           )
+                         ],
+                         //border: Border.all(color: Colors.white),
                            //color: Colors.white.withOpacity(0.8),
                            borderRadius:  BorderRadius.circular(10.0)
                        ) ,
@@ -196,12 +199,12 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
           widget.model.gender == 0
               ? "images/imageman.png"
               : "images/imagewoman.png",
-          width: 60.w,
-          height: 60.h,
+          width: 60,
+          height: 60,
         ),
       ),
       SizedBox(
-        height: 5.h,
+        height: 5,
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -215,7 +218,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
         ),
       ),
       Padding(
-        padding:  EdgeInsets.symmetric(horizontal: 20.w,vertical: 5.h),
+        padding:  EdgeInsets.symmetric(horizontal: 20,vertical: 5),
         child: CustomText(
           textAlign: TextAlign.center,
           maxline: 1,
@@ -238,10 +241,12 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding:  EdgeInsets.symmetric(horizontal: 10.h),
-              child: Column(children: [
+              padding:  EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -256,7 +261,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -271,7 +276,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -286,7 +291,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -301,7 +306,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -316,7 +321,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.only(left: 2.w,top: 5.h),
+                  padding:  const EdgeInsets.only(left: 2,top: 5),
                   child: SizedBox(
                     // width: double.maxFinite,
                     child: Column(
@@ -324,14 +329,13 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomText(labeltext:"usersStatus".tr,color: Colors.black.withOpacity(1), ),
-                        const SizedBox(height: 5,),
                         Row(
                           children: [
-                            widget.model.usernameLogin.toString()=="true"?Row(
+                            widget.model.usernameLogin==true?Row(
                               children: [
                                 CustomText(labeltext: "WINDOWS",color: Colors.white, ),
                                 IconButton(onPressed: (){
-                                  Get.dialog(ChangePasswordAndDviceId(changeType: 0,modelUser: widget.model,));
+                                  Get.dialog(ChangePasswordAndDviceIdMobile(changeType: 0,modelUser: widget.model,));
                                 }, icon: const Icon(Icons.change_circle_outlined))
                               ],
                             ):const SizedBox(),
@@ -398,10 +402,9 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Divider(height: 2,color: Colors.white,thickness: 1,),
-            ),
+            const SizedBox(height: 2,),
+            const Divider(height: 0.5,color: Colors.white,thickness: 0.3,indent: 10,endIndent: 10,),
+            const SizedBox(height: 2,),
             Expanded(child: ListView(
               children: widget.model.connections!.map((e) => itemsConnections(e)).toList(),
             ),),
@@ -446,14 +449,33 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
       width: double.infinity,
       height: double.infinity,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(
-            height: 20,
+            height: 0,
           ),
+          Container(
+              padding: EdgeInsets.only(left: 20),
+              width: MediaQuery.of(context).size.width,
+              height: 25,
+              decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.5)
+              ),
+              child: Center(child: CustomText(labeltext: "Menular"+" ("+widget.model.permissions!.where((a) => a.category==1).length.toString()+")"))),
           Expanded(child: ListView(
-            children: widget.model.permissions!.map((e) => itemsPermitions(e)).toList(),
+            children: widget.model.permissions!.where((a) => a.category==1).map((e) => itemsPermitions(e)).toList(),
+          )),
+          Container(
+              padding: EdgeInsets.only(left: 20),
+              width: MediaQuery.of(context).size.width,
+              height: 25,
+              decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.5)
+              ),
+              child: Center(child: CustomText(labeltext: "Diger icezeler"+" ("+widget.model.permissions!.where((a) => a.category!=1).length.toString()+")"))),
+          Expanded(child: ListView(
+            children: widget.model.permissions!.where((a) => a.category!=1).map((e) => itemsPermitions(e)).toList(),
           ))
         ],
       ),
@@ -462,14 +484,22 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
 
   Widget itemsPermitions(ModelUserPermissions e) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+      padding: const EdgeInsets.fromLTRB(20, 5, 15, 5),
       child: Column(
         children: [
           Row(
             children: [
-              CustomText(labeltext: "${e.name} : ",color: Colors.black,fontsize: 12,fontWeight: FontWeight.w500),
-              const SizedBox(width: 5,),
-              CustomText(labeltext: "${e.valName.toString()}",color: Colors.white,fontsize: 12,fontWeight: FontWeight.w800,maxline: 2),
+              Expanded(
+                  flex: 11,
+                  child: CustomText(
+                      maxline: 2,
+                      labeltext: "${e.name} : ",color: Colors.black,fontsize: 14,fontWeight: FontWeight.w500)),
+              const SizedBox(width: 2,),
+              Expanded(
+                  flex: 3,
+                  child: CustomText(
+                      maxline: 2,
+                      labeltext: "${e.valName.toString()}",color: Colors.white,fontsize: 14,fontWeight: FontWeight.w800)),
             ],
           ),
           const SizedBox(height: 5,),
@@ -494,7 +524,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
 
   Widget widgetFooter() {
     return Container(
-      margin:  EdgeInsets.only(left: 5.w,right: 5.w,bottom: 5.h),
+      margin:  EdgeInsets.only(left: 5,right: 5,bottom: 5),
       height: 50,
       width: double.infinity,
       child: Row(

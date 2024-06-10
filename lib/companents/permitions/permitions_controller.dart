@@ -5,6 +5,7 @@ class LocalPermissionsController {
   Future<bool> checkLocationPermission() async {
     return await Permission.location.isGranted;
   }
+
   Future<bool> checkNotyPermission() async {
     return await Permission.notification.isGranted;
   }

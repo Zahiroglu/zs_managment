@@ -50,21 +50,21 @@ class ModelAnbarRapor {
   String toRawJson() => json.encode(toJson());
 
   factory ModelAnbarRapor.fromJson(Map<String, dynamic> json) => ModelAnbarRapor(
-    stokkod: json["stokkod"],
-    stokadi: json["stokadi"],
-    anaqrup: json["anaqrup"],
-    qaliq: json["qaliq"],
-    vahidbir: json["vahidbir"],
-    satisqiymeti: json["satisqiymeti"],
+    stokkod: json["warehouseCode"],
+    stokadi: json["warehouseName"],
+    anaqrup: json["mainGoup"],
+    qaliq: json["remainder"].toString(),
+    vahidbir: json["quantityUnit"],
+    satisqiymeti: json["price"].toString(),
   );
 
   Map<String, dynamic> toJson() => {
-    "stokkod": stokkod,
-    "stokadi": stokadi,
-    "anaqrup": anaqrup,
-    "qaliq": qaliq,
-    "vahidbir": vahidbir,
-    "satisqiymeti": satisqiymeti,
+    "warehouseCode": stokkod,
+    "warehouseName": stokadi,
+    "mainGoup": anaqrup,
+    "remainder": qaliq,
+    "quantityUnit": vahidbir,
+    "price": satisqiymeti,
   };
 
   @override

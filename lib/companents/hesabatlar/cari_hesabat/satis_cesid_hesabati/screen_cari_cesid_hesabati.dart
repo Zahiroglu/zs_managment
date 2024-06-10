@@ -1,14 +1,26 @@
 
+import 'dart:convert';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_cesid_hesabati/model_caricesid.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/double_round_helper.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
+import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
+import 'package:zs_managment/widgets/widget_notdata_found.dart';
+
+import '../../../../dio_config/api_client.dart';
+import '../../../../utils/checking_dvice_type.dart';
+import '../../../local_bazalar/local_users_services.dart';
+import '../../../login/models/logged_usermodel.dart';
 
 class ScreenCariCesidHesabati extends StatefulWidget {
   String tarixIlk;
@@ -32,6 +44,11 @@ class _ScreenCariCesidHesabatiState extends State<ScreenCariCesidHesabati> {
   List<String> listCesidSayi=[];
   DoubleRoundHelper doubleRound = DoubleRoundHelper();
   List<String> listFiler = [];
+  String languageIndex = "az";
+  late CheckDviceType checkDviceType = CheckDviceType();
+  LoggedUserModel loggedUserModel = LoggedUserModel();
+  LocalUserServices localUserServices = LocalUserServices();
+  ExeptionHandler exeptionHandler=ExeptionHandler();
 
   @override
   void initState() {
@@ -41,117 +58,95 @@ class _ScreenCariCesidHesabatiState extends State<ScreenCariCesidHesabati> {
   }
 
   getDataFromServer() async {
-    listData = await getDataFromServerUmumiCariler(widget.tarixIlk, widget.tarixSon,widget.cariKod);
-    setState(() {
-    });
-  }
-
-  Future<List<ModelCariCesid>> getDataFromServerUmumiCariler(String tarix1,String tarix2,
-      String cariKod) async {
-    listData.clear();
+    localUserServices.init();
     setState(() {
       isLoading = true;
     });
-    var envelopeaUmumicariler = '''
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-<soap:Body>
-    <cari_stok_hereket xmlns="http://tempuri.org/">
-      <tarix1>$tarix1</tarix1>
-      <tarix2>$tarix2</tarix2>
-      <cari>$cariKod</cari>
-    </cari_stok_hereket>
-  </soap:Body>
-</soap:Envelope>
-''';
-    var url = Uri.parse(soapadress);
-    http.Response response = await http.post(url,
-        headers: {
-          "Content-Type": "text/xml; charset=utf-8",
-          "SOAPAction": "http://tempuri.org/cari_stok_hereket",
-          // "Host": "85.132.97.2"
-          "Host": soaphost
-          //"Accept": "text/xml"
-        },
-        body: envelopeaUmumicariler);
-    var rawXmlResponse = "";
-    if (response.statusCode == 200) {
-      //  DialogHelper.hideLoading();
-      rawXmlResponse = response.body;
-      setState(() {
-        rawXmlResponse.isNotEmpty ? dataFounded == true : dataFounded = false;
-        isLoading = false;
-      });
-    } else {
-      //DialogHelper.hideLoading();
+    listData = await getDataFromServerUmumiCariler(widget.tarixIlk, widget.tarixSon,widget.cariKod);
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<List<ModelCariCesid>> getDataFromServerUmumiCariler(String tarixIlk, String tarixSon,String ckod) async {
+    listData.clear();
+
+    List<ModelCariCesid> listProducts = [];
+    languageIndex = await getLanguageIndex();
+    var data={
+      "Code": ckod,
+      "fromDate": tarixIlk,
+      "toDate": tarixSon
+    };
+    int dviceType = checkDviceType.getDviceType();
+    loggedUserModel=localUserServices.getLoggedUser();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
-        messaje: "Xeta BAs Verdi",
-        icon: Icons.error,
-        callback: () {
-          DialogHelper.hideLoading();
-        },
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
       ));
+    } else {
+      try {
+        final response = await ApiClient().dio().post(
+          "${loggedUserModel.baseUrl}/api/v1/Report/warehouse-operation-by-customer",
+          data:data,
+          options: Options(
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['result']);
+          List listuser = jsonDecode(dataModel);
+          for (var i in listuser) {
+            ModelCariCesid model=ModelCariCesid.fromJson(i);
+            listProducts.add(model);
+            if(!listTarixler.contains(model.tarix)){
+              listTarixler.add(model.tarix);
+            }
+            if(!listCesidSayi.contains(model.stockKod)){
+              listCesidSayi.add(model.stockKod);
+            }
+          }
+        } else {
+          exeptionHandler.handleExeption(response);
+        }
+
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
     }
-    return _parsingCariler(rawXmlResponse);
+    return listProducts;
   }
 
-  Future<List<ModelCariCesid>> _parsingCariler(var _response) async {
-    listFiler.clear();
-    listFiler.add("hamisi".tr);
-    List<ModelCariCesid> listKodrdinar = [];
-    var document = xml.XmlDocument.parse(_response);
-    Iterable<xml.XmlElement> items = document.findAllElements('Table');
-    items.map((xml.XmlElement item) {
-      var tarix = _getValue(item.findElements("TARIX"));
-      var stockKod = _getValue(item.findElements("STOK_KOD"));
-      var stockAd = _getValue(item.findElements("STOK_AD"));
-      var anaQrup = _getValue(item.findElements("ANA_GRUP"));
-      var cariKod = _getValue(item.findElements("CARI_KOD"));
-      var cariAd = _getValue(item.findElements("CARI_AD"));
-      var expKod = _getValue(item.findElements("TEMSILCI_KOD"));
-      var expAd = _getValue(item.findElements("TEMSILCI_AD"));
-      var miqdar = _getValue(item.findElements("MIQDAR"));
-      var qiymet = _getValue(item.findElements("QIYMET"));
-      var mebleg = _getValue(item.findElements("MEBLEG"));
-      var endirim1 = _getValue(item.findElements("ENDIRIM1"));
-      var endirim2 = _getValue(item.findElements("ENDIRIM2"));
-      var netMebleg = _getValue(item.findElements("NET_MEBLEG"));
-      if(!listTarixler.contains(tarix)){
-        listTarixler.add(tarix);
-      }
-      if(!listCesidSayi.contains(stockKod)){
-        listCesidSayi.add(stockKod);
-      }
-      ModelCariCesid model=ModelCariCesid(tarix: tarix,
-          stockKod: stockKod,
-          stockAd: stockAd,
-          anaQrup: anaQrup,
-          cariKod: cariKod,
-          cariAd: cariAd,
-          expKod: expKod,
-          expAd: expAd,
-          miqdar: miqdar,
-          qiymet: qiymet,
-          mebleg: mebleg,
-          endirim1: endirim1,
-          endirim2: endirim2,
-          netMebleg: netMebleg);
-      listKodrdinar.add(model);
-    }).toList();
-
-    return listKodrdinar;
+  Future<String> getLanguageIndex() async {
+    return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
-
-  _getValue(Iterable<xml.XmlElement> items) {
-    var textValue;
-    items.map((xml.XmlElement node) {
-      textValue = node.text;
-    }).toList();
-    return textValue;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -162,7 +157,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
               backgroundColor: Colors.white,
               centerTitle: true,
               title: CustomText(
-                labeltext: isLoading?"":listData.first.cariAd,
+                labeltext: isLoading||listData.isEmpty?"":listData.first.cariAd,
               ),
               actions: [
               ],
@@ -179,7 +174,13 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   }
 
   _body(BuildContext context) {
-    return Column(
+    return listData.isEmpty?Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        NoDataFound(title: "melumattapilmadi".tr,),
+      ],
+    ):Column(
       children: [
         Expanded(
             flex: 1,

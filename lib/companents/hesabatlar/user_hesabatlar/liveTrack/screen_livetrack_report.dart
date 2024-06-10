@@ -517,7 +517,7 @@ class WidgetInfoWindow extends StatelessWidget {
                                             children: [
                                               Row(
                                                 children: [
-                                                  CustomText(labeltext: "Market Kodu : "),
+                                                  CustomText(labeltext: "${"mKod".tr} : "),
                                                   CustomText(
                                                       labeltext:
                                                       element.pastInputCustomerCode.toString()),
@@ -525,7 +525,7 @@ class WidgetInfoWindow extends StatelessWidget {
                                               ),
                                               Row(
                                                 children: [
-                                                  CustomText(labeltext: "Uzaqliq : "),
+                                                  CustomText(labeltext: "${"mesafe".tr} : "),
                                                   CustomText(
                                                       labeltext:
                                                       element.inputCustomerDistance.toString()),
@@ -536,7 +536,7 @@ class WidgetInfoWindow extends StatelessWidget {
                                           const SizedBox(height: 5,),
                                           Row(
                                             children: [
-                                              CustomText(labeltext: "Market Adi : "),
+                                              CustomText(labeltext: "${"mAdi".tr} : "),
                                               CustomText(
                                                   labeltext:
                                                   element.pastInputCustomerName.toString()),
@@ -553,13 +553,13 @@ class WidgetInfoWindow extends StatelessWidget {
                                   children: [
                                     Row(
                                       children: [
-                                        CustomText(labeltext: "Enerji miqdari : "),
+                                        CustomText(labeltext: "${"enerjyMiqdari".tr} : "),
                                         CustomText(labeltext: "${element.batteryLevel} %"),
                                       ],
                                     ),
                                     Row(
                                       children: [
-                                        CustomText(labeltext: "Hereket Surreti : "),
+                                        CustomText(labeltext: "${"hereketMiqdari".tr} : "),
                                         CustomText(labeltext: "${element.speed} m/s"),
                                       ],
                                     ),
@@ -576,7 +576,7 @@ class WidgetInfoWindow extends StatelessWidget {
                         children: [
                           Image.asset(
                             "images/shopplace.png",
-                            width: width * 0.20,
+                            width: width * 0.30,
                             height: height * 0.8,
                           ),
                           Column(
@@ -598,7 +598,7 @@ class WidgetInfoWindow extends StatelessWidget {
                                 height: 5,
                               ),
                               Container(
-                                width: width * 0.7,
+                                width: width * 0.8,
                                 color: Colors.white,
                                 height: 1,
                               ),
@@ -620,7 +620,7 @@ class WidgetInfoWindow extends StatelessWidget {
                                 children: [
                                   Row(
                                     children: [
-                                      CustomText(labeltext: "Giris vaxti: "),
+                                      CustomText(labeltext: "${"girisVaxt".tr} : "),
                                       CustomText(
                                           labeltext: element
                                               .inOutCustomer!.inDate
@@ -633,7 +633,7 @@ class WidgetInfoWindow extends StatelessWidget {
                                   ),
                                   Row(
                                     children: [
-                                      CustomText(labeltext: "Uzaqliq : "),
+                                      CustomText(labeltext: "${"mesafe".tr} : "),
                                       CustomText(
                                           labeltext: element
                                               .inOutCustomer!.inDistance
@@ -656,7 +656,7 @@ class WidgetInfoWindow extends StatelessWidget {
                                             Row(
                                               children: [
                                                 CustomText(
-                                                    labeltext: "Cixis vaxti: "),
+                                                    labeltext: "${"cixisVaxt".tr} : "),
                                                 CustomText(
                                                     labeltext: element
                                                         .inOutCustomer!.outDate
@@ -670,7 +670,7 @@ class WidgetInfoWindow extends StatelessWidget {
                                             Row(
                                               children: [
                                                 CustomText(
-                                                    labeltext: "Uzaqliq : "),
+                                                    labeltext: "${"mesafe".tr} : "),
                                                 CustomText(
                                                     labeltext: element
                                                         .inOutCustomer!
@@ -722,24 +722,12 @@ class WidgetInfoWindow extends StatelessWidget {
                     angle = 0;
                 }
                 return Positioned(
-                  left: axisDirection == AxisDirection.left
-                      ? -arrowSize.width + 5
-                      : (axisDirection == AxisDirection.up ||
-                              axisDirection == AxisDirection.down
-                          ? width * locationOfArrow - arrowSize.width / 2
-                          : null),
-                  right: axisDirection == AxisDirection.right
-                      ? -arrowSize.width + 5
-                      : null,
-                  top: axisDirection == AxisDirection.up
-                      ? -arrowSize.width + 5
-                      : (axisDirection == AxisDirection.right ||
-                              axisDirection == AxisDirection.left
-                          ? height * locationOfArrow - arrowSize.width / 2
-                          : null),
-                  bottom: axisDirection == AxisDirection.down
-                      ? -arrowSize.width + 5
-                      : null,
+                  left: axisDirection == AxisDirection.left ? -arrowSize.width + 5 : (axisDirection == AxisDirection.up ||
+                              axisDirection == AxisDirection.down ? width * locationOfArrow - arrowSize.width / 2 : null),
+                  right: axisDirection == AxisDirection.right ? -arrowSize.width + 5 : null,
+                  top: axisDirection == AxisDirection.up ? -arrowSize.width + 5 : (axisDirection == AxisDirection.right ||
+                              axisDirection == AxisDirection.left ? height * locationOfArrow - arrowSize.width / 2 : null),
+                  bottom: axisDirection == AxisDirection.down ? -arrowSize.width + 5 : null,
                   child: Transform.rotate(
                     angle: angle,
                     child: CustomPaint(

@@ -6,10 +6,10 @@ import 'package:zs_managment/companents/base_downloads/models/model_downloads.da
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 
+import '../giris_cixis/models/model_customers_visit.dart';
 import '../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 
 class LocalBaseDownloads {
@@ -99,18 +99,20 @@ class LocalBaseDownloads {
     }
   }
 
-  List<ModelDownloads> getAllDownLoadBaseList() {
+  Future<List<ModelDownloads>> getAllDownLoadBaseList() async{
     List<ModelDownloads> list = [];
     downloads.toMap().forEach((key, value) {
-      if(value.code=="myUserRut"){
-        list.insert(0, value);
-      }else{
         list.add(value);
-      }
     });
     for (var element in list) {
+      print("mode : "+element.code.toString());
       element.musteDonwload = convertDayByLastday(element);
       element.donloading=false;
+    }
+    if(list.any((element) => element.code=="myConnectedUsers")){
+      ModelDownloads model=list.where((element) => element.code=="myConnectedUsers").first;
+      list.removeWhere((element) => element.code=="myConnectedUsers");
+      list.insert(0, model);
     }
     return list;
   }
@@ -121,9 +123,9 @@ class LocalBaseDownloads {
     return dayFerq == day2 ? false : true;
   }
 
-  bool checkIfUserMustDonwloadsBase(int? roleId) {
+  Future<bool> checkIfUserMustDonwloadsBase(int? roleId) async {
     int deyer=0;
-    List<ModelDownloads> listustDown = getAllDownLoadBaseList();
+    List<ModelDownloads> listustDown = await getAllDownLoadBaseList();
     if(listustDown.isEmpty){
       deyer==0;
     }else{
@@ -132,9 +134,9 @@ class LocalBaseDownloads {
     return deyer==0?false:true;
   }
 
-  bool checkIfUserMustDonwloadsBaseFirstTime(int? roleId) {
+  Future<bool> checkIfUserMustDonwloadsBaseFirstTime(int? roleId) async {
     int deyer=0;
-    List<ModelDownloads> listustDown = getAllDownLoadBaseList();
+    List<ModelDownloads> listustDown = await getAllDownLoadBaseList();
     if(listustDown.isEmpty){
       deyer=1;
     }else{
@@ -150,25 +152,20 @@ class LocalBaseDownloads {
     List<ModelCariler> listCariler=[];
     List<ModelCariler> listRutGUNU=[];
     List<ModelCariler> listZiyaretedilmeyen=[];
-    List<ModelGirisCixis> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
+    List<ModelCustuomerVisit> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
+    List<ModelCustuomerVisit> listGonderilmeyeneler= localGirisCixisServiz.getAllUnSendedGirisCixis();
     if(hamisi){
-      print("hamisi");
       listCariler= await getAllMercBazaForGirisCixis();
       listRutGUNU =listCariler.where((element) => element.rutGunu=="Duz").toList();
     }else{
-      print("Tek temsilci uzre");
       listCariler= await getAllMercBazaForGirisCixis();
-      print("listCariler.count :"+listCariler.length.toString());
       listCariler=listCariler.where((element) => element.forwarderCode==temKod).toList();
       listRutGUNU = listCariler.where((element) => element.rutGunu=="Duz").toList();
-      listCariler.forEach((element) {
-        print("Element data :"+element.name!+" day : "+element.rutGunu.toString());
-
-      });
     }
     listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
-    int sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Duz").toList()).length;
-    int saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Sef").toList()).length;
+    int sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
+    int saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
+    print("Gonderilmeyen giris cixis sayi = "+listGonderilmeyeneler.length.toString());
     modelRutPerform=ModelRutPerform(
       listGunlukRut: listRutGUNU,
       listZiyaretEdilmeyen: listZiyaretedilmeyen,
@@ -177,6 +174,7 @@ class LocalBaseDownloads {
       duzgunZiya:sayDuzgunZiyaret,
       rutkenarZiya: saySefZiyaret,
       listGirisCixislar: localGirisCixisServiz.getAllGirisCixisToday(),
+      listGonderilmeyenZiyaretler: listGonderilmeyeneler,
       ziyaretEdilmeyen: listRutGUNU.length-sayDuzgunZiyaret,
       snlerdeQalma: circulateSnlerdeQalmaVaxti(localGirisCixisServiz.getAllGirisCixisToday()),
       umumiIsvaxti: localGirisCixisServiz.getAllGirisCixisToday().isEmpty?"":circulateUmumiIsVaxti(localGirisCixisServiz.getAllGirisCixisToday().first,localGirisCixisServiz.getAllGirisCixisToday().last),
@@ -192,7 +190,7 @@ class LocalBaseDownloads {
     List<ModelCariler> listCariler=[];
     List<ModelCariler> listRutGUNU=[];
     List<ModelCariler> listZiyaretedilmeyen=[];
-    List<ModelGirisCixis> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
+    List<ModelCustuomerVisit> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
 
     if(hamisi){
       print("hamisi");
@@ -204,8 +202,8 @@ class LocalBaseDownloads {
       listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz"&&element.forwarderCode==temKod).toList();
     }
     listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
-    int sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Duz").toList()).length;
-    int saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.rutgunu=="Sef").toList()).length;
+    int sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
+    int saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
     modelRutPerform=ModelRutPerform(
       listGunlukRut: listRutGUNU,
       listZiyaretEdilmeyen: listZiyaretedilmeyen,
@@ -224,10 +222,10 @@ class LocalBaseDownloads {
       return modelRutPerform;
     }}
 
-  List<ModelGirisCixis> dublicatesRemuvedList(List<ModelGirisCixis> listAll){
-    List<ModelGirisCixis> newList=[];
+  List<ModelCustuomerVisit> dublicatesRemuvedList(List<ModelCustuomerVisit> listAll){
+    List<ModelCustuomerVisit> newList=[];
     for (var element in listAll) {
-      if(newList.where((a) => a.ckod==element.ckod).isEmpty){
+      if(newList.where((a) => a.customerCode==element.customerCode).isEmpty){
         newList.add(element);
       }
     }
@@ -275,11 +273,11 @@ class LocalBaseDownloads {
     return rutgun;
   }
 
- String circulateSnlerdeQalmaVaxti(List<ModelGirisCixis> allGirisCixis) {
+ String circulateSnlerdeQalmaVaxti(List<ModelCustuomerVisit> allGirisCixis) {
     String vaxt="";
     Duration umumiVaxtDeqiqe=const Duration();
     for (var element in allGirisCixis) {
-      umumiVaxtDeqiqe=umumiVaxtDeqiqe+getTimeDifferenceFromNow(DateTime.parse(element.girisvaxt.toString()),DateTime.parse(element.cixisvaxt.toString()));
+      umumiVaxtDeqiqe=umumiVaxtDeqiqe+getTimeDifferenceFromNow(DateTime.parse(element.inDate.toString()),DateTime.parse(element.outDate.toString()));
     }
     int hours = umumiVaxtDeqiqe.inHours % 24;
     int minutes = umumiVaxtDeqiqe.inMinutes % 60;
@@ -295,17 +293,17 @@ class LocalBaseDownloads {
     return difference;
   }
 
-  circulateUmumiIsVaxti(ModelGirisCixis first, ModelGirisCixis last) {
-    Duration umumiVaxtDeqiqe=getTimeDifferenceFromNow(DateTime.parse(first.girisvaxt.toString()),DateTime.parse(last.cixisvaxt.toString()));
+  circulateUmumiIsVaxti(ModelCustuomerVisit first, ModelCustuomerVisit last) {
+    Duration umumiVaxtDeqiqe=getTimeDifferenceFromNow(DateTime.parse(first.inDate.toString()),DateTime.parse(last.outDate.toString()));
     int hours = umumiVaxtDeqiqe.inHours % 24;
     int minutes = umumiVaxtDeqiqe.inMinutes % 60;
     if(hours<1){return "$minutes deq";}else{return "$hours saat $minutes deq";}
   }
 
-  List<ModelCariler> ziyaretEdilmeyenler(List<ModelCariler> listRutGUNU, List<ModelGirisCixis> listGirisCixis) {
+  List<ModelCariler> ziyaretEdilmeyenler(List<ModelCariler> listRutGUNU, List<ModelCustuomerVisit> listGirisCixis) {
     List<ModelCariler> ziyaretEdilemyenler=[];
     for (var element in listRutGUNU) {
-      if(listGirisCixis.any((value) => value.ckod==element.code)){
+      if(listGirisCixis.any((value) => value.customerCode==element.code)){
         print("${element.name}: giris edilib");
       }else{
         ziyaretEdilemyenler.add(element);

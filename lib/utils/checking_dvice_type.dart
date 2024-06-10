@@ -2,6 +2,8 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
+import '../enums/proje_enums.dart';
+
 class CheckDviceType {
 
   int getDviceType() {
@@ -38,5 +40,9 @@ class CheckDviceType {
     final data = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
     //4= ios phone and 5= ios tablet
     return data.shortestSide < 600 ? 4 : 5;
+  }
+
+  bool isDeviceSmoll(){
+    return getDviceType()==0||getDviceType()==4;
   }
 }

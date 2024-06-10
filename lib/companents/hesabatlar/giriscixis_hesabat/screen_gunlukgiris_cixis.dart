@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
-import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/companents/widget_listitemsgiriscixis.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../giris_cixis/models/model_customers_visit.dart';
+import '../cari_hesabat/cari_ziyaret_hesabati/widget_giriscixis_item.dart';
 
 class ScreenGunlukGirisCixis extends StatefulWidget {
   ModelRutPerform model;
@@ -147,7 +147,7 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
   ListView listviewGirisCixislar() {
     return ListView(
       children: widget.model.listGirisCixislar!
-          .map((e) => WigetListItemsGirisCixis(model: e,))
+          .map((e) => WidgetGirisCixisItem(element: e,))
           .toList(),
     );
   }
@@ -337,7 +337,7 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
                 width: 5,
               ),
               SizedBox(
-                width: ScreenUtil.defaultSize.width / 1.7,
+                width: MediaQuery.of(context).size.width / 1.7,
                 child: CustomText(
                   overflow: TextOverflow.ellipsis,
                   maxline: 1,
@@ -454,12 +454,12 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
         child: CustomText(labeltext: s, color: Colors.white, fontsize: 12),
       );
 
-  Widget widgetListGirisItems(ModelGirisCixis model) {
+  Widget widgetListGirisItems(ModelCustuomerVisit model) {
     return Stack(
       children: [
         Card(
           elevation: 5,
-          shadowColor: model.rutgunu == "Sef" ? Colors.red : Colors.green,
+          shadowColor: model.isRutDay==false? Colors.red : Colors.green,
           margin:
               const EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 5),
           child: Container(
@@ -473,7 +473,7 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
                   children: [
                     Expanded(
                         child: CustomText(
-                      labeltext: model.cariad!,
+                      labeltext: model.customerName!,
                       fontsize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue,
@@ -493,11 +493,11 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
                       height: 20,
                       color: Colors.blue,
                     ),
-                    CustomText(labeltext: "Giris vaxti :"),
+                    CustomText(labeltext: "girisVaxti".tr+" : "),
                     SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: model.girisvaxt!.substring(11, 19)),
+                    CustomText(labeltext: model.inDate.toString()!.substring(11, 19)),
                   ],
                 ),
                 const SizedBox(
@@ -511,11 +511,11 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
                       height: 20,
                       color: Colors.red,
                     ),
-                    CustomText(labeltext: "Cixis vaxti :"),
+                    CustomText(labeltext: "cixisVaxti".tr+" : "),
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: model.cixisvaxt!.substring(11, 19)),
+                    CustomText(labeltext: model.outDate.toString()!.substring(11, 19)),
                     const SizedBox(
                       width: 10,
                     ),
@@ -530,20 +530,20 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: "Vaxt :"),
+                    CustomText(labeltext: "tarix".tr),
                     const SizedBox(
                       width: 2,
                     ),
                     CustomText(
                         labeltext: carculateTimeDistace(
-                            model.girisvaxt!, model.cixisvaxt!)),
+                            model.inDate.toString(), model.outDate.toString())),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     CustomText(
-                        labeltext: "${model.girisvaxt!.substring(0, 11)}"),
+                        labeltext: "${model.inDate.toString().substring(0, 11)}"),
                   ],
                 ),
               ],
@@ -558,12 +558,12 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
               decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(
-                      color: model.rutgunu == "Sef" ? Colors.red : Colors.green,
+                      color: model.isRutDay == false ? Colors.red : Colors.green,
                       width: 0.4),
                   borderRadius: BorderRadius.circular(5)),
               child: CustomText(
-                labeltext: model.rutgunu == "Sef" ? "Rutdan kenar" : "Rut gunu",
-                color: model.rutgunu == "Sef" ? Colors.red : Colors.green,
+                labeltext: model.isRutDay == false? "Rutdan kenar" : "Rut gunu",
+                color: model.isRutDay == false ? Colors.red : Colors.green,
               ),
             ))
       ],
@@ -669,7 +669,7 @@ class _ScreenGunlukGirisCixisState extends State<ScreenGunlukGirisCixis> {
 
   (String, int) checkIfVisited(String s) {
     if (widget.model.listGirisCixislar!
-        .where((element) => element.ckod == s)
+        .where((element) => element.customerCode == s)
         .isNotEmpty) {
       return ("Bu gun ziyaret edilib", 1);
     } else {

@@ -12,7 +12,6 @@ import 'package:zs_managment/companents/login/models/model_userspormitions.dart'
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/models/model_connections.dart';
-import 'package:zs_managment/companents/users_panel/new_user_create/new_user_dialog/dialog_select_user_connections.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/models/model_roles.dart';
 import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
@@ -23,6 +22,7 @@ import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 
 import '../../login/models/base_responce.dart';
+import '../mobile/dialog_select_user_connections_mobile.dart';
 
 class NewUserController extends GetxController {
   LocalUserServices localUserServices = LocalUserServices();
@@ -700,7 +700,7 @@ class NewUserController extends GetxController {
       "connRoleId": 0,
       "connUserCode": "ok"
     };
-    DialogHelper.showLoading("Melumatlar axtarilir...");
+    DialogHelper.showLoading("mYoxlanilir".tr);
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -709,7 +709,7 @@ class NewUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
@@ -753,7 +753,7 @@ class NewUserController extends GetxController {
           }
 
           DialogHelper.hideLoading();
-          Get.dialog(DialogSelectedUserConnectins(
+          Get.dialog(DialogSelectedUserConnectinsMobile(
             isWindows: true,
             selectedListUsers: selectedListUserConnections,
             addConnectin: (listSelected, listDeselected) {
@@ -811,7 +811,7 @@ class NewUserController extends GetxController {
 
   Future<bool> registerUserEndpoint() async {
     bool succes=false;
-    DialogHelper.showLoading("Melumatlar yoxlanir...",false);
+    DialogHelper.showLoading("mYoxlanilir".tr,false);
     List<ConnectionRegister> listcon = [];
     for (var element in selectedListUserConnections) {
       ConnectionRegister cn = ConnectionRegister(
@@ -850,7 +850,7 @@ class NewUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {},
       ));
     } else {
@@ -886,7 +886,7 @@ class NewUserController extends GetxController {
 
   Future<void> acceptRecistredUser(String recNom, RegisterUserModel registerData) async {
     DialogHelper.hideLoading();
-    DialogHelper.showLoading("Qeydiyyat tesdiqlenir...",false);
+    DialogHelper.showLoading("${"qeydiyyatTesdiqlenir".tr}...",false);
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -895,7 +895,7 @@ class NewUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zs_managment/language/localization_controller.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -65,12 +64,11 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return SafeArea(
       child: Scaffold(
           backgroundColor: Colors.white,
           body: SizedBox(
-            height: ScreenUtil().screenHeight - 80,
+            height: MediaQuery.of(context).size.height - 80,
             child: Column(
               children: [
                 Expanded(
@@ -111,7 +109,7 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
           bottomSheet: slideIndex == mySLides.length - 1
               ? Container(
                   margin:
-                      EdgeInsets.symmetric(vertical: 16.w, horizontal: 10.h),
+                      EdgeInsets.symmetric(vertical: 16, horizontal: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -132,16 +130,16 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
                             await userLocalService.addValueForAppFistTimeOpen(true);
                           },
                           label: "giris".tr,
-                          surfaceColor: Colors.blueAccent.withOpacity(0.3),
-                          width: 200.w,
-                          height: 20.h,
+                          surfaceColor: Colors.blue.withOpacity(0.3),
+                          width: 200,
+                          height: 20,
                           elevation: 6),
                     ],
                   ),
                 )
               : Container(
                   margin:
-                      EdgeInsets.symmetric(vertical: 15.h, horizontal: 0.w),
+                      EdgeInsets.symmetric(vertical: 15, horizontal: 0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
@@ -153,8 +151,8 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
                           },
                           label: "scipe".tr,
                           surfaceColor: Colors.blue.withOpacity(0.3),
-                          width: 20.w,
-                          height: 20.h,
+                          width: 20,
+                          height: 20,
                           elevation: 10),
                       Row(
                         children: [
@@ -172,8 +170,8 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
                           },
                           label: "next".tr,
                           surfaceColor: Colors.green.withOpacity(0.3),
-                          width: 100.w,
-                          height: 20.h,
+                          width: 100,
+                          height: 20,
                           elevation: 10),
                     ],
                   ),
@@ -190,30 +188,30 @@ class SlideTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 10.h),
+      padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
       alignment: Alignment.center,
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Lottie.asset(imagePath,height: ScreenUtil().screenHeight/2.5,filterQuality: FilterQuality.medium,fit: BoxFit.fill),
-            SizedBox(
-              height: 40.h,
+            Lottie.asset(imagePath,height: MediaQuery.of(context).size.height/2.5,filterQuality: FilterQuality.medium,fit: BoxFit.fill),
+            const SizedBox(
+              height: 40,
             ),
             CustomText(
-                color: Colors.blueAccent.withOpacity(0.8),
+                color: Colors.blue.withOpacity(0.8),
                 labeltext: title,
                 textAlign: TextAlign.center,
-                fontWeight: FontWeight.w800,
-                fontsize: 24.sp,
+                fontWeight: FontWeight.bold,
+                fontsize: 24,
                 latteSpacer: 0.1,
                 maxline: 2),
-            SizedBox(height: 20.h,),
+            SizedBox(height: 20,),
             CustomText(
                 labeltext: desc,
                 textAlign: TextAlign.center,
                 fontWeight: FontWeight.normal,
-                fontsize: 20.sp,
+                fontsize: 20,
                 maxline: 5),
           ],
         ),

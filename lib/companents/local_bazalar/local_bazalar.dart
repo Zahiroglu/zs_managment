@@ -1,6 +1,5 @@
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';

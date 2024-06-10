@@ -23,6 +23,8 @@ import '../constands/app_constands.dart';
 import '../widgets/simple_info_dialog.dart';
 import 'package:get/get.dart' as getxt;
 
+import 'custim_interceptor.dart';
+
 class CustomInterceptorHidden extends Interceptor {
   late CheckDviceType checkDviceType = CheckDviceType();
   LocalUserServices localUserServices = LocalUserServices();
@@ -67,10 +69,10 @@ class CustomInterceptorHidden extends Interceptor {
 
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    if(err.type == DioExceptionType.connectionTimeout){
-      await localBazalar.claerBaseUrl();
-      Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-    }
+    // if(err.type == DioExceptionType.connectionTimeout){
+    //   await localBazalar.claerBaseUrl();
+    //   Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
+    // }
     super.onError(err, handler);
   }
 
@@ -129,7 +131,23 @@ class CustomInterceptorHidden extends Interceptor {
           TokenModel model = TokenModel.fromJson(response.data['result']);
           loggedUserModel.tokenModel = model;
           await localUserServices.addUserToLocalDB(loggedUserModel).whenComplete(() => succes = 200);
-        } else {
+         }
+        // else if(response.statusCode == 400){
+        //   if (ModelExceptions.fromJson(response.data['exception']).code != null) {
+        //     if (ModelExceptions.fromJson(response.data['exception']).code == "005") {
+        //       Get.dialog(ShowInfoDialog(
+        //           messaje: ModelExceptions.fromJson(response.data['exception']).message!,
+        //           icon: Icons.error,
+        //           callback: () {
+        //             _sistemiYenidenBaslat();
+        //           }));
+        //     }
+        //   }else{
+        //       succes == response.statusCode;
+        //   }
+        // }
+
+        else {
           if (!isLiveTrackRequest) {
             succes == response.statusCode;
           }
@@ -139,6 +157,16 @@ class CustomInterceptorHidden extends Interceptor {
       }
     }
     return succes;
+  }
+  Future<void> _sistemiYenidenBaslat() async {
+    Get.delete<DrawerMenuController>();
+    Get.delete<UsersApiController>();
+    Get.delete<SettingPanelController>();
+    Get.delete<ControllerAnbar>();
+    await localBazalar.clearLoggedUserInfo();
+    await localBazalar.clearAllBaseDownloads();
+    Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
+
   }
 
 

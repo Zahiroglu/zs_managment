@@ -5,7 +5,6 @@ import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart
 import 'package:zs_managment/companents/base_downloads/models/model_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';

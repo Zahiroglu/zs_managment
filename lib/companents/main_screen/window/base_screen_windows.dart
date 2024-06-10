@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
@@ -13,23 +11,6 @@ import 'package:zs_managment/sizeconfig/responsive_builder.dart';
 import 'package:zs_managment/thema/thema_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
-import '../../../widgets/simple_info_dialog.dart';
-import '../../anbar/screan_anbar_esas.dart';
-import '../../base_downloads/screen_download_base.dart';
-import '../../connected_users/rout_detail_users_screen.dart';
-import '../../dashbourd/dashbourd_screen_mobile.dart';
-import '../../giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
-import '../../giris_cixis/sceens/satisGirisCixis/screen_giriscixis_umumilist.dart';
-import '../../giris_cixis/sceens/yeni_giriscixis_map.dart';
-import '../../live_track/screen_live_track.dart';
-import '../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
-import '../../rut_gostericileri/mercendaizer/screens/merc_routdatail_screen.dart';
-import '../../satis_emeliyyatlari/sifaris_detallari/screen_sifarislerebax.dart';
-import '../../setting_panel/setting_screen_mobile.dart';
-import '../../tapsiriqlar/screen_tasks.dart';
-import '../../users_panel/mobile/users_panel_mobile_screen.dart';
-import '../../users_panel/user_panel_windows_screen.dart';
-import '../drawer/model_drawerItems.dart';
 
 class BaseScreenWindows extends StatefulWidget {
   LoggedUserModel loggedUserModel;
@@ -64,7 +45,6 @@ class _BaseScreenWindowsState extends State<BaseScreenWindows> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
 
     return Material(
       child:GetBuilder<LocalizationController>(builder: (localizationController) {
@@ -95,13 +75,13 @@ class _BaseScreenWindowsState extends State<BaseScreenWindows> {
                     constraints: BoxConstraints(
                       maxWidth:
                       drawerMenuController.isMenuExpended.isTrue
-                          ? ScreenUtil.defaultSize.width * 0.2
-                          : ScreenUtil.defaultSize.width * 0.6,
+                          ? MediaQuery.of(context).size.width * 0.2
+                          : MediaQuery.of(context).size.width * 0.6,
                     ),
                     child: Drawer(
                       elevation: 0,
                       backgroundColor: Colors.transparent,
-                      width: ScreenUtil.defaultSize.width,
+                      width: MediaQuery.of(context).size.width,
                       child: CustomDrawerWindos(
                         drawerMenuController: drawerMenuController,
                         userModel: modelUser,
@@ -212,7 +192,6 @@ class _BaseScreenWindowsState extends State<BaseScreenWindows> {
                       ),
                       WidgetDilSecimi(
                           localizationController: localizationController,
-                          isDestop: true,
                           callBack: () {
                             drawerMenuController.changeIndexWhenLanguageChange();
                             setState(() {});

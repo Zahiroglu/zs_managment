@@ -39,19 +39,23 @@ class DialogHelper {
   //show loading
   static void showLoading([String? message,bool? barrier=false]) {
     Get.dialog(
-      barrierColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.7),
       barrierDismissible: barrier??true,
       Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 20),
-              CircularProgressIndicator(),
-              SizedBox(height: 20),
-              CustomText(labeltext: message ?? 'Loading...'),
-            ],
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 20),
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                CustomText(labeltext: message ?? 'Loading...'),
+              ],
+            ),
           ),
         ),
       ),

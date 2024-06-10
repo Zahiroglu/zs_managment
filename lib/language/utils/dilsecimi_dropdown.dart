@@ -10,10 +10,9 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:get/get.dart';
 
 class WidgetDilSecimi extends StatelessWidget {
-  WidgetDilSecimi({Key? key,required this.callBack, required this.isDestop, required this.localizationController,this.isLoginScreen}) : super(key: key);
+  WidgetDilSecimi({Key? key,required this.callBack, required this.localizationController,this.isLoginScreen}) : super(key: key);
   LocalizationController localizationController;
   Function callBack;
-  bool isDestop = false;
   bool? isLoginScreen = false;
   final apiControllerMobile = Get.lazyPut(() => UserApiControllerMobile()); // will inject that dependecy, and wait until it's used then it will call onInit() method, then onReady() method
   final apiControllerWindos = Get.lazyPut(() => UsersApiController()); // will inject that dependecy, and wait until it's used then it will call onInit() method, then onReady() method
@@ -65,23 +64,14 @@ class WidgetDilSecimi extends StatelessWidget {
                     LangConstants.languages[index].countryCode,));
                   localizationController.setSelectIndex(index);
                 }else {
-                  if (isDestop) {
                     localUserServices.init();
-                    if (await UsersApiController().getLoggedUserInfoForDrowers(localUserServices.getLoggedUser().tokenModel!, lang.languageCode)) {
-                      int index = LangConstants.languages.indexOf(lang);
-                      localizationController.setLanguage(Locale(LangConstants.languages[index].languageCode, LangConstants.languages[index].countryCode,));
-                      localizationController.setSelectIndex(index);
-                      callBack.call();
-                    }
-                  } else {
-                    localUserServices.init();
-                    isSucces = await UserApiControllerMobile().loginWithMobileDviceIdForDrawerItems(localUserServices.getLoggedUser().tokenModel!, lang.languageCode);
-                  }
+                    isSucces = await UserApiControllerMobile().loginWithMobileDviceIdForDrawerItems(lang.languageCode);
                   if (isSucces) {
                     int index = LangConstants.languages.indexOf(lang);
                     localizationController.setLanguage(Locale(LangConstants.languages[index].languageCode, LangConstants.languages[index].countryCode,));
                     localizationController.setSelectIndex(index);
                     callBack.call();
+
                   }
                 }}
             }),

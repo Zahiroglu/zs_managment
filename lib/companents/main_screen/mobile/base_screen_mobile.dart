@@ -1,39 +1,13 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
-import 'package:zs_managment/companents/main_screen/drawer/custom_drawer_windows.dart';
-import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/thema/thema_controller.dart';
-import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
-
-import '../../../routs/rout_controller.dart';
-import '../../../widgets/simple_info_dialog.dart';
-import '../../anbar/screan_anbar_esas.dart';
-import '../../base_downloads/screen_download_base.dart';
-import '../../connected_users/rout_detail_users_screen.dart';
-import '../../dashbourd/dashbourd_screen_mobile.dart';
-import '../../giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
-import '../../giris_cixis/sceens/satisGirisCixis/screen_giriscixis_umumilist.dart';
-import '../../giris_cixis/sceens/yeni_giriscixis_map.dart';
-import '../../live_track/screen_live_track.dart';
-import '../../local_bazalar/local_db_downloads.dart';
-import '../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
-import '../../rut_gostericileri/mercendaizer/screens/merc_routdatail_screen.dart';
-import '../../satis_emeliyyatlari/sifaris_detallari/screen_sifarislerebax.dart';
-import '../../setting_panel/setting_screen_mobile.dart';
-import '../../tapsiriqlar/screen_tasks.dart';
-import '../../users_panel/mobile/users_panel_mobile_screen.dart';
-import '../../users_panel/user_panel_windows_screen.dart';
 import '../drawer/custom_drawermobile.dart';
-import '../drawer/model_drawerItems.dart';
 
 class MainScreenMobile extends StatefulWidget {
   const MainScreenMobile({ super.key});
@@ -62,7 +36,6 @@ class _MainScreenMobileState extends State<MainScreenMobile> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {

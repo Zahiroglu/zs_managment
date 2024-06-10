@@ -13,7 +13,6 @@ import 'package:location/location.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
@@ -22,9 +21,10 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
-import '../../base_downloads/models/model_cariler.dart';
-import '../controller_giriscixis_yeni.dart';
+import '../../../base_downloads/models/model_cariler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
+
+import 'controller_giriscixis_reklam.dart';
 
 class YeniGirisCixisMap extends StatefulWidget {
   const YeniGirisCixisMap({super.key});
@@ -34,8 +34,8 @@ class YeniGirisCixisMap extends StatefulWidget {
 }
 
 class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
-  ControllerGirisCixisYeni controllerGirisCixis =
-      Get.put(ControllerGirisCixisYeni());
+  ControllerGirisCixisReklam controllerGirisCixis =
+  Get.put(ControllerGirisCixisReklam());
   final ScrollController listViewController = ScrollController();
   final SnappingSheetController snappingSheetController =
       SnappingSheetController();
@@ -65,7 +65,7 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
 
   @override
   void dispose() {
-    Get.delete<ControllerGirisCixisYeni>();
+ //   Get.delete<ControllerGirisCixisReklam>();
     _controllerMap = Completer();
     // TODO: implement dispose
     super.dispose();
@@ -220,7 +220,7 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
           selectedModel.rutGunu=="Duz"?Positioned(
               top: -5,
               left: 5,
-              child:Icon(Icons.bookmark,size:32,color: controllerGirisCixis.modelRutPerform.value.listGirisCixislar!.any((element) => element.ckod==selectedModel.code)?Colors.green:Colors.yellow,)):SizedBox(),
+              child:Icon(Icons.bookmark,size:32,color: controllerGirisCixis.modelRutPerform.value.listGirisCixislar!.any((element) => element.customerCode==selectedModel.code)?Colors.green:Colors.yellow,)):SizedBox(),
         ],
       ),
     );
@@ -319,14 +319,14 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
                     padding:
                     const EdgeInsets.all(8.0).copyWith(top: 2, bottom: 0),
                     child: CustomText(
-                        fontsize:controllerGirisCixis.modelgirisEdilmis.value.ckod!=selectedModel.code||marketeCixisIcazesi?16:12,
+                        fontsize:controllerGirisCixis.modelgirisEdilmis.value.customerCode!=selectedModel.code||marketeCixisIcazesi?16:12,
                         labeltext: "Marketden uzaqliq : $secilenMarketdenUzaqliqString"),
                   ),
                   Padding(
                     padding:
                     const EdgeInsets.all(8.0).copyWith(top: 2, bottom: 0),
                     child: CustomText(
-                        fontsize: controllerGirisCixis.modelgirisEdilmis.value.ckod!=selectedModel.code||marketeCixisIcazesi?16:12,
+                        fontsize: controllerGirisCixis.modelgirisEdilmis.value.customerCode!=selectedModel.code||marketeCixisIcazesi?16:12,
                         labeltext: secilenMusterininRutGunuDuzluyu == true
                             ? "Rut duzgunluyu : Duzdur"
                             : "Rut duzgunluyu : Rutdan kenardir",
@@ -334,7 +334,7 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
                             ? Colors.blue
                             : Colors.red),
                   ),
-                  controllerGirisCixis.modelgirisEdilmis.value.ckod==selectedModel.code?marketeCixisIcazesi ? const SizedBox():Row(
+                  controllerGirisCixis.modelgirisEdilmis.value.customerCode==selectedModel.code?marketeCixisIcazesi ? const SizedBox():Row(
                     children: [
                       const Icon(Icons.error,color: Colors.red,),
                       const SizedBox(width: 5,),
@@ -346,7 +346,7 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
                   myCusttomInfoWindowStyleSimpleInfo(selectedModel),
                 ],
               ),
-              controllerGirisCixis.modelgirisEdilmis.value.ckod==selectedModel.code?marketeCixisIcazesi
+              controllerGirisCixis.modelgirisEdilmis.value.customerCode==selectedModel.code?marketeCixisIcazesi
                   ? CustomElevetedButton(
                 cllback: () {
                   cixisEt(selectedModel,secilenMarketdenUzaqliqString);
@@ -368,7 +368,7 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
   }
   
   Widget widgetCixisUcunHesabat(BuildContext context) {
-    return Obx(() => controllerGirisCixis.modelgirisEdilmis.value.ckod==selectedModel.code?SizedBox(
+    return Obx(() => controllerGirisCixis.modelgirisEdilmis.value.customerCode==selectedModel.code?SizedBox(
       height: MediaQuery.of(context).size.height * 0.9,
       child: SingleChildScrollView(
         child: Column(
@@ -704,7 +704,7 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
             child: widgetRightsideMenu()),
         controllerGirisCixis.marketeGirisEdilib.isTrue?Positioned(
             top: 25,
-            right: MediaQuery.of(context).size.width/(controllerGirisCixis.modelgirisEdilmis.value.cariad!.length)*4,
+            right: MediaQuery.of(context).size.width/(controllerGirisCixis.modelgirisEdilmis.value.customerName!.length)*4,
             child: Container(
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
@@ -715,7 +715,7 @@ class _YeniGirisCixisMapState extends State<YeniGirisCixisMap> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CustomText(labeltext: controllerGirisCixis.modelgirisEdilmis.value.cariad!,color: Colors.white,maxline: 2,fontsize: 18,textAlign: TextAlign.center,),
+                  CustomText(labeltext: controllerGirisCixis.modelgirisEdilmis.value.customerName!,color: Colors.white,maxline: 2,fontsize: 18,textAlign: TextAlign.center,),
                   const SizedBox(height: 5,),
                   Row(
                     children: [

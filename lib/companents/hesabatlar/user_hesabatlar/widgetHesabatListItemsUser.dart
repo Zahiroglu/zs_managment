@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -7,19 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:hive/hive.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesabatlar.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
-
 import '../../../dio_config/api_client.dart';
 import '../../../helpers/dialog_helper.dart';
 import '../../../routs/rout_controller.dart';
 import '../../../utils/checking_dvice_type.dart';
 import '../../../widgets/simple_info_dialog.dart';
 import '../../connected_users/model_main_inout.dart';
-import '../../live_track/model/model_my_connecteduserslocations.dart';
 import '../../local_bazalar/local_users_services.dart';
 import '../../login/models/base_responce.dart';
 import '../../login/models/logged_usermodel.dart';
@@ -49,8 +45,7 @@ class WidgetHesabatListItemsUser extends StatefulWidget {
       _WidgetHesabatListItemsUserState();
 }
 
-class _WidgetHesabatListItemsUserState
-    extends State<WidgetHesabatListItemsUser> {
+class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser> {
   TextEditingController ctFistDay = TextEditingController();
   TextEditingController ctLastDay = TextEditingController();
   String languageIndex = "az";
@@ -512,6 +507,8 @@ class _WidgetHesabatListItemsUserState
               }));
         }
         break;
+        case "terror":
+          Get.toNamed(RouteHelper.screenErrorsReport,arguments: [true,ctFistDay.text.substring(0,16),ctLastDay.text.substring(0,16),widget.userCode,widget.roleId]);
     }
     //ctFistDay.clear();
     //ctLastDay.clear();
@@ -704,7 +701,6 @@ class _WidgetHesabatListItemsUserState
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();
-
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(

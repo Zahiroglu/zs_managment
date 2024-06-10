@@ -12,7 +12,6 @@ import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
-import 'package:zs_managment/companents/giris_cixis/controller_giriscixis_yeni.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
@@ -32,6 +31,7 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
 import '../giris_cixis/models/model_request_inout.dart';
+import '../giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
 import '../rut_gostericileri/mercendaizer/data_models/model_mercbaza.dart';
 import 'model_main_inout.dart';
 

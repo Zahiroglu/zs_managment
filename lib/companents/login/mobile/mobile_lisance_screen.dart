@@ -1,22 +1,14 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:zs_managment/companents/login/models/base_responce.dart';
-import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
-import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/constands/app_constands.dart';
-import 'package:zs_managment/language/localization_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
-import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:lottie/lottie.dart';
 
 //import 'package:platform_device_id/platform_device_id.dart';
-import 'package:android_id/android_id.dart';
 
 class ScreenRequestCheckMobile extends StatelessWidget {
   ScreenRequestCheckMobile({Key? key}) : super(key: key);
@@ -25,7 +17,6 @@ class ScreenRequestCheckMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
         child: SafeArea(
       child: Scaffold(
@@ -37,7 +28,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
               children: [
                 widgetLogoHisse(context),
                 SizedBox(
-                  height: 60.h,
+                  height: 60,
                 ),
                 Obx(() {
                   return apiController.isLoading.isTrue
@@ -45,11 +36,11 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                       : widgetMelumatTapilmadi();
                 }),
                 SizedBox(
-                  height: 30.h,
+                  height: 30,
                 ),
               ],
             ),
-            Positioned(bottom: 10.h, right: 5.w, child: widgetFooter())
+            Positioned(bottom: 10, right: 5, child: widgetFooter())
           ],
         ),
       ),
@@ -60,36 +51,35 @@ class ScreenRequestCheckMobile extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomRight,
       child: Padding(
-        padding: EdgeInsets.all(8.0.h),
+        padding: EdgeInsets.all(8.0),
         child: CustomText(labeltext: "develop".tr),
       ),
     );
   }
 
   Stack widgetAnimationYoxlanir(BuildContext context) {
-    ScreenUtil.init(context);
     return Stack(
       alignment: Alignment.center,
       children: [
         Lottie.asset("lottie/request_checking.json",
-            height: ScreenUtil().screenHeight / 3,
+            height: MediaQuery.of(context).size.height / 3,
             width: double.infinity,
             fit: BoxFit.fitHeight),
         Positioned(
-          bottom: ScreenUtil().screenHeight / 6,
+          bottom: MediaQuery.of(context).size.height / 6,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               CustomText(
                 labeltext: 'yoxlanir'.tr,
-                fontsize: 20.sp,
+                fontsize: 20,
                 maxline: 2,
                 fontWeight: FontWeight.w700,
                 color: Colors.blueAccent.withOpacity(0.6),
               ),
               SizedBox(
-                width: 5.w,
+                width: 5,
               ),
             ],
           ),
@@ -100,24 +90,24 @@ class ScreenRequestCheckMobile extends StatelessWidget {
 
   Padding widgetMelumatTapilmadi() {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.w, horizontal: 15.h),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Icons.info_outline, color: Colors.red, size: 72.spMin),
-          SizedBox(
-            height: 10.h,
+          const Icon(Icons.info_outline, color: Colors.red, size: 72),
+          const SizedBox(
+            height: 10,
           ),
           CustomText(
             labeltext: apiController.basVerenXeta,
             fontWeight: FontWeight.normal,
             maxline: 3,
-            fontsize: 18.spMin,
+            fontsize: 18,
             textAlign: TextAlign.center,
           ),
-          SizedBox(
-            height: 20.h,
+          const SizedBox(
+            height: 20,
           ),
           apiController.countClick.value == 3
               ? CustomElevetedButton(
@@ -127,7 +117,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                   label: "yenidenBaslat".tr,
                   surfaceColor: Colors.blueAccent.withOpacity(0.5),
                   elevation: 5,
-                  height: 30.h,
+                  height: 30,
                 )
               : CustomElevetedButton(
                   cllback: () {
@@ -137,7 +127,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                   label: "tryagain".tr,
                   surfaceColor: Colors.blueAccent.withOpacity(0.5),
                   elevation: 5,
-                  height: 30.h,
+                  height: 30,
                 )
         ],
       ),
@@ -157,7 +147,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                 color: Colors.blue,
                 fontWeight: FontWeight.w700),
             SizedBox(
-              height: 5.h,
+              height: 5,
             ),
             Obx(
               () => InkWell(
@@ -201,7 +191,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
           ],
         ),
         Container(
-          width: 200.w,
+          width: 200,
           height: 0.2,
           color: Colors.blue,
         )
@@ -215,11 +205,11 @@ class ScreenRequestCheckMobile extends StatelessWidget {
       children: [
         Image.asset(
           "images/zs6.png",
-          height: 80.h,
-          width: 80.w,
+          height: 80,
+          width: 80,
         ),
         SizedBox(
-          width: 10.w,
+          width: 10,
         ),
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -231,19 +221,19 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                 latteSpacer: 0.2,
                 fontWeight: FontWeight.w800),
             SizedBox(
-              height: 2.h,
+              height: 2,
             ),
             CustomText(labeltext: "nezsystem".tr),
             SizedBox(
-              height: 5.h,
+              height: 5,
             ),
             Container(
               height: 1,
-              width: 200.w,
+              width: 200,
               color: Colors.black,
             ),
             SizedBox(
-              height: 10.h,
+              height: 10,
             ),
             Obx(
               () => apiController.deviceIdMustvisible.isTrue
@@ -251,7 +241,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                   : const SizedBox(),
             ),
             SizedBox(
-              height: 5.h,
+              height: 5,
             ),
           ],
         )

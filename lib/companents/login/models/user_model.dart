@@ -63,13 +63,17 @@ class UserModel {
   @HiveField(23)
   List<ModelUserPermissions>? permissions;
   @HiveField(24)
-  int? expDate;
+  List<ModelUserPermissions>? draweItems;
   @HiveField(25)
-  String? addDateStr;
+  int? expDate;
   @HiveField(26)
-  String? requestNumber;
+  String? addDateStr;
   @HiveField(27)
+  String? requestNumber;
+  @HiveField(28)
   String? lastOnlineDate;
+  @HiveField(29)
+  bool? active;
 
   UserModel({
     this.id,
@@ -96,10 +100,12 @@ class UserModel {
     this.modelModules,
     this.connections,
     this.permissions,
+    this.draweItems,
     this.expDate,
     this.addDateStr,
     this.requestNumber,
     this.lastOnlineDate,
+    this.active,
   });
 
   UserModel copyWith({
@@ -127,10 +133,12 @@ class UserModel {
     List<ModelModule>? modelModules,
     List<ModelUserConnection>? connections,
     List<ModelUserPermissions>? permissions,
+    List<ModelUserPermissions>? draweItems,
     int? expDate,
     String? addDateStr,
     String? requestNumber,
     String? lastOnlineDate,
+    bool? active,
   }) =>
       UserModel(
         id: id ?? this.id,
@@ -157,10 +165,12 @@ class UserModel {
         modelModules: modelModules ?? this.modelModules,
         connections: connections ?? this.connections,
         permissions: permissions ?? this.permissions,
+        draweItems: draweItems ?? this.draweItems,
         expDate: expDate ?? this.expDate,
         addDateStr: addDateStr ?? this.addDateStr,
         requestNumber: requestNumber ?? this.requestNumber,
         lastOnlineDate: lastOnlineDate ?? this.lastOnlineDate,
+        active: active ?? this.active,
       );
 
   factory UserModel.fromRawJson(String str) => UserModel.fromJson(json.decode(str));
@@ -192,10 +202,12 @@ class UserModel {
     modelModules: json["modelModules"] == null ? [] : List<ModelModule>.from(json["modelModules"]!.map((x) => ModelModule.fromJson(x))),
     connections: json["connections"] == null ? [] : List<ModelUserConnection>.from(json["connections"]!.map((x) => ModelUserConnection.fromJson(x))),
     permissions: json["permissions"] == null ? [] : List<ModelUserPermissions>.from(json["permissions"]!.map((x) => ModelUserPermissions.fromJson(x))),
+    draweItems: json["cards"] == null ? [] : List<ModelUserPermissions>.from(json["cards"]!.map((x) => ModelUserPermissions.fromJson(x))),
     expDate: json["expDate"],
     addDateStr: json["addDateStr"],
     requestNumber: json["requestNumber"],
     lastOnlineDate: json["lastOnlineDate"],
+    active: json["active"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -223,10 +235,12 @@ class UserModel {
     "modelModules": modelModules == null ? [] : List<dynamic>.from(modelModules!.map((x) => x.toJson())),
     "connections": connections == null ? [] : List<dynamic>.from(connections!.map((x) => x.toJson())),
     "permissions": permissions == null ? [] : List<dynamic>.from(permissions!.map((x) => x.toJson())),
+    "draweItems": draweItems == null ? [] : List<dynamic>.from(draweItems!.map((x) => x.toJson())),
     "expDate": expDate,
     "addDateStr": addDateStr,
     "requestNumber": requestNumber,
     "lastOnlineDate": lastOnlineDate,
+    "active": active,
   };
 
   @override

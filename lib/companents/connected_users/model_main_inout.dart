@@ -64,7 +64,7 @@ class ModelInOutDay {
     day: json["day"],
     visitedCount: json["visitedCount"],
     firstEnterDate: json["firstEnterDate"],
-    lastExitDate: json["lastExitDate"],
+    lastExitDate: json["lastExitDate"].toString(),
     workTimeInCustomer: json["workTimeInCustomer"],
     workTimeInArea: json["workTimeInArea"],
     modelInOut: List<ModelInOut>.from(json["inOutCustomersByTime"].map((x) => ModelInOut.fromJson(x))),

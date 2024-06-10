@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:lottie/lottie.dart';
 
@@ -8,13 +7,12 @@ import 'custom_responsize_textview.dart';
 class NoDataFound extends StatelessWidget {
   double? width;
   double? height;
-  String? title="Melumat tapilmadi".tr;
+  String? title="melumattapilmadi".tr;
 
   NoDataFound({this.width, this.height,this.title, super.key});
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

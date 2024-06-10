@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/src/screen_util.dart';
 
 import 'custom_eleveted_button.dart';
 import 'custom_responsize_textview.dart';
@@ -22,7 +21,6 @@ class ShowInfoDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
       color: Colors.transparent,
       child: Center(
@@ -40,8 +38,8 @@ class ShowInfoDialog extends StatelessWidget {
                   blurRadius: 10
                 )
               ]),
-          height:ScreenUtil.defaultSize.height*0.38,
-          width: ScreenUtil.defaultSize.width*0.9,
+          height:MediaQuery.of(context).size.height*0.38,
+          width: MediaQuery.of(context).size.width*0.9,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,9 +78,10 @@ class ShowInfoDialog extends StatelessWidget {
                     borderColor: Colors.blueAccent.withOpacity(0.5),
                     surfaceColor: Colors.white,
                     label: "bagla".tr,
+                    clicble: true,
                     cllback: (){
+                      callback.call();
                       Get.back();
-                      callback();
                       //Get.back();
                       //callback!.call();
                     },

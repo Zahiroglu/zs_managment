@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 
 import 'custom_responsize_textview.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class CustomElevetedButton extends StatelessWidget {
@@ -43,7 +42,6 @@ class CustomElevetedButton extends StatelessWidget {
   bool clicble;
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return ElevatedButton(
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.all(5),
@@ -56,7 +54,7 @@ class CustomElevetedButton extends StatelessWidget {
           elevation:clicble? elevation:0,
         ),
         onPressed: () {
-          clicble? cllback():null;
+          clicble? cllback.call():null;
         },
         child: SizedBox(
           height: height,

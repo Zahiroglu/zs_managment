@@ -34,7 +34,7 @@ class ApiClientLive {
   Dio dio() {
     var dio = Dio(
       BaseOptions(
-        connectTimeout: const Duration(seconds: 30),
+        connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 30),
         baseUrl: AppConstands.baseUrlsMain,
         persistentConnection:false,

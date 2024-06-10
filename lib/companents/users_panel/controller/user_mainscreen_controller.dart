@@ -76,9 +76,8 @@ class UserMainScreenController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
-          Get.back();
         },
       ));
     } else {
@@ -158,9 +157,8 @@ class UserMainScreenController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
-          Get.back();
         },
       ));
     } else {
@@ -216,9 +214,8 @@ class UserMainScreenController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
-          Get.back();
         },
       ));
     } else {
@@ -242,7 +239,6 @@ class UserMainScreenController extends GetxController {
         if (response.statusCode == 200) {
           DialogHelper.hideLoading();
           var userlist = json.encode(response.data['result']);
-          print("userlist :"+userlist.toString());
           List list = jsonDecode(userlist);
           for(var i in list){
             UserModel model=UserModel.fromJson(i);

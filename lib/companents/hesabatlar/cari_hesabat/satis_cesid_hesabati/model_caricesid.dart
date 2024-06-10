@@ -38,20 +38,20 @@ class ModelCariCesid {
   String toRawJson() => json.encode(toJson());
 
   factory ModelCariCesid.fromJson(Map<String, dynamic> json) => ModelCariCesid(
-    tarix: json["tarix"],
-    stockKod: json["stock_kod"],
-    stockAd: json["stock_ad"],
-    anaQrup: json["ana_qrup"],
-    cariKod: json["cari_kod"],
-    cariAd: json["cari_ad"],
-    expKod: json["exp_kod"],
-    expAd: json["exp_ad"],
-    miqdar: json["miqdar"],
-    qiymet: json["qiymet"],
-    mebleg: json["mebleg"],
-    endirim1: json["endirim1"],
-    endirim2: json["endirim2"],
-    netMebleg: json["net_mebleg"],
+    tarix: json["warehouseDate"]??"empty",
+    stockKod: json["wahrehouseCode"]??"empty",
+    stockAd: json["warehouseName"]??"empty",
+    anaQrup: json["mainGoup"]??"empty",
+    cariKod: json["customerCode"]??"empty",
+    cariAd: json["customerName"]??"empty",
+    expKod: json["forwarderCode"]??"empty",
+    expAd: json["forwarderName"]??"empty",
+    miqdar: json["quantity"].toString(),
+    qiymet: json["price"].toString(),
+    mebleg: json["amount"].toString(),
+    endirim1: json["discount1"].toString(),
+    endirim2: json["discount2"].toString(),
+    netMebleg: json["amountNetto"].toString(),
   );
 
   Map<String, dynamic> toJson() => {

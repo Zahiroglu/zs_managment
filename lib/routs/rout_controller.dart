@@ -17,6 +17,9 @@ import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/s
 import 'package:zs_managment/companents/tapsiriqlar/screen_complate_cari_task.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import '../companents/base_downloads/screen_download_base.dart';
+import '../companents/hesabatlar/cari_hesabat/cari_ziyaret_hesabati/screen_cari_ziyaret_hesabati.dart';
+import '../companents/hesabatlar/cari_hesabat/cari_ziyaret_hesabati/screen_ziyaretler_detay.dart';
+import '../companents/hesabatlar/errors_hesabat/screen_errors.dart';
 import '../companents/hesabatlar/user_hesabatlar/liveTrack/screen_livetrack_report.dart';
 import '../companents/hesabatlar/user_hesabatlar/temsilci_uzrez_ziyaret_hesabati/temsilci_uzre_ziyaret_hesabati.dart';
 import '../companents/live_track/screen_search_live_users.dart';
@@ -30,7 +33,6 @@ import '../companents/rut_gostericileri/satis/exp_rout_datail/rout_screens/scree
 import '../companents/rut_gostericileri/satis/exp_rout_datail/rout_screens/screen_users_rout_perform_map.dart';
 import '../companents/setting_panel/screen_maps_setting.dart';
 import '../companents/giris_cixis/companents/screen_searchMusteri.dart';
-import '../companents/login/desktop/login_desktop_screen.dart';
 import '../companents/login/mobile/login_mobile_first_screen.dart';
 import '../companents/login/mobile/mobile_lisance_screen.dart';
 import '../companents/main_screen/mobile/base_screen_mobile.dart';
@@ -51,6 +53,7 @@ class RouteHelper {
   static const String mobileMapSettingMobile = '/mobileMapSettingMobile';
   static const String mobileScreenMusteriDetail = '/mobileScreenMusteriDetail';
   static const String cariZiyaretHesabatlari = '/cariZiyaretHesabatlari';
+  static const String cariZiyaretDetay= '/cariZiyaretDetay';
   static const String cariSatisHesabati = '/cariSatisHesabati';
   static const String fackturaHesabati = '/fackturaHesabati';
   static const String cariMuqavilelerHesabati = '/cariMuqavilelerHesabati';
@@ -77,6 +80,7 @@ class RouteHelper {
   static const String createNewTask = '/createNewTask';
   static const String screenComplateCariTask = '/screenComplateCariTask';
   static const String screenTemZiyaret = '/screenTemZiyaret';
+  static const String screenErrorsReport = '/screenErrorsReport';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
@@ -90,6 +94,7 @@ class RouteHelper {
   static String getwidgetScreenMusteriDetail() => mobileScreenMusteriDetail;
   static String getMobileGirisCixisHesabGunluk() => mobileGirisCixisHesabGunluk;
   static String getCariZiyaretHesabatlari() => cariZiyaretHesabatlari;
+  static String getCariZiyaretDetay() => cariZiyaretDetay;
   static String getCariSatisHesabati() => cariSatisHesabati;
   static String getfackturaHesabati() => fackturaHesabati;
   static String getCariMuqavilelerHesabati() => cariMuqavilelerHesabati;
@@ -116,8 +121,17 @@ class RouteHelper {
   static String getCreateNewTask() => createNewTask;
   static String getScreenComplateCariTask() => screenComplateCariTask;
   static String getScreenTemZiyaret() => screenTemZiyaret;
+  static String getScreenErrorsReport() => screenErrorsReport;
 
   static List<GetPage> routes = [
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenErrorsReport, page: () {
+      return   ScreenErrorsReport(mustgetAllUsers: Get.arguments[0],startDay: Get.arguments[1]
+        ,endDay: Get.arguments[2],userCode: Get.arguments[3],userRoleId: Get.arguments[4],);
+      return  Container();
+    }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
@@ -164,7 +178,14 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariZiyaretHesabatlari, page: () {
-      return   Center(child: CustomText(labeltext: "cariZiyaretHesabatlari"),);
+      return  ScreenCariZiyaretHesabat(tarixIlk: Get.arguments[0],tarixSon: Get.arguments[1],cariKod: Get.arguments[2],cariAd: Get.arguments[3]);
+      return  Container();
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: cariZiyaretDetay, page: () {
+      return  ScreenZiyaretlerDetay(selectedUser: Get.arguments[0],listVisits: Get.arguments[1],);
       return  Container();
     }),
     GetPage(
@@ -200,10 +221,6 @@ class RouteHelper {
     }),
     GetPage(name: mobileLoginFistScreen, page: () {
       return const LoginMobileFirstScreen();
-      return  Container();
-    }),
-    GetPage(name: windosLoginScreen, page: () {
-      return const LoginDesktopScreen();
       return  Container();
     }),
     GetPage(name: mobileMainScreen, page: () {

@@ -13,7 +13,6 @@ import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/users_panel/mobile/dialog_select_user_connections_mobile.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
-import 'package:zs_managment/companents/users_panel/new_user_create/new_user_dialog/dialog_select_user_connections.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/models/model_roles.dart';
 import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
@@ -628,7 +627,7 @@ class UpdateUserController extends GetxController {
           }
           DialogHelper.hideLoading();
           if(isWindows) {
-            Get.dialog(DialogSelectedUserConnectins(
+            Get.dialog(DialogSelectedUserConnectinsMobile(
               isWindows: isWindows,
               selectedListUsers: selectedListUserConnections,
               addConnectin: (listSelected, listDeselected) {

@@ -1,24 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
-import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/umumi_widgetler/widget_rut_performans.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
-import '';
 import '../../../global_models/model_appsetting.dart';
-import '../../../widgets/custom_eleveted_button.dart';
+import '../../giris_cixis/models/model_customers_visit.dart';
 import '../../local_bazalar/local_app_setting.dart';
 import '../../local_bazalar/local_db_downloads.dart';
 import '../../base_downloads/models/model_downloads.dart';
-import '../../giris_cixis/models/model_giriscixis.dart';
 import '../../local_bazalar/local_users_services.dart';
 
 class ControllerDashBorudExp extends GetxController {
@@ -27,9 +22,9 @@ class ControllerDashBorudExp extends GetxController {
   LoggedUserModel loggedUserModel = LoggedUserModel();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
-  ModelGirisCixis modelLastGiris = ModelGirisCixis();
+  ModelCustuomerVisit modelLastGiris = ModelCustuomerVisit();
   List<ModelDownloads> listDonwloads=[];
-  List<ModelGirisCixis> listGirisCixislar=[];
+  List<ModelCustuomerVisit> listGirisCixislar=[];
   Rx<ModelRutPerform> modelRutPerform=ModelRutPerform().obs;
   RxList<ModelUserPermissions> listPermitions=List<ModelUserPermissions>.empty(growable: true).obs;
   LocalAppSetting localAppSetting = LocalAppSetting();
@@ -63,7 +58,7 @@ class ControllerDashBorudExp extends GetxController {
   }
 
   Future<void> getInfoAboutDownloads() async{
-    listDonwloads= localBaseDownloads.getAllDownLoadBaseList();
+    listDonwloads=await localBaseDownloads.getAllDownLoadBaseList();
     update();
   }
 
@@ -78,7 +73,7 @@ class ControllerDashBorudExp extends GetxController {
   }
 
   Widget widgetInfoEnter(BuildContext context) {
-    return modelLastGiris.girisvaxt!=null?Padding(
+    return modelLastGiris.inDate!=null?Padding(
       padding: const EdgeInsets.only(left: 10,right: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -110,7 +105,7 @@ class ControllerDashBorudExp extends GetxController {
                   children: [
                     CustomText(
                       fontWeight: FontWeight.bold,
-                      labeltext: modelLastGiris.cariad!,
+                      labeltext: modelLastGiris.customerName!,
                       color: Colors.black,
                       overflow: TextOverflow.ellipsis,
                       fontsize: 16,
@@ -126,12 +121,12 @@ class ControllerDashBorudExp extends GetxController {
                         ),
                         CustomText(
                           labeltext:
-                              modelLastGiris.girisvaxt!.substring(0, 19),
+                              modelLastGiris.inDate!.toString().substring(0, 19),
                           color: Colors.grey,
                         ),
                       ],
                     ),
-                    modelLastGiris.cixisvaxt == "0"
+                    modelLastGiris.outDate.toString() == "0"
                         ? Row(
                             children: [
                               CustomText(
@@ -149,13 +144,13 @@ class ControllerDashBorudExp extends GetxController {
                               CustomText(labeltext: "Cixis saati : "),
                               CustomText(
                                   labeltext:
-                                      "${modelLastGiris.cixisvaxt!.substring(0, 19)}"),
+                                      "${modelLastGiris.outDate.toString()}"),
                             ],
                           ),
                     const SizedBox(
                       height: 10,
                     ),
-                    modelLastGiris.cixisvaxt == "0"
+                    modelLastGiris.outDate.toString() == "0"
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -195,8 +190,8 @@ class ControllerDashBorudExp extends GetxController {
                         padding: const EdgeInsets.all(3.0),
                         child: CustomText(
                           fontsize: 12,
-                          labeltext: getTimeNow(modelLastGiris.girisvaxt!,
-                              modelLastGiris.cixisvaxt),
+                          labeltext: getTimeNow(modelLastGiris.inDate.toString(),
+                              DateTime.now().toString()),
                           color: Colors.blueAccent,
                         ),
                       ))),
@@ -208,7 +203,6 @@ class ControllerDashBorudExp extends GetxController {
   }
 
   Widget getUserInfoField(BuildContext context) {
-    ScreenUtil.init(context);
     return screenLoading.isFalse
         ? Padding(
             padding: const EdgeInsets.only(left: 20, top: 35),
@@ -403,7 +397,7 @@ class ControllerDashBorudExp extends GetxController {
     if (cixisvaxt != "0") {
       cixisVaxt = DateTime.parse(cixisvaxt!);
     }
-    Duration diff = girisVaxt.difference(cixisVaxt);
+    Duration diff = cixisVaxt.difference(girisVaxt);
     final hours = diff.inHours;
     final minutes = diff.inMinutes % 60;
     if (hours > 0) {

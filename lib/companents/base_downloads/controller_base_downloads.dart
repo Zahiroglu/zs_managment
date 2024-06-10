@@ -11,7 +11,6 @@ import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:xml/xml_events.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_giriscixis.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
@@ -54,8 +53,6 @@ class ControllerBaseDownloads extends GetxController {
   RxList<ModelDownloads> listDonwloadsAll = List<ModelDownloads>.empty(
       growable: true).obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
-  String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
-  String soaphost = "193.105.123.215";
   RxBool dataLoading = true.obs;
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
@@ -197,16 +194,12 @@ class ControllerBaseDownloads extends GetxController {
     modelsetting = await localAppSetting.getAvaibleMap();
     print("modelsetting :" + modelsetting.toString());
     loggedUserModel = localUserServices.getLoggedUser();
-    ifUserMustLocateAllWordDay.value ==
-        loggedUserModel.userModel!.permissions!.any((element) => element.code ==
-            "liveAllDay");
-    listDownloadsFromLocalDb.value =
-        localBaseDownloads.getAllDownLoadBaseList();
-    getMustDownloadBase(
-        loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
-    if (localBaseDownloads.checkIfUserMustDonwloadsBaseFirstTime(
+    ifUserMustLocateAllWordDay.value == loggedUserModel.userModel!.permissions!.any((element) => element.code == "liveAllDay");
+    listDownloadsFromLocalDb.value = await localBaseDownloads.getAllDownLoadBaseList();
+    getMustDownloadBase(loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
+    if (await localBaseDownloads.checkIfUserMustDonwloadsBaseFirstTime(
         loggedUserModel.userModel!.roleId!)) {
-      davamEtButonuGorunsun.value = false;
+        davamEtButonuGorunsun.value = false;
     } else {
       if (listDonwloads.isNotEmpty) {
         davamEtButonuGorunsun.value = false;
@@ -470,7 +463,7 @@ class ControllerBaseDownloads extends GetxController {
       case "warehouse":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
-        List<ModelAnbarRapor> data = await getDataAnbar(soapadress, soaphost);
+        List<ModelAnbarRapor> data = await getDataAnbar();
         await localBaseDownloads.addAnbarBaza(data);
         if (data.isNotEmpty) {
           listDonwloads.remove(model);
@@ -899,62 +892,70 @@ class ControllerBaseDownloads extends GetxController {
   }
 
   ///Anbar baza downloads////
-  Future getDataAnbar(String soapadress, String soaphost) async {
-    DateTime now = DateTime.now(); // 30/09/2021 15:54:30
-    String ay = now.month.toString(); // ay
-    String gun = now.day.toString(); // gun
-    String il = now.year.toString(); // il
-    String sontarix_merc = il + "/" + ay + "/" + gun;
-    var envolpeAnbarqaliq = '''
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-<soap:Body>
-    <Anbar_qaliq xmlns="http://tempuri.org/">
-      <tarix>$sontarix_merc</tarix>
-    </Anbar_qaliq>
-  </soap:Body>
-</soap:Envelope>
-''';
-    var url = Uri.parse(soapadress);
-    http.Response response = await http.post(url,
-        headers: {
-          "Content-Type": "text/xml; charset=utf-8",
-          "SOAPAction": "http://tempuri.org/Anbar_qaliq",
-          // "Host": "85.132.97.2"
-          "Host": soaphost
-          //"Accept": "text/xml"
-        },
-        body: envolpeAnbarqaliq);
+  Future<List<ModelAnbarRapor>> getDataAnbar() async {
+    List<ModelAnbarRapor> listProducts = [];
+    languageIndex = await getLanguageIndex();
+    var data={
+      "date": DateTime.now().toString().substring(0,9)
+    };
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio().post(
+          "${loggedUserModel.baseUrl}/api/v1/Report/warehouse-remainder",
+          data:data,
+          options: Options(
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
 
-    var rawXmlResponse = response.body;
-    return _parsingAnbar(rawXmlResponse);
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['result']);
+          List listuser = jsonDecode(dataModel);
+          for (var i in listuser) {
+            listProducts.add(ModelAnbarRapor.fromJson(i));
+          }
+        } else {
+          exeptionHandler.handleExeption(response);
+        }
+
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
+    }
+    return listProducts;
   }
 
-  Future _parsingAnbar(var _response) async {
-    List<ModelAnbarRapor> list_mallar = [];
-    var _document = XmlDocument.parse(_response);
-    Iterable<XmlElement> items = _document.findAllElements('Table');
-    items.map((XmlElement item) {
-      var _kode = _getValue(item.findElements("STOK_KOD"));
-      var _name = _getValue(item.findElements("STOK_AD"));
-      var _anaqrup = _getValue(item.findElements("ANA_GRUP"));
-      var _qaliq = _getValue(item.findElements("QALIQ"));
-      var _vahid = _getValue(item.findElements("VAHID_1"));
-      var _qiymet = _getValue(item.findElements("SATIS_QIYMETI"));
-      ModelAnbarRapor modelmal = ModelAnbarRapor(
-          stokadi: _name,
-          stokkod: _kode,
-          qaliq: _qaliq,
-          anaqrup: _anaqrup,
-          satisqiymeti: _qiymet,
-          vahidbir: _vahid);
-      list_mallar.add(modelmal);
-      //  itemsList.add(_addResult);
-    }).toList();
-    return list_mallar;
-  }
 
   void syncAllInfo() async {
     await localUserServices.init();

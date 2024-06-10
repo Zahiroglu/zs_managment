@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
@@ -13,6 +13,7 @@ import 'package:zs_managment/companents/users_panel/models_user/model_requet_all
 import 'package:zs_managment/companents/users_panel/new_user_create/screen_new_user.dart';
 import 'package:zs_managment/companents/users_panel/services/user_datagrid.dart';
 import 'package:zs_managment/companents/users_panel/user_info_screen.dart';
+import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/animated_sizewidget.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -40,7 +41,8 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
       ModelAllUsersLisanceUserCount();
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _ctSearch = TextEditingController();
-  bool canSearch=false;
+  bool canSearch = false;
+  CheckDviceType checkDviceType = CheckDviceType();
 
   @override
   void initState() {
@@ -59,7 +61,6 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Scaffold(
         backgroundColor: Colors.transparent,
         body: Obx(() => controller.userLisanceLoading.isFalse
@@ -88,7 +89,11 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
                     ),
                   )
                 : NoDataFound()
-            : const SizedBox()));
+            : const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.blue,
+                ),
+              )));
   }
 
   Row widgetFirstHeader(BuildContext context) {
@@ -101,71 +106,112 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
             },
             child: Icon(Icons.menu)),
         const Spacer(),
-        canSearch? SizedBox(
-          width: MediaQuery.of(context).size.width*0.7,
-          child: CustomTextField(
-            onSubmit: (s){
-              ModelRequestUsersFilter model = ModelRequestUsersFilter(name: s.toUpperCase());
-              print("model name :"+model.name!.toUpperCase());
-              controller.getAllUsersByParams(model);
-            },
-            containerHeight: 40,
-            icon: Icons.search,
-            align: TextAlign.center,
-            obscureText: false,
-            fontsize: 14,
-            controller: _ctSearch,
-            inputType: TextInputType.text,
-            hindtext: 'axtar'.tr,
-          ),
-        ):CustomText(
-            labeltext: 'users'.tr,
-            //color: Colors.black,
-            fontWeight: FontWeight.bold,
-            latteSpacer: 1,
-            fontsize: 16),
+        canSearch
+            ? SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                child: CustomTextField(
+                  onSubmit: (s) {
+                    ModelRequestUsersFilter model =
+                        ModelRequestUsersFilter(name: s.toUpperCase());
+                    print("model name :" + model.name!.toUpperCase());
+                    controller.getAllUsersByParams(model);
+                  },
+                  containerHeight: 40,
+                  icon: Icons.search,
+                  align: TextAlign.center,
+                  obscureText: false,
+                  fontsize: 14,
+                  controller: _ctSearch,
+                  inputType: TextInputType.text,
+                  hindtext: 'axtar'.tr,
+                ),
+              )
+            : CustomText(
+                labeltext: 'users'.tr,
+                //color: Colors.black,
+                fontWeight: FontWeight.bold,
+                latteSpacer: 1,
+                fontsize: 16),
         Spacer(),
         Spacer(),
         Spacer(),
-        canSearch?
-        IconButton(
-            padding: const EdgeInsets.all(0),
-            onPressed: (){
-              setState(() {
-                canSearch=false;
-                _ctSearch.clear();
-              });
-            }, icon: Icon(Icons.clear,color: Colors.red,size: 24,)):IconButton(
-            padding: EdgeInsets.all(0),
-            onPressed: (){
-              setState(() {
-                canSearch=true;
-              });
-            }, icon: Icon(Icons.search_outlined,color: Colors.green,size: 24,)),
-        canSearch?SizedBox():IconButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return ScreenNewUser(
-                      refreshCall: () {
-                        controller.infodashbourdVisible.value = false;
-                        controller.updateAllValues(selectedElement);
-                        setState(() {});
-                      },
-                    );
+        canSearch
+            ? IconButton(
+                padding: const EdgeInsets.all(0),
+                onPressed: () {
+                  setState(() {
+                    canSearch = false;
+                    _ctSearch.clear();
                   });
-            },
-            icon: Icon(Icons.person_add_alt)),
-        canSearch?SizedBox():Obx(
-              () => controller.listUsers!.isEmpty
-              ? SizedBox()
-              : IconButton(
-                  padding: EdgeInsets.all(0),
-                  onPressed: (){
-                controller.exportUsersDataGridToExcel(_key);
-              }, icon: Icon(Icons.add_chart_outlined,color: Colors.green,size: 24,)),
-        )
+                },
+                icon: const Icon(
+                  Icons.clear,
+                  color: Colors.red,
+                  size: 24,
+                ))
+            : IconButton(
+                padding: EdgeInsets.all(0),
+                onPressed: () {
+                  setState(() {
+                    canSearch = true;
+                  });
+                },
+                icon: const Icon(
+                  Icons.search_outlined,
+                  color: Colors.green,
+                  size: 24,
+                )),
+        canSearch
+            ? SizedBox()
+            : Obx(() => controller.listUsers!.isEmpty
+                ? SizedBox()
+                : IconButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return ScreenNewUser(
+                              refreshCall: () {
+                                controller.infodashbourdVisible.value = false;
+                                controller.updateAllValues(selectedElement);
+                                setState(() {});
+                              },
+                            );
+                          });
+                    },
+                    icon: Icon(Icons.person_add_alt))),
+        canSearch
+            ? SizedBox()
+            : Obx(
+                () => controller.listUsers!.isEmpty
+                    ? SizedBox()
+                    : IconButton(
+                        padding: EdgeInsets.all(0),
+                        onPressed: () {
+                          controller.exportUsersDataGridToExcel(_key);
+                        },
+                        icon: const Icon(
+                          Icons.add_chart_outlined,
+                          color: Colors.green,
+                          size: 24,
+                        )),
+              ),
+        canSearch
+            ? SizedBox()
+            : Obx(
+                () => controller.listModelAllUsersLisanceUserCount.length != 1
+                    ? SizedBox()
+                    : IconButton(
+                        padding: EdgeInsets.all(0),
+                        onPressed: () {
+                          controller.getTotalInfoUsersFromApiService();
+                        },
+                        icon: const Icon(
+                          Icons.refresh,
+                          color: Colors.blue,
+                          size: 24,
+                        )),
+              )
       ],
     );
   }
@@ -174,10 +220,9 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
     return Expanded(
         child: ListView.builder(
             itemCount: controller.listUsers!.length,
-            itemBuilder: (context,index){
-          return listUserItem(controller.listUsers!.elementAt(index));
-
-        }));
+            itemBuilder: (context, index) {
+              return listUserItem(controller.listUsers!.elementAt(index));
+            }));
   }
 
   widgetListFilter() {
@@ -185,82 +230,6 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Align(
-        //   alignment: Alignment.topRight,
-        //   child: Container(
-        //     decoration: BoxDecoration(
-        //         borderRadius: const BorderRadius.all(Radius.circular(5)),
-        //         boxShadow: [
-        //           BoxShadow(
-        //               color: Colors.grey.withOpacity(0.2),
-        //               offset: const Offset(2, 2),
-        //               spreadRadius: 1,
-        //               blurRadius: 0.5)
-        //         ]),
-        //     child: Row(
-        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //       crossAxisAlignment: CrossAxisAlignment.center,
-        //       children: [
-        //         Expanded(
-        //           flex: 3,
-        //           child: Row(
-        //             mainAxisAlignment: MainAxisAlignment.center,
-        //             crossAxisAlignment: CrossAxisAlignment.center,
-        //             children: [
-        //               Expanded(
-        //                 child: CustomTextField(
-        //                   containerHeight: 40,
-        //                   icon: Icons.search,
-        //                   align: TextAlign.center,
-        //                   obscureText: false,
-        //                   fontsize: 14,
-        //                   controller: _ctSearch,
-        //                   inputType: TextInputType.text,
-        //                   hindtext: 'axtar'.tr,
-        //                 ),
-        //               ),
-        //               SizedBox(
-        //                 width: 5.w,
-        //               ),
-        //               CustomElevetedButton(
-        //                 icon: Icons.search,
-        //                 textColor: Colors.white,
-        //                 surfaceColor: Colors.grey.withOpacity(0.8),
-        //                 cllback: () {
-        //                   ModelRequestUsersFilter model = ModelRequestUsersFilter(name: _ctSearch.text);
-        //                   controller.getAllUsersByParams(model);
-        //                 },
-        //                 height: 20,
-        //                 //width: 15.w,
-        //                 elevation: 5,
-        //                 label: "axtar".tr,
-        //               ),
-        //               SizedBox(
-        //                 width: 5.w,
-        //               ),
-        //               Obx(
-        //                 () => controller.listUsers!.isEmpty
-        //                     ? SizedBox()
-        //                     : CustomElevetedButton(
-        //                         icon: Icons.add_chart_outlined,
-        //                         textColor: Colors.white,
-        //                         surfaceColor: Colors.green,
-        //                         cllback: () {
-        //                           controller.exportUsersDataGridToExcel(_key);
-        //                         },
-        //                         height: 20,
-        //                         //width: 15.w,
-        //                         elevation: 5,
-        //                         label: "EXCEL",
-        //                       ),
-        //               )
-        //             ],
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
         Stack(
           children: [
             Positioned(
@@ -289,7 +258,7 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
                       )),
             Padding(
               padding: const EdgeInsets.only(right: 30),
-              child: Expanded(flex: 25, child: widgetUsersLisanceBourd()),
+              child: widgetUsersLisanceBourd(),
             ),
           ],
         ),
@@ -306,8 +275,9 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AnimatedContainer(
-          duration: Duration(milliseconds: controller.infodashbourdVisible.value ? 500 : 1000),
-          height: controller.infodashbourdVisible.value ? 220 : 70,
+          duration: Duration(
+              milliseconds: controller.infodashbourdVisible.value ? 400 : 1200),
+          height: controller.infodashbourdVisible.value ? 210 : 70,
           child: CupertinoScrollbar(
             controller: _scrollController,
             child: ListView.builder(
@@ -331,8 +301,8 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
       children: [
         CustomText(
             labeltext: label, fontsize: labelSize, fontWeight: FontWeight.w700),
-        SizedBox(
-          width: 5.w,
+        const SizedBox(
+          width: 5,
         ),
         CustomText(
             color: Colors.blue, labeltext: "$usercount", fontsize: lisanceSize),
@@ -349,8 +319,8 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
   Widget widgetModuleItems(ModelAllUsersLisanceUserCount element) {
     return ConstrainedBox(
       constraints: BoxConstraints(
-          minWidth: 180,
-          maxWidth: 240,
+          minWidth: 220,
+          maxWidth: 250,
           maxHeight: controller.infodashbourdVisible.value ? 0 : 0),
       child: MouseRegion(
         onEnter: (onEnter) => onClickEnter(true, element),
@@ -374,7 +344,7 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
                 : howerSelectedElement == element
                     ? Colors.indigoAccent
                     : Colors.grey,
-            elevation: 20,
+            elevation: 5,
             margin: const EdgeInsets.all(10),
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -457,52 +427,59 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
     );
   }
 
-  Widget widgetVezifeItems(ModelAllUsersItemsLisance e, ModelAllUsersLisanceUserCount element,) {
+  Widget widgetVezifeItems(
+    ModelAllUsersItemsLisance e,
+    ModelAllUsersLisanceUserCount element,
+  ) {
     return AnimatedClipRect(
       horizontalAnimation: false,
       open: controller.infodashbourdVisible.value,
       curve: Curves.easeOut,
       reverseCurve: Curves.easeOut,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 200,
-          maxWidth: 300,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CustomText(
-                  color: element.id == -1
-                      ? selectedElement == element
-                          ? Colors.white.withOpacity(0.5)
-                          : Colors.black.withOpacity(0.5)
-                      : Colors.grey,
-                  labeltext: e.roleName!,
-                  fontsize: 14,
-                  maxline: 2,
-                  overflow: TextOverflow.ellipsis,
-                  fontWeight: FontWeight.w700),
-              const Spacer(),
-              Row(
-                children: [
-                  CustomText(
-                      color: Colors.blue,
-                      labeltext: "${e.usedCount}/",
-                      fontsize: 14),
-                  CustomText(
-                    color: Colors.green,
-                    labeltext: e.totalCount.toString(),
-                    fontsize: 16,
-                    fontWeight: FontWeight.w700,
-                  )
-                ],
-              )
-            ],
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: CustomText(
+                      color: element.id == -1
+                          ? selectedElement == element
+                              ? Colors.white.withOpacity(0.5)
+                              : Colors.black.withOpacity(0.5)
+                          : Colors.grey,
+                      labeltext: e.roleName!,
+                      maxline: 2,
+                      overflow: TextOverflow.ellipsis,
+                      fontWeight: FontWeight.w700),
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    CustomText(
+                        color: Colors.blue,
+                        labeltext: "${e.usedCount} / ",
+                        fontsize: 12),
+                    CustomText(
+                      color: Colors.green,
+                      labeltext: e.totalCount.toString(),
+                      fontsize: 14,
+                      fontWeight: FontWeight.w700,
+                    )
+                  ],
+                )
+              ],
+            ),
           ),
-        ),
+          Divider(
+            height: 0.2,
+            color: Colors.grey,
+            thickness: 0.2,
+          )
+        ],
       ),
     );
   }
@@ -521,12 +498,14 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
 
   InkWell listUserItem(UserModel model) {
     return InkWell(
-      onTap: (){
+      onTap: () {
         controller.changeSelectedUser(model);
         controller.openUserInfoTable.value = true;
         Get.dialog(ScreenUserInfoMobile(
-          deleteCall: (){
-            controller.deleteUser(controller.getSelectedUser(),);
+          deleteCall: () {
+            controller.deleteUser(
+              controller.getSelectedUser(),
+            );
             setState(() {
               Get.back();
             });
@@ -539,13 +518,15 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
             });
           },
           sizeWidght: 100,
-          model: controller.getSelectedUser(), //burda istifadeci Modeli olmalidir
+          model:
+              controller.getSelectedUser(), //burda istifadeci Modeli olmalidir
         ));
         setState(() {});
       },
       child: Card(
         margin: const EdgeInsets.all(5),
-        elevation: 20,
+        elevation: 5,
+        shadowColor: Colors.grey,
         color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(5.0),
@@ -555,72 +536,129 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
             children: [
               Expanded(
                   flex: 4,
-                  child: Image.asset(
-                    model.gender == 0
-                        ? "images/imageman.png"
-                        : "images/imagewoman.png",
-                    width: 80,
-                    height: 80,
+                  child: Stack(
+                    children: [
+                      Image.asset(
+                        model.gender == 0
+                            ? "images/imageman.png"
+                            : "images/imagewoman.png",
+                        width: 80,
+                        height: 80
+                      ),
+                      model.active!=null&&model.active!?Icon(Icons.verified,color: Colors.green,):Icon(Icons.block,color: Colors.red,size: 80,),
+                    ],
                   )),
               Expanded(
                 flex: 12,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Stack(
                   children: [
-                    const SizedBox(height: 5,),
-                    CustomText(labeltext: "${model.name.toString()} ${model.surname.toString()}",fontWeight: FontWeight.w600,fontsize: 16,),
-                    CustomText(labeltext: "${model.regionName} | ${model.moduleName} | ${model.roleName}",fontWeight: FontWeight.normal,fontsize: 14,color: Colors.grey,),
-                    Row(
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.alternate_email,color: Colors.red,size: 14),
-                        SizedBox(width: 2,),
-                        CustomText(labeltext: "${model.email}",fontWeight: FontWeight.normal,fontsize: 14,color: Colors.grey,),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.phone,color: Colors.red,size: 14),
-                        SizedBox(width: 2,),
-                        CustomText(labeltext: "${model.phone}",fontWeight: FontWeight.normal,fontsize: 14,color: Colors.grey,),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        CustomText(
+                          labeltext:
+                              "${model.name.toString()} ${model.surname.toString()}",
+                          fontWeight: FontWeight.w600,
+                          fontsize: 16,
+                        ),
                         Row(
                           children: [
-                            CustomText(labeltext: "Windows"),
-                            Icon(
-                              model.usernameLogin!? Icons.verified_user : Icons.block,
-                              color:  model.usernameLogin! ? Colors.green : Colors.red,
-                            )
+                            Expanded(
+                              child: CustomText(
+                                labeltext:
+                                    "${model.regionName} | ${model.moduleName} | ${model.roleName}",
+                                fontWeight: FontWeight.normal,
+                                fontsize: 14,
+                                maxline: 2,
+                                color: Colors.black87,
+                              ),
+                            ),
                           ],
                         ),
-                        const SizedBox(
-                          width: 2,
-                        ),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             CustomText(
-                              labeltext: "Mobile",
+                              labeltext: "${"lastAktivdate".tr} : ",
+                              fontWeight: FontWeight.normal,
+                              fontsize: 12,
+                              color: Colors.black87,
                             ),
-                            Icon(
-                             model.deviceLogin!? Icons.verified_user : Icons.block,
-                              color:  model.deviceLogin!  ? Colors.green : Colors.red,
-                            )
+                            CustomText(
+                              labeltext: model.addDateStr.toString()=="null"?"":model.addDateStr.toString(),
+                              fontWeight: FontWeight.normal,
+                              fontsize: 12,
+                              color: Colors.black87,
+                            ),
+                          ],
+                        ),
+
+                        Row(
+                          children: [
+                            const Icon(Icons.alternate_email,
+                                color: Colors.red, size: 14),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            CustomText(
+                              labeltext: "${model.email}",
+                              fontWeight: FontWeight.normal,
+                              fontsize: 14,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.phone, color: Colors.red, size: 14),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            CustomText(
+                              labeltext: "${model.phone}",
+                              fontWeight: FontWeight.normal,
+                              fontsize: 14,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                             Image.asset("images/access.png",height: 15,width: 15,),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            CustomText(
+                              labeltext:model.usernameLogin!?"Windows |":"",
+                              fontWeight: FontWeight.normal,
+                              fontsize: 14,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            CustomText(
+                              labeltext:model.deviceLogin!?"Mobile":"",
+                              fontWeight: FontWeight.normal,
+                              fontsize: 14,
+                              color: Colors.grey,
+                            ),
                           ],
                         ),
                       ],
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomText(labeltext: "${model.lastOnlineDate}",fontWeight: FontWeight.normal,fontsize: 14,color: Colors.grey,),
-                      ],
-                    ),
-
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: CustomText(
+                        labeltext: model.code.toString(),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -640,11 +678,14 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
 
     PermissionStatus status = await Permission.storage.request();
     if (status == PermissionStatus.granted) {
-      await File('/storage/emulated/0/Download/$_fileName.xlsx').writeAsBytes(potato!, flush: true).then((value) {
+      await File('/storage/emulated/0/Download/$_fileName.xlsx')
+          .writeAsBytes(potato!, flush: true)
+          .then((value) {
         print('saved');
       });
     } else if (status == PermissionStatus.denied) {
-      print('Denied. Show a dialog with a reason and again ask for the permission.');
+      print(
+          'Denied. Show a dialog with a reason and again ask for the permission.');
     } else if (status == PermissionStatus.permanentlyDenied) {
       print('Take the user to the settings page.');
     }

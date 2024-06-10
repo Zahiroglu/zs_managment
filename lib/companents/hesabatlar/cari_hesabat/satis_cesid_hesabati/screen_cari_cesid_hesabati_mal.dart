@@ -22,8 +22,6 @@ class _ScreenCariCesidHesabatiMalState
     extends State<ScreenCariCesidHesabatiMal> {
   bool isLoading = false;
   bool dataFounded = false;
-  String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
-  String soaphost = "193.105.123.215";
   List<ModelCariCesid> listData = [];
   DoubleRoundHelper doubleRound = DoubleRoundHelper();
 
@@ -129,9 +127,9 @@ class _ScreenCariCesidHesabatiMalState
         padding: const EdgeInsets.all(10.0),
         child: Stack(
           children: [
-            const SizedBox(
-              height: 60,
-            ),
+            // const SizedBox(
+            //   height: 70,
+            // ),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,7 +165,7 @@ class _ScreenCariCesidHesabatiMalState
               ],
             ),
             Positioned(
-              top: -5,
+              top: 0,
               right: 0,
               child: CustomText(
                   labeltext: doubleRound.prettify(double.parse(model.netMebleg)) +

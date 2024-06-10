@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
@@ -46,12 +45,11 @@ class _DialogSimpleUserSelectState
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Material(
       color: Colors.transparent,
       child:Center(
         child: Container(
-          margin: EdgeInsets.symmetric(vertical: 80.h, horizontal: 20.w),
+          margin: EdgeInsets.symmetric(vertical: 80, horizontal: 20),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -60,8 +58,8 @@ class _DialogSimpleUserSelectState
           // width:100,
           child: Stack(
             children: [Padding(
-                padding: EdgeInsets.only(
-                    top: 15.h, bottom: 15.h, left: 2.w, right: 2.w),
+                padding: const EdgeInsets.only(
+                    top: 15, bottom: 15, left: 2, right: 2),
                 child: Column(
                   children: [
                     Padding(
@@ -109,15 +107,15 @@ class _DialogSimpleUserSelectState
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       SizedBox(
-                        width: 5.w,
+                        width: 5,
                       ),
                     ],
                   ),

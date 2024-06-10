@@ -403,7 +403,10 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             left: 5,
             top: 130,
             child: InkWell(
-              onTap: (){},
+              onTap: (){
+                Get.toNamed(RouteHelper.screenErrorsReport,arguments: [false,"","","",""]);
+
+              },
               child: Stack(
                 children: [
                   Container(

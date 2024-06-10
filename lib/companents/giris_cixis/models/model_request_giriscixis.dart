@@ -1,22 +1,24 @@
 import 'dart:convert';
 
 class ModelRequestGirisCixis {
-  String userCode;
-  String userPosition;
-  String customerCode;
-  String operationType;
-  String operationLatitude;
-  String operationLongitude;
-  String note;
+  String? userCode;
+  String? userPosition;
+  String? customerCode;
+  String? operationType;
+  String? operationLatitude;
+  String? operationLongitude;
+  String? operationDate;
+  String? note;
 
   ModelRequestGirisCixis({
-    required this.userCode,
-    required this.userPosition,
-    required this.customerCode,
-    required this.operationType,
-    required this.operationLatitude,
-    required this.operationLongitude,
-    required this.note,
+    this.userCode,
+    this.userPosition,
+    this.customerCode,
+    this.operationType,
+    this.operationLatitude,
+    this.operationLongitude,
+    this.operationDate,
+    this.note,
   });
 
   factory ModelRequestGirisCixis.fromRawJson(String str) => ModelRequestGirisCixis.fromJson(json.decode(str));
@@ -30,6 +32,7 @@ class ModelRequestGirisCixis {
     operationType: json["operationType"],
     operationLatitude: json["operationLatitude"],
     operationLongitude: json["operationLongitude"],
+    operationDate: json["operationDate"],
     note: json["note"],
   );
 
@@ -40,6 +43,7 @@ class ModelRequestGirisCixis {
     "operationType": operationType,
     "operationLatitude": operationLatitude,
     "operationLongitude": operationLongitude,
+    "operationDate": operationDate,
     "note": note,
   };
 

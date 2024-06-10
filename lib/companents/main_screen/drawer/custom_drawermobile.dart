@@ -5,7 +5,6 @@ import 'package:zs_managment/thema/theme_constants.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class CustomDrawerMobile extends StatefulWidget {
@@ -42,7 +41,6 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.only(top: 5),
@@ -91,7 +89,7 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
                 minRadius: 20,
                 backgroundColor: Colors.white,
                 child:  Image.asset(
-                  widget.userModel.userModel!.gender.toString() == "Qadin"
+                  widget.userModel.userModel!.gender==1
                       ? "images/imagewoman.png"
                       : "images/imageman.png",
                 ),
@@ -102,10 +100,10 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomText(labeltext: "${widget.userModel.userModel!.name} ${widget.userModel.userModel!.surname} - ${widget.userModel.userModel!.code}",fontWeight: FontWeight.w700,fontsize: 14.sp,overflow: TextOverflow.ellipsis,),
+                    CustomText(labeltext: "${widget.userModel.userModel!.name} ${widget.userModel.userModel!.surname} - ${widget.userModel.userModel!.code}",fontWeight: FontWeight.w700,fontsize: 16,overflow: TextOverflow.ellipsis,),
                     SizedBox(width: 5,),
-                    CustomText(labeltext: "${widget.userModel.userModel!.moduleName}",fontWeight: FontWeight.w500,fontsize: 12.sp,overflow: TextOverflow.ellipsis,),
-                    CustomText(labeltext: "${widget.userModel.userModel!.roleName}",fontWeight: FontWeight.w500,fontsize: 12.sp,overflow: TextOverflow.ellipsis,),
+                    CustomText(labeltext: "${widget.userModel.userModel!.moduleName}",fontWeight: FontWeight.w500,fontsize: 14,overflow: TextOverflow.ellipsis,),
+                    CustomText(labeltext: "${widget.userModel.userModel!.roleName}",fontWeight: FontWeight.w500,fontsize: 14,overflow: TextOverflow.ellipsis,),
 
                   ],
                 ),
