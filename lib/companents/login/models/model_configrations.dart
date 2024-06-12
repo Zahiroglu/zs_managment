@@ -3,7 +3,7 @@ import 'dart:convert';
 
 part 'model_configrations.g.dart';
 
-@HiveType(typeId: 33)
+@HiveType(typeId: 32)
 class ModelConfigrations {
   @HiveField(1)
   int companyId;
@@ -36,8 +36,8 @@ class ModelConfigrations {
     confCode: json["confCode"],
     confVal: json["confVal"],
     roleId: json["roleId"],
-    abbreaviation1: json["abbreaviation1"]??"",
-    abbreaviation2: json["abbreaviation2"]??"",
+    abbreaviation1: json["abbreaviation1"],
+    abbreaviation2: json["abbreaviation2"],
   );
 
   Map<String, dynamic> toJson() => {
