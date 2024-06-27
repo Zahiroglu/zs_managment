@@ -17,16 +17,15 @@ class LocalUserServices {
     await loggedUserBox.add(loggedUserModel);
   }
 
-  LoggedUserModel getLoggedUser() =>
-      loggedUserBox.values.firstOrNull ?? LoggedUserModel();
+  LoggedUserModel getLoggedUser() => loggedUserBox.values.firstOrNull ?? LoggedUserModel();
 
   Future<String> getLoggedToken() async {
-    LoggedUserModel loggedUserModel = await loggedUserBox.get("LoggedUsers");
+    LoggedUserModel loggedUserModel =  getLoggedUser();
     return loggedUserModel.tokenModel!.accessToken!;
   }
 
   Future<String> getRefreshToken() async {
-    LoggedUserModel loggedUserModel = await loggedUserBox.get("LoggedUsers");
+    LoggedUserModel loggedUserModel =  getLoggedUser();
     return loggedUserModel.tokenModel!.refreshToken!;
   }
 

@@ -8,7 +8,7 @@ part of 'model_configrations.dart';
 
 class ModelConfigrationsAdapter extends TypeAdapter<ModelConfigrations> {
   @override
-  final int typeId = 32;
+  final int typeId = 33;
 
   @override
   ModelConfigrations read(BinaryReader reader) {

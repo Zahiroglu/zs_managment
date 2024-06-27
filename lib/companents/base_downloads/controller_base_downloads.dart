@@ -129,6 +129,7 @@ class ControllerBaseDownloads extends GetxController {
 
 
   _donloadListiniDoldur() async {
+    listDonwloads.clear();
     await localUserServices.init();
     List<ModelUserPermissions> listUsersPermitions = localUserServices
         .getLoggedUser()
@@ -137,10 +138,10 @@ class ControllerBaseDownloads extends GetxController {
     for (var element in listUsersPermitions) {
       print("permiton :" + element.toString());
       switch (element.code) {
-        case "myConnectedUsers":
+        case "myConnectedRutMerch":
           listDonwloads.add(ModelDownloads(
               name: "connextedUsers".tr,
-              code: "myConnectedUsers",
+              code: "myConnectedRutMerch",
               info: "connextedUsersExplain".tr,
               lastDownDay: "",
               donloading: false,
@@ -173,8 +174,8 @@ class ControllerBaseDownloads extends GetxController {
               lastDownDay: "",
               musteDonwload: true));
           break;
-      }
-    }
+
+    }}
   }
 
   Future<void> clearAllDataSatis() async {
@@ -442,7 +443,7 @@ class ControllerBaseDownloads extends GetxController {
   Future<void> melumatlariEndir(ModelDownloads model, bool guncelle) async {
     DialogHelper.showLoading("${model.name!} endirilir...");
     switch (model.code) {
-      case "myConnectedUsers":
+      case "myConnectedRutMerch":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
@@ -482,8 +483,6 @@ class ControllerBaseDownloads extends GetxController {
       case "enter":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
-        print("loggedUserModel :" + loggedUserModel.toString());
-        if (loggedUserModel.userModel!.moduleId == 3) {
           List<MercDataModel> data = [];
           if (loggedUserModel.userModel!.roleId == 21 ||
               loggedUserModel.userModel!.roleId == 22) {
@@ -505,23 +504,6 @@ class ControllerBaseDownloads extends GetxController {
               listDownloadsFromLocalDb.add(model);
             }
           }
-        } else {
-          List<ModelCariler> data = await getAllCustomers();
-          if (data.isNotEmpty) {
-            listDonwloads.remove(model);
-            model.lastDownDay = DateTime.now().toIso8601String();
-            model.musteDonwload = false;
-            await localBaseDownloads.addCariBaza(data);
-            localBaseDownloads.addDownloadedBaseInfo(model);
-            //localGirisCixisServiz.clearAllGiris();
-            if (guncelle) {
-              listDownloadsFromLocalDb.remove(model);
-              listDownloadsFromLocalDb.add(model);
-            } else {
-              listDownloadsFromLocalDb.add(model);
-            }
-          }
-        }
       case "myRut":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();

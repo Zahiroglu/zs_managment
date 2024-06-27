@@ -20,6 +20,7 @@ import '../companents/login/services/api_services/users_apicontroller_web_window
 import '../companents/main_screen/controller/drawer_menu_controller.dart';
 import '../companents/setting_panel/setting_panel_controller.dart';
 import '../constands/app_constands.dart';
+import '../helpers/exeption_handler.dart';
 import '../widgets/simple_info_dialog.dart';
 import 'package:get/get.dart' as getxt;
 
@@ -40,11 +41,13 @@ class CustomInterceptor extends Interceptor {
   @override
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     await localUserServices.init();
-    String token = localUserServices.getLoggedUser().tokenModel!.accessToken!;
-    String refresh = localUserServices.getLoggedUser().tokenModel!.refreshToken!;
+    String token = await localUserServices.getLoggedToken();
     print('Request[=> PATH:${options.path}] data :${options.data} ');
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
+    }else{
+      await localBazalar.claerBaseUrl();
+      Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
     }
     super.onRequest(options, handler);
   }
@@ -52,17 +55,37 @@ class CustomInterceptor extends Interceptor {
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
     print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
-     if (response.statusCode != 200) {
+    if(response.data['exception']!=null){
+     ModelExceptions model = ModelExceptions.fromJson(response.data['exception']);
+    if (response.statusCode == 401) {
+     if(model.code=="007"){
+       Get.dialog(ShowInfoDialog(
+         color: Colors.red,
+         icon: Icons.error_outline,
+         messaje: model.message!,
+         callback: () {
+           Get.back();
+         },
+       ));
+     }else if(model.code=="006"){
+       int statusrefresh = await refreshAccessToken();
+       if (statusrefresh == 200) {
+         return handler.resolve(await _retry(response.requestOptions));
+       }
+     }
+   }}
+    else{
+    if (response.statusCode != 200) {
        if(response.statusCode == 404){
          await localBazalar.claerBaseUrl();
          Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
        }
-      if (response.statusCode == 401) {
-        int statusrefresh = await refreshAccessToken();
-        if (statusrefresh == 200) {
-          return handler.resolve(await _retry(response.requestOptions));
-        }
-      }
+       else if(response.statusCode == 401) {
+          int statusrefresh = await refreshAccessToken();
+          if (statusrefresh == 200) {
+            return handler.resolve(await _retry(response.requestOptions));
+          }
+        }}
       else{
         Get.back();
       }
@@ -102,11 +125,11 @@ class CustomInterceptor extends Interceptor {
     print("refresh token cagrildi");
     int succes = 0;
     await localUserServices.init();
-    loggedUserModel = localUserServices.getLoggedUser();
+    loggedUserModel= localUserServices.getLoggedUser();
+    String refreshToken =await localUserServices.getRefreshToken();
+    String accesToken = await localUserServices.getLoggedToken();
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
-    String refreshToken = loggedUserModel.tokenModel!.refreshToken!;
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
     var data = {"refreshtoken": refreshToken};
     print("old refresh token : " + refreshToken);
     print("old  token : " + accesToken);
@@ -143,10 +166,7 @@ class CustomInterceptor extends Interceptor {
           loggedUserModel.tokenModel = model;
           await localUserServices.addUserToLocalDB(loggedUserModel).whenComplete(() => succes = 200);
         } else {
-          if (!isLiveTrackRequest) {
-            _sistemiYenidenBaslat();
             succes == response.statusCode;
-          }
         }
       } on DioException catch (e) {
        print(e.error);

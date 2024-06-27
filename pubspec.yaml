@@ -52,7 +52,7 @@ dependencies:
   # for text make up
   mask_text_input_formatter: ^2.4.0
   #for create exceldataview
-  syncfusion_flutter_datagrid: ^21.1.41
+  syncfusion_flutter_datagrid:
   path_provider:
   open_file:
   syncfusion_flutter_datagrid_export:
@@ -78,7 +78,7 @@ dependencies:
   http: ^1.0.0
   xml: ^6.5.0
   flutter_svg:
-  syncfusion_flutter_charts: ^21.1.41
+  syncfusion_flutter_charts:
   snapping_sheet: ^3.1.0
   fluttertoast: ^8.2.4
   font_awesome_flutter: ^10.6.0
@@ -94,7 +94,7 @@ dependencies:
   firebase_messaging: ^14.9.3
   firebase_core: ^2.31.1
   open_settings: ^2.0.2
-  syncfusion_flutter_core: ^21.2.10
+  syncfusion_flutter_core:
 
 dev_dependencies:
   flutter_test:

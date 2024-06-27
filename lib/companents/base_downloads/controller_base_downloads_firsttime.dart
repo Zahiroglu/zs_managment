@@ -51,8 +51,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   RxList<ModelDownloads> listDownloadsFromLocalDb = List<ModelDownloads>.empty(growable: true).obs;
   RxList<ModelDownloads> listDonwloadsAll = List<ModelDownloads>.empty(growable: true).obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
-  String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
-  String soaphost = "193.105.123.215";
   RxBool dataLoading = true.obs;
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
@@ -121,60 +119,54 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
 
   }
 
-  _donloadListiniDoldur() async {
+  Future<void> _donloadListiniDoldur() async {
+    listDonwloads.clear();
+    int sayList=0;
     await localUserServices.init();
     List<ModelUserPermissions> listUsersPermitions = localUserServices.getLoggedUser().userModel!.permissions!;
-    for (var element in listUsersPermitions) {
-      print("Element :"+element.name.toString());
-      switch (element.code) {
-        case "myConnectedUsers":
-          listDonwloads.insert(0,ModelDownloads(
-              name: "connextedUsers".tr,
-              code: "myConnectedUsers",
-              info: "connextedUsersExplain".tr,
-              lastDownDay: "",
-              donloading: false,
-              musteDonwload: true));
-          break;
-        case "warehouse":
-          listDonwloads.add(ModelDownloads(
-              name: "warehouse".tr,
-              code: "warehouse",
-              info: "warehouseExplain".tr,
-              lastDownDay: "",
-              donloading: false,
-              musteDonwload: true));
-          break;
-        case "myRut":
-          listDonwloads.add(ModelDownloads(
-              name: "myRut".tr,
-              donloading: false,
-              code: "myRut",
-              info: "myRutExplain".tr,
-              lastDownDay: "",
-              musteDonwload: true));
-          break;
-        case "enter":
-          listDonwloads.add(ModelDownloads(
-              name: "currentBase".tr,
-              donloading: false,
-              code: "enter",
-              info: "currentBaseExplain".tr,
-              lastDownDay: "",
-              musteDonwload: true));
-          break;
-          case "canVisitOther":
-          listDonwloads.add(ModelDownloads(
-              name: "regionalCustomers".tr,
-              donloading: false,
-              code: "canVisitOther",
-              info: "regionalCustomersExplain".tr,
-              lastDownDay: "",
-              musteDonwload: true));
-          break;
+      sayList=sayList+1;
+      for (var element in listUsersPermitions) {
+        print("Element :"+element.code.toString());
+        switch (element.code) {
+            case "myConnectedRutMerch":
+              listDonwloads.add(ModelDownloads(
+                  name: "connextedUsers".tr,
+                  code: "myConnectedRutMerch",
+                  info: "connextedUsersExplain".tr,
+                  lastDownDay: "",
+                  donloading: false,
+                  musteDonwload: true));
+              break;
+            case "warehouse":
+              listDonwloads.add(ModelDownloads(
+                  name: "warehouse".tr,
+                  code: "warehouse",
+                  info: "warehouseExplain".tr,
+                  lastDownDay: "",
+                  donloading: false,
+                  musteDonwload: true));
+              break;
+            case "myRut":
+              listDonwloads.add(ModelDownloads(
+                  name: "myRut".tr,
+                  donloading: false,
+                  code: "myRut",
+                  info: "myRutExplain".tr,
+                  lastDownDay: "",
+                  musteDonwload: true));
+              break;
+            case "enter":
+              listDonwloads.add(ModelDownloads(
+                  name: "currentBase".tr,
+                  donloading: false,
+                  code: "enter",
+                  info: "currentBaseExplain".tr,
+                  lastDownDay: "",
+                  musteDonwload: true));
+              break;
+          }
+        }
 
-      }
-    }
   }
 
   Future<void> clearAllDataSatis() async {
@@ -434,7 +426,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   Future<void> melumatlariEndir(ModelDownloads model, bool guncelle) async {
     DialogHelper.showLoading("${model.name!} endirilir...");
     switch (model.code) {
-      case "myConnectedUsers":
+      case "myConnectedRutMerch":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
@@ -455,7 +447,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
       case "warehouse":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
-        List<ModelAnbarRapor> data = await getDataAnbar(soapadress, soaphost);
+        List<ModelAnbarRapor> data = await getDataAnbar();
         await localBaseDownloads.addAnbarBaza(data);
         if (data.isNotEmpty) {
           listDonwloads.remove(model);
@@ -474,7 +466,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
       case "enter":
         await localGirisCixisServiz.init();
         loggedUserModel =  localUserServices.getLoggedUser();
-        if(loggedUserModel.userModel!.moduleId==3){
           List<MercDataModel> data = [];
           if(loggedUserModel.userModel!.roleId==21||loggedUserModel.userModel!.roleId==22){
            // data = await getAllMercCariBazaMotivasiya();
@@ -495,43 +486,22 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
               listDownloadsFromLocalDb.add(model);
             }
           }
-        } else{
-        List<ModelCariler> data = await getAllCustomers();
+      case "myRut":
+        await localGirisCixisServiz.init();
+        loggedUserModel = localUserServices.getLoggedUser();
+        List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
         if (data.isNotEmpty) {
           listDonwloads.remove(model);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
-          await localBaseDownloads.addCariBaza(data);
           localBaseDownloads.addDownloadedBaseInfo(model);
-          //localGirisCixisServiz.clearAllGiris();
+          localBaseDownloads.addDataMotivationMerc(data);
           if (guncelle) {
             listDownloadsFromLocalDb.remove(model);
             listDownloadsFromLocalDb.add(model);
           } else {
             listDownloadsFromLocalDb.add(model);
           }
-        }}
-      case "myRut":
-        await localGirisCixisServiz.init();
-        loggedUserModel = localUserServices.getLoggedUser();
-        if (loggedUserModel.userModel!.moduleId == 3) //merc cari baza endirmek ucundur
-        {
-          List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
-          if (data.isNotEmpty) {
-            listDonwloads.remove(model);
-            model.lastDownDay = DateTime.now().toIso8601String();
-            model.musteDonwload = false;
-            localBaseDownloads.addDownloadedBaseInfo(model);
-            localBaseDownloads.addDataMotivationMerc(data);
-            if (guncelle) {
-              listDownloadsFromLocalDb.remove(model);
-              listDownloadsFromLocalDb.add(model);
-            } else {
-              listDownloadsFromLocalDb.add(model);
-            }
-          }
-        } else {
-          /// expeditor giris edende rutu gorunsun
         }
 
         break;
@@ -874,14 +844,15 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   }
 
   ///Anbar baza downloads////
-  Future<List<ModelAnbarRapor>> getDataAnbar(String soapadress, String soaphost) async {
+  Future<List<ModelAnbarRapor>> getDataAnbar() async {
     List<ModelAnbarRapor> listProducts = [];
     languageIndex = await getLanguageIndex();
     var data={
       "date": DateTime.now().toString().substring(0,9)
     };
     int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    await localUserServices.init();
+    String accesToken = await localUserServices.getLoggedToken();
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
@@ -942,7 +913,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   void syncAllInfo() async {
     await localUserServices.init();
     loggedUserModel = localUserServices.getLoggedUser();
-    _donloadListiniDoldur();
+    await _donloadListiniDoldur();
     callLocalBases();
     listDonwloadsAll.clear();
     for (var element in listDonwloads) {
@@ -951,6 +922,9 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
     for (var element in listDownloadsFromLocalDb) {
       listDonwloadsAll.add(element);
     }
+    print("listDonwloadsAll count :"+listDonwloadsAll.length.toString());
+    print("listDonwloads count :"+listDonwloads.length.toString());
+    print("listDownloadsFromLocalDb count :"+listDownloadsFromLocalDb.length.toString());
     for (var element in listDonwloadsAll) {
       listDonwloads.remove(element);
       listDownloadsFromLocalDb.remove(element);

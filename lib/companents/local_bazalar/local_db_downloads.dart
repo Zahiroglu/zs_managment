@@ -40,11 +40,8 @@ class LocalBaseDownloads {
   }
 
   bool getIfCariBaseDownloaded(int moduleId){
-    if(moduleId==3){
       return boxListMercBaza.toMap().isNotEmpty?true:false;
-    }else{
-      return boxCariBaza.toMap().isNotEmpty?true:false;
-    }
+
   }
 
   Future<void> addCariBaza(List<ModelCariler> cariler) async {

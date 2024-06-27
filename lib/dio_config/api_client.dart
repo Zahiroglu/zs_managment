@@ -18,9 +18,6 @@ import 'custim_interceptor.dart';
 
 class ApiClient {
   static final ApiClient _converter = ApiClient._internal();
-  late CheckDviceType checkDviceType = CheckDviceType();
-  LocalUserServices localUserServices = LocalUserServices();
-  LoggedUserModel loggedUserModel = LoggedUserModel();
   static const String kRequiredHeader = 'Header';
   static const String kAuthorization = 'Authorization';
 

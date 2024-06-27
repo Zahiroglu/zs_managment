@@ -42,8 +42,8 @@ ThemeData lightTheme = ThemeData(
       filled: true,
       fillColor: Colors.grey.withOpacity(0.1)),
   textTheme: const TextTheme(
-    bodyText1: TextStyle(),
-    bodyText2: TextStyle(),
+    bodyLarge: TextStyle(),
+    bodyMedium: TextStyle(),
   ).apply(
     bodyColor: const Color(0xff22215B),
     displayColor:  const Color(0xff22215B),

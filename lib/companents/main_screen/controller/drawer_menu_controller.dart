@@ -156,7 +156,8 @@ class DrawerMenuController extends getx.GetxController {
       drawerMenus.insert(2,buttonSatis);
     }
     if (loggedUser.userModel != null) {
-      for (var element in loggedUser.userModel!.draweItems!.where((element) => element.category == 1)) {
+      for (var element in loggedUser.userModel!.draweItems!) {
+        print("Drawer items :"+element.code.toString());
         IconData icon = IconData(element.icon!, fontFamily: 'MaterialIcons');
         IconData iconSelected = IconData(element.selectIcon!, fontFamily: 'MaterialIcons');
         SelectionButtonData buttonData = SelectionButtonData(
@@ -541,7 +542,7 @@ class DrawerMenuController extends getx.GetxController {
         pageView = ScreenBaseDownloads(fromFirstScreen: false,drawerMenuController: this,
         );
         break;
-      case "users":
+      case "userController":
         if (desktop) {
           pageView = const UserPanelWindosScreen();
         } else {
@@ -554,21 +555,11 @@ class DrawerMenuController extends getx.GetxController {
        await localAppSetting.init();
        modelAppSetting = await localAppSetting.getAvaibleMap();
        if(modelAppSetting.userStartWork==true) {
-         if (localBaseDownloads.getIfCariBaseDownloaded(userServices
-             .getLoggedUser()
-             .userModel!
-             .moduleId!)) {
+         if (localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!)) {
            if (modelAppSetting.girisCixisType == "map") {
              pageView = const YeniGirisCixisMap();
            } else {
-             if (userServices
-                 .getLoggedUser()
-                 .userModel!
-                 .moduleId == 3) {
-               pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
-             } else {
-               //pageView = ScreenGirisCixisUmumiList(drawerMenuController: this,);
-             }
+             pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
            }
          } else {
            Get.dialog(ShowInfoDialog(
@@ -593,7 +584,7 @@ class DrawerMenuController extends getx.GetxController {
       case "sellDetal":
         pageView= ScreenSifarislereBax(drawerMenuController: this,);
         break;
-      case "myConnectedUsers":
+      case "myConnectedRutMerch":
         pageView= RoutDetailScreenUsers(drawerMenuController: this,);
         break;
       case "myRut":

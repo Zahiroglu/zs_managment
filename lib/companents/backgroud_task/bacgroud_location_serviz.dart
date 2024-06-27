@@ -1,13 +1,10 @@
 import 'dart:math';
 
-import 'package:background_fetch/background_fetch.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 as bg;
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/backgroud_task/backgroud_errors/model_back_error.dart';
@@ -15,7 +12,6 @@ import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/notifications/noty_background_track.dart';
 
-import '../../dio_config/api_client.dart';
 import '../../dio_config/api_client_live.dart';
 import '../../routs/rout_controller.dart';
 import '../../utils/checking_dvice_type.dart';
@@ -57,7 +53,7 @@ class BackgroudLocationServiz extends GetxController {
           cureentTime.value = DateTime.now();
           currentLatitude.value = location.coords.latitude;
           currentLongitude.value = location.coords.longitude;
-          await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :" + location.coords.latitude.toString() + "," + location.coords.longitude.toString(), fln: flutterLocalNotificationsPlugin);
+          await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
           await sendInfoLocationsToDatabase(location, modela);
         }
         else {
@@ -69,10 +65,7 @@ class BackgroudLocationServiz extends GetxController {
             currentLongitude.value = location.coords.longitude;
             await NotyBackgroundTrack.showBigTextNotification(
                 title: "Diqqet",
-                body: "Konum Deyisdi Gps :" +
-                    location.coords.latitude.toString() +
-                    "," +
-                    location.coords.longitude.toString(),
+                body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}",
                 fln: flutterLocalNotificationsPlugin);
             await sendInfoLocationsToDatabase(location, modela);
             await checkUnsendedErrors();
@@ -84,9 +77,7 @@ class BackgroudLocationServiz extends GetxController {
     // Fired whenever the plugin changes motion-state (stationary->moving and vice-versa)
     bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
       if (location.isMoving) {
-        print('[onMotionChange] Device has just started MOVING ${location}');
       } else {
-        print('[onMotionChange] Device has just STOPPED:  ${location}');
       }
     });
     bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent provider) async {
@@ -96,8 +87,7 @@ class BackgroudLocationServiz extends GetxController {
               id: 2,
               title: "Xeberdarliq",
               body:
-              "Gps xidmetine mudaxile etdiyiniz ucun bloklandiniz.Tarix:" +
-                  DateTime.now().toString(),
+              "Gps xidmetine mudaxile etdiyiniz ucun bloklandiniz.Tarix:${DateTime.now()}",
               fln: flutterLocalNotificationsPlugin);
           //await sendErrorsToServers("Xeberdarliq","Gps xidmetine mudaxile etdiyiniz ucun bloklandiniz.Tarix:"+DateTime.now().toString());
           break;
@@ -124,13 +114,12 @@ class BackgroudLocationServiz extends GetxController {
             body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime
                 .now()}",
             fln: flutterLocalNotificationsPlugin);
-        await sendErrorsToServers("Internet", modela.customerName.toString() + "adlimarkerInternetxeta".tr + "date".tr + " : " + DateTime.now().toString());
+        await sendErrorsToServers("Internet", "${modela.customerName}${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
       } else {
         await flutterLocalNotificationsPlugin.cancel(1);
       }
     });
     bg.BackgroundGeolocation.onEnabledChange((bool isEnabled) {
-      print('[Location sonduruldu] isEnabled? ${isEnabled}');
     });
 
     bg.BackgroundGeolocation.ready(bg.Config(
@@ -139,8 +128,7 @@ class BackgroudLocationServiz extends GetxController {
           channelId: "zs001",
           channelName: "zsNotall",
           title: 'ZS-CONTROL-Sistem aktivdir',
-          text: modelVisitedInfo.value.customerName.toString() +
-              " adli markete giris edilib.",
+          text: "${modelVisitedInfo.value.customerName} adli markete giris edilib.",
           color: '#FEDD1E',
         ),
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
@@ -192,7 +180,6 @@ class BackgroudLocationServiz extends GetxController {
   }
 
   Future<void> sendInfoLocationsToDatabase(bg.Location location, ModelCustuomerVisit modela) async {
-    print("sendInfoLocationsToDatabase CAGRILDI");
     await userService.init();
     await localBackgroundEvents.init();
     double uzaqliq = calculateDistance(
@@ -241,7 +228,6 @@ class BackgroudLocationServiz extends GetxController {
       ),
     );
     if (response.statusCode == 200) {
-      print("Melumat gonderildi Locattion :" + DateTime.now.toString());
       model.sendingStatus = "1";
       await localBackgroundEvents.updateSelectedLocationValue(model);
     }
