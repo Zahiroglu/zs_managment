@@ -5,14 +5,12 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 as bg;
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/backgroud_task/backgroud_errors/model_back_error.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/notifications/noty_background_track.dart';
-
-import '../../dio_config/api_client_live.dart';
+import 'package:zs_managment/dio_config/api_client.dart';
 import '../../routs/rout_controller.dart';
 import '../../utils/checking_dvice_type.dart';
 import '../anbar/controller_anbar.dart';
@@ -211,7 +209,7 @@ class BackgroudLocationServiz extends GetxController {
     );
     localBackgroundEvents.addBackLocationToBase(model);
 
-    final response = await ApiClientLive().dio().post(
+    final response = await ApiClient().dio(isLiveTrack: true).post(
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
       data: model.toJson(),
       options: Options(
@@ -255,7 +253,7 @@ class BackgroudLocationServiz extends GetxController {
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final response = await ApiClientLive().dio().post(
+    final response = await ApiClient().dio(isLiveTrack: true).post(
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
       data: model.toJson(),
       options: Options(
@@ -278,7 +276,6 @@ class BackgroudLocationServiz extends GetxController {
   }
 
   double calculateDistance(lat1, lon1, lat2, lon2) {
-    String mesafe = "";
     var p = 0.017453292519943295;
     var c = cos;
     var a = 0.5 -
@@ -311,7 +308,7 @@ class BackgroudLocationServiz extends GetxController {
       userPosition: loggedUserModel.userModel!.roleId,
     );
     localBackgroundEvents.addBackErrorToBase(model);
-    final response = await ApiClientLive().dio().post(
+    final response = await ApiClient().dio(isLiveTrack: true).post(
       "${loggedUserModel.baseUrl}/api/v1/User/add-user-error",
       data: model.toJson(),
       options: Options(
@@ -358,7 +355,7 @@ class BackgroudLocationServiz extends GetxController {
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final response = await ApiClientLive().dio().post(
+    final response = await ApiClient().dio(isLiveTrack: true).post(
       "${loggedUserModel.baseUrl}/api/v1/User/add-user-error",
       data: unsendedModel.toJson(),
       options: Options(
@@ -433,7 +430,7 @@ class BackgroudLocationServiz extends GetxController {
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final response = await ApiClientLive().dio().post(
+    final response = await ApiClient().dio(isLiveTrack: true).post(
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
       data: model.toJson(),
       options: Options(

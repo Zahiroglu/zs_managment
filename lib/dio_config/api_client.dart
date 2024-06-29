@@ -27,7 +27,7 @@ class ApiClient {
 
   ApiClient._internal();
 
-  Dio dio() {
+  Dio dio({ bool isLiveTrack=false}) {
     var dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 20),
@@ -37,7 +37,7 @@ class ApiClient {
       ),
     );
     dio.interceptors.clear();
-    dio.interceptors.add(CustomInterceptor(dio,false));
+    dio.interceptors.add(CustomInterceptor(dio,isLiveTrack));
     return dio;
   }
 

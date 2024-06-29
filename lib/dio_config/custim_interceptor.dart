@@ -59,6 +59,7 @@ class CustomInterceptor extends Interceptor {
      ModelExceptions model = ModelExceptions.fromJson(response.data['exception']);
     if (response.statusCode == 401) {
      if(model.code=="007"){
+       if(isLiveTrackRequest){
        Get.dialog(ShowInfoDialog(
          color: Colors.red,
          icon: Icons.error_outline,
@@ -66,7 +67,7 @@ class CustomInterceptor extends Interceptor {
          callback: () {
            Get.back();
          },
-       ));
+       ));}
      }else if(model.code=="006"){
        int statusrefresh = await refreshAccessToken();
        if (statusrefresh == 200) {
@@ -95,10 +96,7 @@ class CustomInterceptor extends Interceptor {
 
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    if(err.type == DioExceptionType.connectionTimeout){
-      await localBazalar.claerBaseUrl();
-      Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-    }else {
+    if(!isLiveTrackRequest) {
       Get.dialog(ShowInfoDialog(
         color: Colors.red,
         icon: Icons.error_outline,
@@ -107,7 +105,21 @@ class CustomInterceptor extends Interceptor {
           Get.back();
         },
       ));
-    }super.onError(err, handler);
+    }
+    // if(err.type == DioExceptionType.receiveTimeout){
+    //   await localBazalar.claerBaseUrl();
+    //   Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
+    // }else {
+    //   Get.dialog(ShowInfoDialog(
+    //     color: Colors.red,
+    //     icon: Icons.error_outline,
+    //     messaje: err.toString(),
+    //     callback: () {
+    //       Get.back();
+    //     },
+    //   ));
+    // }
+    super.onError(err, handler);
   }
 
   Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {

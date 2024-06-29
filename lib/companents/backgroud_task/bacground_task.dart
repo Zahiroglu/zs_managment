@@ -7,8 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:location/location.dart';
-
-import '../../dio_config/api_client_live.dart';
+import 'package:zs_managment/dio_config/api_client.dart';
 import '../../utils/checking_dvice_type.dart';
 import '../local_bazalar/local_users_services.dart';
 import '../login/models/logged_usermodel.dart';
@@ -130,7 +129,7 @@ class BackGroudTask{
     if (connectivityResult == ConnectivityResult.none) {
       /// baglanti xetasi var
     } else {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio(isLiveTrack: true).post(
         "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
         data: data,
         options: Options(
@@ -171,7 +170,7 @@ class BackGroudTask{
     if (connectivityResult == ConnectivityResult.none) {
       /// baglanti xetasi var
     } else {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio(isLiveTrack: true).post(
         "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
         data: data,
         options: Options(

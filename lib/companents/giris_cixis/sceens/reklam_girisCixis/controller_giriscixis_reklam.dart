@@ -26,6 +26,7 @@ import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
+import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
 import 'package:zs_managment/global_models/model_maptypeapp.dart';
@@ -37,8 +38,6 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
-
-import '../../../../dio_config/api_client_live.dart';
 import '../../../../dio_config/custim_interceptor.dart';
 import '../../../../helpers/exeption_handler.dart';
 import '../../../permitions/permitions_controller.dart';
@@ -2328,7 +2327,7 @@ class ControllerGirisCixisReklam extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio(isLiveTrack: true).post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2435,7 +2434,7 @@ class ControllerGirisCixisReklam extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio().post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2607,7 +2606,7 @@ class ControllerGirisCixisReklam extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio(isLiveTrack: true).post(
         "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
         data: model.toJson(),
         options: Options(

@@ -42,8 +42,6 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
-
-import '../../../../dio_config/api_client_live.dart';
 import '../../../../dio_config/custim_interceptor.dart';
 import '../../../../helpers/exeption_handler.dart';
 import '../../../backgroud_task/bacground_task.dart';
@@ -2314,7 +2312,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio().post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2432,7 +2430,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClientLive().dio().post(
+        final response = await ApiClient().dio().post(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
               data: model.toJson(),
               options: Options(
@@ -2582,7 +2580,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio().post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2719,7 +2717,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClientLive().dio().post(
+        final response = await ApiClient().dio().post(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
               data: model.toJson(),
               options: Options(
@@ -2884,7 +2882,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio().post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2997,7 +2995,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClientLive().dio().post(
+      final response = await ApiClient().dio().post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(

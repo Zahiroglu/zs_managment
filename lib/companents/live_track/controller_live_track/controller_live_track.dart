@@ -13,9 +13,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
-import 'package:zs_managment/dio_config/api_client_live.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
-
 import '../../../dio_config/api_client.dart';
 import '../../../helpers/exeption_handler.dart';
 import '../../../widgets/simple_info_dialog.dart';
@@ -237,7 +235,7 @@ class ControllerLiveTrack extends GetxController{
       ));
     } else {
       try {
-        final response = await ApiClientLive().dio().get(
+        final response = await ApiClient().dio(isLiveTrack: true).get(
           "${loggedUserModel.baseUrl}/api/v1/InputOutput/my-connected-users-current-location",
           data: jsonEncode(secilmisTemsilciler),
           options: Options(
