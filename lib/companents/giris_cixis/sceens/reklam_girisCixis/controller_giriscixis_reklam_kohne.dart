@@ -2392,7 +2392,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
       rightSideMenuVisible.value = true;
       sndeQalmaVaxtiniHesabla();
       await getSatisMelumatlariByCary();
-      backgroudLocationServiz.startBackgorundFetck(modela);
+      backgroudLocationServiz.startBackgorundFetck();
       listTapsiriqlar.value = ModelResponceTask().getListOfTask();
     });
     update();
@@ -3125,7 +3125,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     rightSideMenuVisible.value = true;
     sndeQalmaVaxtiniHesabla();
     await getSatisMelumatlariByCary();
-    backgroudLocationServiz.startBackgorundFetck(modela);
+    backgroudLocationServiz.startBackgorundFetck();
     listTapsiriqlar.value = ModelResponceTask().getListOfTask();
     update();
   }

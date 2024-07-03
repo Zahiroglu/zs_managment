@@ -74,7 +74,21 @@ class CustomInterceptor extends Interceptor {
          return handler.resolve(await _retry(response.requestOptions));
        }
      }
-   }}
+   }
+    else if(response.statusCode == 400){
+      if(model.code=="005"){
+        Get.dialog(ShowInfoDialog(
+          color: Colors.red,
+          icon: Icons.perm_identity,
+          messaje: model.message!,
+          callback: () {
+            Get.back();
+            Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
+          },
+        ));
+      }
+    }
+    }
     else{
     if (response.statusCode != 200) {
        if(response.statusCode == 404){

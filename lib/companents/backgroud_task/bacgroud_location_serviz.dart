@@ -39,10 +39,11 @@ class BackgroudLocationServiz extends GetxController {
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  startBackgorundFetck(ModelCustuomerVisit modela) {
-    modelVisitedInfo.value = modela;
+  startBackgorundFetck() {
     bg.BackgroundGeolocation.onLocation((bg.Location location) async {
       //print('[location] - $location');
+      await localGirisCixisServiz.init();
+      ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       if (location.mock) {
         sendErrorsToServers(blok, modela.customerCode.toString() + "adlimarkerBlockMock".tr);
       } else {
@@ -108,9 +109,10 @@ class BackgroudLocationServiz extends GetxController {
     });
     bg.BackgroundGeolocation.onConnectivityChange((connection) async {
       if (!connection.connected) {
+        await localGirisCixisServiz.init();
+        ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
         await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet",
-            body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime
-                .now()}",
+            body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}",
             fln: flutterLocalNotificationsPlugin);
         await sendErrorsToServers("Internet", "${modela.customerName}${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
       } else {
@@ -180,6 +182,8 @@ class BackgroudLocationServiz extends GetxController {
   Future<void> sendInfoLocationsToDatabase(bg.Location location, ModelCustuomerVisit modela) async {
     await userService.init();
     await localBackgroundEvents.init();
+    await localGirisCixisServiz.init();
+    ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
     double uzaqliq = calculateDistance(
       location.coords.latitude,
       location.coords.longitude,
@@ -208,7 +212,6 @@ class BackgroudLocationServiz extends GetxController {
       userPosition: loggedUserModel.userModel!.roleId.toString(),
     );
     localBackgroundEvents.addBackLocationToBase(model);
-
     final response = await ApiClient().dio(isLiveTrack: true).post(
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
       data: model.toJson(),
