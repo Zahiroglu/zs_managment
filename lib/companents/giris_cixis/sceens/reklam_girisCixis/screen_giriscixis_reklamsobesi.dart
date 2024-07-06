@@ -60,7 +60,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   void initState() {
     initConfigrations();
     WidgetsBinding.instance.addObserver(this);
-    print("list olaraq burdatam umumi list");
     confiqGeolocatior();
     _determinePosition().then((value) {
       setState(() {
@@ -192,7 +191,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   void _updatePositionList(PositionItemType type, String displayValue) {
-    print("positions :"+displayValue);
     setState(() {});
   }
 
@@ -244,16 +242,16 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
             actions: [
               controllerGirisCixis.marketeGirisEdilib.isFalse?Padding(
                 padding: const EdgeInsets.only(right: 0),
-                child: IconButton(icon: Icon(Icons.supervised_user_circle_outlined,color: Colors.black,),onPressed: (){
+                child: IconButton(icon: const Icon(Icons.supervised_user_circle_outlined,color: Colors.black,),onPressed: (){
                controllerGirisCixis.getExpList();
                 }),
-              ):SizedBox(),
+              ):const SizedBox(),
               IconButton(onPressed: (){
                 controllerGirisCixis.localDbGirisCixis.clearAllGiris();
                 setState(() {});
-                controllerGirisCixis.getAllDataFormLocale();
+                controllerGirisCixis.getAllDataFormLocale(loggedUserModel.userModel!.code!);
                 //controllerGirisCixis.backgroudLocationServiz.stopBackGroundFetch();
-              },icon: Icon(Icons.delete_forever,color: Colors.red,),)
+              },icon: const Icon(Icons.delete_forever,color: Colors.red,),)
             ],
             centerTitle: true,
             title: CustomText(
@@ -264,7 +262,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               onPressed: (){
                 widget.drawerMenuController.openDrawer();
               },
-              icon: Icon(Icons.menu),
+              icon: const Icon(Icons.menu),
             ),
 
           ),
@@ -280,7 +278,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                   followMe = true;
                   funFlutterToast("Meni izle baslatildi");
                 }
-                print("follow me :" + followMe.toString());
               });
             },
             backgroundColor: followMe ? Colors.green : Colors.white,
@@ -290,18 +287,21 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               color: followMe ? Colors.white : Colors.red,
             ),
           )
-              : SizedBox(),
-          body:Obx(() =>  controller.dataLoading.isTrue?Center(child: CircularProgressIndicator(color: Colors.green),):_body(context, controller))
+              : const SizedBox(),
+          body:Obx(() =>  controller.dataLoading.isTrue?const Center(child: CircularProgressIndicator(color: Colors.green),):_body(context, controller))
         );
       }),
     );
   }
 
   Widget _body(BuildContext context, ControllerGirisCixisReklam controller) {
-    return Obx(() => SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Obx(() => Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+      Expanded(
+          flex: 3,
+          child: Column(
         children: [
           const SizedBox(
             height: 5,
@@ -309,12 +309,17 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           controllerGirisCixis.marketeGirisEdilib.isTrue
               ? const SizedBox()
               : widgetTabBar(),
+        ],
+      )),
+        Expanded(
+            flex: 15,
+            child: Column(children: [
           controllerGirisCixis.marketeGirisEdilib.isTrue
               ? widgetCixisUcun(context)
               : widgetListRutGunu(controller),
+        ],))
 
-        ],
-      ),
+      ],
     ));
   }
 
@@ -484,7 +489,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                       (controllerGirisCixis.listSifarisler.isNotEmpty ||
                           controllerGirisCixis.listIadeler.isNotEmpty)
                   ? controllerGirisCixis.cardTotalSifarisler(context, false)
-                  : SizedBox(),//sifarisleri gosteren hisse
+                  : const SizedBox(),//sifarisleri gosteren hisse
               if (selectedTabItem.keyText!="z"&&selectedTabItem.keyText!="gz")
           Padding(padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
           child: CustomText(
@@ -495,18 +500,18 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               textAlign: TextAlign.start),
         ) else const SizedBox(),
         SizedBox(
-            height: MediaQuery.of(context).size.height * 0.78,
+            height: MediaQuery.of(context).size.height * 0.70,
             child:  selectedTabItem.keyText!="z"&&selectedTabItem.keyText!="gz"
                 ? ListView(
               controller: scrollController,
-              padding: const EdgeInsets.all(0).copyWith(bottom: 25),
+              padding: const EdgeInsets.all(0).copyWith(bottom: 0),
               children: controllerGirisCixis.listSelectedMusteriler
                   .map((e) => widgetCustomers(e))
                   .toList(),
             )
                 : controllerGirisCixis
                 .modelRutPerform.value.listGirisCixislar!.isEmpty&&controllerGirisCixis.modelRutPerform.value.listGonderilmeyenZiyaretler!.isEmpty
-                ? SizedBox()
+                ? const SizedBox()
                 : ziyaretEdilenler(selectedTabItem.keyText=="z")),
       ],
     );
@@ -540,7 +545,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                     Row(
                       children: [
                         CustomText(
-                            labeltext: "iseBaslamaVaxti".tr+" : ",
+                            labeltext: "${"iseBaslamaVaxti".tr} : ",
                             fontWeight: FontWeight.w700),
                         CustomText(
                             labeltext: controllerGirisCixis.modelRutPerform
@@ -555,7 +560,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                     Row(
                       children: [
                         CustomText(
-                            labeltext: "marketdeISvaxti".tr+" : ",
+                            labeltext: "${"marketdeISvaxti".tr} : ",
                             fontWeight: FontWeight.w700),
                         CustomText(
                             labeltext: controllerGirisCixis
@@ -569,7 +574,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                     Row(
                       children: [
                         CustomText(
-                            labeltext: "erazideIsVaxti".tr+" : ",
+                            labeltext: "${"erazideIsVaxti".tr} : ",
                             fontWeight: FontWeight.w700),
                         CustomText(
                             labeltext: controllerGirisCixis
@@ -583,7 +588,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                     Row(
                       children: [
                         CustomText(
-                            labeltext: "sonuncuCixis".tr+" : ",
+                            labeltext: "${"sonuncuCixis".tr} : ",
                             fontWeight: FontWeight.w700),
                         CustomText(
                             labeltext: controllerGirisCixis.modelRutPerform
@@ -601,7 +606,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
         Expanded(
             flex: 10,
             child: ListView(
-              padding: EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
               children:
               controllerGirisCixis.modelRutPerform.value.listGirisCixislar!
                   .map((e) =>
@@ -635,7 +640,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                       onTap: (){
                         controllerGirisCixis.checkAllVisitsForTotalSend();
                       },
-                        child: Icon(Icons.refresh))
+                        child: const Icon(Icons.refresh))
                   ],
                 ),
               ),
@@ -643,7 +648,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
         Expanded(
             flex: 20,
             child: ListView(
-              padding: EdgeInsets.all(0),
+              padding: const EdgeInsets.all(0),
               children:
               controllerGirisCixis.modelRutPerform.value.listGonderilmeyenZiyaretler!
                   .map((e) =>
@@ -734,7 +739,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                               children: [
                                 CustomText(
                                   textAlign: TextAlign.center,
-                                  labeltext: "temKod".tr+" : ",
+                                  labeltext: "${"temKod".tr} : ",
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                   fontsize: 14,
@@ -761,7 +766,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Icon(Icons.social_distance,size: 18,),
+                                const Icon(Icons.social_distance,size: 18,),
                                 const SizedBox(
                                   width: 5,
                                 ),
@@ -805,7 +810,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               left: 5,
               top: 7,
               child: Icon(Icons.bookmark,color: controllerGirisCixis.modelRutPerform.value.listGirisCixislar!
-                  .where((a) => a.customerCode == e.code).isEmpty?Colors.yellow:Colors.green,)):SizedBox(),
+                  .where((a) => a.customerCode == e.code).isEmpty?Colors.yellow:Colors.green,)):const SizedBox(),
          Positioned(
               right: 15,
               top: 15,
@@ -1279,7 +1284,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                               Row(
                                 children: [
                                   CustomText(
-                                      labeltext: "mesafe".tr+" : ",
+                                      labeltext: "${"mesafe".tr} : ",
                                       fontWeight: FontWeight.w700,
                                       fontsize: 16),
                                   const SizedBox(
@@ -1312,7 +1317,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                                 elevation: 5,
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 20,
                             ),
                             Expanded(

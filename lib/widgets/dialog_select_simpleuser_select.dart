@@ -158,8 +158,11 @@ class _DialogSimpleUserSelectState
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomText(
+              element.code!="h"&&element.code!="m"?  CustomText(
                 labeltext: "${element.code} - ${element.name}",
+                fontsize: 16,
+              ):CustomText(
+                labeltext: "${element.name}",
                 fontsize: 16,
               ),
             ],

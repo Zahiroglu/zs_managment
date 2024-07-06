@@ -36,14 +36,14 @@ class BackgroudLocationServiz extends GetxController {
   Rx<ModelCustuomerVisit> modelVisitedInfo = ModelCustuomerVisit().obs;
   static String blok="Block";
   LocalBazalar localBazalar = LocalBazalar();
+  Rx<ModelCustuomerVisit> modelgirisEdilmis = ModelCustuomerVisit().obs;
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  startBackgorundFetck() {
+  startBackgorundFetck() async {
+    await localGirisCixisServiz.init();
+    ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
     bg.BackgroundGeolocation.onLocation((bg.Location location) async {
-      //print('[location] - $location');
-      await localGirisCixisServiz.init();
-      ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       if (location.mock) {
         sendErrorsToServers(blok, modela.customerCode.toString() + "adlimarkerBlockMock".tr);
       } else {
@@ -111,9 +111,7 @@ class BackgroudLocationServiz extends GetxController {
       if (!connection.connected) {
         await localGirisCixisServiz.init();
         ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
-        await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet",
-            body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}",
-            fln: flutterLocalNotificationsPlugin);
+        await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
         await sendErrorsToServers("Internet", "${modela.customerName}${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
       } else {
         await flutterLocalNotificationsPlugin.cancel(1);
@@ -167,7 +165,6 @@ class BackgroudLocationServiz extends GetxController {
     });
   }
 
-
   stopBackGroundFetch() async {
     await flutterLocalNotificationsPlugin.cancel(0);
     await flutterLocalNotificationsPlugin.cancel(1);
@@ -182,14 +179,15 @@ class BackgroudLocationServiz extends GetxController {
   Future<void> sendInfoLocationsToDatabase(bg.Location location, ModelCustuomerVisit modela) async {
     await userService.init();
     await localBackgroundEvents.init();
-    await localGirisCixisServiz.init();
-    ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
-    double uzaqliq = calculateDistance(
+    double uzaqliq=0;
+    if(modela.customerCode!=null){
+      uzaqliq = calculateDistance(
       location.coords.latitude,
       location.coords.longitude,
       double.parse(modela.customerLatitude!),
       double.parse(modela.customerLongitude!),
     );
+    }
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
@@ -202,8 +200,8 @@ class BackgroudLocationServiz extends GetxController {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
       locationDate: DateTime.now().toString().substring(0, 18),
-      pastInputCustomerCode: modela.customerCode,
-      pastInputCustomerName: modela.customerName,
+      pastInputCustomerCode: modela.customerCode??"0",
+      pastInputCustomerName: modela.customerName??"0",
       speed: location.coords.speed,
       userFullName:
       "${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!
@@ -211,7 +209,6 @@ class BackgroudLocationServiz extends GetxController {
       userCode: loggedUserModel.userModel!.code!,
       userPosition: loggedUserModel.userModel!.roleId.toString(),
     );
-    localBackgroundEvents.addBackLocationToBase(model);
     final response = await ApiClient().dio(isLiveTrack: true).post(
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
       data: model.toJson(),
@@ -228,9 +225,8 @@ class BackgroudLocationServiz extends GetxController {
         responseType: ResponseType.json,
       ),
     );
-    if (response.statusCode == 200) {
-      model.sendingStatus = "1";
-      await localBackgroundEvents.updateSelectedLocationValue(model);
+    if (response.statusCode != 200) {
+      localBackgroundEvents.addBackLocationToBase(model);
     }
   }
 
@@ -273,8 +269,7 @@ class BackgroudLocationServiz extends GetxController {
       ),
     );
     if (response.statusCode == 200) {
-      model.sendingStatus = "1";
-      await localBackgroundEvents.updateSelectedLocationValue(model);
+      await localBackgroundEvents.deleteItemLocation(model);
     }
   }
 
@@ -310,7 +305,6 @@ class BackgroudLocationServiz extends GetxController {
       userFullName: "${loggedUserModel.userModel!.name} ${loggedUserModel.userModel!.surname}",
       userPosition: loggedUserModel.userModel!.roleId,
     );
-    localBackgroundEvents.addBackErrorToBase(model);
     final response = await ApiClient().dio(isLiveTrack: true).post(
       "${loggedUserModel.baseUrl}/api/v1/User/add-user-error",
       data: model.toJson(),
@@ -328,12 +322,12 @@ class BackgroudLocationServiz extends GetxController {
       ),
     );
     if (response.statusCode == 200) {
-      model.sendingStatus = "1";
-      await localBackgroundEvents.updateSelectedValue(model);
       if (xetaBasliq == "Block") {
         stopBackGroundFetch();
         _sistemiYenidenBaslat();
       }
+    }else{
+      localBackgroundEvents.addBackErrorToBase(model);
     }
   }
 
@@ -374,8 +368,7 @@ class BackgroudLocationServiz extends GetxController {
       ),
     );
     if (response.statusCode == 200) {
-      unsendedModel.sendingStatus = "1";
-      localBackgroundEvents.updateSelectedValue(unsendedModel);
+      localBackgroundEvents.deleteItem(unsendedModel);
       await checkUnsendedErrors();
     }
   }

@@ -22,6 +22,7 @@ import 'package:zs_managment/companents/main_screen/controller/drawer_menu_contr
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
+import 'package:zs_managment/helpers/permitions_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -67,7 +68,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   late Rx<ModelGirisCixisScreenType> selectedModelGirisCixis=ModelGirisCixisScreenType().obs;
   late Rx<ModelAppSetting> modelAppSetting=ModelAppSetting().obs;
   List<ModelGirisCixisScreenType> listGirisCixisType=[ModelGirisCixisScreenType(name: "map",icon: const Icon(Icons.map,color: Colors.green,),kod: "map"),ModelGirisCixisScreenType(name: "list",icon: const Icon(Icons.list_alt),kod: "list")];
-
+  UsersPermitionsHelper userPermitionSercis=UsersPermitionsHelper();
   @override
   onInit() {
     callLocalBases();
@@ -543,7 +544,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
               ),
             );
 
-
           if (response.statusCode == 200) {
             var userlist = json.encode(response.data['result']);
             List listuser = jsonDecode(userlist);
@@ -594,10 +594,8 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
     languageIndex = await getLanguageIndex();
     List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
-    List<UserModel> listUsersSelected = localBaseDownloads
-        .getAllConnectedUserFromLocal()
-        .where((element) => element.roleId == 17)
-        .toList();
+    List<UserModel> listUsersSelected =  await localBaseDownloads
+        .getAllConnectedUserFromLocal();
     if (listUsersSelected.isEmpty) {
       secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
     } else {
@@ -674,16 +672,16 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   }
 
   ///Cari Merc Baza endirme/////////
-  Future< List<MercDataModel>> getAllMercCariBazaMotivasiya() async {
+  Future<List<MercDataModel>> getAllMercCariBazaMotivasiya() async {
     List<MercDataModel> listUsers = [];
+    List<UserModel> listConnectedUsers = [];
+
     languageIndex = await getLanguageIndex();
     List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
     LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
-    List<UserModel> listUsersSelected = localBaseDownloads
-        .getAllConnectedUserFromLocal()
-        .where((element) => element.roleId == 23)
-        .toList();
+    List<UserModel> listUsersSelected =  await localBaseDownloads
+        .getAllConnectedUserFromLocal();
     if (listUsersSelected.isEmpty) {
       secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
     } else {
@@ -702,32 +700,58 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
-              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
-              data: jsonEncode(secilmisTemsilciler),
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-          if (response.statusCode == 200) {
-            var dataModel = json.encode(response.data['result']);
-            List listuser = jsonDecode(dataModel);
-            for (var i in listuser) {
-              listUsers.add(MercDataModel.fromJson(i));
-            }
-          } else {
-            exeptionHandler.handleExeption(response);
-          }
+        var response;
+        if(userPermitionSercis.hasUserPermition("canEnterOtherMerchCustomers", loggedUserModel.userModel!.permissions!)){
+          response = await ApiClient().dio().get(
+            "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
+            options: Options(
+              receiveTimeout: const Duration(seconds: 60),
+              headers: {
+                'Lang': languageIndex,
+                'Device': dviceType,
+                'abs': '123456',
+                "Authorization": "Bearer $accesToken"
+              },
+              validateStatus: (_) => true,
+              contentType: Headers.jsonContentType,
+              responseType: ResponseType.json,
+            ),
+          );
 
+        }else{
+          response = await ApiClient().dio().post(
+            "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+            data: jsonEncode(secilmisTemsilciler),
+            options: Options(
+              receiveTimeout: const Duration(seconds: 60),
+              headers: {
+                'Lang': languageIndex,
+                'Device': dviceType,
+                'abs': '123456',
+                "Authorization": "Bearer $accesToken"
+              },
+              validateStatus: (_) => true,
+              contentType: Headers.jsonContentType,
+              responseType: ResponseType.json,
+            ),
+          );
+        }
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['result']);
+          List listuser = jsonDecode(dataModel);
+          for (var i in listuser) {
+            listUsers.add(MercDataModel.fromJson(i));
+            listConnectedUsers.add(UserModel(
+              roleName: "Mercendaizer",
+              roleId: 23,
+              code:MercDataModel.fromJson(i).user!.code,
+              name: MercDataModel.fromJson(i).user!.name,
+              gender: 0,
+            ));
+          }
+        } else {
+          exeptionHandler.handleExeption(response);
+        }
       } on DioException catch (e) {
         if (e.response != null) {
           print(e.response!.data);
@@ -740,6 +764,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         }
       }
     }
+    await localBaseDownloads.addConnectedUsers(listConnectedUsers);
     return listUsers;
   }
 

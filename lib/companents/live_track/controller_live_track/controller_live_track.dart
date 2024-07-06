@@ -63,9 +63,9 @@ class ControllerLiveTrack extends GetxController{
   }
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     _startTimerPeriodic(59);
-    listAllConnectedUsers.value=localBaseDownloads.getAllConnectedUserFromLocal();
+    listAllConnectedUsers.value=await localBaseDownloads.getAllConnectedUserFromLocal();
     getAllDatFromServer();
     // TODO: implement onInit
     super.onInit();

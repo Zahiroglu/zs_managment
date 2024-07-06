@@ -80,7 +80,8 @@ class ControllerRoutDetailUser extends GetxController {
   Future<void> getAllUsers() async {
     await localBaseDownloads.init();
     dataLoading.value = true;
-    listUsers.value=localBaseDownloads.getAllConnectedUserFromLocal();
+    listUsers.value= await localBaseDownloads
+        .getAllConnectedUserFromLocal();
     listUsers.add(UserModel(
       code: "174",
       name: "Test MERC",

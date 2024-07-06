@@ -17,7 +17,7 @@ class LocalBackgroundEvents {
     await backErrors.put("${model.errDate!}|${model.userCode!}", model);
   }
 
-  Future<void> updateSelectedValue(ModelBackErrors model) async {
+  Future<void> updateSelectedValuea(ModelBackErrors model) async {
     await deleteItem(model);
     await backErrors.put("${model.errDate!}|${model.userCode.toString()}", model);
   }

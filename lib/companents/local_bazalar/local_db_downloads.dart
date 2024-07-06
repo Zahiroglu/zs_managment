@@ -155,8 +155,7 @@ class LocalBaseDownloads {
       listCariler= await getAllMercBazaForGirisCixis();
       listRutGUNU =listCariler.where((element) => element.rutGunu=="Duz").toList();
     }else{
-      listCariler= await getAllMercBazaForGirisCixis();
-      listCariler=listCariler.where((element) => element.forwarderCode==temKod).toList();
+      listCariler= await getAllMercBazaForGirisCixisByCode(temKod);
       listRutGUNU = listCariler.where((element) => element.rutGunu=="Duz").toList();
     }
     listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
@@ -341,10 +340,14 @@ class LocalBaseDownloads {
 
   List<UserModel> getAllConnectedUserFromLocal() {
     List<UserModel> list = [];
-    boxListConnectedUsers.toMap().forEach((key, value) {list.add(value);});
+      boxListConnectedUsers.toMap().forEach((key, value) {list.add(value);});
     return list;
   }
-
+  List<UserModel> getAllConnectedUserFromLocalMerc() {
+    List<UserModel> list = [];
+    boxListConnectedUsers.toMap().forEach((key, value) {list.add(value);});
+    return list.where((e)=>e.roleId==23||e.roleId==24).toList();
+  }
   Future<List<MercDataModel>> getAllMercDatail() async {
     List<MercDataModel> list = [];
     boxListMercBaza.toMap().forEach((key, value) {list.add(value);});
@@ -358,6 +361,47 @@ class LocalBaseDownloads {
       list.add(value);
     });
     for(MercDataModel model in list){
+      List<MercCustomersDatail> musteriler=model.mercCustomersDatail!;
+      for(MercCustomersDatail modelMerc in musteriler){
+        ModelCariler modelCari=ModelCariler(
+            name: modelMerc.name,
+            code: modelMerc.code,
+            forwarderCode: model.user!.code,
+            fullAddress: modelMerc.fullAddress,
+            days: modelMerc.days,
+            action: modelMerc.action,
+            area: modelMerc.area,
+            category: modelMerc.category,
+            district: modelMerc.district,
+            latitude:modelMerc.latitude,
+            longitude: modelMerc.longitude,
+            debt: modelMerc.debt,
+            mainCustomer: modelMerc.mainCustomer,
+            mesafe: "",
+            mesafeInt: 0,
+            ownerPerson: modelMerc.ownerPerson,
+            phone: modelMerc.phone,
+            postalCode: modelMerc.postalCode,
+            regionalDirectorCode: modelMerc.regionalDirectorCode,
+            rutGunu: "",
+            salesDirectorCode: modelMerc.salesDirectorCode,
+            tin: modelMerc.tin,
+            ziyaretSayi: 0
+
+        );
+        modelCari.rutGunu=rutDuzgunluyuYoxla(modelCari);
+        listCariler.add(modelCari);
+      }
+    }
+    return listCariler;
+  }
+  Future<List<ModelCariler>> getAllMercBazaForGirisCixisByCode(String temKodu)  async{
+    List<ModelCariler> listCariler = [];
+    List<MercDataModel> list = [];
+    boxListMercBaza.toMap().forEach((key, value) {
+      list.add(value);
+    });
+    for(MercDataModel model in list.where((e)=>e.user!.code==temKodu)){
       List<MercCustomersDatail> musteriler=model.mercCustomersDatail!;
       for(MercCustomersDatail modelMerc in musteriler){
         ModelCariler modelCari=ModelCariler(

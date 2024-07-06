@@ -2190,12 +2190,10 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     return d.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0*$'), '');
   }
 
-  void getExpList() {
+  Future<void> getExpList() async {
     List<UserModel> listexpeditorlar = [];
-    listexpeditorlar = localBaseDownloads
-        .getAllConnectedUserFromLocal()
-        .where((element) => element.roleId == 23)
-        .toList();
+    listexpeditorlar = await localBaseDownloads
+        .getAllConnectedUserFromLocal();
     if (loggedUserModel.userModel!.roleId == 23 ||
         loggedUserModel.userModel!.roleId == 24) {
       listexpeditorlar.insert(0, UserModel(code: "", name: "myRut".tr));

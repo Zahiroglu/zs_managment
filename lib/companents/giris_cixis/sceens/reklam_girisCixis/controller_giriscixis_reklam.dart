@@ -31,6 +31,7 @@ import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
 import 'package:zs_managment/global_models/model_maptypeapp.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
+import 'package:zs_managment/helpers/permitions_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
@@ -68,33 +69,43 @@ class ControllerGirisCixisReklam extends GetxController {
           mapName: CustomMapType.google.name,
           mapType: MapType.google,
           icon:
-              'packages/map_launcher/assets/icons/${CustomMapType.google}.svg').obs;
+              'packages/map_launcher/assets/icons/${CustomMapType.google}.svg')
+      .obs;
   Rx<ModelRutPerform> modelRutPerform = ModelRutPerform().obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   List<String> listTab = ["girisCixislar".tr, "todeyRut".tr, "unVisited".tr];
   RxString selectedTabItem = "girisCixislar".tr.obs;
   Rx<ModelCariler> expandedItem = ModelCariler().obs;
   ScrollController listScrollController = ScrollController();
-  RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
-  RxList<ModelCariler> listSelectedMusteriler = List<ModelCariler>.empty(growable: true).obs;
-  RxList<ModelSifarislerTablesi> listTabSifarisler = List<ModelSifarislerTablesi>.empty(growable: true).obs;
+  RxList<ModelTamItemsGiris> listTabItems =
+      List<ModelTamItemsGiris>.empty(growable: true).obs;
+  RxList<ModelCariler> listSelectedMusteriler =
+      List<ModelCariler>.empty(growable: true).obs;
+  RxList<ModelSifarislerTablesi> listTabSifarisler =
+      List<ModelSifarislerTablesi>.empty(growable: true).obs;
   RxString snQalmaVaxti = "".obs;
   Timer? _timer;
   TextEditingController ctCixisQeyd = TextEditingController();
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
-  RxList<ModelCariHereket> listSifarisler = List<ModelCariHereket>.empty(growable: true).obs;
-  RxList<ModelCariHereket> listIadeler = List<ModelCariHereket>.empty(growable: true).obs;
-  RxList<ModelCariKassa> listKassa = List<ModelCariKassa>.empty(growable: true).obs;
-  RxList<ModelCariKassa> selectedlistKassa = List<ModelCariKassa>.empty(growable: true).obs;
+  RxList<ModelCariHereket> listSifarisler =
+      List<ModelCariHereket>.empty(growable: true).obs;
+  RxList<ModelCariHereket> listIadeler =
+      List<ModelCariHereket>.empty(growable: true).obs;
+  RxList<ModelCariKassa> listKassa =
+      List<ModelCariKassa>.empty(growable: true).obs;
+  RxList<ModelCariKassa> selectedlistKassa =
+      List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
-  Rx<UserModel> selectedTemsilci = UserModel(code: "", name: "hamisi".tr).obs;
-
+  Rx<UserModel> selectedTemsilci = UserModel(code: "h", name: "hamisi".tr).obs;
   BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
 
   //BackGroudTask backgroudLocationServiz = BackGroudTask();
   late CheckDviceType checkDviceType = CheckDviceType();
   ExeptionHandler exeptionHandler = ExeptionHandler();
+  UsersPermitionsHelper userPermitionHelper = UsersPermitionsHelper();
   LocalPermissionsController permitionController = LocalPermissionsController();
+  RxList<UserModel> listexpeditorlar =
+      List<UserModel>.empty(growable: true).obs;
 
   ///list tapsiriqlar
   RxList<ModelResponceTask> listTapsiriqlar =
@@ -102,14 +113,11 @@ class ControllerGirisCixisReklam extends GetxController {
 
   @override
   Future<void> onInit() async {
-    //backgroudLocationServiz.initPlatformState();
     await userService.init();
     loggedUserModel = userService.getLoggedUser();
     await localBaseDownloads.init();
     getAppSetting();
     _getGirisEdilmisCari();
-    //getRutPerformToday();
-    // TODO: implement onInit
     super.onInit();
   }
 
@@ -144,18 +152,11 @@ class ControllerGirisCixisReklam extends GetxController {
     await localDbGirisCixis.init();
     modelgirisEdilmis.value = await localDbGirisCixis.getGirisEdilmisMarket();
     if (modelgirisEdilmis.value.inDate == null) {
-      getAllDataFormLocale();
-      if (loggedUserModel.userModel!.roleId == 23 ||
-          loggedUserModel.userModel!.roleId == 24) {
-        await getRutPerformToday(false, loggedUserModel.userModel!);
-      } else {
-        await getRutPerformToday(true, selectedTemsilci.value);
-      }
+      fillExpList();
       marketeGirisEdilib.value = false;
       slidePanelVisible.value = false;
     } else {
       listTapsiriqlar.value = ModelResponceTask().getListOfTask();
-      getAllDataFormLocale();
       createCircles(
           double.parse(modelgirisEdilmis.value.customerLatitude!),
           double.parse(modelgirisEdilmis.value.customerLongitude!),
@@ -174,67 +175,67 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   } // eger markete giris edilibse cixis sehfesi acilmalidir
 
-  Future<void> getAllDataFormLocale() async {
-    listCariler.clear();
-    List<MercDataModel> listmodel = await localBase.getAllMercDatail();
-    for (MercDataModel model in listmodel) {
-      List<MercCustomersDatail> musteriler = model.mercCustomersDatail!;
-      for (MercCustomersDatail modelMerc in musteriler) {
-        ModelCariler modelCari = ModelCariler(
-            name: modelMerc.name,
-            code: modelMerc.code,
-            forwarderCode: model.user!.code,
-            fullAddress: modelMerc.fullAddress,
-            days: modelMerc.days,
-            action: modelMerc.action,
-            area: modelMerc.area,
-            category: modelMerc.category,
-            district: modelMerc.district,
-            latitude: modelMerc.latitude,
-            longitude: modelMerc.longitude,
-            debt: modelMerc.debt,
-            mainCustomer: modelMerc.mainCustomer,
-            mesafe: "",
-            mesafeInt: 0,
-            ownerPerson: modelMerc.ownerPerson,
-            phone: modelMerc.phone,
-            postalCode: modelMerc.postalCode,
-            regionalDirectorCode: modelMerc.regionalDirectorCode,
-            rutGunu: "",
-            salesDirectorCode: modelMerc.salesDirectorCode,
-            tin: modelMerc.tin,
-            ziyaretSayi: 0);
-        bool rutGunu = rutGununuYoxla(modelCari);
-        modelCari.rutGunu = rutGunu ? "Duz" : "Sef";
-        listCariler.add(modelCari);
+  Future<void> getExpList() async {
+    listexpeditorlar.value =
+        localBaseDownloads.getAllConnectedUserFromLocalMerc();
+    listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
+    if (loggedUserModel.userModel!.roleId == 17) {
+      selectedTemsilci.value = UserModel(code: "h", name: "hamisi".tr);
+    } else {
+      listexpeditorlar.insert(1, UserModel(code: "m", name: "myRut".tr));
+      selectedTemsilci.value = UserModel(code: "m", name: "myRut".tr);
+    }
+    listexpeditorlar.removeWhere(
+        (elemebta) => elemebta.code == loggedUserModel.userModel!.code);
+    Get.dialog(DialogSimpleUserSelect(
+      selectedUserCode: selectedTemsilci.value.code!,
+      getSelectedUse: (user) {
+        selectedTemsilci.value = user;
+        changeSelectedUsersCari(user);
+      },
+      listUsers: listexpeditorlar,
+      vezifeAdi: "Merchendaizer",
+    ));
+  }
+
+  Future<void> fillExpList() async {
+    listexpeditorlar.value = localBaseDownloads.getAllConnectedUserFromLocalMerc();
+    listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
+    if (loggedUserModel.userModel!.roleId == 17) {
+      selectedTemsilci.value = UserModel(code: "h", name: "hamisi".tr);
+    }
+    else {
+      listexpeditorlar.insert(1, UserModel(code: "m", name: "myRut".tr));
+      selectedTemsilci.value = UserModel(code: "m", name: "myRut".tr);
+    }
+    listexpeditorlar.removeWhere((elemebta) => elemebta.code == loggedUserModel.userModel!.code);
+    changeSelectedUsersCari(selectedTemsilci.value);
+  }
+
+  Future<void> changeSelectedUsersCari(UserModel model) async {
+    if (model.code == "m") {
+      await getRutPerformToday(false, model);
+    } else if (model.code == "h") {
+      if (loggedUserModel.userModel!.roleId == 23 || loggedUserModel.userModel!.roleId == 24) {
+        await getRutPerformToday(false, model);
+      } else {
+        await getRutPerformToday(true, model);
       }
+      listSelectedMusteriler.value =
+          listCariler.where((element) => element.code == model.code).toList();
+    } else {
+      await getRutPerformToday(false, model);
+      listSelectedMusteriler.value =
+          listCariler.where((p0) => p0.forwarderCode == model.code).toList();
     }
     update();
-  } //butun carilerin listini bazadan ceken
-
-  void sndeQalmaVaxtiniHesabla() {
-    snQalmaVaxti = "".obs;
-    if (marketeGirisEdilib.isTrue) {
-      DateTime timeGiris =
-          DateTime.parse(modelgirisEdilmis.value.inDate.toString());
-      snQalmaVaxti.value =
-          carculateTimeDistace(timeGiris.toString(), DateTime.now().toString());
-      _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
-        timeGiris.add(const Duration(minutes: 1));
-        snQalmaVaxti.value = carculateTimeDistace(
-            timeGiris.toString(), DateTime.now().toString());
-        update();
-      });
-    }
-  } // giris edilmis marketin vaxtini hesablayan ve timer qosan
+  }
 
   Future<void> getRutPerformToday(bool butunCariler, UserModel selected) async {
     listTabItems.clear();
     if (butunCariler) {
-      modelRutPerform.value = await localBaseDownloads.getRutDatailForMerc(
-          butunCariler, selected.code!);
-      listTabItems.add(
-        ModelTamItemsGiris(
+      modelRutPerform.value = await localBaseDownloads.getRutDatailForMerc(butunCariler, selected.code!);
+      listTabItems.add(ModelTamItemsGiris(
             icon: Icons.people_outline_outlined,
             label: "umumiMusteri".tr,
             girisSayi: modelRutPerform.value.duzgunZiya! +
@@ -242,8 +243,7 @@ class ControllerGirisCixisReklam extends GetxController {
             keyText: "Gumumi",
             marketSayi: listCariler.length,
             selected: true,
-            color: Colors.deepPurple),
-      );
+            color: Colors.deepPurple));
       listTabItems.add(ModelTamItemsGiris(
           icon: Icons.verified_user_outlined,
           label: "ziyaretler".tr,
@@ -253,8 +253,7 @@ class ControllerGirisCixisReklam extends GetxController {
           selected: false,
           color: Colors.green));
     } else {
-      modelRutPerform.value = await localBaseDownloads.getRutDatailForMerc(
-          butunCariler, loggedUserModel.userModel!.code!);
+      modelRutPerform.value = await localBaseDownloads.getRutDatailForMerc(butunCariler, loggedUserModel.userModel!.code!);
       listTabItems.add(ModelTamItemsGiris(
           icon: Icons.people_outline_outlined,
           label: "umumiMusteri".tr,
@@ -306,6 +305,119 @@ class ControllerGirisCixisReklam extends GetxController {
 
     update();
   } // bu gune aid rut gunleri,ziyaretler v.s Local bazadan
+
+  Future<void> changeTabItemsValue(
+      ModelTamItemsGiris element, Position currentLocation) async {
+    for (var element2 in listTabItems) {
+      if (element2.label == element.label) {
+        element2.selected = true;
+      } else {
+        element2.selected = false;
+      }
+    }
+    if (selectedTemsilci.value.code == "") {
+      //getRutPerformToday(true,selectedTemsilci.value);
+      switch (element.keyText) {
+        case "Grut":
+          listSelectedMusteriler.value = carculateDistanceList(
+              modelRutPerform.value.listGunlukRut!, currentLocation);
+          break;
+        case "Gumumi":
+          listSelectedMusteriler.value =
+              carculateDistanceList(listCariler, currentLocation);
+          break;
+        case "zedilmeyen":
+          listSelectedMusteriler.value = carculateDistanceList(
+              modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
+          break;
+      }
+    } else {
+      await getRutPerformToday(false, selectedTemsilci.value);
+      switch (element.keyText) {
+        case "Grut":
+          listSelectedMusteriler.value = carculateDistanceList(
+              modelRutPerform.value.listGunlukRut!
+                  .where((element) =>
+                      element.forwarderCode == selectedTemsilci.value.code)
+                  .toList(),
+              currentLocation);
+          break;
+        case "Gumumi":
+          listSelectedMusteriler.value = carculateDistanceList(
+              listCariler
+                  .where((element) =>
+                      element.forwarderCode == selectedTemsilci.value.code)
+                  .toList(),
+              currentLocation);
+          break;
+        case "zedilmeyen":
+          listSelectedMusteriler.value = carculateDistanceList(
+              modelRutPerform.value.listZiyaretEdilmeyen!
+                  .where((element) =>
+                      element.forwarderCode == selectedTemsilci.value.code)
+                  .toList(),
+              currentLocation);
+          break;
+      }
+    }
+    update();
+  }
+
+  Future<void> getAllDataFormLocale(String userCode) async {
+    listCariler.clear();
+    List<MercDataModel> listmodel = await localBase.getAllMercDatail();
+    for (MercDataModel model in listmodel) {
+      List<MercCustomersDatail> musteriler = model.mercCustomersDatail!;
+      for (MercCustomersDatail modelMerc in musteriler) {
+        ModelCariler modelCari = ModelCariler(
+            name: modelMerc.name,
+            code: modelMerc.code,
+            forwarderCode: model.user!.code,
+            fullAddress: modelMerc.fullAddress,
+            days: modelMerc.days,
+            action: modelMerc.action,
+            area: modelMerc.area,
+            category: modelMerc.category,
+            district: modelMerc.district,
+            latitude: modelMerc.latitude,
+            longitude: modelMerc.longitude,
+            debt: modelMerc.debt,
+            mainCustomer: modelMerc.mainCustomer,
+            mesafe: "",
+            mesafeInt: 0,
+            ownerPerson: modelMerc.ownerPerson,
+            phone: modelMerc.phone,
+            postalCode: modelMerc.postalCode,
+            regionalDirectorCode: modelMerc.regionalDirectorCode,
+            rutGunu: "",
+            salesDirectorCode: modelMerc.salesDirectorCode,
+            tin: modelMerc.tin,
+            ziyaretSayi: 0);
+        bool rutGunu = rutGununuYoxla(modelCari);
+        modelCari.rutGunu = rutGunu ? "Duz" : "Sef";
+        listCariler.add(modelCari);
+      }
+    }
+    listSelectedMusteriler.value =
+        listCariler.where((elent) => elent.forwarderCode == userCode).toList();
+    update();
+  } //butun carilerin listini bazadan ceken
+
+  void sndeQalmaVaxtiniHesabla() {
+    snQalmaVaxti = "".obs;
+    if (marketeGirisEdilib.isTrue) {
+      DateTime timeGiris =
+          DateTime.parse(modelgirisEdilmis.value.inDate.toString());
+      snQalmaVaxti.value =
+          carculateTimeDistace(timeGiris.toString(), DateTime.now().toString());
+      _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+        timeGiris.add(const Duration(minutes: 1));
+        snQalmaVaxti.value = carculateTimeDistace(
+            timeGiris.toString(), DateTime.now().toString());
+        update();
+      });
+    }
+  } // giris edilmis marketin vaxtini hesablayan ve timer qosan
 
   Future<void> getSatisMelumatlari() async {
     await localBaseSatis.init();
@@ -402,7 +514,8 @@ class ControllerGirisCixisReklam extends GetxController {
     };
   }
 
-  void addMarkersAndPlygane(String latitude, String longitude, Position currentLocation) {
+  void addMarkersAndPlygane(
+      String latitude, String longitude, Position currentLocation) {
     polygon.clear();
     pointsPoly.clear();
     pointsPoly
@@ -573,7 +686,8 @@ class ControllerGirisCixisReklam extends GetxController {
         : SizedBox();
   }
 
-  Widget widgetShowListRutInfo(BuildContext context, ScrollController listViewController) {
+  Widget widgetShowListRutInfo(
+      BuildContext context, ScrollController listViewController) {
     return Column(
       children: [
         Padding(
@@ -1109,63 +1223,9 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   ///////////////////////////////////////////////////////////////////////
-  Future<void> changeTabItemsValue(ModelTamItemsGiris element, Position currentLocation) async {
-    for (var element2 in listTabItems) {
-      if (element2.label == element.label) {
-        element2.selected = true;
-      } else {
-        element2.selected = false;
-      }
-    }
-    if (selectedTemsilci.value.code == "") {
-      //getRutPerformToday(true,selectedTemsilci.value);
-      switch (element.keyText) {
-        case "Grut":
-          listSelectedMusteriler.value = carculateDistanceList(
-              modelRutPerform.value.listGunlukRut!, currentLocation);
-          break;
-        case "Gumumi":
-          listSelectedMusteriler.value =
-              carculateDistanceList(listCariler, currentLocation);
-          break;
-        case "zedilmeyen":
-          listSelectedMusteriler.value = carculateDistanceList(
-              modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
-          break;
-      }
-    } else {
-      await getRutPerformToday(false, selectedTemsilci.value);
-      switch (element.keyText) {
-        case "Grut":
-          listSelectedMusteriler.value = carculateDistanceList(
-              modelRutPerform.value.listGunlukRut!
-                  .where((element) =>
-                      element.forwarderCode == selectedTemsilci.value.code)
-                  .toList(),
-              currentLocation);
-          break;
-        case "Gumumi":
-          listSelectedMusteriler.value = carculateDistanceList(
-              listCariler
-                  .where((element) =>
-                      element.forwarderCode == selectedTemsilci.value.code)
-                  .toList(),
-              currentLocation);
-          break;
-        case "zedilmeyen":
-          listSelectedMusteriler.value = carculateDistanceList(
-              modelRutPerform.value.listZiyaretEdilmeyen!
-                  .where((element) =>
-                      element.forwarderCode == selectedTemsilci.value.code)
-                  .toList(),
-              currentLocation);
-          break;
-      }
-    }
-    update();
-  }
 
-  List<ModelCariler> carculateDistanceList(List<ModelCariler> listMusteriler, Position event) {
+  List<ModelCariler> carculateDistanceList(
+      List<ModelCariler> listMusteriler, Position event) {
     List<ModelCariler> list = [];
     for (ModelCariler element in listMusteriler) {
       String listmesafe = "0m";
@@ -1405,7 +1465,8 @@ class ControllerGirisCixisReklam extends GetxController {
     );
   }
 
-  Widget widgetListItemsSifarisler(ModelSifarislerTablesi elementAt, BuildContext context) {
+  Widget widgetListItemsSifarisler(
+      ModelSifarislerTablesi elementAt, BuildContext context) {
     return InkWell(
       onTap: () async {
         switch (elementAt.type) {
@@ -1992,48 +2053,6 @@ class ControllerGirisCixisReklam extends GetxController {
     return d.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0*$'), '');
   }
 
-  void getExpList() {
-    List<UserModel> listexpeditorlar = [];
-    listexpeditorlar = localBaseDownloads
-        .getAllConnectedUserFromLocal()
-        .where((element) => element.roleId == 23)
-        .toList();
-    if (loggedUserModel.userModel!.roleId == 23 ||
-        loggedUserModel.userModel!.roleId == 24) {
-      listexpeditorlar.insert(0, UserModel(code: "", name: "myRut".tr));
-    } else {
-      listexpeditorlar.insert(0, UserModel(code: "", name: "hamisi".tr));
-    }
-    Get.dialog(DialogSimpleUserSelect(
-      selectedUserCode: selectedTemsilci.value.code!,
-      getSelectedUse: (user) {
-        selectedTemsilci.value = user;
-        changeSelectedUsersCari(user);
-      },
-      listUsers: listexpeditorlar,
-      vezifeAdi: "Merchendaizer",
-    ));
-  }
-
-  Future<void> changeSelectedUsersCari(UserModel model) async {
-    if (model.code == "") {
-      if (loggedUserModel.userModel!.roleId == 23 ||
-          loggedUserModel.userModel!.roleId == 24) {
-        await getRutPerformToday(false, model);
-      } else {
-        await getRutPerformToday(true, model);
-      }
-      listSelectedMusteriler.value = listCariler;
-    } else {
-      await getRutPerformToday(false, model);
-      String temkodu = model.code!;
-      listSelectedMusteriler.value =
-          listCariler.where((p0) => p0.forwarderCode == temkodu).toList();
-    }
-    update();
-  }
-
-
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
@@ -2052,7 +2071,8 @@ class ControllerGirisCixisReklam extends GetxController {
   /////checkAllUnsendedVisits
 
   ///giris ucun hazirliq
-  Future<void> pripareForEnter(Position currentLocation, ModelCariler selectedModel, double uzaqliq) async {
+  Future<void> pripareForEnter(Position currentLocation,
+      ModelCariler selectedModel, double uzaqliq) async {
     DialogHelper.hideLoading();
     if (await permitionController.checkBackgroundLocationPermission()) {
       if (await permitionController.checkNotyPermission()) {
@@ -2127,7 +2147,7 @@ class ControllerGirisCixisReklam extends GetxController {
   void girisiSil() async {
     Get.dialog(ShowSualDialog(
         messaje:
-        "Girisi silseniz butun emeliyyatlar silinecek.Silmeye eminsiniz?",
+            "Girisi silseniz butun emeliyyatlar silinecek.Silmeye eminsiniz?",
         callBack: (va) async {
           if (va) {
             _timer!.cancel();
@@ -2155,7 +2175,8 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   ///cixis ucun hazirliq
-  pripareForExit(Position currentLocation, double uzaqliq, ModelCariler selectedModel) async {
+  pripareForExit(Position currentLocation, double uzaqliq,
+      ModelCariler selectedModel) async {
     if (await permitionController.checkBackgroundLocationPermission()) {
       if (await permitionController.checkNotyPermission()) {
         await localDbGirisCixis.init();
@@ -2191,8 +2212,10 @@ class ControllerGirisCixisReklam extends GetxController {
                     icon: Icons.phonelink_erase_rounded,
                     callback: () {
                       Get.back();
-                      backgroudLocationServiz.sendErrorsToServers("Block", selectedModel.code.toString() + "adlimarkerBlockMock".tr);
-
+                      backgroudLocationServiz.sendErrorsToServers(
+                          "Block",
+                          selectedModel.code.toString() +
+                              "adlimarkerBlockMock".tr);
                     }),
               );
             } else {
@@ -2230,7 +2253,8 @@ class ControllerGirisCixisReklam extends GetxController {
     }
   }
 
-  Future<void> checkAllVisits(Position currentLocation, ModelCariler selectedModel, double uzaqliq, bool isEnter) async {
+  Future<void> checkAllVisits(Position currentLocation,
+      ModelCariler selectedModel, double uzaqliq, bool isEnter) async {
     ModelCustuomerVisit modela = ModelCustuomerVisit();
     if (isEnter) {
       modela = ModelCustuomerVisit(
@@ -2285,18 +2309,28 @@ class ControllerGirisCixisReklam extends GetxController {
     }
     int countUnsended = localDbGirisCixis.getAllUnSendedGirisCixis().length;
     if (countUnsended > 0) {
-      ModelCustuomerVisit model = localDbGirisCixis.getAllUnSendedGirisCixis().first;
-      await _callApiForSendUnsededs(model, currentLocation, uzaqliq, selectedModel, isEnter, modela);
+      ModelCustuomerVisit model =
+          localDbGirisCixis.getAllUnSendedGirisCixis().first;
+      await _callApiForSendUnsededs(
+          model, currentLocation, uzaqliq, selectedModel, isEnter, modela);
     } else {
       if (isEnter) {
-        _callApiForVisits(currentLocation, uzaqliq, selectedModel, isEnter, modela);
+        _callApiForVisits(
+            currentLocation, uzaqliq, selectedModel, isEnter, modela);
       } else {
-        _callApiForVisits(currentLocation, uzaqliq, selectedModel, isEnter, modela);
+        _callApiForVisits(
+            currentLocation, uzaqliq, selectedModel, isEnter, modela);
       }
     }
   }
 
-  Future<void> _callApiForSendUnsededs(ModelCustuomerVisit modelvisit, Position currentLocation, double uzaqliq, ModelCariler selectedModel, bool isEnter, ModelCustuomerVisit mainVisitModel) async {
+  Future<void> _callApiForSendUnsededs(
+      ModelCustuomerVisit modelvisit,
+      Position currentLocation,
+      double uzaqliq,
+      ModelCariler selectedModel,
+      bool isEnter,
+      ModelCustuomerVisit mainVisitModel) async {
     DialogHelper.showLoading("Kohne melumatlar gonderilir");
     print("_callApiForSendUnsededs seviz Callled");
     await userService.init();
@@ -2351,34 +2385,37 @@ class ControllerGirisCixisReklam extends GetxController {
         checkAllVisits(currentLocation, selectedModel, uzaqliq, isEnter);
       } else {
         if (ModelExceptions.fromJson(response.data['exception']).code != null) {
-          String expCode = ModelExceptions.fromJson(response.data['exception']).code.toString();
-          String messsaje = ModelExceptions.fromJson(response.data['exception']).message.toString();
+          String expCode = ModelExceptions.fromJson(response.data['exception'])
+              .code
+              .toString();
+          String messsaje = ModelExceptions.fromJson(response.data['exception'])
+              .message
+              .toString();
           if (expCode == "010") {
             DialogHelper.hideLoading();
             Get.dialog(ShowInfoDialog(
-                messaje: messsaje,
-                icon: Icons.error,
-                callback: () {
-                }));
+                messaje: messsaje, icon: Icons.error, callback: () {}));
           } else if (expCode == "006") {
             DialogHelper.hideLoading();
             Get.dialog(ShowSualDialog(
-                messaje: "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
+                messaje:
+                    "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
                 callBack: (val) {
-                  if(val){
+                  if (val) {
                     Get.offAllNamed(RouteHelper.mobileLoginFistScreen);
                   }
                 }));
           } else {
             DialogHelper.hideLoading();
             if (isEnter) {
-              girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, mainVisitModel, selectedModel);
+              girisiLocaldaTesdiqleLast(
+                  currentLocation, uzaqliq, mainVisitModel, selectedModel);
             } else {
-              cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, mainVisitModel);
+              cixisiLocaldaTesdiqleLast(
+                  currentLocation, uzaqliq, ctCixisQeyd.text, mainVisitModel);
             }
           }
-        }
-        else {
+        } else {
           DialogHelper.hideLoading();
         }
       }
@@ -2386,9 +2423,11 @@ class ControllerGirisCixisReklam extends GetxController {
       if (e.type == DioExceptionType.connectionTimeout) {
         DialogHelper.hideLoading();
         if (isEnter) {
-          girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, mainVisitModel, selectedModel);
+          girisiLocaldaTesdiqleLast(
+              currentLocation, uzaqliq, mainVisitModel, selectedModel);
         } else {
-          cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, mainVisitModel);
+          cixisiLocaldaTesdiqleLast(
+              currentLocation, uzaqliq, ctCixisQeyd.text, mainVisitModel);
         }
       } else {
         Get.dialog(ShowInfoDialog(
@@ -2402,7 +2441,12 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  Future<void> _callApiForVisits(Position currentLocation, double uzaqliq, ModelCariler selectedModel, bool isEnter, ModelCustuomerVisit modelVisit) async {
+  Future<void> _callApiForVisits(
+      Position currentLocation,
+      double uzaqliq,
+      ModelCariler selectedModel,
+      bool isEnter,
+      ModelCustuomerVisit modelVisit) async {
     print("_callApiForVisits seviz Callled");
     DialogHelper.showLoading("Kohne melumatlar gonderilir");
     await userService.init();
@@ -2455,28 +2499,32 @@ class ControllerGirisCixisReklam extends GetxController {
         modelVisit.gonderilme = "1";
         if (isEnter) {
           funFlutterToast("ugurluApiGiris", true);
-          girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+          girisiLocaldaTesdiqleLast(
+              currentLocation, uzaqliq, modelVisit, selectedModel);
         } else {
           funFlutterToast("ugurluApiCixis", true);
-          cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
+          cixisiLocaldaTesdiqleLast(
+              currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
         }
       } else {
         if (ModelExceptions.fromJson(response.data['exception']).code != null) {
-          String expCode = ModelExceptions.fromJson(response.data['exception']).code.toString();
-          String messsaje = ModelExceptions.fromJson(response.data['exception']).message.toString();
+          String expCode = ModelExceptions.fromJson(response.data['exception'])
+              .code
+              .toString();
+          String messsaje = ModelExceptions.fromJson(response.data['exception'])
+              .message
+              .toString();
           if (expCode == "010") {
             DialogHelper.hideLoading();
             Get.dialog(ShowInfoDialog(
-                messaje: messsaje,
-                icon: Icons.error,
-                callback: () {
-                }));
+                messaje: messsaje, icon: Icons.error, callback: () {}));
           } else if (expCode == "006") {
             DialogHelper.hideLoading();
             Get.dialog(ShowSualDialog(
-                messaje: "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
+                messaje:
+                    "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
                 callBack: (val) {
-                  if(val){
+                  if (val) {
                     Get.offAllNamed(RouteHelper.mobileLoginFistScreen);
                   }
                 }));
@@ -2484,10 +2532,12 @@ class ControllerGirisCixisReklam extends GetxController {
             DialogHelper.hideLoading();
             if (isEnter) {
               funFlutterToast("errorApiGiris", false);
-              girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+              girisiLocaldaTesdiqleLast(
+                  currentLocation, uzaqliq, modelVisit, selectedModel);
             } else {
               funFlutterToast("errorApiCixis", false);
-              cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
+              cixisiLocaldaTesdiqleLast(
+                  currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
             }
           }
         } else {
@@ -2499,10 +2549,12 @@ class ControllerGirisCixisReklam extends GetxController {
         DialogHelper.hideLoading();
         if (isEnter) {
           funFlutterToast("errorApiGiris", false);
-          await girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+          await girisiLocaldaTesdiqleLast(
+              currentLocation, uzaqliq, modelVisit, selectedModel);
         } else {
           funFlutterToast("errorApiCixis", false);
-          await cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
+          await cixisiLocaldaTesdiqleLast(
+              currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
         }
       } else {
         Get.dialog(ShowInfoDialog(
@@ -2516,8 +2568,10 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  Future<void> cixisiLocaldaTesdiqleLast(Position? currentLocation, double uzaqliq, String qeyd, ModelCustuomerVisit? modela) async {
-    if (listCariler.any((a) => a.code == modelgirisEdilmis.value.customerCode)) {
+  Future<void> cixisiLocaldaTesdiqleLast(Position? currentLocation,
+      double uzaqliq, String qeyd, ModelCustuomerVisit? modela) async {
+    if (listCariler
+        .any((a) => a.code == modelgirisEdilmis.value.customerCode)) {
       ModelCariler modelCari = listCariler
           .where((a) => a.code == modelgirisEdilmis.value.customerCode)
           .first;
@@ -2542,41 +2596,54 @@ class ControllerGirisCixisReklam extends GetxController {
     controller.onInit();
     controller.addPermisionsInDrawerMenu(loggedUserModel);
     backgroudLocationServiz.stopBackGroundFetch();
-    getAllDataFormLocale();
+    getAllDataFormLocale(modela.userCode!);
     listTapsiriqlar.clear();
     update();
   }
 
-  Future<void> girisiLocaldaTesdiqleLast(Position? currentLocation, double uzaqliq, ModelCustuomerVisit? modela, ModelCariler? selectedModel) async {
-    createCircles(selectedModel!.longitude!, selectedModel.latitude!, selectedModel.code!);
-    ModelCariler modelCari = listCariler.where((a) => a.code == modela!.customerCode).first;
+  Future<void> girisiLocaldaTesdiqleLast(
+      Position? currentLocation,
+      double uzaqliq,
+      ModelCustuomerVisit? modela,
+      ModelCariler? selectedModel) async {
+    createCircles(selectedModel!.longitude!, selectedModel.latitude!,
+        selectedModel.code!);
+    ModelCariler modelCari =
+        listCariler.where((a) => a.code == modela!.customerCode).first;
     modelCari.ziyaret = "1";
     await localBase.updateModelCari(modelCari);
     await localDbGirisCixis.addSelectedGirisCixisDB(modela!);
     marketeGirisEdilib.value = true;
     modelgirisEdilmis.value = modela;
-    addMarkersAndPlygane(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), currentLocation!);
+    addMarkersAndPlygane(selectedModel.longitude!.toString(),
+        selectedModel.latitude!.toString(), currentLocation!);
     slidePanelVisible.value = false;
     leftSideMenuVisible.value = true;
     rightSideMenuVisible.value = true;
     sndeQalmaVaxtiniHesabla();
     await getSatisMelumatlariByCary();
-    backgroudLocationServiz.startBackgorundFetck();
     listTapsiriqlar.value = ModelResponceTask().getListOfTask();
+    backgroudLocationServiz.startBackgorundFetck();
+
     update();
   }
 
   Future<void> checkAllVisitsForTotalSend() async {
     int countUnsended = localDbGirisCixis.getAllUnSendedGirisCixis().length;
     if (countUnsended > 0) {
-      ModelCustuomerVisit model=localDbGirisCixis.getAllUnSendedGirisCixis().first;
+      ModelCustuomerVisit model =
+          localDbGirisCixis.getAllUnSendedGirisCixis().first;
       _callApiForSendUnsededsTotalSend(model);
     } else {
-     Get.dialog(ShowInfoDialog(messaje: "btMelumUgurlaGonde".tr, icon: Icons.verified, callback: (){}));
+      Get.dialog(ShowInfoDialog(
+          messaje: "btMelumUgurlaGonde".tr,
+          icon: Icons.verified,
+          callback: () {}));
     }
   }
 
-  Future<void> _callApiForSendUnsededsTotalSend(ModelCustuomerVisit modelvisit) async {
+  Future<void> _callApiForSendUnsededsTotalSend(
+      ModelCustuomerVisit modelvisit) async {
     DialogHelper.showLoading("allDataSending".tr);
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
@@ -2607,21 +2674,21 @@ class ControllerGirisCixisReklam extends GetxController {
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
       final response = await ApiClient().dio(isLiveTrack: true).post(
-        "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
-        data: model.toJson(),
-        options: Options(
-          receiveTimeout: const Duration(seconds: 60),
-          headers: {
-            'Lang': languageIndex,
-            'Device': dviceType,
-            'abs': '123456',
-            "Authorization": "Bearer $accesToken"
-          },
-          validateStatus: (_) => true,
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.json,
-        ),
-      );
+            "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
+            data: model.toJson(),
+            options: Options(
+              receiveTimeout: const Duration(seconds: 60),
+              headers: {
+                'Lang': languageIndex,
+                'Device': dviceType,
+                'abs': '123456',
+                "Authorization": "Bearer $accesToken"
+              },
+              validateStatus: (_) => true,
+              contentType: Headers.jsonContentType,
+              responseType: ResponseType.json,
+            ),
+          );
       // 404
       if (response.statusCode == 200) {
         DialogHelper.hideLoading();
@@ -2630,46 +2697,44 @@ class ControllerGirisCixisReklam extends GetxController {
         checkAllVisitsForTotalSend();
       } else {
         if (ModelExceptions.fromJson(response.data['exception']).code != null) {
-          String expCode = ModelExceptions.fromJson(response.data['exception']).code.toString();
-          String messsaje = ModelExceptions.fromJson(response.data['exception']).message.toString();
+          String expCode = ModelExceptions.fromJson(response.data['exception'])
+              .code
+              .toString();
+          String messsaje = ModelExceptions.fromJson(response.data['exception'])
+              .message
+              .toString();
           if (expCode == "010") {
             DialogHelper.hideLoading();
             Get.dialog(ShowInfoDialog(
-                messaje: messsaje,
-                icon: Icons.error,
-                callback: () {
-                }));
+                messaje: messsaje, icon: Icons.error, callback: () {}));
           } else if (expCode == "006") {
             DialogHelper.hideLoading();
             Get.dialog(ShowSualDialog(
-                messaje: "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
+                messaje:
+                    "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
                 callBack: (val) {
-                  if(val){
+                  if (val) {
                     Get.offAllNamed(RouteHelper.mobileLoginFistScreen);
                   }
                 }));
           } else {
             DialogHelper.hideLoading();
           }
-        }
-        else {
+        } else {
           DialogHelper.hideLoading();
         }
       }
     } on DioException catch (e) {
-        DialogHelper.hideLoading();
-        Get.dialog(ShowInfoDialog(
-            messaje: e.message!,
-            icon: Icons.error,
-            callback: () {
-              DialogHelper.hideLoading();
-            }));
-
+      DialogHelper.hideLoading();
+      Get.dialog(ShowInfoDialog(
+          messaje: e.message!,
+          icon: Icons.error,
+          callback: () {
+            DialogHelper.hideLoading();
+          }));
     }
     update();
   }
-
-
 }
 
 class ModelSifarislerTablesi {
