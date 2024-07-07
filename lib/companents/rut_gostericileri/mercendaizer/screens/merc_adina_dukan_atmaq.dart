@@ -644,7 +644,7 @@ class _ScreenMercAdinaMusteriEalveEtmeState
         },
       ));
     } else {
-      final response = await ApiClient().dio().post(
+      final response = await ApiClient().dio(true).post(
             "${loggedUserModel.baseUrl}/api/v1/Sales/add-merch-customer",
             data: model.toJson(),
             options: Options(

@@ -2310,7 +2310,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClient().dio().post(
+      final response = await await ApiClient().dio(false).post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2428,7 +2428,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
               data: model.toJson(),
               options: Options(
@@ -2578,7 +2578,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClient().dio().post(
+      final response = await await ApiClient().dio(false).post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2715,7 +2715,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
               data: model.toJson(),
               options: Options(
@@ -2880,7 +2880,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClient().dio().post(
+      final response = await await ApiClient().dio(false).post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2993,7 +2993,7 @@ class ControllerGirisCixisReklamKohne extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClient().dio().post(
+      final response = await await ApiClient().dio(false).post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(

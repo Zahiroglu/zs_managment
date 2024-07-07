@@ -38,7 +38,6 @@ class BackGroudTask{
           requiresDeviceIdle: false,
           requiredNetworkType: NetworkType.ANY
       ), _onBackgroundFetch, _onBackgroundFetchTimeout);
-      print('[BackgroundFetch] configure success: $status');
       // Schedule a "one-shot" custom-task in 10000ms.
       // These are fairly reliable on Android (particularly with forceAlarmManager) but not iOS,
       // where device must be powered (and delay will be throttled by the OS).
@@ -52,7 +51,6 @@ class BackGroudTask{
           enableHeadless: true
       ));
     } on Exception catch(e) {
-      print("[BackgroundFetch] configure ERROR: $e");
     }
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -60,7 +58,6 @@ class BackGroudTask{
   }
 
   void _onBackgroundFetch(String taskId) async {
-    print(DateTime.now().toString()+"[BackgroundFetch] Event received: $taskId");
     sendDataToServer();
     BackgroundFetch.finish(taskId);
   }
@@ -78,7 +75,6 @@ class BackGroudTask{
   }
 
   void _onBackgroundFetchTimeout(String taskId) {
-    print("[BackgroundFetch] TIMEOUT: $taskId");
 
     BackgroundFetch.finish(taskId);
   }
@@ -87,9 +83,7 @@ class BackGroudTask{
     BackgroundFetch.start().then((status) async {
       await showNotification();
       sendDataToServer();
-      print('[BackgroundFetch] start success: $status');
     }).catchError((e) {
-      print('[BackgroundFetch] start FAILURE: $e');
     });
   }
 
@@ -97,12 +91,10 @@ class BackGroudTask{
     BackgroundFetch.stop().then((status) async {
       await flutterLocalNotificationsPlugin.cancel(0);
       sendDataToServer();
-      print('[BackgroundFetch] stop success: $status');
     });
   }
 
   void sendDataToServer() async{
-    print(DateTime.now().toString()+"Location serviz cagrildi");
     _locationData = await location.getLocation();
     showNotificationUpdate(_locationData);
     _sendInfoToDatabase2(_locationData.latitude!,_locationData.longitude!);
@@ -110,7 +102,6 @@ class BackGroudTask{
 
   Future<void> _sendInfoToDatabase2(double latitude,double lng) async {
     await userService.init();
-    print(DateTime.now().toString()+"Api cagrildi :");
 
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     String languageIndex = await getLanguageIndex();
@@ -129,7 +120,7 @@ class BackGroudTask{
     if (connectivityResult == ConnectivityResult.none) {
       /// baglanti xetasi var
     } else {
-      final response = await ApiClient().dio(isLiveTrack: true).post(
+      final response = await ApiClient().dio(false).post(
         "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
         data: data,
         options: Options(
@@ -145,13 +136,11 @@ class BackGroudTask{
         ),
       );
       if (response.statusCode == 200) {
-        print("melumat sisteme gonderildi : " + data.toString());
       }
     }
   }
   Future<void> _sendInfoToDatabase(Position location) async {
     await userService.init();
-    print(DateTime.now().toString()+"Api cagrildi :");
 
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     String languageIndex = await getLanguageIndex();
@@ -170,7 +159,7 @@ class BackGroudTask{
     if (connectivityResult == ConnectivityResult.none) {
       /// baglanti xetasi var
     } else {
-      final response = await ApiClient().dio(isLiveTrack: true).post(
+      final response = await ApiClient().dio(false).post(
         "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
         data: data,
         options: Options(
@@ -186,7 +175,6 @@ class BackGroudTask{
         ),
       );
       if (response.statusCode == 200) {
-        print("melumat sisteme gonderildi : " + data.toString());
       }
     }
   }

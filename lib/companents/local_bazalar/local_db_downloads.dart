@@ -149,18 +149,25 @@ class LocalBaseDownloads {
     List<ModelCariler> listCariler=[];
     List<ModelCariler> listRutGUNU=[];
     List<ModelCariler> listZiyaretedilmeyen=[];
-    List<ModelCustuomerVisit> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
+    int sayDuzgunZiyaret=0;
+    int saySefZiyaret=0;
+    List<ModelCustuomerVisit> listGirisCixis= [];
     List<ModelCustuomerVisit> listGonderilmeyeneler= localGirisCixisServiz.getAllUnSendedGirisCixis();
     if(hamisi){
       listCariler= await getAllMercBazaForGirisCixis();
+      listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
       listRutGUNU =listCariler.where((element) => element.rutGunu=="Duz").toList();
+      sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
+      saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
     }else{
       listCariler= await getAllMercBazaForGirisCixisByCode(temKod);
       listRutGUNU = listCariler.where((element) => element.rutGunu=="Duz").toList();
+      listGirisCixis= localGirisCixisServiz.getAllGirisCixisTodayByCode(temKod);
+      sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
+      saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
     }
     listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
-    int sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
-    int saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
+
     print("Gonderilmeyen giris cixis sayi = "+listGonderilmeyeneler.length.toString());
     modelRutPerform=ModelRutPerform(
       listGunlukRut: listRutGUNU,
@@ -401,7 +408,7 @@ class LocalBaseDownloads {
     boxListMercBaza.toMap().forEach((key, value) {
       list.add(value);
     });
-    for(MercDataModel model in list.where((e)=>e.user!.code==temKodu)){
+    for(MercDataModel model in list.where((e)=>e.user!.code==temKodu).toList()){
       List<MercCustomersDatail> musteriler=model.mercCustomersDatail!;
       for(MercCustomersDatail modelMerc in musteriler){
         ModelCariler modelCari=ModelCariler(

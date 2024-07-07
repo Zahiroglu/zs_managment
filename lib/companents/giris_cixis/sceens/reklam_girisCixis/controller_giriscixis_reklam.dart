@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:ntp/ntp.dart';
@@ -77,24 +78,17 @@ class ControllerGirisCixisReklam extends GetxController {
   RxString selectedTabItem = "girisCixislar".tr.obs;
   Rx<ModelCariler> expandedItem = ModelCariler().obs;
   ScrollController listScrollController = ScrollController();
-  RxList<ModelTamItemsGiris> listTabItems =
-      List<ModelTamItemsGiris>.empty(growable: true).obs;
-  RxList<ModelCariler> listSelectedMusteriler =
-      List<ModelCariler>.empty(growable: true).obs;
-  RxList<ModelSifarislerTablesi> listTabSifarisler =
-      List<ModelSifarislerTablesi>.empty(growable: true).obs;
+  RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
+  RxList<ModelCariler> listSelectedMusteriler = List<ModelCariler>.empty(growable: true).obs;
+  RxList<ModelSifarislerTablesi> listTabSifarisler = List<ModelSifarislerTablesi>.empty(growable: true).obs;
   RxString snQalmaVaxti = "".obs;
   Timer? _timer;
   TextEditingController ctCixisQeyd = TextEditingController();
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
-  RxList<ModelCariHereket> listSifarisler =
-      List<ModelCariHereket>.empty(growable: true).obs;
-  RxList<ModelCariHereket> listIadeler =
-      List<ModelCariHereket>.empty(growable: true).obs;
-  RxList<ModelCariKassa> listKassa =
-      List<ModelCariKassa>.empty(growable: true).obs;
-  RxList<ModelCariKassa> selectedlistKassa =
-      List<ModelCariKassa>.empty(growable: true).obs;
+  RxList<ModelCariHereket> listSifarisler = List<ModelCariHereket>.empty(growable: true).obs;
+  RxList<ModelCariHereket> listIadeler = List<ModelCariHereket>.empty(growable: true).obs;
+  RxList<ModelCariKassa> listKassa = List<ModelCariKassa>.empty(growable: true).obs;
+  RxList<ModelCariKassa> selectedlistKassa = List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
   Rx<UserModel> selectedTemsilci = UserModel(code: "h", name: "hamisi".tr).obs;
   BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
@@ -104,8 +98,9 @@ class ControllerGirisCixisReklam extends GetxController {
   ExeptionHandler exeptionHandler = ExeptionHandler();
   UsersPermitionsHelper userPermitionHelper = UsersPermitionsHelper();
   LocalPermissionsController permitionController = LocalPermissionsController();
-  RxList<UserModel> listexpeditorlar =
-      List<UserModel>.empty(growable: true).obs;
+  RxList<UserModel> listexpeditorlar = List<UserModel>.empty(growable: true).obs;
+  RxDouble currentLat=0.0.obs;
+  RxDouble currentLong=0.0.obs;
 
   ///list tapsiriqlar
   RxList<ModelResponceTask> listTapsiriqlar =
@@ -117,7 +112,7 @@ class ControllerGirisCixisReklam extends GetxController {
     loggedUserModel = userService.getLoggedUser();
     await localBaseDownloads.init();
     getAppSetting();
-    _getGirisEdilmisCari();
+   /// getGirisEdilmisCari();
     super.onInit();
   }
 
@@ -146,87 +141,113 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  _getGirisEdilmisCari() async {
+  getGirisEdilmisCari(map.LatLng possition) async {
     dataLoading.value == true;
     listCariler.clear();
     await localDbGirisCixis.init();
     modelgirisEdilmis.value = await localDbGirisCixis.getGirisEdilmisMarket();
     if (modelgirisEdilmis.value.inDate == null) {
-      fillExpList();
+      await fillExpList(possition);
       marketeGirisEdilib.value = false;
       slidePanelVisible.value = false;
     } else {
       listTapsiriqlar.value = ModelResponceTask().getListOfTask();
-      createCircles(
-          double.parse(modelgirisEdilmis.value.customerLatitude!),
-          double.parse(modelgirisEdilmis.value.customerLongitude!),
-          modelgirisEdilmis.value.customerCode!);
+      createCircles(double.parse(modelgirisEdilmis.value.customerLatitude!), double.parse(modelgirisEdilmis.value.customerLongitude!), modelgirisEdilmis.value.customerCode!);
       marketeGirisEdilib.value = true;
       slidePanelVisible.value = false;
     }
-    // listCariler.sort((a, b) {
-    //   int cmp = b.rutGunu!.compareTo(a.rutGunu!);
-    //   if (cmp != 0) return cmp;
-    //   return b.rutSirasi!.compareTo(a.rutSirasi!);
-    // });
     sndeQalmaVaxtiniHesabla();
     getSatisMelumatlari();
     dataLoading.value = false;
+    currentLat.value=possition.latitude;
+    currentLong.value=possition.longitude;
     update();
   } // eger markete giris edilibse cixis sehfesi acilmalidir
 
-  Future<void> getExpList() async {
-    listexpeditorlar.value =
-        localBaseDownloads.getAllConnectedUserFromLocalMerc();
-    listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
-    if (loggedUserModel.userModel!.roleId == 17) {
-      selectedTemsilci.value = UserModel(code: "h", name: "hamisi".tr);
-    } else {
-      listexpeditorlar.insert(1, UserModel(code: "m", name: "myRut".tr));
-      selectedTemsilci.value = UserModel(code: "m", name: "myRut".tr);
-    }
-    listexpeditorlar.removeWhere(
-        (elemebta) => elemebta.code == loggedUserModel.userModel!.code);
+  Future<void> getExpList(map.LatLng latLng) async {
     Get.dialog(DialogSimpleUserSelect(
       selectedUserCode: selectedTemsilci.value.code!,
       getSelectedUse: (user) {
         selectedTemsilci.value = user;
-        changeSelectedUsersCari(user);
+        changeSelectedUsersCari(user,latLng);
       },
       listUsers: listexpeditorlar,
       vezifeAdi: "Merchendaizer",
     ));
+    update();
   }
 
-  Future<void> fillExpList() async {
+  Future<void> fillExpList(map.LatLng possition) async {
     listexpeditorlar.value = localBaseDownloads.getAllConnectedUserFromLocalMerc();
-    listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
     if (loggedUserModel.userModel!.roleId == 17) {
+      listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
       selectedTemsilci.value = UserModel(code: "h", name: "hamisi".tr);
     }
     else {
+      listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
       listexpeditorlar.insert(1, UserModel(code: "m", name: "myRut".tr));
       selectedTemsilci.value = UserModel(code: "m", name: "myRut".tr);
     }
     listexpeditorlar.removeWhere((elemebta) => elemebta.code == loggedUserModel.userModel!.code);
-    changeSelectedUsersCari(selectedTemsilci.value);
+    await getAllDataFormLocale(selectedTemsilci.value.code!,possition);
   }
 
-  Future<void> changeSelectedUsersCari(UserModel model) async {
+  Future<void> getAllDataFormLocale(String userCode, map.LatLng possition) async {
+    listCariler.clear();
+    List<MercDataModel> listmodel = await localBase.getAllMercDatail();
+    for (MercDataModel model in listmodel) {
+      List<MercCustomersDatail> musteriler = model.mercCustomersDatail!;
+      for (MercCustomersDatail modelMerc in musteriler) {
+        ModelCariler modelCari = ModelCariler(
+            name: modelMerc.name,
+            code: modelMerc.code,
+            forwarderCode: model.user!.code,
+            fullAddress: modelMerc.fullAddress,
+            days: modelMerc.days,
+            action: modelMerc.action,
+            area: modelMerc.area,
+            category: modelMerc.category,
+            district: modelMerc.district,
+            latitude: modelMerc.latitude,
+            longitude: modelMerc.longitude,
+            debt: modelMerc.debt,
+            mainCustomer: modelMerc.mainCustomer,
+            mesafe: "",
+            mesafeInt: 0,
+            ownerPerson: modelMerc.ownerPerson,
+            phone: modelMerc.phone,
+            postalCode: modelMerc.postalCode,
+            regionalDirectorCode: modelMerc.regionalDirectorCode,
+            rutGunu: "",
+            salesDirectorCode: modelMerc.salesDirectorCode,
+            tin: modelMerc.tin,
+            ziyaretSayi: 0);
+        bool rutGunu = rutGununuYoxla(modelCari);
+        modelCari.rutGunu = rutGunu ? "Duz" : "Sef";
+        listCariler.add(modelCari);
+      }
+    }
+    if(userCode=="m"){
+      listSelectedMusteriler.value = listCariler.where((elent) => elent.forwarderCode == loggedUserModel.userModel!.code!).toList();
+    }else{
+      listSelectedMusteriler.value = listCariler.where((elent) => elent.forwarderCode == userCode).toList();
+    }
+
+   await  changeSelectedUsersCari(selectedTemsilci.value,possition);
+    update();
+  } //butun carilerin listini bazadan ceken
+
+
+  Future<void> changeSelectedUsersCari(UserModel model, map.LatLng possition) async {
     if (model.code == "m") {
+      listSelectedMusteriler.value = carculateDistanceList(listCariler.where((elent) => elent.forwarderCode == loggedUserModel.userModel!.code).toList(), possition);
       await getRutPerformToday(false, model);
     } else if (model.code == "h") {
-      if (loggedUserModel.userModel!.roleId == 23 || loggedUserModel.userModel!.roleId == 24) {
-        await getRutPerformToday(false, model);
-      } else {
-        await getRutPerformToday(true, model);
-      }
-      listSelectedMusteriler.value =
-          listCariler.where((element) => element.code == model.code).toList();
+      listSelectedMusteriler.value = listCariler;
+      await getRutPerformToday(true, model);
     } else {
+      listSelectedMusteriler.value = listCariler.where((p0) => p0.forwarderCode == model.code).toList();
       await getRutPerformToday(false, model);
-      listSelectedMusteriler.value =
-          listCariler.where((p0) => p0.forwarderCode == model.code).toList();
     }
     update();
   }
@@ -257,10 +278,9 @@ class ControllerGirisCixisReklam extends GetxController {
       listTabItems.add(ModelTamItemsGiris(
           icon: Icons.people_outline_outlined,
           label: "umumiMusteri".tr,
-          girisSayi: modelRutPerform.value.duzgunZiya! +
-              modelRutPerform.value.rutkenarZiya!,
+          girisSayi: modelRutPerform.value.duzgunZiya! + modelRutPerform.value.rutkenarZiya!,
           keyText: "Gumumi",
-          marketSayi: listCariler.length,
+          marketSayi: listSelectedMusteriler.length,
           selected: true,
           color: Colors.deepPurple));
       listTabItems.add(ModelTamItemsGiris(
@@ -302,12 +322,10 @@ class ControllerGirisCixisReklam extends GetxController {
               selected: false,
               color: Colors.red));
     }
-
     update();
   } // bu gune aid rut gunleri,ziyaretler v.s Local bazadan
 
-  Future<void> changeTabItemsValue(
-      ModelTamItemsGiris element, Position currentLocation) async {
+  Future<void> changeTabItemsValue(ModelTamItemsGiris element, map.LatLng currentLocation) async {
     for (var element2 in listTabItems) {
       if (element2.label == element.label) {
         element2.selected = true;
@@ -320,7 +338,7 @@ class ControllerGirisCixisReklam extends GetxController {
       switch (element.keyText) {
         case "Grut":
           listSelectedMusteriler.value = carculateDistanceList(
-              modelRutPerform.value.listGunlukRut!, currentLocation);
+              modelRutPerform.value.listGunlukRut!,currentLocation);
           break;
         case "Gumumi":
           listSelectedMusteriler.value =
@@ -363,45 +381,6 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  Future<void> getAllDataFormLocale(String userCode) async {
-    listCariler.clear();
-    List<MercDataModel> listmodel = await localBase.getAllMercDatail();
-    for (MercDataModel model in listmodel) {
-      List<MercCustomersDatail> musteriler = model.mercCustomersDatail!;
-      for (MercCustomersDatail modelMerc in musteriler) {
-        ModelCariler modelCari = ModelCariler(
-            name: modelMerc.name,
-            code: modelMerc.code,
-            forwarderCode: model.user!.code,
-            fullAddress: modelMerc.fullAddress,
-            days: modelMerc.days,
-            action: modelMerc.action,
-            area: modelMerc.area,
-            category: modelMerc.category,
-            district: modelMerc.district,
-            latitude: modelMerc.latitude,
-            longitude: modelMerc.longitude,
-            debt: modelMerc.debt,
-            mainCustomer: modelMerc.mainCustomer,
-            mesafe: "",
-            mesafeInt: 0,
-            ownerPerson: modelMerc.ownerPerson,
-            phone: modelMerc.phone,
-            postalCode: modelMerc.postalCode,
-            regionalDirectorCode: modelMerc.regionalDirectorCode,
-            rutGunu: "",
-            salesDirectorCode: modelMerc.salesDirectorCode,
-            tin: modelMerc.tin,
-            ziyaretSayi: 0);
-        bool rutGunu = rutGununuYoxla(modelCari);
-        modelCari.rutGunu = rutGunu ? "Duz" : "Sef";
-        listCariler.add(modelCari);
-      }
-    }
-    listSelectedMusteriler.value =
-        listCariler.where((elent) => elent.forwarderCode == userCode).toList();
-    update();
-  } //butun carilerin listini bazadan ceken
 
   void sndeQalmaVaxtiniHesabla() {
     snQalmaVaxti = "".obs;
@@ -431,8 +410,7 @@ class ControllerGirisCixisReklam extends GetxController {
       ModelSifarislerTablesi(
           label: "Satis",
           icon: "images/sales.png",
-          summa: listSifarisler.fold(
-              0, (sum, element) => sum! + element.netSatis!),
+          summa: listSifarisler.fold(0, (sum, element) => sum! + element.netSatis!),
           type: "s",
           color: Colors.blue),
       ModelSifarislerTablesi(
@@ -445,8 +423,7 @@ class ControllerGirisCixisReklam extends GetxController {
       ModelSifarislerTablesi(
           label: "Kassa",
           icon: "images/payment.png",
-          summa:
-              listKassa.fold(0, (sum, element) => sum! + element.kassaMebleg!),
+          summa: listKassa.fold(0, (sum, element) => sum! + element.kassaMebleg!),
           type: "k",
           color: Colors.green),
     ];
@@ -1225,7 +1202,7 @@ class ControllerGirisCixisReklam extends GetxController {
   ///////////////////////////////////////////////////////////////////////
 
   List<ModelCariler> carculateDistanceList(
-      List<ModelCariler> listMusteriler, Position event) {
+      List<ModelCariler> listMusteriler, map.LatLng event) {
     List<ModelCariler> list = [];
     for (ModelCariler element in listMusteriler) {
       String listmesafe = "0m";
@@ -1860,7 +1837,7 @@ class ControllerGirisCixisReklam extends GetxController {
         .any((element) => element.code == "canCash");
     bool canReturn = loggedUserModel.userModel!.permissions!
         .any((element) => element.code == "canReturn");
-    return canSell || canCash || canReturn
+    return !canSell || !canCash || !canReturn
         ? Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2361,7 +2338,7 @@ class ControllerGirisCixisReklam extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClient().dio(isLiveTrack: true).post(
+      final response = await ApiClient().dio(false).post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2478,7 +2455,7 @@ class ControllerGirisCixisReklam extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClient().dio().post(
+      final response = await ApiClient().dio(false).post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(
@@ -2586,7 +2563,7 @@ class ControllerGirisCixisReklam extends GetxController {
     _timer!.cancel();
     polygon.clear();
     pointsPoly.clear();
-    _getGirisEdilmisCari();
+    getGirisEdilmisCari(map.LatLng(currentLocation!.latitude, currentLocation.latitude,));
     ctKassaDialog.text = "";
     ctCixisQeyd.text = "";
     if (selectedlistKassa.isNotEmpty) {
@@ -2596,7 +2573,7 @@ class ControllerGirisCixisReklam extends GetxController {
     controller.onInit();
     controller.addPermisionsInDrawerMenu(loggedUserModel);
     backgroudLocationServiz.stopBackGroundFetch();
-    getAllDataFormLocale(modela.userCode!);
+    getAllDataFormLocale(selectedTemsilci.value.code!,map.LatLng(currentLocation.latitude!, currentLocation.longitude!));
     listTapsiriqlar.clear();
     update();
   }
@@ -2673,7 +2650,7 @@ class ControllerGirisCixisReklam extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
-      final response = await ApiClient().dio(isLiveTrack: true).post(
+      final response = await ApiClient().dio(false).post(
             "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
             data: model.toJson(),
             options: Options(

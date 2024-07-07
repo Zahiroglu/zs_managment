@@ -531,7 +531,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
               data: jsonEncode(secilmisTemsilciler),
               options: Options(
@@ -548,43 +548,16 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
               ),
             );
         print("responce kode :" + response.data.toString());
-        if (response.statusCode == 404) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
+
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
             List listuser = jsonDecode(dataModel);
             for (var i in listuser) {
               listUsers = MercDataModel.fromJson(i);
             }
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
-          }
+
         }
       } on DioException catch (e) {
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
       }
     }
     return listUsers;
@@ -624,7 +597,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
               data: data,
               options: Options(
@@ -640,13 +613,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
                 responseType: ResponseType.json,
               ),
             );
-        if (response.statusCode == 404) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
+
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
             List listuser = jsonDecode(dataModel);
@@ -655,30 +622,8 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
               print("model :" + model.toString());
               listGirisCixis.add(model);
             }
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
-          }
         }
       } on DioException catch (e) {
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
       }
     }
     return listGirisCixis;
@@ -710,7 +655,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/live-tracking-by-user",
               data: data,
               options: Options(
@@ -725,15 +670,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
                 responseType: ResponseType.json,
               ),
             );
-        if (response.statusCode == 404) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {
-              Get.back();
-            },
-          ));
-        } else {
+
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
             List listuser = jsonDecode(dataModel);
@@ -742,34 +679,8 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
               print("model :" + model.toString());
               listGirisCixis.add(model);
             }
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {
-                Get.back();
-              },
-            ));
-          }
         }
       } on DioException catch (e) {
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {
-            Get.back();
-          },
-        ));
       }
     }
     return listGirisCixis;

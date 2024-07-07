@@ -76,6 +76,18 @@ class LocalGirisCixisServiz {
 
     return listGirisler;
   }
+ List<ModelCustuomerVisit> getAllGirisCixisTodayByCode(String userCode) {
+    List<ModelCustuomerVisit> listGirisler=[];
+    girisCixis.toMap().forEach((key, value) {
+      if (value.outDistance != "0"&&convertDayByLastday(value)&&value.userCode==userCode) {
+          int count =girisCixis.toMap().entries.where((element) => element.value.customerCode==value.customerCode).toList().length;
+          value.enterCount==count;
+        listGirisler.add(value);
+      }});
+    listGirisler.sort((a, b) => a.inDate!.compareTo(b.inDate!));
+
+    return listGirisler;
+  }
 
   bool convertDayByLastday(ModelCustuomerVisit element) {
     DateTime lastDay = DateTime.parse(element.inDt.toString());

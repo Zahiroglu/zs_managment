@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
@@ -64,7 +65,12 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     _determinePosition().then((value) {
       setState(() {
         if(controllerGirisCixis.marketeGirisEdilib.isFalse){
-          controllerGirisCixis.changeTabItemsValue(controllerGirisCixis.listTabItems.where((p) => p.selected == true).first, value);
+          //controllerGirisCixis.changeTabItemsValue(controllerGirisCixis.listTabItems.where((p) => p.selected == true).first, value);
+        }
+        if(controllerGirisCixis.initialized){
+          controllerGirisCixis.getGirisEdilmisCari(LatLng(value.latitude, value.longitude));
+          setState(() {
+          });
         }
         _currentLocation=value;
         dataLoading = false;
@@ -74,6 +80,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     // TODO: implement initState
     super.initState();
   }
+
   Future<void> initConfigrations() async {
     await userService.init();
     loggedUserModel= userService.getLoggedUser();
@@ -164,7 +171,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               controllerGirisCixis.listTabItems
                   .where((p) => p.selected == true)
                   .first,
-              position);
+              LatLng(_currentLocation.latitude, _currentLocation.longitude));
           funFlutterToast("Current loc :${_currentLocation.longitude}${_currentLocation.latitude}");
         }});
       _positionStreamSubscription?.pause();
@@ -243,15 +250,9 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               controllerGirisCixis.marketeGirisEdilib.isFalse?Padding(
                 padding: const EdgeInsets.only(right: 0),
                 child: IconButton(icon: const Icon(Icons.supervised_user_circle_outlined,color: Colors.black,),onPressed: (){
-               controllerGirisCixis.getExpList();
+               controllerGirisCixis.getExpList(LatLng(_currentLocation.latitude!, _currentLocation.longitude!));
                 }),
               ):const SizedBox(),
-              IconButton(onPressed: (){
-                controllerGirisCixis.localDbGirisCixis.clearAllGiris();
-                setState(() {});
-                controllerGirisCixis.getAllDataFormLocale(loggedUserModel.userModel!.code!);
-                //controllerGirisCixis.backgroudLocationServiz.stopBackGroundFetch();
-              },icon: const Icon(Icons.delete_forever,color: Colors.red,),)
             ],
             centerTitle: true,
             title: CustomText(
@@ -300,7 +301,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
       Expanded(
-          flex: 3,
+          flex: controllerGirisCixis.marketeGirisEdilib.isFalse?3:1,
           child: Column(
         children: [
           const SizedBox(
@@ -312,7 +313,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
         ],
       )),
         Expanded(
-            flex: 15,
+            flex:  controllerGirisCixis.marketeGirisEdilib.isFalse?15:40,
             child: Column(children: [
           controllerGirisCixis.marketeGirisEdilib.isTrue
               ? widgetCixisUcun(context)
@@ -356,7 +357,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       onTap: () {
         if (controllerGirisCixis.marketeGirisEdilib.isFalse) {
           setState(() {
-            controllerGirisCixis.changeTabItemsValue(element, _currentLocation);
+            controllerGirisCixis.changeTabItemsValue(element, LatLng(_currentLocation.latitude, _currentLocation.longitude));
             selectedItemsLabel = element.label!;
             selectedTabItem = element;
           });
@@ -1209,190 +1210,189 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   Widget widgetCixisUcun(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery
-          .of(context)
-          .size
-          .height * 0.9,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Card(
-              shadowColor: Colors.blue,
-              elevation: 20,
-              margin: const EdgeInsets.all(15),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(5.0)
-                        .copyWith(top: 20, bottom: 25, left: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      children: [
+        Card(
+          shadowColor: Colors.blue,
+          elevation: 20,
+          margin: const EdgeInsets.only(left: 15,right: 15,bottom: 20),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(5.0)
+                    .copyWith(top: 10, bottom: 25, left: 10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: CustomText(
-                                  labeltext: controllerGirisCixis
-                                      .modelgirisEdilmis.value.customerName!,
-                                  fontWeight: FontWeight.w600,
-                                  fontsize: 18,
-                                  maxline: 2),
-                            ),
-                          ],
+                        Expanded(
+                          child: CustomText(
+                              labeltext: controllerGirisCixis
+                                  .modelgirisEdilmis.value.customerName!,
+                              fontWeight: FontWeight.w600,
+                              fontsize: 18,
+                              maxline: 2),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  CustomText(
-                                      labeltext: "Giris tarixi :",
-                                      fontWeight: FontWeight.w700,
-                                      fontsize: 16),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  CustomText(
-                                      labeltext: controllerGirisCixis
-                                          .modelgirisEdilmis.value.inDate.toString()
-                                          .substring(0, 10),
-                                      fontWeight: FontWeight.normal,
-                                      fontsize: 14),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  CustomText(
-                                      labeltext: "Giris saati :",
-                                      fontWeight: FontWeight.w700,
-                                      fontsize: 16),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  CustomText(
-                                      labeltext: controllerGirisCixis
-                                          .modelgirisEdilmis.value.inDate.toString()
-                                          .substring(11, 19),
-                                      fontWeight: FontWeight.normal,
-                                      fontsize: 14),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  CustomText(
-                                      labeltext: "${"mesafe".tr} : ",
-                                      fontWeight: FontWeight.w700,
-                                      fontsize: 16),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  CustomText(
-                                      labeltext: controllerGirisCixis
-                                          .modelgirisEdilmis.value.inDistance.toString(),
-                                      fontWeight: FontWeight.normal,
-                                      fontsize: 14),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: CustomElevetedButton(
-                                height: 40,
-                                cllback: () {
-                                  controllerGirisCixis.girisiSil();
-                                },
-                                label: "Giris Sil",
-                                icon: Icons.delete,
-                                textColor: Colors.red,
-                                borderColor: Colors.red,
-                                elevation: 5,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: CustomElevetedButton(
-                                height: 40,
-                                cllback: () {
-                                  showCixisDialog();
-                                },
-                                label: "cixiset".tr,
-                                icon: Icons.exit_to_app,
-                                surfaceColor: Colors.blue,
-                                borderColor: Colors.white,
-                                textColor: Colors.white,
-                                elevation: 5,
-                              ),
-                            ),
-                          ],
-                        )
                       ],
                     ),
-                  ),
-                  Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(5).copyWith(left: 15),
-                        decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.5),
-                            borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(15))),
-                        height: 30,
-                        child: Center(
-                            child: CustomText(
-                                labeltext: controllerGirisCixis.snQalmaVaxti
-                                    .toString())),
-                      ))
-                ],
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              CustomText(
+                                  labeltext: "Giris tarixi :",
+                                  fontWeight: FontWeight.w700,
+                                  fontsize: 16),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              CustomText(
+                                  labeltext: controllerGirisCixis
+                                      .modelgirisEdilmis.value.inDate.toString()
+                                      .substring(0, 10),
+                                  fontWeight: FontWeight.normal,
+                                  fontsize: 14),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              CustomText(
+                                  labeltext: "Giris saati :",
+                                  fontWeight: FontWeight.w700,
+                                  fontsize: 16),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              CustomText(
+                                  labeltext: controllerGirisCixis
+                                      .modelgirisEdilmis.value.inDate.toString()
+                                      .substring(11, 19),
+                                  fontWeight: FontWeight.normal,
+                                  fontsize: 14),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              CustomText(
+                                  labeltext: "${"mesafe".tr} : ",
+                                  fontWeight: FontWeight.w700,
+                                  fontsize: 16),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              CustomText(
+                                  labeltext: controllerGirisCixis
+                                      .modelgirisEdilmis.value.inDistance.toString(),
+                                  fontWeight: FontWeight.normal,
+                                  fontsize: 14),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: CustomElevetedButton(
+                            height: 40,
+                            cllback: () {
+                              controllerGirisCixis.girisiSil();
+                            },
+                            label: "Giris Sil",
+                            icon: Icons.delete,
+                            textColor: Colors.red,
+                            borderColor: Colors.red,
+                            elevation: 5,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: CustomElevetedButton(
+                            height: 40,
+                            cllback: () {
+                              showCixisDialog();
+                            },
+                            label: "cixiset".tr,
+                            icon: Icons.exit_to_app,
+                            surfaceColor: Colors.blue,
+                            borderColor: Colors.white,
+                            textColor: Colors.white,
+                            elevation: 5,
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
-            ), //cixis ucun olan hisse
-            Card(
-              elevation: 5,
-              margin: const EdgeInsets.all(15).copyWith(bottom: 5),
-              child: controllerGirisCixis.cardSifarisler(context),
-            ), //satis ucun
-            Card(
-              elevation: 5,
-              margin: const EdgeInsets.all(15).copyWith(bottom: 5),
-              child: controllerGirisCixis.cardTapsiriqlar(context),
-            ), //tapsiriqlar ucun olan hisse
-            Card(
-              elevation: 5,
-              margin: const EdgeInsets.all(15).copyWith(bottom: 5),
-              child: controllerGirisCixis.cardSekilElavesi(context),
-            ), //sekil elave etmek ucun
-            Card(
-              elevation: 5,
-              margin: const EdgeInsets.all(15).copyWith(bottom: 5),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  controllerGirisCixis.widgetMusteriHesabatlari(selectedCariModel),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ],
-              ),
-            ), //hesabatlar hissesi
-          ],
-        ),
-      ),
+              Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(5).copyWith(left: 15),
+                    decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.5),
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(15))),
+                    height: 30,
+                    child: Center(
+                        child: CustomText(
+                            labeltext: controllerGirisCixis.snQalmaVaxti
+                                .toString())),
+                  ))
+            ],
+          ),
+        ), //cixis ucun olan hisse
+        SizedBox(
+          height: MediaQuery.of(context).size.height*0.6,
+          child: SingleChildScrollView(
+            child: Column(children: [
+              Card(
+                elevation: 5,
+                margin: const EdgeInsets.all(15).copyWith(bottom: 5,top: 0),
+                child: controllerGirisCixis.cardSifarisler(context),
+              ), //satis ucun
+              Card(
+                elevation: 5,
+                margin: const EdgeInsets.all(15).copyWith(bottom: 5),
+                child: controllerGirisCixis.cardTapsiriqlar(context),
+              ), //tapsiriqlar ucun olan hisse
+              Card(
+                elevation: 5,
+                margin: const EdgeInsets.all(15).copyWith(bottom: 5),
+                child: controllerGirisCixis.cardSekilElavesi(context),
+              ), //sekil elave etmek ucun
+              Card(
+                elevation: 5,
+                margin: const EdgeInsets.all(15).copyWith(bottom: 5),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    controllerGirisCixis.widgetMusteriHesabatlari(selectedCariModel),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                ),
+              ), //hesabatlar hissesi
+            ],),
+          ),
+        )
+      ],
     );
   }
 

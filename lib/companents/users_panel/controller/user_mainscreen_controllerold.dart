@@ -83,7 +83,7 @@ class UserMainScreenController extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/User/user-counts",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -106,27 +106,10 @@ class UserMainScreenController extends GetxController {
         }
         else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
       } on DioException catch (e) {
         userLisanceLoading.value=false;
         DialogHelper.hideLoading();
-        if (e.type == DioExceptionType.connectionTimeout) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.message!,
-            callback: () {
-              Get.back();
-            },
-          ));
-          //dataLoading.value = false;
-        } else {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.type.toString() ?? "xeta".tr,
-            callback: () {},
-          ));
-        }
       }
     }
     List<ModelAllUsersItemsLisance>list=[];
@@ -188,7 +171,7 @@ class UserMainScreenController extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/User/all-users",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -215,7 +198,6 @@ class UserMainScreenController extends GetxController {
 
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
       } on DioException catch (e) {
         userLisanceLoading.value=false;
@@ -266,7 +248,7 @@ class UserMainScreenController extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/api/v1/User/users-by-filter",
          data: element.toJson(),
           //data: data,
@@ -295,27 +277,10 @@ class UserMainScreenController extends GetxController {
 
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
       } on DioException catch (e) {
         userLisanceLoading.value=false;
         DialogHelper.hideLoading();
-        if (e.type == DioExceptionType.connectionTimeout) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.message!,
-            callback: () {
-              Get.back();
-            },
-          ));
-          //dataLoading.value = false;
-        } else {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.type.toString() ?? "xeta".tr,
-            callback: () {},
-          ));
-        }
       }
     }
 

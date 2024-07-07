@@ -134,7 +134,7 @@ class NewUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/Dictionary/regions",
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
@@ -161,7 +161,6 @@ class NewUserController extends GetxController {
           getRolesFromApiService(controller);
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
 
     }
@@ -184,7 +183,7 @@ class NewUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/Dictionary/roles",
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
@@ -375,7 +374,7 @@ class NewUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/User/user-by-code-for-register/${cttextCode.text.toString()}/${selectedVezife.value!.id}",
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
@@ -410,7 +409,6 @@ class NewUserController extends GetxController {
           getConnectionsFromApiService(controller);
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -434,7 +432,7 @@ class NewUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/Dictionary/connections",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -472,7 +470,6 @@ class NewUserController extends GetxController {
           getUsersPermitionsFromApi(controller);
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -500,7 +497,7 @@ class NewUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/Dictionary/permissions-by-role/${selectedVezife.value!.id}",
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
@@ -535,7 +532,6 @@ class NewUserController extends GetxController {
           }
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
     }
     canUseNextButton.value = true;
@@ -716,10 +712,9 @@ class NewUserController extends GetxController {
       ));
     } else {
         final response = await ApiClient()
-            .dio()
+            .dio(false)
             .post("${loggedUserModel.baseUrl}/api/v1/User/user-by-connection",
                 options: Options(
-                  receiveTimeout: const Duration(seconds: 60),
                   headers: {
                     'Lang': languageIndex,
                     'Device': dviceType,
@@ -764,7 +759,6 @@ class NewUserController extends GetxController {
           ));
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
     }
     return listUsers;
@@ -854,7 +848,7 @@ class NewUserController extends GetxController {
         callback: () {},
       ));
     } else {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/User/register",
               data: registerData.toJson(),
               options: Options(
@@ -901,7 +895,7 @@ class NewUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(true).get(
               "${"${loggedUserModel.baseUrl}/api/v1/User/confirm-new-user/${loggedUserModel.userModel!.companyId}"}/$recNom",
               data: registerData.toJson(),
               options: Options(
@@ -917,13 +911,6 @@ class NewUserController extends GetxController {
                 responseType: ResponseType.json,
               ),
             );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          Get.back();
-        }else{
-          DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
-        }
     }
   }
 

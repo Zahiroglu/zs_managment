@@ -90,7 +90,7 @@ class _ScreenCariCesidHesabatiState extends State<ScreenCariCesidHesabati> {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/api/v1/Report/warehouse-operation-by-customer",
           data:data,
           options: Options(

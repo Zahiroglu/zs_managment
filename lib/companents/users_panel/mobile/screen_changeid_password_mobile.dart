@@ -260,7 +260,7 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
       ));
     } else {
       try {
-        final response = await ApiClient().dio().put(
+        final response = await ApiClient().dio(true).put(
           "${loggedUserModel.baseUrl}/api/v1/User/change-deviceid",
           data: data,
           options: Options(
@@ -287,31 +287,9 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
 
         } else {
           DialogHelper.hideLoading();
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: response.data.toString()??"Xeta Bas verdi",
-            callback: () {
-            },
-          ));
         }
       } on DioException catch (e) {
         DialogHelper.hideLoading();
-        if (e.type == DioExceptionType.connectionTimeout) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.message!,
-            callback: () {
-              Get.back();
-            },
-          ));
-          //dataLoading.value = false;
-        } else {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.type.toString() ?? "xeta".tr,
-            callback: () {},
-          ));
-        }
         //dataLoading.value = false;
       }
     }
@@ -338,7 +316,7 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
       ));
     } else {
       try {
-        final response = await ApiClient().dio().put(
+        final response = await ApiClient().dio(true).put(
           "${loggedUserModel.baseUrl}/api/v1/User/change-username-password",
           data: data,
           options: Options(
@@ -365,31 +343,9 @@ class _ChangePasswordAndDviceIdMobileState extends State<ChangePasswordAndDviceI
 
         } else {
           DialogHelper.hideLoading();
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: response.data.toString()??"Xeta Bas verdi",
-            callback: () {
-            },
-          ));
         }
       } on DioException catch (e) {
         DialogHelper.hideLoading();
-        if (e.type == DioExceptionType.connectionTimeout) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.message!,
-            callback: () {
-              Get.back();
-            },
-          ));
-          //dataLoading.value = false;
-        } else {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.type.toString() ?? "xeta".tr,
-            callback: () {},
-          ));
-        }
         //dataLoading.value = false;
       }
     }

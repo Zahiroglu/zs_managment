@@ -130,7 +130,7 @@ class UpdateUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/Dictionary/regions",
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
@@ -161,7 +161,6 @@ class UpdateUserController extends GetxController {
           getRolesFromApiService(controller);
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -183,7 +182,7 @@ class UpdateUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/Dictionary/roles",
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
@@ -236,7 +235,6 @@ class UpdateUserController extends GetxController {
           DialogHelper.hideLoading();
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -339,7 +337,7 @@ class UpdateUserController extends GetxController {
         },
       ));
     } else {
-      final response = await ApiClient().dio().get(
+      final response = await ApiClient().dio(false).get(
         "${loggedUserModel.baseUrl}/api/v1/User/user-by-code-for-register/${cttextCode.text.toString()}/${selectedVezife.value!.id}",
         options: Options(
           receiveTimeout: const Duration(seconds: 60),
@@ -359,7 +357,6 @@ class UpdateUserController extends GetxController {
         DialogHelper.hideLoading();
       }else{
         DialogHelper.hideLoading();
-        exeptionHandler.handleExeption(response);
       }
     }
     getConnectionsFromApiService(controller);
@@ -385,7 +382,7 @@ class UpdateUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/Dictionary/connections",
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
@@ -423,7 +420,6 @@ class UpdateUserController extends GetxController {
           getUsersPermitionsFromApi(controller);
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
     }
   }
@@ -446,7 +442,7 @@ class UpdateUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/Dictionary/permissions-by-role/${selectedVezife.value!.id}",
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
@@ -493,7 +489,6 @@ class UpdateUserController extends GetxController {
           }
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
         }
     canUseNextButton.value = true;
@@ -590,7 +585,7 @@ class UpdateUserController extends GetxController {
       ));
     } else {
         final response = await ApiClient()
-            .dio()
+            .dio(false)
             .post("${loggedUserModel.baseUrl}/api/v1/User/user-by-connection",
                 options: Options(
                   receiveTimeout: const Duration(seconds: 60),
@@ -759,7 +754,7 @@ class UpdateUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().put(
+        final response = await ApiClient().dio(true).put(
               "${loggedUserModel.baseUrl}/api/v1/User/edit-user",
               data: registerData.toJson(),
               options: Options(
@@ -789,7 +784,6 @@ class UpdateUserController extends GetxController {
 
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
         //dataLoading.value = false;
       }

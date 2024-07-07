@@ -699,7 +699,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         },
       ));
     } else {
-      final response = await ApiClient().dio().put(
+      final response = await ApiClient().dio(true).put(
         "${loggedUserModel.baseUrl}/api/v1/Sales/edit-merch-customer",
         data: modelUpdateMercCustomers.toJson(),
         options: Options(

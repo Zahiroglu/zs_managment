@@ -1,21 +1,15 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
-import 'package:xml/xml_events.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
-import 'package:zs_managment/companents/login/models/model_company.dart';
-import 'package:zs_managment/companents/login/models/model_token.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
@@ -24,7 +18,6 @@ import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/helpers/permitions_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
-import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 
@@ -39,7 +32,6 @@ import '../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import '../setting_panel/screen_maps_setting.dart';
 import 'models/model_cariler.dart';
 import 'models/model_downloads.dart';
-import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
 class ControllerBaseDownloads extends GetxController {
@@ -66,7 +58,7 @@ class ControllerBaseDownloads extends GetxController {
   List<AvailableMap> listApps = [];
   late AvailableMap selectedApp = AvailableMap(mapName: MapType.google.name.tr,
       mapType: MapType.google,
-      icon: Icon(Icons.map).toString());
+      icon: const Icon(Icons.map).toString());
   LocalAppSetting localAppSetting = LocalAppSetting();
   RxString giriscixisScreenType = "".obs;
   RxBool userStartWork = false.obs;
@@ -94,7 +86,6 @@ class ControllerBaseDownloads extends GetxController {
     await localAppSetting.init();
     ModelAppSetting modelAppSetting = await localAppSetting.getAvaibleMap();
     modelsetting = modelAppSetting;
-    print("Model Setting :" + modelAppSetting.toString());
     if (modelAppSetting.mapsetting != null) {
       ModelMapApp modelMapApp = modelAppSetting.mapsetting!;
       CustomMapType? customMapType = modelMapApp.mapType;
@@ -136,7 +127,6 @@ class ControllerBaseDownloads extends GetxController {
         .userModel!
         .permissions!;
     for (var element in listUsersPermitions) {
-      print("permiton :" + element.toString());
       switch (element.code) {
         case "myConnectedRutMerch":
           listDonwloads.add(ModelDownloads(
@@ -193,7 +183,6 @@ class ControllerBaseDownloads extends GetxController {
     dataLoading = true.obs;
     await localBaseSatis.init();
     modelsetting = await localAppSetting.getAvaibleMap();
-    print("modelsetting :" + modelsetting.toString());
     loggedUserModel = localUserServices.getLoggedUser();
     ifUserMustLocateAllWordDay.value == loggedUserModel.userModel!.permissions!.any((element) => element.code == "liveAllDay");
     listDownloadsFromLocalDb.value = await localBaseDownloads.getAllDownLoadBaseList();
@@ -279,7 +268,7 @@ class ControllerBaseDownloads extends GetxController {
                 child: SizedBox(
                   height: listDownloadsFromLocalDb.length * 100,
                   child: ListView(
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(0),
                     scrollDirection: Axis.vertical,
                     children: listDownloadsFromLocalDb
@@ -295,7 +284,7 @@ class ControllerBaseDownloads extends GetxController {
               )
             ],
           )
-              : SizedBox(),
+              : const SizedBox(),
         ]);
   }
 
@@ -372,7 +361,7 @@ class ControllerBaseDownloads extends GetxController {
                               labeltext:
                               "${"lastRefresh".tr}: ${model.lastDownDay!
                                   .substring(0, 10)}"),
-                          SizedBox(width: 5,),
+                          const SizedBox(width: 5,),
                           CustomText(
                               color: model.musteDonwload == true
                                   ? Colors.red
@@ -383,7 +372,7 @@ class ControllerBaseDownloads extends GetxController {
                                   11, 16)} )"),
 
                         ],
-                      ) : SizedBox(),
+                      ) : const SizedBox(),
                       CustomText(
                         labeltext: model.info!,
                         maxline: 3,
@@ -399,7 +388,7 @@ class ControllerBaseDownloads extends GetxController {
                             Icons.info,
                             color: Colors.red,
                           ),
-                          SizedBox(width: 5,),
+                          const SizedBox(width: 5,),
                           Expanded(
                             child: CustomText(
                               labeltext: "infoRefresh".tr,
@@ -411,11 +400,11 @@ class ControllerBaseDownloads extends GetxController {
                           ),
 
                         ],
-                      ) : SizedBox()
+                      ) : const SizedBox()
                     ],
                   ),
                 ),
-                model.donloading! ? FlutterLogo() : InkWell(
+                model.donloading! ? const FlutterLogo() : InkWell(
                     onTap: () {
                       melumatlariEndir(model, true);
                     },
@@ -551,7 +540,7 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/User/my-connected-users",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -571,7 +560,6 @@ class ControllerBaseDownloads extends GetxController {
         if (response.statusCode == 200) {
           var userlist = json.encode(response.data['result']);
           List listuser = jsonDecode(userlist);
-          print("list :" + listuser.length.toString());
           for (var i in listuser) {
             listUsers.add(UserModel(
               roleName: i['roleName'],
@@ -586,13 +574,8 @@ class ControllerBaseDownloads extends GetxController {
         }
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
@@ -617,7 +600,7 @@ class ControllerBaseDownloads extends GetxController {
     languageIndex = await getLanguageIndex();
     List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
-    List<UserModel> listUsersSelected = await localBaseDownloads
+    List<UserModel> listUsersSelected = localBaseDownloads
         .getAllConnectedUserFromLocal();
     if (listUsersSelected.isEmpty) {
       secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
@@ -636,7 +619,7 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
           data: jsonEncode(secilmisTemsilciler),
           options: Options(
@@ -655,18 +638,15 @@ class ControllerBaseDownloads extends GetxController {
 
         if (response.statusCode == 200) {
           var dataModel = json.encode(response.data['result']);
-          print("dataModel :" + dataModel.toString());
           List listuser = jsonDecode(dataModel);
           for (var i in listuser) {
             var dataCus = json.encode(i['customers']);
             var temsilciKodu = i['user']['code'];
-            print("temsilciKodu :" + temsilciKodu.toString());
 
             List listDataCustomers = jsonDecode(dataCus);
             for (var a in listDataCustomers) {
               ModelCariler model = ModelCariler.fromJson(a);
               model.forwarderCode = temsilciKodu;
-              print("a custim :" + a.toString());
               listUsers.add(model);
             }
           }
@@ -675,13 +655,8 @@ class ControllerBaseDownloads extends GetxController {
         }
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
@@ -702,7 +677,7 @@ class ControllerBaseDownloads extends GetxController {
     List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
     LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
-    List<UserModel> listUsersSelected =  await localBaseDownloads
+    List<UserModel> listUsersSelected =  localBaseDownloads
         .getAllConnectedUserFromLocal();
     if (listUsersSelected.isEmpty) {
       secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
@@ -724,7 +699,7 @@ class ControllerBaseDownloads extends GetxController {
       try {
         var response;
         if(userPermitionSercis.hasUserPermition("canEnterOtherMerchCustomers", loggedUserModel.userModel!.permissions!)){
-          response = await ApiClient().dio().get(
+          response = await ApiClient().dio(false).get(
             "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
             options: Options(
               receiveTimeout: const Duration(seconds: 60),
@@ -742,7 +717,7 @@ class ControllerBaseDownloads extends GetxController {
 
         }
         else{
-          response = await ApiClient().dio().post(
+          response = await ApiClient().dio(false).post(
             "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
             data: jsonEncode(secilmisTemsilciler),
             options: Options(
@@ -777,13 +752,8 @@ class ControllerBaseDownloads extends GetxController {
         }
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
       }
     }
@@ -805,7 +775,7 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -832,13 +802,8 @@ class ControllerBaseDownloads extends GetxController {
         }
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
@@ -918,7 +883,7 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/api/v1/Report/warehouse-remainder",
           data:data,
           options: Options(
@@ -947,13 +912,8 @@ class ControllerBaseDownloads extends GetxController {
 
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
@@ -1015,7 +975,7 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
           "${loggedUserModel
               .baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
           data: data,
@@ -1045,13 +1005,11 @@ class ControllerBaseDownloads extends GetxController {
             for (var i in listuser) {
               var dataCus = json.encode(i['customers']);
               var temsilciKodu = i['user']['code'];
-              print("temsilciKodu :" + temsilciKodu.toString());
 
               List listDataCustomers = jsonDecode(dataCus);
               for (var a in listDataCustomers) {
                 ModelCariler model = ModelCariler.fromJson(a);
                 model.forwarderCode = temsilciKodu;
-                print("a custim :" + a.toString());
                 listUsers.add(model);
               }
             }
@@ -1066,13 +1024,8 @@ class ControllerBaseDownloads extends GetxController {
         }
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,

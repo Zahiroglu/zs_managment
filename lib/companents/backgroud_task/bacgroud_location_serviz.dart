@@ -209,7 +209,7 @@ class BackgroudLocationServiz extends GetxController {
       userCode: loggedUserModel.userModel!.code!,
       userPosition: loggedUserModel.userModel!.roleId.toString(),
     );
-    final response = await ApiClient().dio(isLiveTrack: true).post(
+    final response = await ApiClient().dio(false).post(
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
       data: model.toJson(),
       options: Options(
@@ -252,7 +252,7 @@ class BackgroudLocationServiz extends GetxController {
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final response = await ApiClient().dio(isLiveTrack: true).post(
+    final response = await ApiClient().dio(false).post(
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
       data: model.toJson(),
       options: Options(
@@ -305,7 +305,7 @@ class BackgroudLocationServiz extends GetxController {
       userFullName: "${loggedUserModel.userModel!.name} ${loggedUserModel.userModel!.surname}",
       userPosition: loggedUserModel.userModel!.roleId,
     );
-    final response = await ApiClient().dio(isLiveTrack: true).post(
+    final response = await ApiClient().dio(false).post(
       "${loggedUserModel.baseUrl}/api/v1/User/add-user-error",
       data: model.toJson(),
       options: Options(
@@ -352,7 +352,7 @@ class BackgroudLocationServiz extends GetxController {
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final response = await ApiClient().dio(isLiveTrack: true).post(
+    final response = await ApiClient().dio(false).post(
       "${loggedUserModel.baseUrl}/api/v1/User/add-user-error",
       data: unsendedModel.toJson(),
       options: Options(
@@ -426,7 +426,7 @@ class BackgroudLocationServiz extends GetxController {
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final response = await ApiClient().dio(isLiveTrack: true).post(
+    final response = await ApiClient().dio(false).post(
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
       data: model.toJson(),
       options: Options(

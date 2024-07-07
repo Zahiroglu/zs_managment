@@ -124,7 +124,7 @@ class _ScreenErrorsReportState extends State<ScreenErrorsReport> {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/User/get-errors-by-users",
               data: data,
               options: Options(

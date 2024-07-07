@@ -70,20 +70,20 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
                       isUserMode = false;
                     });
                   },
-                  icon: Icon(Icons.view_list))
+                  icon: const Icon(Icons.view_list))
               : IconButton(
                   onPressed: () {
                     setState(() {
                       isUserMode = true;
                     });
                   },
-                  icon: Icon(Icons.supervised_user_circle_outlined)),
+                  icon: const Icon(Icons.supervised_user_circle_outlined)),
           isUserMode==false?IconButton(onPressed: (){
             setState(() {
               isListReseved!=isListReseved;
               listGirisCixis=listGirisCixis.reversed.toList();
             });
-          }, icon: Icon(Icons.sort)):SizedBox()
+          }, icon: const Icon(Icons.sort)):const SizedBox()
         ],
         title: CustomText(
           labeltext: widget.cariAd,
@@ -119,7 +119,7 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-by-customers",
               data: data,
               options: Options(
@@ -176,13 +176,8 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
           dataLoading = false;
         });
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
@@ -226,7 +221,6 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
   }
 
   Widget itemsUserInfo(User element) {
-    print("Element last visit:"+isListReseved.toString()+" olanda =");
     return InkWell(
       onTap: () {
         Get.toNamed(RouteHelper.cariZiyaretDetay, arguments: [
@@ -243,9 +237,9 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
             shadowColor: Colors.grey,
             elevation: 5,
             color: Colors.white,
-            margin: EdgeInsets.all(5),
+            margin: const EdgeInsets.all(5),
             child: Padding(
-                padding: EdgeInsets.all(5).copyWith(top: 10),
+                padding: const EdgeInsets.all(5).copyWith(top: 10),
                 child: Column(
                   children: [
                     Row(
@@ -254,7 +248,7 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
                           labeltext: element.code!,
                           fontWeight: FontWeight.bold,
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 10,
                         ),
                         CustomText(
@@ -271,7 +265,7 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
                           Row(
                             children: [
                               CustomText(
-                                labeltext: "ziyaretSayi".tr + " : ",
+                                labeltext: "${"ziyaretSayi".tr} : ",
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
@@ -283,7 +277,7 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
                                     .toString(),
                                 fontWeight: FontWeight.normal,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                             ],
@@ -291,14 +285,14 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
                           Row(
                             children: [
                               CustomText(
-                                labeltext: "sonuncuZiyaret".tr + " : ",
+                                labeltext: "${"sonuncuZiyaret".tr} : ",
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
                                 labeltext:isListReseved?listGirisCixis.where((e) => e.userFullName == element.fullName).toList().first.inDate.toString().substring(0, 16):listGirisCixis.where((e) => e.userFullName == element.fullName).toList().last.inDate.toString().substring(0, 16),
                                 fontWeight: FontWeight.normal,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                             ],
@@ -306,7 +300,7 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
                           Row(
                             children: [
                               CustomText(
-                                labeltext: "marketdeISvaxti".tr + " : ",
+                                labeltext: "${"marketdeISvaxti".tr} : ",
                                 fontWeight: FontWeight.w600,
                               ),
                               CustomText(
@@ -317,7 +311,7 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
                                         .toList()),
                                 fontWeight: FontWeight.normal,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                             ],

@@ -113,7 +113,7 @@ class _WrongEntriesReporsState extends State<WrongEntriesRepors> {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/my-connected-users-open-enters",
               options: Options(
                 headers: {
@@ -175,7 +175,7 @@ class _WrongEntriesReporsState extends State<WrongEntriesRepors> {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().delete(
+        final response = await ApiClient().dio(true).delete(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/delete-input-by-user",
               data: data,
               options: Options(

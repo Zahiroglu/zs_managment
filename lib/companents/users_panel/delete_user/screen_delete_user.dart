@@ -216,7 +216,7 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
         },
       ));
     } else {
-        final response = await ApiClient().dio().delete(
+        final response = await ApiClient().dio(true).delete(
           "${widget.loggedUserModel.baseUrl}/api/v1/User/delete-user/${widget.modelUser.code}/${widget.modelUser.roleId}/$deleteMode",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -245,7 +245,6 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
 
         }else{
           DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
         }
     }
   }

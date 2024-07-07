@@ -274,11 +274,10 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
         },
       ));
     } else {
-      final response = await ApiClient().dio().put(
+      final response = await ApiClient().dio(true).put(
             "${loggedUserModel.baseUrl}/api/v1/Sales/edit-merch-customer-day-order",
             data: modelDataSent.toJson(),
             options: Options(
-              receiveTimeout: const Duration(seconds: 60),
               headers: {
                 'Lang': languageIndex,
                 'Device': dviceType,

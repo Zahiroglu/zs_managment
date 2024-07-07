@@ -309,7 +309,7 @@ class UsersApiController extends GetxController {
     else {
       try {
 
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/User/myinfo",
           options: Options(
             headers: {
@@ -323,14 +323,6 @@ class UsersApiController extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        if (response.statusCode == 404) {
-          DialogHelper.hideLoading();
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
-          ));
-        } else {
           if (response.statusCode == 200) {
             BaseResponce baseResponce = BaseResponce.fromJson(response.data);
             UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
@@ -341,32 +333,8 @@ class UsersApiController extends GetxController {
             drawerMenuController.addPermisionsInDrawerMenu(modelLogged);
             isSucces=true;
             DialogHelper.hideLoading();
-          } else {
-            DialogHelper.hideLoading();
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje:baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
-          }
         }
       } on DioException catch (e) {
-        if (e.response != null) {
-          DialogHelper.hideLoading();
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message??"Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
         DialogHelper.hideLoading();
       }
     }

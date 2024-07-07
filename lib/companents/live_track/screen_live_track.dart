@@ -6,15 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:hive/hive.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
-import 'package:zs_managment/companents/hesabatlar/cari_hesabat/widgetHesabatListItems.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/routs/rout_controller.dart';
-import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
-import 'package:zs_managment/widgets/custom_text_field.dart';
 
 import '../hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import '../hesabatlar/user_hesabatlar/useruzre_hesabatlar.dart';
@@ -284,9 +280,9 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                           const SnappingPosition.pixels(positionPixels: 80));
             });
           },
-          polylines: controllerGirisCixis.polylines.value.toSet(),
-          markers: controllerGirisCixis.markers.value,
-          circles: controllerGirisCixis.circles.value.toSet(),
+          polylines: controllerGirisCixis.polylines.toSet(),
+          markers: controllerGirisCixis.markers,
+          circles: controllerGirisCixis.circles.toSet(),
           onCameraMove: (possition) {
             setState(() {});
           },
@@ -341,7 +337,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             top: 45,
             child: Row(
               children: [
-                controllerGirisCixis.sonYenilenme.isEmpty?SizedBox(): CustomText(labeltext:"Son yenilenme : "+ controllerGirisCixis.sonYenilenme.value.substring(11,19)??"",color: Colors.black,fontsize: 8),
+                controllerGirisCixis.sonYenilenme.isEmpty?SizedBox(): CustomText(labeltext:"Son yenilenme : ${controllerGirisCixis.sonYenilenme.value.substring(11,19)}"??"",color: Colors.black,fontsize: 8),
               ],
             )):const SizedBox(),
         controllerGirisCixis.dataLoading.isTrue?Positioned(
@@ -798,7 +794,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
   }
 
   Future<void> openSearchScreen() async {
-    ModelLiveTrack model=await Get.toNamed(RouteHelper.searchLiveUsers,arguments: controllerGirisCixis.listTrackdata.value);
+    ModelLiveTrack model=await Get.toNamed(RouteHelper.searchLiveUsers,arguments: controllerGirisCixis.listTrackdata);
     if(model.userCode!=null){
       controllerGirisCixis.selectedModel.value=model;
       controllerGirisCixis.userMarkerSelected.value=true;

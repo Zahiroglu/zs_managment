@@ -455,7 +455,7 @@ class UserApiControllerMobile extends GetxController {
       return false;
     } else {
       try {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/User/myinfo",
               data: {
                 "deviceId": dviceId.value,
@@ -492,51 +492,8 @@ class UserApiControllerMobile extends GetxController {
           await drawerMenuController.addPermisionsInDrawerMenu(modelLogged);
           isSucces = true;
           DialogHelper.hideLoading();
-        } else if (response.statusCode == 404) {
-          DialogHelper.hideLoading();
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: "baglantierror".tr,
-            callback: () {
-              DialogHelper.hideLoading();
-              isSucces = false;
-            },
-          ));
-        } else {
-          DialogHelper.hideLoading();
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: "${response.statusCode}-${response.data.toString()}",
-            callback: () {
-              isSucces = false;
-            },
-          ));
-          if (response.statusCode == 401) {
-            DialogHelper.hideLoading();
-            isSucces = false;
-          }
         }
       } on DioException catch (e) {
-        DialogHelper.hideLoading();
-        if (e.type == DioException.connectionTimeout(timeout: const Duration(milliseconds: 15), requestOptions: e.requestOptions)) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.message!,
-            callback: () {
-              isSucces = false;
-              DialogHelper.hideLoading();
-            },
-          ));
-        } else {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error_outline,
-            messaje: e.message! ?? "xeta".tr,
-            callback: () {
-              isSucces = false;
-              DialogHelper.hideLoading();
-            },
-          ));
-        }
       }
     }
     return isSucces;

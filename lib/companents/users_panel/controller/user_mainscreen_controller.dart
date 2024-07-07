@@ -81,7 +81,7 @@ class UserMainScreenController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get("${loggedUserModel.baseUrl}/api/v1/User/user-counts",
+        final response = await ApiClient().dio(false).get("${loggedUserModel.baseUrl}/api/v1/User/user-counts",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
             headers: {
@@ -162,7 +162,7 @@ class UserMainScreenController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().get(
+        final response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/User/all-users",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -219,7 +219,7 @@ class UserMainScreenController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/api/v1/User/users-by-filter",
          data: element.toJson(),
           //data: data,

@@ -28,11 +28,12 @@ class CustomInterceptor extends Interceptor {
   late CheckDviceType checkDviceType = CheckDviceType();
   LocalUserServices localUserServices = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
-  bool isLiveTrackRequest = false;
   Dio dio;
   LocalBazalar localBazalar = LocalBazalar();
+  bool mustShowResult;
 
-  CustomInterceptor(this.dio, this.isLiveTrackRequest);
+
+  CustomInterceptor({required this.dio,required this.mustShowResult});
 
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
@@ -55,54 +56,41 @@ class CustomInterceptor extends Interceptor {
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
     print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
-    if(response.data['exception']!=null){
-     ModelExceptions model = ModelExceptions.fromJson(response.data['exception']);
-    if (response.statusCode == 401) {
-     if(model.code=="007"){
-       if(isLiveTrackRequest){
-       Get.dialog(ShowInfoDialog(
-         color: Colors.red,
-         icon: Icons.error_outline,
-         messaje: model.message!,
-         callback: () {
-           Get.back();
-         },
-       ));}
-     }else if(model.code=="006"){
-       int statusrefresh = await refreshAccessToken();
-       if (statusrefresh == 200) {
-         return handler.resolve(await _retry(response.requestOptions));
-       }
-     }
-   }
-    else if(response.statusCode == 400){
-      if(model.code=="005"){
-        Get.dialog(ShowInfoDialog(
-          color: Colors.red,
-          icon: Icons.perm_identity,
-          messaje: model.message!,
-          callback: () {
-            Get.back();
-            Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-          },
-        ));
-      }
-    }
-    }
-    else{
-    if (response.statusCode != 200) {
-       if(response.statusCode == 404){
-         await localBazalar.claerBaseUrl();
-         Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-       }
-       else if(response.statusCode == 401) {
+    if(response.statusCode==405){
+      Get.offAllNamed(RouteHelper.getWindosLoginScreen());
+    }else{
+      if(response.data['exception']!=null){
+        ModelExceptions model = ModelExceptions.fromJson(response.data['exception']);
+        if(model.code=="006"){
           int statusrefresh = await refreshAccessToken();
           if (statusrefresh == 200) {
             return handler.resolve(await _retry(response.requestOptions));
           }
-        }}
-      else{
-        Get.back();
+        }else{
+          Get.dialog(ShowInfoDialog(
+            color: Colors.red,
+            icon: Icons.perm_identity,
+            messaje: model.message!,
+            callback: () {
+              Get.back();
+              Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
+            },
+          ));
+        }
+      }else{
+        if(mustShowResult){
+          Get.dialog(ShowInfoDialog(
+            color: Colors.blue,
+            icon: Icons.verified,
+            messaje: response.data['result'],
+            callback: () {
+              Get.back();
+            },
+          ));
+
+        }else {
+          Get.back();
+        }
       }
     }
     super.onResponse(response, handler);
@@ -110,30 +98,68 @@ class CustomInterceptor extends Interceptor {
 
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    if(!isLiveTrackRequest) {
-      Get.dialog(ShowInfoDialog(
-        color: Colors.red,
-        icon: Icons.error_outline,
-        messaje: err.toString(),
-        callback: () {
-          Get.back();
-        },
-      ));
+    if(Get.isDialogOpen!){
+      Get.back();
     }
-    // if(err.type == DioExceptionType.receiveTimeout){
-    //   await localBazalar.claerBaseUrl();
-    //   Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-    // }else {
-    //   Get.dialog(ShowInfoDialog(
-    //     color: Colors.red,
-    //     icon: Icons.error_outline,
-    //     messaje: err.toString(),
-    //     callback: () {
-    //       Get.back();
-    //     },
-    //   ));
-    // }
-    super.onError(err, handler);
+    print("error : "+err.toString() );
+      switch (err.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.receiveTimeout:
+        case DioExceptionType.sendTimeout:
+        Get.dialog(ShowInfoDialog(
+          color: Colors.red,
+          icon: Icons.error,
+          messaje: "serverTimeOutXetasi".tr,
+          callback: () {
+            Get.back();
+          },
+        ));
+          break;
+        case DioExceptionType.badCertificate:
+        case DioExceptionType.badResponse:
+        Get.dialog(ShowInfoDialog(
+          color: Colors.blue,
+          icon: Icons.verified,
+          messaje: "serverBaglantiXetasi".tr,
+          callback: () {
+            Get.back();
+          },
+        ));
+        break;
+        case DioExceptionType.cancel:
+          Get.dialog(ShowInfoDialog(
+            color: Colors.blue,
+            icon: Icons.verified,
+            messaje: "serverConnectionCanceled".tr,
+            callback: () {
+              Get.back();
+            },
+          ));
+          break;
+        case DioExceptionType.connectionError:
+          Get.dialog(ShowInfoDialog(
+            color: Colors.blue,
+            icon: Icons.verified,
+            messaje: "serverConnectionError".tr,
+            callback: () {
+              Get.back();
+            },
+          ));
+          break;
+        case DioExceptionType.unknown:
+          Get.dialog(ShowInfoDialog(
+            color: Colors.blue,
+            icon: Icons.verified,
+            messaje: "serverunnownError".tr,
+            callback: () {
+              Get.back();
+            },
+          ));
+          break;
+
+      // TODO: Handle this case.
+      }
+      super.onError(err, handler);
   }
 
   Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {

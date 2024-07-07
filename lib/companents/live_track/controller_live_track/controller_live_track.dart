@@ -235,7 +235,7 @@ class ControllerLiveTrack extends GetxController{
       ));
     } else {
       try {
-        final response = await ApiClient().dio(isLiveTrack: true).get(
+        final response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/InputOutput/my-connected-users-current-location",
           data: jsonEncode(secilmisTemsilciler),
           options: Options(

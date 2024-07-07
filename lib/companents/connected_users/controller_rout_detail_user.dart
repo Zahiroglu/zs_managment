@@ -469,7 +469,7 @@ class ControllerRoutDetailUser extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
+        final response = await ApiClient().dio(false).post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
           data:jsonEncode(secilmisTemsilciler),
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -542,7 +542,7 @@ class ControllerRoutDetailUser extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+        final response = await ApiClient().dio(false).post("${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
           data:jsonEncode(secilmisTemsilciler),
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -659,7 +659,7 @@ class ControllerRoutDetailUser extends GetxController {
       ));
     } else {
       try {
-        final response = await ApiClient().dio().post(
+        final response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
           data: model.toJson(),
           options: Options(
