@@ -64,9 +64,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     confiqGeolocatior();
     _determinePosition().then((value) {
       setState(() {
-        if(controllerGirisCixis.marketeGirisEdilib.isFalse){
-          //controllerGirisCixis.changeTabItemsValue(controllerGirisCixis.listTabItems.where((p) => p.selected == true).first, value);
-        }
         if(controllerGirisCixis.initialized){
           controllerGirisCixis.getGirisEdilmisCari(LatLng(value.latitude, value.longitude));
           setState(() {
@@ -167,11 +164,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       }).listen((position) {
         if (followMe) {
           _currentLocation == position;
-          controllerGirisCixis.changeTabItemsValue(
-              controllerGirisCixis.listTabItems
-                  .where((p) => p.selected == true)
-                  .first,
-              LatLng(_currentLocation.latitude, _currentLocation.longitude));
+          controllerGirisCixis.changeTabItemsValue(controllerGirisCixis.listTabItems.where((p) => p.selected == true).first, LatLng(_currentLocation.latitude, _currentLocation.longitude));
           funFlutterToast("Current loc :${_currentLocation.longitude}${_currentLocation.latitude}");
         }});
       _positionStreamSubscription?.pause();
@@ -325,7 +318,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   Widget widgetTabBar() {
-    return Column(
+    return Obx(()=>Column(
       children: [
         Container(
           padding: const EdgeInsets.all(5),
@@ -349,7 +342,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           ),
         ),
       ],
-    );
+    ));
   }
 
   Widget widgetListTabItems(ModelTamItemsGiris element) {

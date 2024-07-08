@@ -589,7 +589,7 @@ class DrawerMenuController extends getx.GetxController {
         break;
       case "myRut":
         if(userServices.getLoggedUser().userModel!.roleId==23) {
-          List<MercDataModel> model=await localBaseDownloads.getAllMercDatail();
+          List<MercDataModel> model=await localBaseDownloads.getAllMercDatailByCode(userServices.getLoggedUser().userModel!.code!);
           pageView = ScreenMercRoutDatail(listGirisCixis: [],listUsers: [],modelMercBaza: model.first,isMenumRutum: true,drawerMenuController: this,);
         }break;
       case "logout":

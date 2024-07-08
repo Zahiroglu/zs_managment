@@ -56,8 +56,18 @@ class CustomInterceptor extends Interceptor {
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
     print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
-    if(response.statusCode==405){
+    if(response.statusCode==404){
       Get.offAllNamed(RouteHelper.getWindosLoginScreen());
+    }
+    else if(response.statusCode==400){
+      Get.dialog(ShowInfoDialog(
+        color: Colors.red,
+        icon: Icons.error,
+        messaje: response.data['result'],
+        callback: () {
+          Get.back();
+        },
+      ));
     }else{
       if(response.data['exception']!=null){
         ModelExceptions model = ModelExceptions.fromJson(response.data['exception']);
@@ -66,7 +76,7 @@ class CustomInterceptor extends Interceptor {
           if (statusrefresh == 200) {
             return handler.resolve(await _retry(response.requestOptions));
           }
-        }else{
+        }else if(model.code=="005"){
           Get.dialog(ShowInfoDialog(
             color: Colors.red,
             icon: Icons.perm_identity,
@@ -76,7 +86,18 @@ class CustomInterceptor extends Interceptor {
               Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
             },
           ));
+        }else{
+          Get.dialog(ShowInfoDialog(
+            color: Colors.red,
+            icon: Icons.perm_identity,
+            messaje: model.message!,
+            callback: () {
+              Get.back();
+            },
+          ));
+
         }
+
       }else{
         if(mustShowResult){
           Get.dialog(ShowInfoDialog(
@@ -117,14 +138,27 @@ class CustomInterceptor extends Interceptor {
           break;
         case DioExceptionType.badCertificate:
         case DioExceptionType.badResponse:
+        print("error badResponse:"+err.response.toString());
+
+        if(err.response!=null){
+        ModelExceptions model = ModelExceptions.fromJson(err.response!.data['exception']);
         Get.dialog(ShowInfoDialog(
-          color: Colors.blue,
-          icon: Icons.verified,
-          messaje: "serverBaglantiXetasi".tr,
+          color: Colors.red,
+          icon: Icons.error,
+          messaje: model.message!,
           callback: () {
             Get.back();
           },
-        ));
+        ));}else{
+          Get.dialog(ShowInfoDialog(
+            color: Colors.red,
+            icon: Icons.error,
+            messaje: "serverBaglantiXetasi".tr,
+            callback: () {
+              Get.back();
+            },
+          ));
+        }
         break;
         case DioExceptionType.cancel:
           Get.dialog(ShowInfoDialog(
@@ -147,14 +181,28 @@ class CustomInterceptor extends Interceptor {
           ));
           break;
         case DioExceptionType.unknown:
+          print("error unnown:"+err.response.toString());
+          if(err.response!=null){
+          ModelExceptions model = ModelExceptions.fromJson(err.response!.data['exception']);
           Get.dialog(ShowInfoDialog(
-            color: Colors.blue,
-            icon: Icons.verified,
-            messaje: "serverunnownError".tr,
+            color: Colors.red,
+            icon: Icons.error,
+            messaje: model.message!,
             callback: () {
               Get.back();
             },
           ));
+          }else{
+            Get.dialog(ShowInfoDialog(
+              color: Colors.blue,
+              icon: Icons.verified,
+              messaje: "serverunnownError".tr,
+              callback: () {
+                Get.back();
+              },
+            ));
+          }
+
           break;
 
       // TODO: Handle this case.

@@ -131,6 +131,6 @@ class ModelCustuomerVisit {
 
   @override
   String toString() {
-    return 'ModelCustuomerVisit{customerCode: $customerCode, customerName: $customerName, inDate: $inDate inDistance: $inDistance, outDate: $outDate, outDistance: $outDistance, isRutDay: $isRutDay, gonderilme: $gonderilme, operationType: $operationType}';
+    return 'ModelCustuomerVisit{userCode: $userCode, userPosition: $userPosition, customerCode: $customerCode, userFullName: $userFullName, customerName: $customerName, customerLatitude: $customerLatitude, customerLongitude: $customerLongitude, inDate: $inDate, inLatitude: $inLatitude, inLongitude: $inLongitude, inDistance: $inDistance, inNote: $inNote, outDate: $outDate, outLatitude: $outLatitude, outLongitude: $outLongitude, outDistance: $outDistance, outNote: $outNote, workTimeInCustomer: $workTimeInCustomer, isRutDay: $isRutDay, inDt: $inDt, gonderilme: $gonderilme, operationType: $operationType, enterCount: $enterCount}';
   }
 }

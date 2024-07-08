@@ -25,13 +25,18 @@ class LocalGirisCixisServiz {
     List<ModelCustuomerVisit> listGirisler=[];
     ModelCustuomerVisit model = ModelCustuomerVisit();
     girisCixis.toMap().forEach((key, value) {
-      if (value.outDistance == "0"&&value.operationType=="out") {
         listGirisler.add(value);
-      }
     });
     listGirisler.sort((a, b) => a.inDate!.compareTo(b.inDate!));
     if(listGirisler.isNotEmpty){
       model=listGirisler.last;
+      if(listGirisler.last.operationType!="out"){
+        model=listGirisler.last;
+
+      }else{
+        model = ModelCustuomerVisit();
+      }
+
     }
     return model;
   }

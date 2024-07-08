@@ -160,15 +160,16 @@ class LocalBaseDownloads {
       sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
       saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
     }else{
-      listCariler= await getAllMercBazaForGirisCixisByCode(temKod);
-      listRutGUNU = listCariler.where((element) => element.rutGunu=="Duz").toList();
-      listGirisCixis= localGirisCixisServiz.getAllGirisCixisTodayByCode(temKod);
-      sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
-      saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
+      await getAllMercBazaForGirisCixisByCode(temKod).then((list){
+        listCariler=list;
+        listRutGUNU = list.where((element) => element.rutGunu=="Duz").toList();
+        listGirisCixis= localGirisCixisServiz.getAllGirisCixisTodayByCode(temKod);
+        sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
+        saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
+      });
+
     }
     listZiyaretedilmeyen =ziyaretEdilmeyenler(listRutGUNU,listGirisCixis);
-
-    print("Gonderilmeyen giris cixis sayi = "+listGonderilmeyeneler.length.toString());
     modelRutPerform=ModelRutPerform(
       listGunlukRut: listRutGUNU,
       listZiyaretEdilmeyen: listZiyaretedilmeyen,
@@ -358,6 +359,16 @@ class LocalBaseDownloads {
   Future<List<MercDataModel>> getAllMercDatail() async {
     List<MercDataModel> list = [];
     boxListMercBaza.toMap().forEach((key, value) {list.add(value);});
+    return list;
+  }
+  Future<List<MercDataModel>> getAllMercDatailByCode(String code) async {
+    List<MercDataModel> list = [];
+    boxListMercBaza.toMap().forEach((key, value) {
+      if(value.user.code==code){
+
+        list.add(value);
+      }
+      });
     return list;
   }
 

@@ -480,20 +480,20 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
       case "myRut":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
-        List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
-        if (data.isNotEmpty) {
-          listDonwloads.remove(model);
-          model.lastDownDay = DateTime.now().toIso8601String();
-          model.musteDonwload = false;
-          localBaseDownloads.addDownloadedBaseInfo(model);
-          localBaseDownloads.addDataMotivationMerc(data);
-          if (guncelle) {
-            listDownloadsFromLocalDb.remove(model);
-            listDownloadsFromLocalDb.add(model);
-          } else {
-            listDownloadsFromLocalDb.add(model);
-          }
-        }
+        // List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
+        // if (data.isNotEmpty) {
+        //   listDonwloads.remove(model);
+        //   model.lastDownDay = DateTime.now().toIso8601String();
+        //   model.musteDonwload = false;
+        //   localBaseDownloads.addDownloadedBaseInfo(model);
+        //   localBaseDownloads.addDataMotivationMerc(data);
+        //   if (guncelle) {
+        //     listDownloadsFromLocalDb.remove(model);
+        //     listDownloadsFromLocalDb.add(model);
+        //   } else {
+        //     listDownloadsFromLocalDb.add(model);
+        //   }
+        // }
 
         break;
     }
@@ -636,13 +636,11 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   Future<List<MercDataModel>> getAllMercCariBazaMotivasiya() async {
     List<MercDataModel> listUsers = [];
     List<UserModel> listConnectedUsers = [];
-
     languageIndex = await getLanguageIndex();
     List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
     LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
-    List<UserModel> listUsersSelected =  localBaseDownloads
-        .getAllConnectedUserFromLocal();
+    List<UserModel> listUsersSelected =  localBaseDownloads.getAllConnectedUserFromLocal();
     if (listUsersSelected.isEmpty) {
       secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
     } else {
@@ -711,45 +709,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
       }
     }
     await localBaseDownloads.addConnectedUsers(listConnectedUsers);
-    return listUsers;
-  }
-
-  Future< List<MercDataModel>> getAllMercCariBaza() async {
-    List<MercDataModel> listUsers = [];
-    languageIndex = await getLanguageIndex();
-    int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {},
-      ));
-    } else {
-      final response = await ApiClient().dio(false).get(
-        "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
-        options: Options(
-          receiveTimeout: const Duration(seconds: 60),
-          headers: {
-            'Lang': languageIndex,
-            'Device': dviceType,
-            'abs': '123456',
-            "Authorization": "Bearer $accesToken"
-          },
-          validateStatus: (_) => true,
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.json,
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        var dataModel = json.encode(response.data['result']);
-        List listuser = jsonDecode(dataModel);
-        for (var i in listuser) {
-          listUsers.add(MercDataModel.fromJson(i));
-        }
-    }}
     return listUsers;
   }
 
