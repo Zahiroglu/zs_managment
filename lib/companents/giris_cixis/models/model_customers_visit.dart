@@ -51,10 +51,13 @@ class ModelCustuomerVisit {
   @HiveField(21)
   String? operationType;
   int? enterCount;
+  @HiveField(22)
+  String? girisEdilenRutCodu;
 
 
   ModelCustuomerVisit({
     this.userCode,
+    this.girisEdilenRutCodu,
     this.userPosition,
     this.customerCode,
     this.userFullName,
@@ -131,6 +134,6 @@ class ModelCustuomerVisit {
 
   @override
   String toString() {
-    return 'ModelCustuomerVisit{userCode: $userCode, userPosition: $userPosition, customerCode: $customerCode, userFullName: $userFullName, customerName: $customerName, customerLatitude: $customerLatitude, customerLongitude: $customerLongitude, inDate: $inDate, inLatitude: $inLatitude, inLongitude: $inLongitude, inDistance: $inDistance, inNote: $inNote, outDate: $outDate, outLatitude: $outLatitude, outLongitude: $outLongitude, outDistance: $outDistance, outNote: $outNote, workTimeInCustomer: $workTimeInCustomer, isRutDay: $isRutDay, inDt: $inDt, gonderilme: $gonderilme, operationType: $operationType, enterCount: $enterCount}';
+    return 'ModelCustuomerVisit{userCode: $userCode, userPosition: $userPosition, customerCode: $customerCode, userFullName: $userFullName, customerName: $customerName, customerLatitude: $customerLatitude, customerLongitude: $customerLongitude, inDate: $inDate, inLatitude: $inLatitude, inLongitude: $inLongitude, inDistance: $inDistance, inNote: $inNote, outDate: $outDate, outLatitude: $outLatitude, outLongitude: $outLongitude, outDistance: $outDistance, outNote: $outNote, workTimeInCustomer: $workTimeInCustomer, isRutDay: $isRutDay, inDt: $inDt, gonderilme: $gonderilme, operationType: $operationType, enterCount: $enterCount, girisEdilenRutCodu: $girisEdilenRutCodu}';
   }
 }

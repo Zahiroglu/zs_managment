@@ -1,8 +1,5 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,8 +34,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   late Position _currentLocation;
   late LocationSettings locationSettings;
   int defaultTargetPlatform=0;
-  bool followMe = false;
-  bool dataLoading = true;
+  bool followMe = true;
   String selectedItemsLabel = "Gunluk Rut";
   ModelCariler selectedCariModel = ModelCariler();
   int marketeGirisIcazeMesafesi = 120000;
@@ -50,7 +46,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   bool marketeGirisIcazesi = false;
   bool marketeCixisIcazesi = false;
   ScrollController scrollController = ScrollController();
-  ModelTamItemsGiris selectedTabItem = ModelTamItemsGiris();
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   StreamSubscription<Position>? _positionStreamSubscription;
   bool positionStreamStarted = false;
@@ -66,11 +61,11 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       setState(() {
         if(controllerGirisCixis.initialized){
           controllerGirisCixis.getGirisEdilmisCari(LatLng(value.latitude, value.longitude));
-          setState(() {
-          });
         }
-        _currentLocation=value;
-        dataLoading = false;
+        setState(() {
+          _currentLocation=value;
+          controllerGirisCixis.dataLoading.value = false;
+        });
       });
     });
     _toggleListening();
@@ -163,9 +158,11 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
         _positionStreamSubscription = null;
       }).listen((position) {
         if (followMe) {
-          _currentLocation == position;
-          controllerGirisCixis.changeTabItemsValue(controllerGirisCixis.listTabItems.where((p) => p.selected == true).first, LatLng(_currentLocation.latitude, _currentLocation.longitude));
-          funFlutterToast("Current loc :${_currentLocation.longitude}${_currentLocation.latitude}");
+          _currentLocation = position;
+          controllerGirisCixis.changeSelectedDistance(controllerGirisCixis.selectedTemsilci.value,LatLng(position.latitude, position.longitude));
+          setState(() {});
+          funFlutterToast(
+              "Current loc : ${_currentLocation.longitude}, ${_currentLocation.latitude}");
         }});
       _positionStreamSubscription?.pause();
     }
@@ -243,7 +240,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               controllerGirisCixis.marketeGirisEdilib.isFalse?Padding(
                 padding: const EdgeInsets.only(right: 0),
                 child: IconButton(icon: const Icon(Icons.supervised_user_circle_outlined,color: Colors.black,),onPressed: (){
-               controllerGirisCixis.getExpList(LatLng(_currentLocation.latitude!, _currentLocation.longitude!));
+               controllerGirisCixis.getExpList(LatLng(_currentLocation.latitude, _currentLocation.longitude));
                 }),
               ):const SizedBox(),
             ],
@@ -267,10 +264,16 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               setState(() {
                 if (followMe) {
                   followMe = false;
+                  _positionStreamSubscription!.cancel();
+                  _positionStreamSubscription=null;
                   funFlutterToast("Meni izle dayandirildi");
                 } else {
-                  followMe = true;
-                  funFlutterToast("Meni izle baslatildi");
+                    confiqGeolocatior();
+                   _toggleListening();
+                    followMe = true;
+                    funFlutterToast("Meni izle baslatildi");
+
+
                 }
               });
             },
@@ -294,19 +297,16 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
       Expanded(
-          flex: controllerGirisCixis.marketeGirisEdilib.isFalse?3:1,
+          flex: controllerGirisCixis.marketeGirisEdilib.isFalse?5:1,
           child: Column(
         children: [
-          const SizedBox(
-            height: 5,
-          ),
           controllerGirisCixis.marketeGirisEdilib.isTrue
               ? const SizedBox()
               : widgetTabBar(),
         ],
       )),
         Expanded(
-            flex:  controllerGirisCixis.marketeGirisEdilib.isFalse?15:40,
+            flex:  controllerGirisCixis.marketeGirisEdilib.isFalse?25:40,
             child: Column(children: [
           controllerGirisCixis.marketeGirisEdilib.isTrue
               ? widgetCixisUcun(context)
@@ -318,11 +318,11 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   Widget widgetTabBar() {
-    return Obx(()=>Column(
+    return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(5),
-          height: 115,
+          height: 120,
           width: MediaQuery
               .of(context)
               .size
@@ -330,19 +330,19 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           child: Row(
             children: [
               Expanded(
-                child: ListView(
+                child: Obx(()=>ListView(
                   padding: const EdgeInsets.all(0),
                   scrollDirection: Axis.horizontal,
                   children: controllerGirisCixis.listTabItems
                       .map((element) => widgetListTabItems(element))
                       .toList(),
-                ),
+                )),
               ),
             ],
           ),
         ),
       ],
-    ));
+    );
   }
 
   Widget widgetListTabItems(ModelTamItemsGiris element) {
@@ -352,54 +352,54 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           setState(() {
             controllerGirisCixis.changeTabItemsValue(element, LatLng(_currentLocation.latitude, _currentLocation.longitude));
             selectedItemsLabel = element.label!;
-            selectedTabItem = element;
+            element.selected=true;
+            controllerGirisCixis.selectedTabItem.value=element;
           });
         }
       },
       child: Container(
         decoration: BoxDecoration(
-            boxShadow: element.selected!
-                ? const [
+            boxShadow: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText
+                ?  [
               BoxShadow(
-                  color: Colors.blueAccent,
+                  color: element.color!,
                   offset: Offset(0, 0),
-                  blurRadius: 5,
-                  spreadRadius: 0.2,
+                  blurRadius: 10,
+                  spreadRadius: 0.1,
                   blurStyle: BlurStyle.outer)
             ]
                 : [],
-            border: element.selected!
+            border: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText
                 ? Border.all(color: element.color!, width: 2)
                 : Border.all(color: Colors.grey, width: 1),
             borderRadius: const BorderRadius.all(Radius.circular(10))),
         margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-        height: 100,
-        width: element.selected! ? 140 : 120,
+        width: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText ? 150 : 120,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                   color: element.color,
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      topRight: Radius.circular(8))),
-              height: 40,
-              width: element.selected! ? 140 : 120,
-              child: CustomText(
-                  textAlign: TextAlign.center,
-                  fontsize: element.selected! ? 14 : 12,
-                  labeltext: element.label!.tr,
-                  maxline: 2,
-                  color: Colors.white,
-                  fontWeight:
-                  element.selected! ? FontWeight.w700 : FontWeight.normal),
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8))),
+              height: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText?40: 40,
+              width: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText ? 150 : 120,
+              child: Center(
+                child: CustomText(
+                    textAlign: TextAlign.center,
+                    fontsize: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText ? 16 : 14,
+                    labeltext: element.label!.tr,
+                    maxline: 2,
+                    color: Colors.white,
+                    fontWeight:
+                    element.keyText==controllerGirisCixis.selectedTabItem.value.keyText ? FontWeight.w700 : FontWeight.normal),
+              ),
             ),
             SizedBox(
-              width: element.selected! ? 140 : 120,
-              height: 50,
+              width: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText ? 150 : 120,
+              height: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText?55: 55,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -410,16 +410,16 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                       CustomText(
                         labeltext: element.marketSayi.toString(),
                         textAlign: TextAlign.center,
-                        fontsize: 18,
+                        fontsize: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText?24:18,
                         color: element.color,
-                        fontWeight: FontWeight.bold,
+                        fontWeight:element.keyText==controllerGirisCixis.selectedTabItem.value.keyText? FontWeight.bold:FontWeight.normal,
                       ),
                       CustomText(
-                        labeltext: "Musteri",
+                        labeltext: "musteri".tr,
                         textAlign: TextAlign.center,
                         fontsize: 10,
                         color: element.color,
-                        fontWeight: FontWeight.bold,
+                        fontWeight:element.keyText==controllerGirisCixis.selectedTabItem.value.keyText? FontWeight.bold:FontWeight.normal,
                       ),
                     ],
                   ),
@@ -427,7 +427,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                       ? const SizedBox()
                       : Container(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
-                    height: 50,
+                    height: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText?55: 45,
                     width: 1,
                     color: Colors.grey,
                   ),
@@ -440,16 +440,16 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                       CustomText(
                         labeltext: "${element.girisSayi}",
                         textAlign: TextAlign.center,
-                        fontsize: 18,
+                        fontsize: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText?24:18,
                         color: Colors.green,
-                        fontWeight: FontWeight.normal,
+                        fontWeight:element.keyText==controllerGirisCixis.selectedTabItem.value.keyText? FontWeight.bold:FontWeight.normal,
                       ),
                       CustomText(
-                        labeltext: "Ziyaret",
+                        labeltext: "visit".tr,
                         textAlign: TextAlign.center,
                         fontsize: 10,
                         color: Colors.green,
-                        fontWeight: FontWeight.normal,
+                        fontWeight:element.keyText==controllerGirisCixis.selectedTabItem.value.keyText? FontWeight.bold:FontWeight.normal,
                       )
                     ],
                   ),
@@ -463,7 +463,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   Widget widgetListRutGunu(ControllerGirisCixisReklam controller) {
-    return dataLoading
+    return  controllerGirisCixis.dataLoading.value
         ? SizedBox(
         height: MediaQuery
             .of(context)
@@ -484,7 +484,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                           controllerGirisCixis.listIadeler.isNotEmpty)
                   ? controllerGirisCixis.cardTotalSifarisler(context, false)
                   : const SizedBox(),//sifarisleri gosteren hisse
-              if (selectedTabItem.keyText!="z"&&selectedTabItem.keyText!="gz")
+              if (controllerGirisCixis.selectedTabItem.value.keyText!="z"&&controllerGirisCixis.selectedTabItem.value.keyText!="gz")
           Padding(padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
           child: CustomText(
               labeltext:controllerGirisCixis.selectedTemsilci.value.code=="u"?
@@ -495,7 +495,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
         ) else const SizedBox(),
         SizedBox(
             height: MediaQuery.of(context).size.height * 0.70,
-            child:  selectedTabItem.keyText!="z"&&selectedTabItem.keyText!="gz"
+            child:  controllerGirisCixis.selectedTabItem.value.keyText!="z"&&controllerGirisCixis.selectedTabItem.value.keyText!="gz"
                 ? ListView(
               controller: scrollController,
               padding: const EdgeInsets.all(0).copyWith(bottom: 0),
@@ -506,7 +506,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                 : controllerGirisCixis
                 .modelRutPerform.value.listGirisCixislar!.isEmpty&&controllerGirisCixis.modelRutPerform.value.listGonderilmeyenZiyaretler!.isEmpty
                 ? const SizedBox()
-                : ziyaretEdilenler(selectedTabItem.keyText=="z")),
+                : ziyaretEdilenler(controllerGirisCixis.selectedTabItem.value.keyText=="z")),
       ],
     );
   }
@@ -515,7 +515,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     return showZiyaretler?Column(
       children: [
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Padding(
             padding: const EdgeInsets.all(5.0),
             child: DecoratedBox(
@@ -598,7 +598,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           ),
         ),
         Expanded(
-            flex: 10,
+            flex: 12,
             child: ListView(
               padding: const EdgeInsets.all(0),
               children:
@@ -662,9 +662,10 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           if (selectedCariModel == e) {
             selectedCariModel = ModelCariler();
           } else {
-            scrollController.animateTo(double.parse(controllerGirisCixis.listSelectedMusteriler.indexOf(e).toString()) * 90,
-                duration: const Duration(milliseconds: 1000),
-                curve: Curves.bounceOut);
+            // scrollController.animateTo(double.parse(controllerGirisCixis.listSelectedMusteriler.indexOf(e).toString()),
+            //     duration: const Duration(milliseconds: 1000),
+            //     curve: Curves.bounceOut);
+            //scrollController.animateTo(0, duration: Duration(seconds: 1), curve: Curves.easeIn);
             setState(() {
               selectedCariModel = e;
               _onMarkerClick(e);
@@ -887,7 +888,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     Fluttertoast.showToast(
         msg: s.tr,
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
+        gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1,
         backgroundColor: followMe ? Colors.green : Colors.red,
         textColor: Colors.white,
@@ -895,19 +896,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   Widget widgetGirisUcun() {
-    return dataLoading
-        ? SizedBox(
-        height: MediaQuery
-            .of(context)
-            .size
-            .height / 2,
-        child: Center(
-          child: LoagindAnimation(
-              textData: "konumaxtarilir".tr,
-              icon: "lottie/locations_search.json",
-              isDark: Get.isDarkMode),
-        ))
-        : Column(
+    return  Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -946,7 +935,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                     padding: const EdgeInsets.all(5.0)
                         .copyWith(top: 2, bottom: 0),
                     child: CustomText(
-                      maxline: 2,
+                        maxline: 2,
                         fontsize: marketeGirisIcazesi ? 14 : 16,
                         labeltext: secilenMusterininRutGunuDuzluyu == true
                             ? "Rut duzgunluyu : Duzdur"
@@ -984,17 +973,17 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
             marketeGirisIcazesi
                 ? Expanded(
               flex: 3,
-                  child: CustomElevetedButton(
-                                cllback: () {
-                                  girisEt(selectedCariModel, secilenMarketdenUzaqliqString,);
-                                },
-                                label: "giriset".tr,
-                                width: 120,
-                                icon: Icons.exit_to_app,
-                                borderColor: Colors.blue,
-                                elevation: 5,
-                              ),
-                )
+              child: CustomElevetedButton(
+                cllback: () {
+                  girisUcunDialogAc(selectedCariModel, secilenMarketdenUzaqliqString,);
+                },
+                label: "giriset".tr,
+                width: 120,
+                icon: Icons.exit_to_app,
+                borderColor: Colors.blue,
+                elevation: 5,
+              ),
+            )
                 : const SizedBox()
           ],
         ),
@@ -1009,9 +998,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     setState(() {
       selectedCariModel = model;
       secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model);
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(
-          _currentLocation.latitude,
-          _currentLocation.longitude,
+      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(_currentLocation.latitude, _currentLocation.longitude,
           double.parse(model.longitude.toString()),
           double.parse(model.latitude.toString()));
       if (secilenMarketdenUzaqliq > 1) {
@@ -1045,8 +1032,12 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
 
   }
 
-  void girisEt(ModelCariler selectedModel, String uzaqliq) async {
-    showGirisDialog(selectedModel);
+  void girisUcunDialogAc(ModelCariler selectedModel, String uzaqliq) async {
+    if(_positionStreamSubscription!=null){
+      _positionStreamSubscription!.cancel();
+      _positionStreamSubscription=null;
+    }
+      showGirisDialog(selectedModel);
   }
 
   Future<void> showGirisDialog(ModelCariler model) async {
@@ -1057,11 +1048,10 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model),
       secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, model.longitude!,model.latitude!),
       if (secilenMarketdenUzaqliq > 1) {
-        secilenMarketdenUzaqliqString =
-        "${(secilenMarketdenUzaqliq).round()} km",
+        secilenMarketdenUzaqliqString = "${(secilenMarketdenUzaqliq).toStringAsFixed(2)} km",
       } else {
         secilenMarketdenUzaqliqString =
-        "${(secilenMarketdenUzaqliq * 1000).round()} m",
+        "${(secilenMarketdenUzaqliq * 1000).toStringAsFixed(2)} m",
       },
       if (secilenMarketdenUzaqliq < marketeGirisIcazeMesafesi / 1000) {
         if (istifadeciRutdanKenarGirisEdebiler) {
@@ -1077,7 +1067,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       } else {
         marketeCixisIcazesi = false,
         marketeGirisIcazesi = false,
-        girisErrorQeyd = "Marketden Uzaq oldugunuz ucun giris ede bilmezsiniz!",
+        girisErrorQeyd = "girisErrorQeyd".tr,
       },
       DialogHelper.hideLoading(),
       Get.dialog(
@@ -1122,8 +1112,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                               children: [
                                 Expanded(
                                   child: CustomText(
-                                    labeltext:
-                                    "${model.name!} adli marketden giris ucun eminsiniz?",
+                                    labeltext: model.name!+"girisXeber".tr,
                                     fontsize: 18,
                                     maxline: 3,
                                     textAlign: TextAlign.center,
@@ -1169,10 +1158,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                                   icon: Icons.exit_to_app_rounded,
                                   elevation: 5,
                                   cllback: () async {
-                                    await controllerGirisCixis.pripareForEnter(value, model, secilenMarketdenUzaqliq);
-                                    setState(() {
-                                      selectedCariModel = ModelCariler();
-                                    });
+                                    girisEt(secilenMarketdenUzaqliq,value,model);
                                     //Get.back();
                                   },
                                   label: "giris".tr)
@@ -1203,7 +1189,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   Widget widgetCixisUcun(BuildContext context) {
-    return Column(
+    return Obx(() => Column(
       children: [
         Card(
           shadowColor: Colors.blue,
@@ -1280,7 +1266,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                               ),
                               CustomText(
                                   labeltext: controllerGirisCixis
-                                      .modelgirisEdilmis.value.inDistance.toString(),
+                                      .modelgirisEdilmis.value.inDistance!,
                                   fontWeight: FontWeight.normal,
                                   fontsize: 14),
                             ],
@@ -1350,11 +1336,11 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           height: MediaQuery.of(context).size.height*0.6,
           child: SingleChildScrollView(
             child: Column(children: [
-              Card(
-                elevation: 5,
-                margin: const EdgeInsets.all(15).copyWith(bottom: 5,top: 0),
-                child: controllerGirisCixis.cardSifarisler(context),
-              ), //satis ucun
+              // Card(
+              //   elevation: 5,
+              //   margin: const EdgeInsets.all(15).copyWith(bottom: 5,top: 0),
+              //   child: controllerGirisCixis.cardSifarisler(context),
+              // ), //satis ucun
               Card(
                 elevation: 5,
                 margin: const EdgeInsets.all(15).copyWith(bottom: 5),
@@ -1386,15 +1372,14 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           ),
         )
       ],
-    );
+    ));
   }
 
   Future<void> showCixisDialog() async {
     DialogHelper.showLoading("mesafeHesablanir".tr);
     _determinePosition().then((value) =>
     {
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!)
-          , double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!)),
+      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!), double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!)),
       if (secilenMarketdenUzaqliq > 1)
         {
           secilenMarketdenUzaqliqString =
@@ -1555,9 +1540,21 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   Future<void> cixisEt(double uzaqliq, Position value) async {
-    await controllerGirisCixis.pripareForExit(
-        value, uzaqliq,selectedCariModel);
-    setState(() {});
+    await controllerGirisCixis.pripareForExit(value, uzaqliq,selectedCariModel).then((e){
+      confiqGeolocatior();
+      _toggleListening();
+      setState(() {});
+    });
+
+  }
+
+  Future<void> girisEt(double uzaqliq, Position value, ModelCariler model) async {
+    await controllerGirisCixis.pripareForEnter(value, model, secilenMarketdenUzaqliq).then((e){
+      setState(() {
+        selectedCariModel = ModelCariler();
+      });
+
+    });
   }
 
 }

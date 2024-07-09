@@ -248,6 +248,7 @@
     "baseEmptyCari": "Cari baza bosdur.Zehmet olmasa yenileyin",
     "girisCixislar": "Giris-Cixislar",
     "todeyRut": "Gunluk Rut",
+    "visit": "Ziyarət",
     "unVisited": "Ziyaret Edilmeyenler",
     "planSatis": "Plan-Satis",
     "ziyaretler": "Ziyaretler",
@@ -304,6 +305,7 @@
     "btMelumUgurlaGonde": "Butun melumatlar ugurla gonderildi",
     "allDataSending": "Kohne melumatlar gonderilir",
     "girisErrorQeyd": "Marketden Uzaq oldugunuz ucun giris ede bilmezsiniz!.Giris ucun yaxinliq mesafesi",
-    "rutGunuError": "Rut gunu duz olmadigi ucun giris ede bilmezsiniz!"
+    "rutGunuError": "Rut gunu duz olmadigi ucun giris ede bilmezsiniz!",
+    "girisXeber": " adli marketden giris ucun eminsiniz?"
 
 }

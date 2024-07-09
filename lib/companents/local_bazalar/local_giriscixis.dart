@@ -1,7 +1,5 @@
 
 import 'package:hive/hive.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_request_giriscixis.dart';
-
 import '../giris_cixis/models/model_customers_visit.dart';
 
 class LocalGirisCixisServiz {
@@ -29,7 +27,6 @@ class LocalGirisCixisServiz {
     });
     listGirisler.sort((a, b) => a.inDate!.compareTo(b.inDate!));
     if(listGirisler.isNotEmpty){
-      model=listGirisler.last;
       if(listGirisler.last.operationType!="out"){
         model=listGirisler.last;
 
@@ -61,11 +58,6 @@ class LocalGirisCixisServiz {
        listGirisler.add(value);
      }});
    listGirisler.sort((a, b) => a.inDate!.compareTo(b.inDate!));
-  // listGirisler.sort((a, b) => a.outDate!.compareTo(b.outDate!));
-   listGirisler.forEach((element) {
-     print("Model gonderilmezler : "+element.toString());
-
-   });
    return listGirisler;
   }
 
@@ -84,7 +76,7 @@ class LocalGirisCixisServiz {
  List<ModelCustuomerVisit> getAllGirisCixisTodayByCode(String userCode) {
     List<ModelCustuomerVisit> listGirisler=[];
     girisCixis.toMap().forEach((key, value) {
-      if (value.outDistance != "0"&&convertDayByLastday(value)&&value.userCode==userCode) {
+      if (value.outDistance != "0"&&convertDayByLastday(value)&&value.girisEdilenRutCodu==userCode) {
           int count =girisCixis.toMap().entries.where((element) => element.value.customerCode==value.customerCode).toList().length;
           value.enterCount==count;
         listGirisler.add(value);
@@ -113,12 +105,9 @@ class LocalGirisCixisServiz {
     final box = Hive.box<ModelCustuomerVisit>("girisCixis");
     final Map<dynamic, ModelCustuomerVisit> deliveriesMap = box.toMap();
     dynamic desiredKey;
-    print("Silinme ucun olan datalar :"+model.toString());
     deliveriesMap.forEach((key, value) {
-      print("Visit id :"+key.toString());
       if (value.customerCode == model.customerCode.toString() && value.inDate.toString()==model.inDate.toString()&& value.operationType.toString()==model.operationType.toString()) {
         desiredKey = key;
-        print("BU KODDA SILINME UCUN MELUMAT TAPOLDI  ID : "+desiredKey);
         box.delete(desiredKey);
       }
     });

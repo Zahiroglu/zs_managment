@@ -146,15 +146,15 @@ class ControllerBaseDownloads extends GetxController {
               donloading: false,
               musteDonwload: true));
           break;
-        case "myRut":
-          listDonwloads.add(ModelDownloads(
-              name: "myRut".tr,
-              donloading: false,
-              code: "myRut",
-              info: "myRutExplain".tr,
-              lastDownDay: "",
-              musteDonwload: true));
-          break;
+        // case "myRut":
+        //   listDonwloads.add(ModelDownloads(
+        //       name: "myRut".tr,
+        //       donloading: false,
+        //       code: "myRut",
+        //       info: "myRutExplain".tr,
+        //       lastDownDay: "",
+        //       musteDonwload: true));
+        //   break;
         case "enter":
           listDonwloads.add(ModelDownloads(
               name: "currentBase".tr,

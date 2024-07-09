@@ -18,6 +18,7 @@ class ModelCustuomerVisitAdapter extends TypeAdapter<ModelCustuomerVisit> {
     };
     return ModelCustuomerVisit(
       userCode: fields[0] as String?,
+      girisEdilenRutCodu: fields[22] as String?,
       userPosition: fields[1] as String?,
       customerCode: fields[2] as String?,
       userFullName: fields[3] as String?,
@@ -45,7 +46,7 @@ class ModelCustuomerVisitAdapter extends TypeAdapter<ModelCustuomerVisit> {
   @override
   void write(BinaryWriter writer, ModelCustuomerVisit obj) {
     writer
-      ..writeByte(22)
+      ..writeByte(23)
       ..writeByte(0)
       ..write(obj.userCode)
       ..writeByte(1)
@@ -89,7 +90,9 @@ class ModelCustuomerVisitAdapter extends TypeAdapter<ModelCustuomerVisit> {
       ..writeByte(20)
       ..write(obj.gonderilme)
       ..writeByte(21)
-      ..write(obj.operationType);
+      ..write(obj.operationType)
+      ..writeByte(22)
+      ..write(obj.girisEdilenRutCodu);
   }
 
   @override

@@ -59,16 +59,7 @@ class CustomInterceptor extends Interceptor {
     if(response.statusCode==404){
       Get.offAllNamed(RouteHelper.getWindosLoginScreen());
     }
-    else if(response.statusCode==400){
-      Get.dialog(ShowInfoDialog(
-        color: Colors.red,
-        icon: Icons.error,
-        messaje: response.data['result'],
-        callback: () {
-          Get.back();
-        },
-      ));
-    }else{
+    else
       if(response.data['exception']!=null){
         ModelExceptions model = ModelExceptions.fromJson(response.data['exception']);
         if(model.code=="006"){
@@ -110,9 +101,11 @@ class CustomInterceptor extends Interceptor {
           ));
 
         }else {
-          Get.back();
+         if(Get.isDialogOpen!){
+           Get.back();
+         }
         }
-      }
+
     }
     super.onResponse(response, handler);
   }
@@ -139,7 +132,6 @@ class CustomInterceptor extends Interceptor {
         case DioExceptionType.badCertificate:
         case DioExceptionType.badResponse:
         print("error badResponse:"+err.response.toString());
-
         if(err.response!=null){
         ModelExceptions model = ModelExceptions.fromJson(err.response!.data['exception']);
         Get.dialog(ShowInfoDialog(

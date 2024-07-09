@@ -50,7 +50,7 @@ class CurrentLocation {
   String? pastInputCustomerCode;
   String? pastInputCustomerName;
   String? inputCustomerDistance;
-  double? batteryLevel;
+  String? batteryLevel;
 
   CurrentLocation({
     this.userCode,
@@ -83,7 +83,7 @@ class CurrentLocation {
     pastInputCustomerCode: json["pastInputCustomerCode"],
     pastInputCustomerName: json["pastInputCustomerName"],
     inputCustomerDistance: json["inputCustomerDistance"],
-    batteryLevel: json["batteryLevel"],
+    batteryLevel: json["batteryLevel"].toString(),
   );
 
   Map<String, dynamic> toJson() => {

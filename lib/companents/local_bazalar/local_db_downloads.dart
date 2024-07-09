@@ -1,13 +1,10 @@
 import 'package:hive/hive.dart';
-import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/models/model_rut_perform.dart';
-import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 
 import '../giris_cixis/models/model_customers_visit.dart';
 import '../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
@@ -102,7 +99,6 @@ class LocalBaseDownloads {
         list.add(value);
     });
     for (var element in list) {
-      print("mode : "+element.code.toString());
       element.musteDonwload = convertDayByLastday(element);
       element.donloading=false;
     }
@@ -144,7 +140,8 @@ class LocalBaseDownloads {
 
 //////Umumi Rut gostericilerini Doldur//////
 
-  Future<ModelRutPerform> getRutDatailForMerc(bool hamisi,String temKod) async {
+  Future<ModelRutPerform> getRutDatailForMerc(bool hamisi,String temKod,String loggedUser) async {
+    print("Selected User :"+temKod.toString());
     ModelRutPerform modelRutPerform=ModelRutPerform();
     List<ModelCariler> listCariler=[];
     List<ModelCariler> listRutGUNU=[];
@@ -154,13 +151,16 @@ class LocalBaseDownloads {
     List<ModelCustuomerVisit> listGirisCixis= [];
     List<ModelCustuomerVisit> listGonderilmeyeneler= localGirisCixisServiz.getAllUnSendedGirisCixis();
     if(hamisi){
-      listCariler= await getAllMercBazaForGirisCixis();
+      listCariler= await getAllMercCustomers();
       listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
       listRutGUNU =listCariler.where((element) => element.rutGunu=="Duz").toList();
       sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
       saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
     }else{
-      await getAllMercBazaForGirisCixisByCode(temKod).then((list){
+      if(temKod=="m"){
+        temKod=loggedUser;
+      }
+      await getAllMercCustomersByUserCode(temKod).then((list){
         listCariler=list;
         listRutGUNU = list.where((element) => element.rutGunu=="Duz").toList();
         listGirisCixis= localGirisCixisServiz.getAllGirisCixisTodayByCode(temKod);
@@ -197,11 +197,9 @@ class LocalBaseDownloads {
     List<ModelCustuomerVisit> listGirisCixis= localGirisCixisServiz.getAllGirisCixisToday();
 
     if(hamisi){
-      print("hamisi");
       listCariler=getAllCariBaza();
       listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz").toList();
     }else{
-      print("Tek temsilci Uzre");
       listCariler=getAllCariBaza().toList().where((element) => element.forwarderCode==temKod).toList();
       listRutGUNU =listCariler.where((element) => rutDuzgunluyuYoxla(element)=="Duz"&&element.forwarderCode==temKod).toList();
     }
@@ -278,7 +276,6 @@ class LocalBaseDownloads {
   }
 
  String circulateSnlerdeQalmaVaxti(List<ModelCustuomerVisit> allGirisCixis) {
-    String vaxt="";
     Duration umumiVaxtDeqiqe=const Duration();
     for (var element in allGirisCixis) {
       umumiVaxtDeqiqe=umumiVaxtDeqiqe+getTimeDifferenceFromNow(DateTime.parse(element.inDate.toString()),DateTime.parse(element.outDate.toString()));
@@ -308,7 +305,6 @@ class LocalBaseDownloads {
     List<ModelCariler> ziyaretEdilemyenler=[];
     for (var element in listRutGUNU) {
       if(listGirisCixis.any((value) => value.customerCode==element.code)){
-        print("${element.name}: giris edilib");
       }else{
         ziyaretEdilemyenler.add(element);
       }
@@ -372,7 +368,7 @@ class LocalBaseDownloads {
     return list;
   }
 
-  Future<List<ModelCariler>> getAllMercBazaForGirisCixis()  async{
+  Future<List<ModelCariler>> getAllMercCustomers()  async{
     List<ModelCariler> listCariler = [];
     List<MercDataModel> list = [];
     boxListMercBaza.toMap().forEach((key, value) {
@@ -413,7 +409,7 @@ class LocalBaseDownloads {
     }
     return listCariler;
   }
-  Future<List<ModelCariler>> getAllMercBazaForGirisCixisByCode(String temKodu)  async{
+  Future<List<ModelCariler>> getAllMercCustomersByUserCode(String temKodu)  async{
     List<ModelCariler> listCariler = [];
     List<MercDataModel> list = [];
     boxListMercBaza.toMap().forEach((key, value) {
@@ -457,12 +453,12 @@ class LocalBaseDownloads {
 
   Future<void> addAllToMercBase(List<MercDataModel> cariler) async {
     await boxListMercBaza.clear();
-    for (MercDataModel model in cariler) {await boxListMercBaza.put(model.user!.code??"0", model);}
+    for (MercDataModel model in cariler) {await boxListMercBaza.put(model.user!.code, model);}
   }
 
   Future<void> addDataMotivationMerc(List<MercDataModel> cariler) async {
     await boxMotivasiyaMerc.clear();
-    for (MercDataModel model in cariler) {await boxMotivasiyaMerc.put(model.user!.code??"0", model);}
+    for (MercDataModel model in cariler) {await boxMotivasiyaMerc.put(model.user!.code, model);}
   }
 
 }

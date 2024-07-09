@@ -76,6 +76,7 @@ class ModelRutPerform {
 
   @override
   String toString() {
-    return 'ModelRutPerform{listGirisCixislar: $listGirisCixislar}';
+    return "sn sayi :"+snSayi.toString()+" ,rutSayi :"+rutSayi.toString()+" duzgunZiya : "+duzgunZiya.toString()+" rutkenarZiya : "+rutkenarZiya.toString()
+    +" listGunlukRut : "+listGunlukRut!.length.toString()+" listGirisCixislar : "+listGirisCixislar!.length.toString();
   }
 }
