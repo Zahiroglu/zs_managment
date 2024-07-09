@@ -177,6 +177,7 @@ class BackgroudLocationServiz extends GetxController {
   }
 
   Future<void> sendInfoLocationsToDatabase(bg.Location location, ModelCustuomerVisit modela) async {
+    print("sendInfoLocationsToDatabase : cagrildi");
     await userService.init();
     await localBackgroundEvents.init();
     double uzaqliq=0;
@@ -232,20 +233,16 @@ class BackgroudLocationServiz extends GetxController {
 
   Future<void> checkUnsendedLocations() async {
     await localBackgroundEvents.init();
-    int unsendedCount = localBackgroundEvents
-        .getAllUnSendedLocations()
-        .length;
+    int unsendedCount = localBackgroundEvents.getAllUnSendedLocations().length;
     if (unsendedCount > 0) {
-      await sendInfoUnsendedLocationsToDatabase(
-          localBackgroundEvents
-              .getAllUnSendedLocations()
-              .first);
+      await sendInfoUnsendedLocationsToDatabase(localBackgroundEvents.getAllUnSendedLocations().first);
     } else {
       await checkUnsededAllVisits();
     }
   }
 
   Future<void> sendInfoUnsendedLocationsToDatabase(ModelUsercCurrentLocationReqeust model) async {
+    print("sendInfoUnsendedLocationsToDatabase : cagrildi");
     await userService.init();
     await localBackgroundEvents.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();

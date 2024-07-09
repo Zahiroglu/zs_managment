@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/login/models/model_token.dart';
-import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 
@@ -18,9 +17,6 @@ import '../companents/login/models/logged_usermodel.dart';
 import '../companents/local_bazalar/local_users_services.dart';
 import '../companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import '../companents/main_screen/controller/drawer_menu_controller.dart';
-import '../companents/setting_panel/setting_panel_controller.dart';
-import '../constands/app_constands.dart';
-import '../helpers/exeption_handler.dart';
 import '../widgets/simple_info_dialog.dart';
 import 'package:get/get.dart' as getxt;
 
@@ -43,7 +39,7 @@ class CustomInterceptor extends Interceptor {
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     await localUserServices.init();
     String token = await localUserServices.getLoggedToken();
-    print('Request[=> PATH:${options.path}] data :${options.data} ');
+    print('Time :'+DateTime.now().toString()+' Request[=> PATH:${options.path}] data :${options.data} ');
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     }else{
@@ -55,7 +51,7 @@ class CustomInterceptor extends Interceptor {
 
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
-    print('Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
+    print('Time :'+DateTime.now().toString()+'Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
     if(response.statusCode==404){
       Get.offAllNamed(RouteHelper.getWindosLoginScreen());
     }

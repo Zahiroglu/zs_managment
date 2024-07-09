@@ -64,12 +64,12 @@ class LocalBackgroundEvents {
   }
   ////Locations field
   Future<void> addBackLocationToBase(ModelUsercCurrentLocationReqeust model) async {
-    await backLocations.put("${model.locationDate!}|${model.pastInputCustomerCode!}", model);
+    print("Location date :"+model.locationDate!);
+    await backLocations.put(model.locationDate!, model);
   }
 
   Future<void> updateSelectedLocationValue(ModelUsercCurrentLocationReqeust model) async {
     await deleteItemLocation(model);
-    await backLocations.put("${model.locationDate!}|${model.pastInputCustomerCode.toString()}", model);
   }
 
   Future<void> deleteItemLocation(ModelUsercCurrentLocationReqeust model) async {
@@ -77,7 +77,7 @@ class LocalBackgroundEvents {
     final Map<dynamic, ModelUsercCurrentLocationReqeust> deliveriesMap = box.toMap();
     dynamic desiredKey;
     deliveriesMap.forEach((key, value) {
-      if (value.locationDate == model.locationDate&&value.pastInputCustomerCode == model.pastInputCustomerCode) {
+      if (value.locationDate == model.locationDate) {
         desiredKey = key;
         box.delete(desiredKey);
       }

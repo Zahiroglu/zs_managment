@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
+import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/unsended_errors.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
@@ -77,7 +78,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     await userService.init();
     loggedUserModel= userService.getLoggedUser();
     marketeGirisIcazeMesafesi=int.parse(loggedUserModel.companyConfigModel!.where((element) => element.confCode=="territorialDistance").first.confVal.toString());
-    secilenMusterininRutGunuDuzluyu=bool.parse(loggedUserModel.companyConfigModel!.where((element) => element.confCode=="rootDay"&&element.roleId==loggedUserModel.userModel!.roleId).first.confVal.toString());
+   // secilenMusterininRutGunuDuzluyu=bool.parse(loggedUserModel.companyConfigModel!.where((element) => element.confCode=="rootDay"&&element.roleId==loggedUserModel.userModel!.roleId).first.confVal.toString());
   }
 
 
@@ -243,6 +244,14 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                controllerGirisCixis.getExpList(LatLng(_currentLocation.latitude, _currentLocation.longitude));
                 }),
               ):const SizedBox(),
+              Padding(
+                padding: const EdgeInsets.only(right: 0),
+                child: IconButton(icon: const Icon(Icons.error,color: Colors.black,),onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ScreenUnsendedErrors()),
+                  );                }),
+              )
             ],
             centerTitle: true,
             title: CustomText(

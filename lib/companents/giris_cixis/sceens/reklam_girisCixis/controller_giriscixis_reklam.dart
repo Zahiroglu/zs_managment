@@ -76,7 +76,7 @@ class ControllerGirisCixisReklam extends GetxController {
   RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
   RxList<ModelCariler> listSelectedMusteriler = List<ModelCariler>.empty(growable: true).obs;
   RxList<ModelSifarislerTablesi> listTabSifarisler = List<ModelSifarislerTablesi>.empty(growable: true).obs;
-  RxString snQalmaVaxti = "".obs;
+  RxString snQalmaVaxti = "0".obs;
   Timer? _timer;
   TextEditingController ctCixisQeyd = TextEditingController();
   LocalBaseSatis localBaseSatis = LocalBaseSatis();
@@ -397,12 +397,10 @@ class ControllerGirisCixisReklam extends GetxController {
 
   void sndeQalmaVaxtiniHesabla() {
     snQalmaVaxti = "".obs;
-    print("Sn-de qalma vaxti :"+snQalmaVaxti.toString());
-    print("marketeGirisEdilib :"+marketeGirisEdilib.toString());
     if (marketeGirisEdilib.isTrue) {
       DateTime timeGiris = DateTime.parse(modelgirisEdilmis.value.inDate.toString());
       snQalmaVaxti.value = carculateTimeDistace(timeGiris.toString(), DateTime.now().toString());
-      _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
         timeGiris.add(const Duration(minutes: 5));
         snQalmaVaxti.value = carculateTimeDistace(timeGiris.toString(), DateTime.now().toString());
         print("Sn-de qalma vaxti :"+snQalmaVaxti.toString());
@@ -2416,8 +2414,9 @@ class ControllerGirisCixisReklam extends GetxController {
     marketeGirisEdilib.value = false;
     slidePanelVisible.value = false;
     modelgirisEdilmis.value = ModelCustuomerVisit();
-    _timer!.cancel();
-    //polygon.clear();
+    if(_timer!=null){
+      _timer!.cancel();
+    }
     pointsPoly.clear();
     ctKassaDialog.text = "";
     ctCixisQeyd.text = "";
