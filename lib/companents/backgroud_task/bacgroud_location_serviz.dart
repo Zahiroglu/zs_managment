@@ -73,7 +73,6 @@ class BackgroudLocationServiz extends GetxController {
       }
       update();
     });
-    // Fired whenever the plugin changes motion-state (stationary->moving and vice-versa)
     bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
       if (location.isMoving) {
       } else {
@@ -126,7 +125,7 @@ class BackgroudLocationServiz extends GetxController {
           channelId: "zs001",
           channelName: "zsNotall",
           title: 'ZS-CONTROL-Sistem aktivdir',
-          text: "${modelVisitedInfo.value.customerName} adli markete giris edilib.",
+          text: "${modela.customerName} adli markete giris edilib.",
           color: '#FEDD1E',
         ),
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,

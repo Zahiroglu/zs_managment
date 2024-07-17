@@ -51,7 +51,7 @@ class CustomInterceptor extends Interceptor {
 
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
-    print('Time :'+DateTime.now().toString()+'Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
+    print('Time :'+DateTime.now().toString()+' Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " " + " result :" + response.data.toString());
     if(response.statusCode==404){
       Get.offAllNamed(RouteHelper.getWindosLoginScreen());
     }
