@@ -1,9 +1,18 @@
 import 'dart:convert';
 
+import 'package:hive/hive.dart';
+part 'model_main_inout.g.dart';
+
+
+@HiveType(typeId: 34)
 class ModelMainInOut {
+  @HiveField(1)
   String userCode;
+  @HiveField(2)
   String userPosition;
+  @HiveField(3)
   String userFullName;
+  @HiveField(4)
   List<ModelInOutDay> modelInOutDays;
 
   ModelMainInOut({
@@ -36,14 +45,21 @@ class ModelMainInOut {
     return 'ModelMainInOut{userCode: $userCode, userPosition: $userPosition, userFullName: $userFullName, modelInOutDays: $modelInOutDays}';
   }
 }
-
+@HiveType(typeId: 35)
 class ModelInOutDay {
+  @HiveField(1)
   String day;
+  @HiveField(2)
   int visitedCount;
+  @HiveField(3)
   String firstEnterDate;
+  @HiveField(4)
   String lastExitDate;
+  @HiveField(5)
   String workTimeInCustomer;
+  @HiveField(6)
   String workTimeInArea;
+  @HiveField(7)
   List<ModelInOut> modelInOut;
 
   ModelInOutDay({
@@ -85,32 +101,70 @@ class ModelInOutDay {
     return 'ModelInOutDay{day: $day, visitedCount: $visitedCount, firstEnterDate: $firstEnterDate, lastExitDate: $lastExitDate, workTimeInCustomer: $workTimeInCustomer, workTimeInArea: $workTimeInArea, modelInOut: $modelInOut}';
   }
 }
-
+@HiveType(typeId: 36)
 class ModelInOut {
+  @HiveField(1)
+  dynamic userCode;
+  @HiveField(2)
+  dynamic userPosition;
+  @HiveField(3)
   dynamic customerCode;
+  @HiveField(4)
+  dynamic userFullName;
+  @HiveField(5)
   dynamic customerName;
+  @HiveField(6)
+  dynamic customerLatitude;
+  @HiveField(7)
+  dynamic customerLongitude;
+  @HiveField(8)
   dynamic inDate;
+  @HiveField(9)
   dynamic inLatitude;
+  @HiveField(10)
   dynamic inLongitude;
+  @HiveField(11)
+  dynamic inDistance;
+  @HiveField(12)
   dynamic inNote;
+  @HiveField(13)
   dynamic outDate;
+  @HiveField(14)
   dynamic outLatitude;
+  @HiveField(15)
   dynamic outLongitude;
+  @HiveField(16)
+  dynamic outDistance;
+  @HiveField(17)
   dynamic outNote;
+  @HiveField(18)
   dynamic workTimeInCustomer;
+  @HiveField(19)
+  dynamic isRutDay;
+  @HiveField(20)
+  dynamic inDt;
 
   ModelInOut({
-    required this.customerCode,
-    required this.customerName,
-    required this.inDate,
-    required this.inLatitude,
-    required this.inLongitude,
-    required this.inNote,
-    required this.outDate,
-    required this.outLatitude,
-    required this.outLongitude,
-    required this.outNote,
-    required this.workTimeInCustomer,
+    this.userCode,
+    this.userPosition,
+    this.customerCode,
+    this.userFullName,
+    this.customerName,
+    this.customerLatitude,
+    this.customerLongitude,
+    this.inDate,
+    this.inLatitude,
+    this.inLongitude,
+    this.inDistance,
+    this.inNote,
+    this.outDate,
+    this.outLatitude,
+    this.outLongitude,
+    this.outDistance,
+    this.outNote,
+    this.workTimeInCustomer,
+    this.isRutDay,
+    this.inDt,
   });
 
   factory ModelInOut.fromRawJson(String str) => ModelInOut.fromJson(json.decode(str));
@@ -118,35 +172,48 @@ class ModelInOut {
   String toRawJson() => json.encode(toJson());
 
   factory ModelInOut.fromJson(Map<String, dynamic> json) => ModelInOut(
+    userCode: json["userCode"],
+    userPosition: json["userPosition"],
     customerCode: json["customerCode"],
+    userFullName: json["userFullName"],
     customerName: json["customerName"],
+    customerLatitude: json["customerLatitude"],
+    customerLongitude: json["customerLongitude"],
     inDate: json["inDate"],
     inLatitude: json["inLatitude"],
     inLongitude: json["inLongitude"],
+    inDistance: json["inDistance"],
     inNote: json["inNote"],
     outDate: json["outDate"],
     outLatitude: json["outLatitude"],
     outLongitude: json["outLongitude"],
+    outDistance: json["outDistance"],
     outNote: json["outNote"],
     workTimeInCustomer: json["workTimeInCustomer"],
+    isRutDay: json["isRutDay"],
+    inDt: json["inDt"],
   );
 
   Map<String, dynamic> toJson() => {
+    "userCode": userCode,
+    "userPosition": userPosition,
     "customerCode": customerCode,
+    "userFullName": userFullName,
     "customerName": customerName,
+    "customerLatitude": customerLatitude,
+    "customerLongitude": customerLongitude,
     "inDate": inDate,
     "inLatitude": inLatitude,
     "inLongitude": inLongitude,
+    "inDistance": inDistance,
     "inNote": inNote,
     "outDate": outDate,
     "outLatitude": outLatitude,
     "outLongitude": outLongitude,
+    "outDistance": outDistance,
     "outNote": outNote,
     "workTimeInCustomer": workTimeInCustomer,
+    "isRutDay": isRutDay,
+    "inDt": inDt,
   };
-
-  @override
-  String toString() {
-    return 'ModelInOut{customerCode: $customerCode, customerName: $customerName, inDate: $inDate, inLatitude: $inLatitude, inLongitude: $inLongitude, inNote: $inNote, outDate: $outDate, outLatitude: $outLatitude, outLongitude: $outLongitude, outNote: $outNote, workTimeInCustomer: $workTimeInCustomer}';
-  }
 }

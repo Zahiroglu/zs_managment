@@ -14,28 +14,27 @@ class LocalBackgroundEvents {
   }
 
   Future<void> addBackErrorToBase(ModelBackErrors model) async {
-    await backErrors.put("${model.errDate!}|${model.userCode!}", model);
+    await backErrors.put("${model.errDate!}", model);
   }
 
-  Future<void> updateSelectedValuea(ModelBackErrors model) async {
-    await deleteItem(model);
-    await backErrors.put("${model.errDate!}|${model.userCode.toString()}", model);
+  Future<void> deleteItemErrors(ModelBackErrors model) async {
+    final box = Hive.box<ModelBackErrors>("backErrors");
+    final Map<dynamic, ModelBackErrors> deliveriesMap = box.toMap();
+    dynamic desiredKey;
+    deliveriesMap.forEach((key, value) {
+      if (key.toString() == model.errDate.toString()) {
+        desiredKey = key;
+        box.delete(desiredKey);
+      }
+    });
   }
-
 
  List<ModelBackErrors> getAllUnSendedBckError() {
    List<ModelBackErrors> listErrors=[];
    backErrors.toMap().forEach((key, value) {
      if (value.sendingStatus=="0") {
-       int count =backErrors.toMap().entries.where((element) => element.value.errDate==value.errDate).toList().length;
-      // value.enterCount==count;
        listErrors.add(value);
      }});
-   listErrors.forEach((element) {
-     print("Back error :"+element.toString());
-   });
-   print("Back error lenth:"+listErrors.length.toString());
-
    listErrors.sort((a, b) => a.errDate!.compareTo(b.errDate!));
    return listErrors;
   }
@@ -47,29 +46,12 @@ class LocalBackgroundEvents {
     return lastDay.toString().substring(0,11) == DateTime.now().toString().substring(0,11) ? true : false;
   }
 
-  Future<void> deleteItem(ModelBackErrors model) async {
-    final box = Hive.box<ModelBackErrors>("backErrors");
-    final Map<dynamic, ModelBackErrors> deliveriesMap = box.toMap();
-    dynamic desiredKey;
-    deliveriesMap.forEach((key, value) {
-      if (value.errDate == model.errDate.toString()) {
-        desiredKey = key;
-        box.delete(desiredKey);
-      }
-    });
-  }
-
   Future<void> clearAllGiris() async {
     await backErrors.clear();
   }
   ////Locations field
   Future<void> addBackLocationToBase(ModelUsercCurrentLocationReqeust model) async {
-    print("Location date :"+model.locationDate!);
     await backLocations.put(model.locationDate!, model);
-  }
-
-  Future<void> updateSelectedLocationValue(ModelUsercCurrentLocationReqeust model) async {
-    await deleteItemLocation(model);
   }
 
   Future<void> deleteItemLocation(ModelUsercCurrentLocationReqeust model) async {
@@ -77,7 +59,7 @@ class LocalBackgroundEvents {
     final Map<dynamic, ModelUsercCurrentLocationReqeust> deliveriesMap = box.toMap();
     dynamic desiredKey;
     deliveriesMap.forEach((key, value) {
-      if (value.locationDate == model.locationDate) {
+      if (key.toString() == model.locationDate.toString()) {
         desiredKey = key;
         box.delete(desiredKey);
       }
@@ -88,15 +70,8 @@ class LocalBackgroundEvents {
     List<ModelUsercCurrentLocationReqeust> listLocations=[];
     backLocations.toMap().forEach((key, value) {
       if (value.sendingStatus=="0") {
-        int count =backLocations.toMap().entries.where((element) => element.value.locationDate==value.locationDate).toList().length;
-        //value.enterCount==count;
         listLocations.add(value);
       }});
-    listLocations.forEach((element) {
-      print("Back track :"+element.toString());
-    });
-    print("Back track leng :"+listLocations.length.toString());
-
     listLocations.sort((a, b) => a.locationDate!.compareTo(b.locationDate!));
     return listLocations;
   }

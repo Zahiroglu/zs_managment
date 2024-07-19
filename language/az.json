@@ -306,6 +306,12 @@
     "allDataSending": "Kohne melumatlar gonderilir",
     "girisErrorQeyd": "Marketden Uzaq oldugunuz ucun giris ede bilmezsiniz!.Giris ucun yaxinliq mesafesi",
     "rutGunuError": "Rut gunu duz olmadigi ucun giris ede bilmezsiniz!",
-    "girisXeber": " adli marketden giris ucun eminsiniz?"
+    "girisXeber": " adli marketden giris ucun eminsiniz?",
+    "netSatisdan": "Net satisdan : ",
+    "plandan": "Plandan : ",
+    "planFaizle": "Plan %-le : ",
+    "zaymalFaizle": "Zaymal %-le : ",
+    "zayMaldan": "Zaymaldan : ",
+    "motivasiya": "Motivasiya"
 
 }

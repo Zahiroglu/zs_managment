@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
+import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
@@ -40,6 +41,9 @@ Future<void>  main() async{
       projectId: 'zscontrollsystem'));
   await Hive.initFlutter();
   Map<String, Map<String, String>> languages = await dep.init();
+  Hive.registerAdapter(ModelInOutAdapter());
+  Hive.registerAdapter(ModelInOutDayAdapter());
+  Hive.registerAdapter(ModelMainInOutAdapter());
   Hive.registerAdapter(ModelConfigrationsAdapter());
   Hive.registerAdapter(ModelBackErrorsAdapter());
   Hive.registerAdapter(ModelUsercCurrentLocationReqeustAdapter());

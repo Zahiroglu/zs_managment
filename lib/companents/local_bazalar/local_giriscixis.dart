@@ -1,16 +1,33 @@
 
 import 'package:hive/hive.dart';
+import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import '../giris_cixis/models/model_customers_visit.dart';
 
 class LocalGirisCixisServiz {
   late Box girisCixis = Hive.box<ModelCustuomerVisit>("girisCixis");
+  late Box girisCixisServer = Hive.box<ModelMainInOut>("girisCixisServer");
 
   Future<void> init() async {
     girisCixis = await Hive.openBox<ModelCustuomerVisit>("girisCixis");
+    girisCixisServer = await Hive.openBox<ModelMainInOut>("girisCixisServer");
   }
 
   Future<void> addSelectedGirisCixisDB(ModelCustuomerVisit model) async {
     await girisCixis.put("${model.customerCode!}|${model.inDate!}|${model.operationType!}", model);
+  }
+
+  Future<void> addSelectedGirisCixisDBServer(ModelMainInOut model) async {
+    await girisCixisServer.put("${model.userCode}", model);
+  }
+  Future<void> clearAllGirisServer() async {
+    await girisCixisServer.clear();
+  }
+  List<ModelMainInOut> getAllGirisCixisServer() {
+    List<ModelMainInOut> listGirisler=[];
+    girisCixisServer.toMap().forEach((key, value) {
+        listGirisler.add(value);
+    });
+    return listGirisler;
   }
 
   Future<void> updateSelectedValue(ModelCustuomerVisit model) async {

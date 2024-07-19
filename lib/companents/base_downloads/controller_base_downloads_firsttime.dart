@@ -9,6 +9,8 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
+import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
+import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
@@ -22,7 +24,7 @@ import 'package:zs_managment/helpers/permitions_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
-
+import 'package:intl/intl.dart' as intl;
 import '../../global_models/custom_enummaptype.dart';
 import '../../global_models/model_appsetting.dart';
 import '../../global_models/model_maptypeapp.dart';
@@ -62,6 +64,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   late Rx<ModelAppSetting> modelAppSetting=ModelAppSetting().obs;
   List<ModelGirisCixisScreenType> listGirisCixisType=[ModelGirisCixisScreenType(name: "map",icon: const Icon(Icons.map,color: Colors.green,),kod: "map"),ModelGirisCixisScreenType(name: "list",icon: const Icon(Icons.list_alt),kod: "list")];
   UsersPermitionsHelper userPermitionSercis=UsersPermitionsHelper();
+
   @override
   onInit() {
     callLocalBases();
@@ -455,12 +458,12 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         }
         break;
       case "enter":
-        await localGirisCixisServiz.init();
         loggedUserModel =  localUserServices.getLoggedUser();
           List<MercDataModel> data = [];
-          if(loggedUserModel.userModel!.roleId==21||loggedUserModel.userModel!.roleId==22){
-           // data = await getAllMercCariBazaMotivasiya();
+        if (loggedUserModel.userModel!.roleId == 21 || loggedUserModel.userModel!.roleId == 22) {
+          getAllGirisCixis(loggedUserModel.userModel!.code!,loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
             data = await getAllMercCariBazaMotivasiya();
+          });
           }else{
             data = await getAllMercCariBazaMotivasiya();
           }
@@ -823,21 +826,22 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
     }
   }
 
-
-  ///GETGiris cixis
-  Future<List<ModelCariler>> getAllGirisCixis() async {
-    List<ModelCariler> listUsers = [];
-    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
-    var data={
-      "userCode": loggedUserModel.userModel!.code!,
-      "userPosition": loggedUserModel.userModel!.roleId!,
-      "startDate": "",
-      "endDate": ""
-    };
+  Future<List<ModelMainInOut>> getAllGirisCixis(String temsilcikodu,String roleId) async {
+    List<ModelMainInOut> listUsers = [];
+    final now = DateTime.now();
+    var date = DateTime(now.year, now.month, 1).toString();
+    DateTime dateParse = DateTime.parse(date);
+    String ilkGun = intl.DateFormat('yyyy/MM/dd').format(dateParse);
+    String songun = intl.DateFormat('yyyy/MM/dd').format(now);
+    LoggedUserModel loggedUserModel =  localUserServices.getLoggedUser();
+    ModelRequestInOut model=ModelRequestInOut(
+        userRole: [UserRole(code: temsilcikodu, role: roleId)],
+        endDate: songun,
+        startDate: ilkGun
+    );
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();
-
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
@@ -846,37 +850,52 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         callback: () {},
       ));
     } else {
-      final response = await ApiClient().dio(false).post(
-        "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
-        data: data,
-        options: Options(
-          receiveTimeout: const Duration(seconds: 60),
-          headers: {
-            'Lang': languageIndex,
-            'Device': dviceType,
-            'abs': '123456',
-            "Authorization": "Bearer $accesToken"
-          },
-          validateStatus: (_) => true,
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.json,
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        var dataModel = json.encode(response.data['result']);
-        List listuser = jsonDecode(dataModel);
-        for (var i in listuser) {
-          var dataCus = json.encode(i['customers']);
-          var temsilciKodu = i['user']['code'];
-
-          List listDataCustomers = jsonDecode(dataCus);
-          for (var a in listDataCustomers) {
-            ModelCariler model = ModelCariler.fromJson(a);
-            model.forwarderCode = temsilciKodu;
+      try {
+        final response = await ApiClient().dio(false).post(
+          "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
+          data: model.toJson(),
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['result']);
+          List listuser = jsonDecode(dataModel);
+          await localGirisCixisServiz.clearAllGirisServer();
+          for (var i in listuser) {
+            ModelMainInOut model=ModelMainInOut.fromJson(i);
+            await localGirisCixisServiz.addSelectedGirisCixisDBServer(model);
             listUsers.add(model);
           }
+        } else {
+          exeptionHandler.handleExeption(response);
+
         }
+
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
       }
     }
     return listUsers;

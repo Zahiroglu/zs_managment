@@ -56,8 +56,7 @@ class BackgroudLocationServiz extends GetxController {
           await sendInfoLocationsToDatabase(location, modela);
         }
         else {
-          if (await checkIfTimeGretherThanOneMinute(
-              cureentTime.value, DateTime.now())) {
+          if (await checkIfTimeGretherThanOneMinute(cureentTime.value, DateTime.now())) {
             isFistTime.value = false;
             cureentTime.value = DateTime.now();
             currentLatitude.value = location.coords.latitude;
@@ -213,7 +212,6 @@ class BackgroudLocationServiz extends GetxController {
       "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
       data: model.toJson(),
       options: Options(
-        receiveTimeout: const Duration(seconds: 60),
         headers: {
           'Lang': languageIndex,
           'Device': dviceType,
@@ -292,7 +290,7 @@ class BackgroudLocationServiz extends GetxController {
       deviceId: dviceType.toString(),
       errCode: xetaBasliq,
       errDate: time,
-      errName: "",
+      errName: xetaaciqlama,
       description: xetaaciqlama,
       locationLatitude: currentLatitude.toString(),
       locationLongitude: currentLongitude.toString(),
@@ -329,13 +327,9 @@ class BackgroudLocationServiz extends GetxController {
 
   Future<void> checkUnsendedErrors() async {
     await localBackgroundEvents.init();
-    int unsendedCount = localBackgroundEvents
-        .getAllUnSendedBckError()
-        .length;
+    int unsendedCount = localBackgroundEvents.getAllUnSendedBckError().length;
     if (unsendedCount > 0) {
-      await sendErrorsToServersUnsended(localBackgroundEvents
-          .getAllUnSendedBckError()
-          .first);
+      await sendErrorsToServersUnsended(localBackgroundEvents.getAllUnSendedBckError().first);
     } else {
       await checkUnsendedLocations();
     }
@@ -364,7 +358,7 @@ class BackgroudLocationServiz extends GetxController {
       ),
     );
     if (response.statusCode == 200) {
-      localBackgroundEvents.deleteItem(unsendedModel);
+      localBackgroundEvents.deleteItemErrors(unsendedModel);
       await checkUnsendedErrors();
     }
   }

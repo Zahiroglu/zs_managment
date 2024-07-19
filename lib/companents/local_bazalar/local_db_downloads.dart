@@ -110,6 +110,17 @@ class LocalBaseDownloads {
     return list;
   }
 
+  String getLastUpdatedFieldDate(String code) {
+    String tarix="";
+    downloads.toMap().forEach((key, value) {
+       if(value.code.toString()==code.toString()){
+         tarix=value.lastDownDay.toString().substring(0,16);
+         tarix=tarix.replaceAll("T", " ");
+       }
+    });
+    return tarix;
+  }
+
   bool? convertDayByLastday(ModelDownloads element) {
     String dayFerq=element.lastDownDay!.substring(0,10);
     String day2=DateTime.now().toString().substring(0,10);

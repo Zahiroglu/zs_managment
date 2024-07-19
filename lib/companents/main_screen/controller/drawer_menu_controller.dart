@@ -7,12 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' as getx;
 import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/anbar/screan_anbar_esas.dart';
+import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/connected_users/rout_detail_users_screen.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
 import 'package:zs_managment/companents/live_track/screen_live_track.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/dashbourd_screen_mobile.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/yeni_giriscixis_map.dart';
+import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
@@ -53,6 +55,7 @@ class DrawerMenuController extends getx.GetxController {
   LocalBazalar localBazalar = LocalBazalar();
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   LocalBaseSatis localBaseSatis=LocalBaseSatis();
+  LocalGirisCixisServiz localGirisCixisServiz=LocalGirisCixisServiz();
   late Rx<ModelSatisEmeliyyati> modelSatisEmeliyyat = ModelSatisEmeliyyati().obs;
   GlobalKey<ScaffoldState> keyScaff = GlobalKey(); // Create a key
   dynamic pageView =  SizedBox();
@@ -589,8 +592,10 @@ class DrawerMenuController extends getx.GetxController {
         break;
       case "myRut":
         if(userServices.getLoggedUser().userModel!.roleId==23) {
+          await localGirisCixisServiz.init();
           List<MercDataModel> model=await localBaseDownloads.getAllMercDatailByCode(userServices.getLoggedUser().userModel!.code!);
-          pageView = ScreenMercRoutDatail(listGirisCixis: [],listUsers: [],modelMercBaza: model.first,isMenumRutum: true,drawerMenuController: this,);
+          List<ModelMainInOut> listGirisCixis= localGirisCixisServiz.getAllGirisCixisServer();
+          pageView = ScreenMercRoutDatail(listGirisCixis: listGirisCixis,listUsers: [],modelMercBaza: model.first,isMenumRutum: true,drawerMenuController: this,);
         }break;
       case "logout":
         logOut();

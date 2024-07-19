@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
+import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
@@ -47,8 +48,11 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   int t=0; //Tid
   double p=0; //Position
   LocalUserServices userLocalService=LocalUserServices();
+  LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
+
   @override
   void initState() {
+    localBaseDownloads.init();
     userLocalService.init();
     melumatlariGuneGoreDoldur();
     _scrollControllerNested = ScrollController();
@@ -131,6 +135,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     _animationController.dispose();
     tabController.dispose();
     _controller.dispose();
+    Get.delete<ControllerMercPref>();
     super.dispose();
   }
 
@@ -337,7 +342,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                               Row(
                                 children: [
                                   CustomText(
-                                      labeltext: "${"Ziyaret sayi".tr} : ",
+                                      labeltext: "${"ziyaretSayi".tr} : ",
                                       fontsize: 12),
                                   CustomText(
                                       labeltext: element.ziyaretSayi.toString(),
@@ -347,7 +352,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                               Row(
                                 children: [
                                   CustomText(
-                                      labeltext: "${"Vaxt".tr} : ", fontsize: 12),
+                                    maxline: 2,
+                                      labeltext: "${"marketdeISvaxti".tr} : ", fontsize: 12),
                                   CustomText(
                                       labeltext: element.sndeQalmaVaxti!,
                                       fontsize: 12),
@@ -783,7 +789,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     ));
   }
 
-  Widget _widgetMotivasiya() {
+  Widget _widgetMotivasiya()  {
     return Stack(
       children: [
         DecoratedBox(
@@ -796,8 +802,13 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(
-                    labeltext: "Motivasiya", fontWeight: FontWeight.w700),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(labeltext: "motivasiya".tr, fontWeight: FontWeight.w700),
+                    CustomText(labeltext: "${"sonYenilenme".tr} ${localBaseDownloads.getLastUpdatedFieldDate("enter")}", fontWeight: FontWeight.w700),
+                  ],
+                ),
                 const SizedBox(
                   height: 5,
                 ),
@@ -809,7 +820,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       child: Row(
                         children: [
                           CustomText(
-                              labeltext: "Net satisdan :",
+                              labeltext: "netSatisdan".tr,
                               fontWeight: FontWeight.w700),
                           const SizedBox(
                             width: 5,
@@ -830,7 +841,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       child: Row(
                         children: [
                           CustomText(
-                              labeltext: "Plandan :",
+                              labeltext: "plandan".tr,
                               fontWeight: FontWeight.w700),
                           const SizedBox(
                             width: 5,
@@ -846,7 +857,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       child: Row(
                         children: [
                           CustomText(
-                              labeltext: "Plan %-le :",
+                              labeltext: "planFaizle".tr,
                               fontWeight: FontWeight.w700),
                           const SizedBox(
                             width: 5,
@@ -867,7 +878,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       child: Row(
                         children: [
                           CustomText(
-                              labeltext: "Zaymaldan :",
+                              labeltext: "zayMaldan".tr,
                               fontWeight: FontWeight.w700),
                           const SizedBox(
                             width: 5,
@@ -883,7 +894,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       child: Row(
                         children: [
                           CustomText(
-                              labeltext: "Zaymal %-le :",
+                              labeltext: "zaymalFaizle".tr,
                               fontWeight: FontWeight.w700),
                           const SizedBox(
                             width: 5,
