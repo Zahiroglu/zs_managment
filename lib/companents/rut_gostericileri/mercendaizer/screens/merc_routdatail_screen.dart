@@ -169,9 +169,6 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       ):null,
                       title: CustomText(
                           labeltext: widget.modelMercBaza.user!.name),
-                      actions: [IconButton(onPressed: (){
-                        getNewDatasFromServer();
-                      }, icon: const Icon(Icons.calendar_month))],
                       flexibleSpace: FlexibleSpaceBar(
                         stretchModes: const [StretchMode.blurBackground],
                         background: pagetViewInfo(),
@@ -191,20 +188,21 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                 });
                               },
                               dividerColor: Colors.grey,
-                              splashBorderRadius: BorderRadius.circular(5),
+                              splashBorderRadius: BorderRadius.circular(10),
                               indicatorColor: Colors.green,
                               indicatorSize: TabBarIndicatorSize.tab,
-                              indicatorPadding: const EdgeInsets.all(5),
+                              indicatorPadding: const EdgeInsets.all(0),
                               unselectedLabelColor: Colors.black,
-                              dividerHeight: 2,
-                              labelColor: Colors.white,
-                              indicator: BoxDecoration(color: Colors.green,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
+                              dividerHeight: 1,
+                              labelColor: Colors.red,
                               controller: tabController,
-                              tabs: controllerRoutDetailUser.listTabItems.map((element)
-                              => Tab(iconMargin: const EdgeInsets.all(5), child: Text(element.label!,
-                                  textAlign: TextAlign.center),)).toList(),
+                              tabs: controllerRoutDetailUser.listTabItems
+                                  .map((element) => Tab(
+                                iconMargin: const EdgeInsets.all(5),
+                                child: Text(element.label!,
+                                    textAlign: TextAlign.center),
+                              ))
+                                  .toList(),
                             ),
                           )),
                     ),
@@ -250,63 +248,67 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
       child: Card(
         surfaceTintColor: Colors.white,
         margin: const EdgeInsets.all(10),
-        elevation: 10,
-        shadowColor: Colors.grey,
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(5.0).copyWith(left: 10, top: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                      labeltext: element.name!,
-                      fontWeight: FontWeight.w600,
-                      maxline: 2,
-                      fontsize: 16),
-                  const SizedBox(
-                    height: 2,
-                  ),
-                  _infoMarketMotivasion(element),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  _infoMarketRout(element)
-                ],
+        elevation: 4,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.black.withOpacity(0.3)),
+              borderRadius: const BorderRadius.all(Radius.circular(10))),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(5.0).copyWith(left: 10, top: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText(
+                        labeltext: element.name!,
+                        fontWeight: FontWeight.w600,
+                        maxline: 2,
+                        fontsize: 16),
+                    const SizedBox(
+                      height: 2,
+                    ),
+                    _infoMarketMotivasion(element),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    _infoMarketRout(element)
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-                top: 5,
-                left: 5,
-                child: Center(
-                  child: Container(
-                    height: rutSirasiGorunsun?15:10,
-                    width: rutSirasiGorunsun?15:10,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: element.totalPlan! <
-                            element.totalSelling!
-                            ? Colors.green
-                            : Colors.red),
-                    child:rutSirasiGorunsun
-                        ? Center(
-                        child: CustomText(
-                            color: rutSirasiGorunsun?Colors.white:Colors.black,
-                            fontWeight: rutSirasiGorunsun?FontWeight.w700:FontWeight.normal,
-                            labeltext:element.days!.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):const SizedBox(),
-                  ),
-                )),
-            Positioned(
-                top: 5,
-                right: 8,
-                child: Center(
-                    child: CustomText(
-                      labeltext: element.code.toString(),
-                      fontsize: 10,
-                      fontWeight: FontWeight.w700,
-                    )))
-          ],
+              Positioned(
+                  top: 5,
+                  left: 5,
+                  child: Center(
+                    child: Container(
+                      height: rutSirasiGorunsun?15:10,
+                      width: rutSirasiGorunsun?15:10,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: element.totalPlan! <
+                              element.totalSelling!
+                              ? Colors.green
+                              : Colors.red),
+                      child:rutSirasiGorunsun
+                          ? Center(
+                          child: CustomText(
+                              color: rutSirasiGorunsun?Colors.white:Colors.black,
+                              fontWeight: rutSirasiGorunsun?FontWeight.w700:FontWeight.normal,
+                              labeltext:element.days!.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):const SizedBox(),
+                    ),
+                  )),
+              Positioned(
+                  top: 5,
+                  right: 8,
+                  child: Center(
+                      child: CustomText(
+                        labeltext: element.code.toString(),
+                        fontsize: 10,
+                        fontWeight: FontWeight.w700,
+                      )))
+            ],
+          ),
         ),
       ),
     );
@@ -451,25 +453,25 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         alignment: WrapAlignment.start,
         children: [
           element.days!.any((element) => element.day==1)
-              ? WidgetRutGunu(rutGunu: "gun1".tr,orderNumber: element.days!.where((e)=>e.day==1).first.orderNumber.toString(),)
+              ? WidgetRutGunu(rutGunu: "gun1".tr)
               : const SizedBox(),
-          element.days!.any((element) => element.day==2,)
-              ? WidgetRutGunu(rutGunu: "gun2".tr,orderNumber: element.days!.where((e)=>e.day==2).first.orderNumber.toString())
+          element.days!.any((element) => element.day==2)
+              ? WidgetRutGunu(rutGunu: "gun2".tr)
               : const SizedBox(),
           element.days!.any((element) => element.day==3)
-              ? WidgetRutGunu(rutGunu: "gun3".tr,orderNumber: element.days!.where((e)=>e.day==3).first.orderNumber.toString())
+              ? WidgetRutGunu(rutGunu: "gun3".tr)
               : const SizedBox(),
           element.days!.any((element) => element.day==4)
-              ? WidgetRutGunu(rutGunu: "gun4".tr,orderNumber: element.days!.where((e)=>e.day==4).first.orderNumber.toString())
+              ? WidgetRutGunu(rutGunu: "gun4".tr)
               : const SizedBox(),
           element.days!.any((element) => element.day==5)
-              ? WidgetRutGunu(rutGunu: "gun5".tr,orderNumber: element.days!.where((e)=>e.day==5).first.orderNumber.toString())
+              ? WidgetRutGunu(rutGunu: "gun5".tr)
               : const SizedBox(),
           element.days!.any((element) => element.day==6)
-              ? WidgetRutGunu(rutGunu: "gun6".tr,orderNumber: element.days!.where((e)=>e.day==6).first.orderNumber.toString())
+              ? WidgetRutGunu(rutGunu: "gun6".tr)
               : const SizedBox(),
           element.days!.any((element) => element.day==7)
-              ? WidgetRutGunu(rutGunu: "bagli".tr,orderNumber: element.days!.where((e)=>e.day==7).first.orderNumber.toString())
+              ? WidgetRutGunu(rutGunu: "bagli".tr)
               : const SizedBox(),
         ],
       ),
@@ -578,8 +580,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                               fontWeight: FontWeight.bold)),
                                       Image.asset(
                                         "images/plansatis.png",
-                                        width: 20,
-                                        height: 20,
+                                        width: 25,
+                                        height: 25,
                                       )
                                     ],
                                   ),
@@ -640,8 +642,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                               fontWeight: FontWeight.bold)),
                                       Image.asset(
                                         "images/dollar.png",
-                                        width: 20,
-                                        height: 20,
+                                        width: 25,
+                                        height: 25,
                                       )
                                     ],
                                   ),
@@ -711,8 +713,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                               fontWeight: FontWeight.bold)),
                                       Image.asset(
                                         "images/zaymal.png",
-                                        width: 20,
-                                        height: 20,
+                                        width: 25,
+                                        height: 25,
                                       )
                                     ],
                                   ),
@@ -804,15 +806,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CustomText(labeltext: "motivasiya".tr, fontWeight: FontWeight.w700),
-
-                    Container(
-                        height: 20,
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: CustomText(labeltext: localBaseDownloads.getLastUpdatedFieldDate("enter"), fontWeight: FontWeight.w700)),
+                    CustomText(labeltext: "${"sonYenilenme".tr} ${localBaseDownloads.getLastUpdatedFieldDate("enter")}", fontWeight: FontWeight.w700),
                   ],
                 ),
                 const SizedBox(
@@ -1427,7 +1421,5 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   void _intentRutSirasiScreen(String rutGunu, int gunInt) {
     Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri,rutGunu,gunInt,widget.modelMercBaza.user!.code]);
   }
-
-  void getNewDatasFromServer() {}
 
 }

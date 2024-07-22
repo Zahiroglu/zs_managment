@@ -55,6 +55,7 @@ class _ScreenMercAdinaMusteriEalveEtmeState
 
   @override
   void initState() {
+    userService.init();
     // TODO: implement initState
     super.initState();
   }
@@ -208,25 +209,25 @@ class _ScreenMercAdinaMusteriEalveEtmeState
                         child:  Wrap(
                           children: [
                             element.days!.any((a) => a.day==1)
-                                ? WidgetRutGunu(rutGunu: "gun1".tr)
+                                ? WidgetRutGunu(rutGunu: "gun1".tr,loggedUserModel: userService.getLoggedUser(),)
                                 : const SizedBox(),
                             element.days!.any((a) => a.day==2)
-                                ? WidgetRutGunu(rutGunu: "gun2".tr)
+                                ? WidgetRutGunu(rutGunu: "gun2".tr,loggedUserModel: userService.getLoggedUser(),)
                                 : const SizedBox(),
                             element.days!.any((a) => a.day==3)
-                                ? WidgetRutGunu(rutGunu: "gun3".tr)
+                                ? WidgetRutGunu(rutGunu: "gun3".tr,loggedUserModel: userService.getLoggedUser(),)
                                 : const SizedBox(),
                             element.days!.any((a) => a.day==4)
-                                ? WidgetRutGunu(rutGunu: "gun4".tr)
+                                ? WidgetRutGunu(rutGunu: "gun4".tr,loggedUserModel: userService.getLoggedUser(),)
                                 : const SizedBox(),
                             element.days!.any((a) => a.day==5)
-                                ? WidgetRutGunu(rutGunu: "gun5".tr)
+                                ? WidgetRutGunu(rutGunu: "gun5".tr,loggedUserModel: userService.getLoggedUser(),)
                                 : const SizedBox(),
                             element.days!.any((a) => a.day==6)
-                                ? WidgetRutGunu(rutGunu: "gun6".tr)
+                                ? WidgetRutGunu(rutGunu: "gun6".tr,loggedUserModel: userService.getLoggedUser(),)
                                 : const SizedBox(),
                             element.days!.any((a) => a.day==7)
-                                ? WidgetRutGunu(rutGunu: "bagli".tr)
+                                ? WidgetRutGunu(rutGunu: "bagli".tr,loggedUserModel: userService.getLoggedUser(),)
                                 : const SizedBox(),
                           ],
                         ),

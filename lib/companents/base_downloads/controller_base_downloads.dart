@@ -8,10 +8,8 @@ import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
-import 'package:zs_managment/companents/giris_cixis/models/model_customers_visit.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
-import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
@@ -19,7 +17,7 @@ import 'package:zs_managment/companents/main_screen/controller/drawer_menu_contr
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
-import 'package:zs_managment/helpers/permitions_helper.dart';
+import 'package:zs_managment/helpers/user_permitions_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
@@ -74,7 +72,7 @@ class ControllerBaseDownloads extends GetxController {
     ModelGirisCixisScreenType(
         name: "list", icon: const Icon(Icons.list_alt), kod: "list")
   ];
-  UsersPermitionsHelper userPermitionSercis=UsersPermitionsHelper();
+  UserPermitionsHelper userPermitionSercis=UserPermitionsHelper();
 
   @override
   onInit() {
@@ -475,7 +473,6 @@ class ControllerBaseDownloads extends GetxController {
         loggedUserModel = localUserServices.getLoggedUser();
           List<MercDataModel> data = [];
           if (loggedUserModel.userModel!.roleId == 21 || loggedUserModel.userModel!.roleId == 22) {
-            print("getAllGirisCixis cagrildi ");
             getAllGirisCixis(loggedUserModel.userModel!.code!,loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
               data = await getAllMercCariBazaMotivasiya();
             });
@@ -744,7 +741,7 @@ class ControllerBaseDownloads extends GetxController {
   _getValue(Iterable<XmlElement> items) {
     var textValue;
     items.map((XmlElement node) {
-      textValue = node.text;
+      textValue = node;
     }).toList();
     return textValue;
   }
@@ -934,13 +931,8 @@ class ControllerBaseDownloads extends GetxController {
 
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,

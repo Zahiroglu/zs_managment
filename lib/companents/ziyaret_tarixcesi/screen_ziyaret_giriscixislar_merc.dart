@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
-import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_mercbaza.dart';
+import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
@@ -34,9 +34,11 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
   int _initialIndex = 0;
   String hefteninGunu = "";
   int sefZiyaret=0;
+  LocalUserServices userServices=LocalUserServices();
 
   @override
   void initState() {
+    userServices.init();
     _scrollControllerNested = ScrollController();
     _controllerInfo =
         PageController(initialPage: _initialIndex, viewportFraction: 1);
@@ -49,7 +51,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
     String ay=widget.modelGunlukGirisCixis.day.substring(3,5);
     String gun=widget.modelGunlukGirisCixis.day.substring(0,2);
     String il=widget.modelGunlukGirisCixis.day.substring(6,10);
-    DateTime dateTime = DateTime.parse(il+"-"+ay+"-"+gun);
+    DateTime dateTime = DateTime.parse("$il-$ay-$gun");
     switch (dateTime.weekday) {
       case 1:
         hefteninGunu = "gun1";
@@ -157,7 +159,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
   String curculateTimeDistanceForVisit(List<ModelInOut> list) {
     int hours = 0;
     int minutes = 0;
-    Duration difference = Duration();
+    Duration difference = const Duration();
     for (var element in list) {
       difference = difference +
           DateTime.parse(element.outDate)
@@ -300,7 +302,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                       Row(
                         children: [
                           CustomText(
-                              labeltext: "ziyaretSayi".tr + " : ",
+                              labeltext: "${"ziyaretSayi".tr} : ",
                               fontWeight: FontWeight.w600),
                           CustomText(labeltext: model.visitedCount.toString(),fontWeight: FontWeight.bold,fontsize: 16),
                           const SizedBox(width: 15,),
@@ -322,14 +324,14 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.red,
                             ),
-                            child: CustomText(labeltext: "${"wrong".tr} - "+sefZiyaret.toString(),color: Colors.white,fontWeight: FontWeight.bold),
+                            child: CustomText(labeltext: "${"wrong".tr} - $sefZiyaret",color: Colors.white,fontWeight: FontWeight.bold),
                           )
                         ],
                       ),
                       Row(
                         children: [
                           CustomText(
-                              labeltext: "isBaslama".tr + " : ",
+                              labeltext: "${"isBaslama".tr} : ",
                               fontWeight: FontWeight.w600),
                           CustomText(
                               labeltext: model.firstEnterDate.substring(11,model.firstEnterDate.length)),
@@ -338,7 +340,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                       Row(
                         children: [
                           CustomText(
-                              labeltext: "isbitme".tr + " : ",
+                              labeltext: "${"isbitme".tr} : ",
                               fontWeight: FontWeight.w600),
                           CustomText(
                               labeltext: model.lastExitDate.substring(11,model.firstEnterDate.length)),
@@ -360,7 +362,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                                   children: [
                                     CustomText(
                                       labeltext:
-                                          "marketlerdeISvaxti".tr + " : ",
+                                          "${"marketlerdeISvaxti".tr} : ",
                                     ),
                                     CustomText(labeltext: model.workTimeInCustomer),
                                   ],
@@ -368,7 +370,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                                 Row(
                                   children: [
                                     CustomText(
-                                      labeltext: "erazideIsVaxti".tr+" : ",
+                                      labeltext: "${"erazideIsVaxti".tr} : ",
                                     ),
                                     CustomText(
                                       labeltext: model.workTimeInArea,
@@ -391,7 +393,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                                 Expanded(
                                   child: CustomText(
                                     maxline: 2,
-                                    labeltext: "rutZiyaretEdilmeyen".tr + " : ",
+                                    labeltext: "${"rutZiyaretEdilmeyen".tr} : ",
                                     color: Colors.white,
                                   ),
                                 ),
@@ -494,7 +496,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                       height: 20,
                       color: Colors.blue,
                     ),
-                    CustomText(labeltext: "girisVaxt".tr+" : "),
+                    CustomText(labeltext: "${"girisVaxt".tr} : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -512,7 +514,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                       height: 20,
                       color: Colors.red,
                     ),
-                    CustomText(labeltext: "cixisVaxt".tr+" : "),
+                    CustomText(labeltext: "${"cixisVaxt".tr} : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -531,7 +533,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: "time".tr+" : "),
+                    CustomText(labeltext: "${"time".tr} : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -550,7 +552,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                         child: CustomText(
                           maxline: 3,
                             fontsize: 12,
-                            labeltext:"qeyd".tr+" : "+ model.outNote),
+                            labeltext:"${"qeyd".tr} : "+ model.outNote),
                       ),
                     ),
                     Expanded(
@@ -711,25 +713,25 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
         alignment: WrapAlignment.start,
         children: [
           element.days!.any((e) => e.day==1)
-              ? WidgetRutGunu(rutGunu: "gun1".tr)
+              ? WidgetRutGunu(rutGunu: "gun1".tr,loggedUserModel: userServices.getLoggedUser(),)
               : const SizedBox(),
           element.days!.any((e) => e.day==2)
-              ? WidgetRutGunu(rutGunu: "gun2".tr)
+              ? WidgetRutGunu(rutGunu: "gun2".tr,loggedUserModel: userServices.getLoggedUser(),)
               : const SizedBox(),
           element.days!.any((e) => e.day==3)
-              ? WidgetRutGunu(rutGunu: "gun3".tr)
+              ? WidgetRutGunu(rutGunu: "gun3".tr,loggedUserModel: userServices.getLoggedUser(),)
               : const SizedBox(),
           element.days!.any((e) => e.day==4)
-              ? WidgetRutGunu(rutGunu: "gun4".tr)
+              ? WidgetRutGunu(rutGunu: "gun4".tr,loggedUserModel: userServices.getLoggedUser(),)
               : const SizedBox(),
           element.days!.any((e) => e.day==5)
-              ? WidgetRutGunu(rutGunu: "gun5".tr)
+              ? WidgetRutGunu(rutGunu: "gun5".tr,loggedUserModel: userServices.getLoggedUser(),)
               : const SizedBox(),
           element.days!.any((e) => e.day==6)
-              ? WidgetRutGunu(rutGunu: "gun6".tr)
+              ? WidgetRutGunu(rutGunu: "gun6".tr,loggedUserModel: userServices.getLoggedUser(),)
               : const SizedBox(),
           element.days!.any((e) => e.day==7)
-              ? WidgetRutGunu(rutGunu: "bagli".tr)
+              ? WidgetRutGunu(rutGunu: "bagli".tr,loggedUserModel: userServices.getLoggedUser(),)
               : const SizedBox(),
         ],
       ),
