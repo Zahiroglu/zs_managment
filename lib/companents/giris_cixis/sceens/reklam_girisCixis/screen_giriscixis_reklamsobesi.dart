@@ -1007,8 +1007,8 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       selectedCariModel = model;
       secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model);
       secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(_currentLocation.latitude, _currentLocation.longitude,
-          double.parse(model.longitude.toString()),
-          double.parse(model.latitude.toString()));
+          double.parse(model.latitude.toString()),
+          double.parse(model.longitude.toString()));
       if (secilenMarketdenUzaqliq > 1) {
         secilenMarketdenUzaqliqString =
         "${(secilenMarketdenUzaqliq).round()} km";
@@ -1054,7 +1054,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     {
       selectedCariModel = model,
       secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model),
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, model.longitude!,model.latitude!),
+      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, model.latitude!,model.longitude!),
       if (secilenMarketdenUzaqliq > 1) {
         secilenMarketdenUzaqliqString = "${(secilenMarketdenUzaqliq).toStringAsFixed(2)} km",
       } else {
@@ -1387,7 +1387,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     DialogHelper.showLoading("mesafeHesablanir".tr);
     _determinePosition().then((value) =>
     {
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!), double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!)),
+      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!), double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!)),
       if (secilenMarketdenUzaqliq > 1)
         {
           secilenMarketdenUzaqliqString =

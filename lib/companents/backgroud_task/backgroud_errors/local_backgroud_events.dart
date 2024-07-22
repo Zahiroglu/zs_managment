@@ -14,6 +14,7 @@ class LocalBackgroundEvents {
   }
 
   Future<void> addBackErrorToBase(ModelBackErrors model) async {
+    print("print : gonderilmeyen Xeta elave edildi : "+model.toString());
     await backErrors.put("${model.errDate!}", model);
   }
 
@@ -25,6 +26,8 @@ class LocalBackgroundEvents {
       if (key.toString() == model.errDate.toString()) {
         desiredKey = key;
         box.delete(desiredKey);
+        print("print : gonderilmeyen Xeta silindi : "+model.toString());
+
       }
     });
   }
@@ -51,6 +54,7 @@ class LocalBackgroundEvents {
   }
   ////Locations field
   Future<void> addBackLocationToBase(ModelUsercCurrentLocationReqeust model) async {
+    print("print : gonderilmeyen konum elave edildi : "+model.toString());
     await backLocations.put(model.locationDate!, model);
   }
 
@@ -62,6 +66,8 @@ class LocalBackgroundEvents {
       if (key.toString() == model.locationDate.toString()) {
         desiredKey = key;
         box.delete(desiredKey);
+        print("print :  gonderilmeyen konum silindi: "+model.toString());
+
       }
     });
   }

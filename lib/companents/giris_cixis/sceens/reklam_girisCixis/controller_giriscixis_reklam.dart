@@ -149,7 +149,13 @@ class ControllerGirisCixisReklam extends GetxController {
     }
     else {
       listTapsiriqlar.value = ModelResponceTask().getListOfTask();
-      createCircles(double.parse(modelgirisEdilmis.value.customerLatitude!), double.parse(modelgirisEdilmis.value.customerLongitude!), modelgirisEdilmis.value.customerCode!);
+      double secilenMarketdenUzaqliq = calculateDistance(modelgirisEdilmis.value.customerLatitude,modelgirisEdilmis.value.customerLongitude,modelgirisEdilmis.value.inLatitude,modelgirisEdilmis.value.inLongitude);
+    if (secilenMarketdenUzaqliq > 1) {
+      snDenGirisUzaqligi.value = "${(secilenMarketdenUzaqliq).toStringAsFixed(2)} km";
+    } else {
+    snDenGirisUzaqligi.value ="${(secilenMarketdenUzaqliq * 1000).toStringAsFixed(2)} m";
+    }
+    createCircles(double.parse(modelgirisEdilmis.value.customerLatitude!), double.parse(modelgirisEdilmis.value.customerLongitude!), modelgirisEdilmis.value.customerCode!);
       marketeGirisEdilib.value = true;
       slidePanelVisible.value = false;
       dataLoading.value = false;
@@ -1122,7 +1128,7 @@ class ControllerGirisCixisReklam extends GetxController {
     List<ModelCariler> list = [];
     for (ModelCariler element in listMusteriler) {
       String listmesafe = "0m";
-      double hesabMesafe = calculateDistance(event.latitude, event.longitude,element.longitude ?? 0, element.latitude ?? 0);
+      double hesabMesafe = calculateDistance(event.latitude, event.longitude,element.latitude ?? 0, element.longitude ?? 0);
       if (hesabMesafe > 1) {
         listmesafe = "${(hesabMesafe).round()} km";
       }
@@ -1140,9 +1146,12 @@ class ControllerGirisCixisReklam extends GetxController {
   double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
     var c = cos;
+    // var a = 0.5 -
+    //     c((lat2 - lat1) * p) / 2 +
+    //     c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+        c((lon2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lon2 * p) * (1 - c((lat2 - lon1) * p)) / 2;
     double uzaqliq = 12742 * asin(sqrt(a));
     return uzaqliq;
   }
@@ -2002,8 +2011,8 @@ class ControllerGirisCixisReklam extends GetxController {
                     Get.back();
                   });
             } else {
-              DialogHelper.hideLoading();
               checkAllVisits(currentLocation, selectedModel, uzaqliq, true);
+              DialogHelper.hideLoading();
             }
           }
         } catch (ex) {
@@ -2110,8 +2119,8 @@ class ControllerGirisCixisReklam extends GetxController {
                     }),
               );
             } else {
-              DialogHelper.hideLoading();
               checkAllVisits(currentLocation, selectedModel, uzaqliq, false);
+              DialogHelper.hideLoading();
             }
           }
         } catch (ex) {
