@@ -453,25 +453,25 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         alignment: WrapAlignment.start,
         children: [
           element.days!.any((element) => element.day==1)
-              ? WidgetRutGunu(rutGunu: "gun1".tr)
+              ? WidgetRutGunu(rutGunu: "gun1".tr,loggedUserModel: userLocalService.getLoggedUser(),)
               : const SizedBox(),
           element.days!.any((element) => element.day==2)
-              ? WidgetRutGunu(rutGunu: "gun2".tr)
+              ? WidgetRutGunu(rutGunu: "gun2".tr,loggedUserModel: userLocalService.getLoggedUser())
               : const SizedBox(),
           element.days!.any((element) => element.day==3)
-              ? WidgetRutGunu(rutGunu: "gun3".tr)
+              ? WidgetRutGunu(rutGunu: "gun3".tr,loggedUserModel: userLocalService.getLoggedUser())
               : const SizedBox(),
           element.days!.any((element) => element.day==4)
-              ? WidgetRutGunu(rutGunu: "gun4".tr)
+              ? WidgetRutGunu(rutGunu: "gun4".tr,loggedUserModel: userLocalService.getLoggedUser())
               : const SizedBox(),
           element.days!.any((element) => element.day==5)
-              ? WidgetRutGunu(rutGunu: "gun5".tr)
+              ? WidgetRutGunu(rutGunu: "gun5".tr,loggedUserModel: userLocalService.getLoggedUser())
               : const SizedBox(),
           element.days!.any((element) => element.day==6)
-              ? WidgetRutGunu(rutGunu: "gun6".tr)
+              ? WidgetRutGunu(rutGunu: "gun6".tr,loggedUserModel: userLocalService.getLoggedUser())
               : const SizedBox(),
           element.days!.any((element) => element.day==7)
-              ? WidgetRutGunu(rutGunu: "bagli".tr)
+              ? WidgetRutGunu(rutGunu: "bagli".tr,loggedUserModel: userLocalService.getLoggedUser())
               : const SizedBox(),
         ],
       ),

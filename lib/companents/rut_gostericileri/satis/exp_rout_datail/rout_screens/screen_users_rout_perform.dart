@@ -48,7 +48,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
     _controller.addListener(() {
       setState(() {
         _controllerIki.animateTo(_controller.position.pixels,
-            duration: Duration(milliseconds: 1000), curve: Curves.easeOutCubic);
+            duration: const Duration(milliseconds: 1000), curve: Curves.easeOutCubic);
       });
     });
     if (controllerRoutDetailUser.initialized) {
@@ -140,7 +140,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                         stretch: true,
                         actions: [IconButton(onPressed: (){
                           Get.toNamed(RouteHelper.screenExpRoutDetailMap,arguments: controllerRoutDetailUser);
-                        }, icon:Icon( Icons.map))],
+                        }, icon:const Icon( Icons.map))],
                         title: CustomText(
                             labeltext: widget.userModel.name!),
                         flexibleSpace: FlexibleSpaceBar(
@@ -311,25 +311,25 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                             alignment: WrapAlignment.start,
                             children: [
                               element.days!.any((e) => e.day==1)
-                                  ? WidgetRutGunu(rutGunu: "gun1".tr)
+                                  ? WidgetRutGunu(rutGunu: "gun1".tr,loggedUserModel: controllerRoutDetailUser.userService.getLoggedUser(),)
                                   : const SizedBox(),
                               element.days!.any((e) => e.day==2)
-                                  ? WidgetRutGunu(rutGunu: "gun2".tr)
+                                  ? WidgetRutGunu(rutGunu: "gun2".tr,loggedUserModel: controllerRoutDetailUser.userService.getLoggedUser())
                                   : const SizedBox(),
                               element.days!.any((e) => e.day==3)
-                                  ? WidgetRutGunu(rutGunu: "gun3".tr)
+                                  ? WidgetRutGunu(rutGunu: "gun3".tr,loggedUserModel: controllerRoutDetailUser.userService.getLoggedUser())
                                   : const SizedBox(),
                               element.days!.any((e) => e.day==4)
-                                  ? WidgetRutGunu(rutGunu: "gun4".tr)
+                                  ? WidgetRutGunu(rutGunu: "gun4".tr,loggedUserModel: controllerRoutDetailUser.userService.getLoggedUser())
                                   : const SizedBox(),
                               element.days!.any((e) => e.day==5)
-                                  ? WidgetRutGunu(rutGunu: "gun5".tr)
+                                  ? WidgetRutGunu(rutGunu: "gun5".tr,loggedUserModel: controllerRoutDetailUser.userService.getLoggedUser())
                                   : const SizedBox(),
                               element.days!.any((e) => e.day==6)
-                                  ? WidgetRutGunu(rutGunu: "gun6".tr)
+                                  ? WidgetRutGunu(rutGunu: "gun6".tr,loggedUserModel: controllerRoutDetailUser.userService.getLoggedUser())
                                   : const SizedBox(),
                               element.days!.any((e) => e.day==7)
-                                  ? WidgetRutGunu(rutGunu: "bagli".tr)
+                                  ? WidgetRutGunu(rutGunu: "bagli".tr,loggedUserModel: controllerRoutDetailUser.userService.getLoggedUser())
                                   : const SizedBox(),
                             ],
                           ),
@@ -372,7 +372,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                               Row(
                                 children: [
                                   CustomText(
-                                    labeltext: "ziyaretSayi".tr +" : ",
+                                    labeltext: "${"ziyaretSayi".tr} : ",
                                   ),
                                   CustomText(labeltext: element.ziyaretSayi.toString()),
                                 ],
@@ -380,7 +380,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                               Row(
                                 children: [
                                   CustomText(
-                                    labeltext: "umumiIssaati".tr+" : ",
+                                    labeltext: "${"umumiIssaati".tr} : ",
                                   ),
                                   CustomText(
                                     labeltext: element.sndeQalmaVaxti.toString(),
@@ -791,7 +791,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                 ),
                 const Divider(height: 1,color: Colors.black,endIndent: 40,indent: 40),
                 CustomText(
-                  labeltext: length.toString()+" "+ "market".tr,
+                  labeltext: "$length ${"market".tr}",
                   fontWeight: selectedGunIndex.endsWith(rutGunu)
                       ? FontWeight.w800
                       : FontWeight.normal,
@@ -817,15 +817,15 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                   onPressed: (){
                     _intentRutSirasiScreen(rutGunu);
                   },
-                  icon:  Icon(Icons.edit,color: Colors.red,size: 18,),
-                )):SizedBox():SizedBox(),
+                  icon:  const Icon(Icons.edit,color: Colors.red,size: 18,),
+                )):const SizedBox():const SizedBox(),
           ],
         ),
       ),
     );
   }
   void _intentRutSirasiScreen(String rutGunu) {
-    Get.toNamed(RouteHelper.getScreenExpRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri.value,rutGunu]);
+    Get.toNamed(RouteHelper.getScreenExpRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri,rutGunu]);
   }
 
   /// ziyaretEdilmeyenler menu
@@ -860,7 +860,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                     border: Border.all(color: Colors.red, width: 2),
                     borderRadius: const BorderRadius.all(Radius.circular(15))),
                 child: Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 class WidgetRutGunu extends StatelessWidget {
   String rutGunu;
   String orderNumber;
-   WidgetRutGunu({required this.rutGunu,this.orderNumber="null",super.key});
+  LoggedUserModel loggedUserModel;
+   WidgetRutGunu({required this.rutGunu,this.orderNumber="null",required this.loggedUserModel,super.key});
 
   @override
   Widget build(BuildContext context) {

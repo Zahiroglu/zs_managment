@@ -312,6 +312,12 @@
     "planFaizle": "Plan %-le : ",
     "zaymalFaizle": "Zaymal %-le : ",
     "zayMaldan": "Zaymaldan : ",
-    "motivasiya": "Motivasiya"
-
+    "motivasiya": "Motivasiya",
+    "marketdenUzaqliq": "Marketden uzaqliq",
+    "gpsAxtarilir": "Gps axtarilir...",
+    "rutDuzgunluyuDuz": "Rut duzgunluyu : Duzdur",
+    "rutDuzgunluyuKenar": "Rut duzgunluyu : Rutdan kenardir",
+    "girisTarixi": "Giris tarixi : ",
+    "cixiEtmekIsteyi": "adli marketden Cixis ucun Eminsiniz?",
+    "merketdenUzaqCixisXeta": "Marketden  uzaqda oldugunuz ucun cixis ede bilmezsiniz.Teleb olunan uzaqliq "
 }

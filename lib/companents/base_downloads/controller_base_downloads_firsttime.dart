@@ -2,9 +2,7 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -12,7 +10,6 @@ import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
-import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
@@ -20,7 +17,7 @@ import 'package:zs_managment/companents/main_screen/controller/drawer_menu_contr
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
-import 'package:zs_managment/helpers/permitions_helper.dart';
+import 'package:zs_managment/helpers/user_permitions_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
@@ -63,7 +60,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   late Rx<ModelGirisCixisScreenType> selectedModelGirisCixis=ModelGirisCixisScreenType().obs;
   late Rx<ModelAppSetting> modelAppSetting=ModelAppSetting().obs;
   List<ModelGirisCixisScreenType> listGirisCixisType=[ModelGirisCixisScreenType(name: "map",icon: const Icon(Icons.map,color: Colors.green,),kod: "map"),ModelGirisCixisScreenType(name: "list",icon: const Icon(Icons.list_alt),kod: "list")];
-  UsersPermitionsHelper userPermitionSercis=UsersPermitionsHelper();
+  UserPermitionsHelper userPermitionSercis=UserPermitionsHelper();
 
   @override
   onInit() {
@@ -883,13 +880,8 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
 
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
