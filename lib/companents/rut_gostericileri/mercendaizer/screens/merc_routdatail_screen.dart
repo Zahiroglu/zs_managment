@@ -1132,7 +1132,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                     _intentRutSirasiScreen(rutGunu,gunInt);
                   },
                   icon:  const Icon(Icons.edit,color: Colors.red,size: 18,),
-                )):SizedBox():const SizedBox():const SizedBox(),
+                )):const SizedBox():const SizedBox():const SizedBox(),
           ],
         ),
       ),
