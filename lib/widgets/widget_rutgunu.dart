@@ -11,8 +11,8 @@ class WidgetRutGunu extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          padding: const EdgeInsets.all(3),
-          margin: const EdgeInsets.all(2),
+          padding: const EdgeInsets.all(2),
+          margin: const EdgeInsets.all(5),
           decoration: BoxDecoration(
               color: Colors.grey,
               border: Border.all(color: Colors.black, width: 0.2),
@@ -23,10 +23,15 @@ class WidgetRutGunu extends StatelessWidget {
         orderNumber!="null"?Positioned(
             top: 0,
             right: 0,
-            child: CustomText(labeltext: orderNumber,)):Positioned(
-            top: 0,
-            right: 5,
-            child: CustomText(labeltext: "0",fontsize: 10,))
+            child: Container(
+                height: 12,
+                width: 12,
+                decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(5)
+                ),
+                child: Center(child: CustomText(labeltext: orderNumber,color: Colors.white,)))):
+        const SizedBox()
       ],
     );
   }
