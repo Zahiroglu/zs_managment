@@ -25,13 +25,6 @@ class ControllerMercPref extends GetxController {
   RxList<UserModel> listUsers = List<UserModel>.empty(growable: true).obs;
   Rx<MercDataModel> selectedMercBaza=MercDataModel().obs;
   Rx<MercCustomersDatail> selectedCustomers=MercCustomersDatail().obs;
-  double satisIndex = 0.003;
-  double planFizi = 0;
-  double zaymalFaizi = 0;
-  double netSatisdanPul = 0;
-  double plandanPul = 0;
-  double cerimePul = 0;
-  double totalPrim = 0;
   RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
   RxList<Widget> listPagesHeader = List<Widget>.empty(growable: true).obs;
   String totalIsSaati="0";
@@ -102,7 +95,6 @@ class ControllerMercPref extends GetxController {
       model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixislar.where((e) => e.customerCode == model.code).toList());
       listMercBaza.add(model);
     }
-    circulateMotivasion();
     listRutGunleri.value = listMercBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
     listZiyeretEdilmeyenler.value = listMercBaza.where((p0) => p0.ziyaretSayi==0).toList();
     listTabItems.value = [
@@ -170,45 +162,6 @@ class ControllerMercPref extends GetxController {
     return d.toStringAsFixed(1).replaceFirst(RegExp(r'\.?0*$'), '');
   }
 
-  void circulateMotivasion() {
-    double totalSatis = listMercBaza.fold(
-        0.0, (sum, element) => sum + element.totalSelling!);
-    double totalPlan = listMercBaza.fold(
-        0.0, (sum, element) => sum + element.totalPlan!);
-    double totalZaymal = listMercBaza.fold(
-        0.0, (sum, element) => sum + element.totalRefund!);
-    netSatisdanPul = totalSatis * satisIndex;
-    planFizi = (totalSatis / totalPlan) * 100;
-    zaymalFaizi = (totalZaymal / totalSatis) * 100;
-    switch (planFizi) {
-      case >= 109.5:
-        plandanPul = 60;
-        break;
-      case >= 99.5:
-        plandanPul = 50;
-        break;
-      case >= 89.5:
-        plandanPul = 30;
-        break;
-      case >= 79.5:
-        plandanPul = 25;
-        break;
-    }
-    switch (zaymalFaizi) {
-      case <= 1:
-        cerimePul = 20;
-      case >= 3.5:
-        cerimePul = -35;
-        break;
-      case >= 2.5:
-        cerimePul = -25;
-        break;
-      case >= 1.5:
-        cerimePul = -15;
-        break;
-    }
-    totalPrim = netSatisdanPul + plandanPul + cerimePul;
-  }
 
   /// rut gunleri hissesi////
 

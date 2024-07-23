@@ -595,8 +595,21 @@ class DrawerMenuController extends getx.GetxController {
           await localGirisCixisServiz.init();
           List<MercDataModel> model=await localBaseDownloads.getAllMercDatailByCode(userServices.getLoggedUser().userModel!.code!);
           List<ModelMainInOut> listGirisCixis= localGirisCixisServiz.getAllGirisCixisServer();
-          pageView = ScreenMercRoutDatail(listGirisCixis: listGirisCixis,listUsers: [],modelMercBaza: model.first,isMenumRutum: true,drawerMenuController: this,);
-        }break;
+          if(model.isNotEmpty) {
+            pageView = ScreenMercRoutDatail(listGirisCixis: listGirisCixis,
+              listUsers: [],
+              modelMercBaza: model.first,
+              isMenumRutum: true,
+              drawerMenuController: this,);
+          }else{
+            Get.dialog(ShowInfoDialog(
+                messaje: "baseEmptyCari".tr,
+                icon: Icons.mobiledata_off,
+                callback: () {
+                  Get.back();
+                  update();
+                }));
+          } }break;
       case "logout":
         logOut();
         break;

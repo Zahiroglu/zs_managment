@@ -41,6 +41,8 @@ Future<void>  main() async{
       projectId: 'zscontrollsystem'));
   await Hive.initFlutter();
   Map<String, Map<String, String>> languages = await dep.init();
+  //sonuncu HiveType 37-di
+  Hive.registerAdapter(MotivationDataAdapter());
   Hive.registerAdapter(ModelInOutAdapter());
   Hive.registerAdapter(ModelInOutDayAdapter());
   Hive.registerAdapter(ModelMainInOutAdapter());

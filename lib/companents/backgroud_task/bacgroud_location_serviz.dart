@@ -110,32 +110,20 @@ class BackgroudLocationServiz extends GetxController {
         await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
       } else {
         await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
-
         await flutterLocalNotificationsPlugin.cancel(1);
       }
     });
-    bg.BackgroundGeolocation.onEnabledChange((bool isEnabled) async {
-      if(!isEnabled){
-        await NotyBackgroundTrack.showBigTextNotificationUpdate(
-            id: 2,
-            title: "Gps baglandi",
-            body:
-            "Gps baglandiginiz ucun xeberdarliq aldiniz.Zehmet olmasa yandir",
-            fln: flutterLocalNotificationsPlugin);
-       // await sendErrorsToServers(blok,"${"adlimarkerprogramMudaxile".tr} Type : AUTHORIZATION_STATUS_DENIED");
-      }
-    });
     bg.BackgroundGeolocation.onAuthorization((c){
-      print("print : "+c.toString());
+      print("print c : "+c.toString());
     });
     bg.BackgroundGeolocation.onGeofencesChange((geo){
-      print("pring : "+geo.toString());
+      print("pring g : "+geo.toString());
     });
     bg.BackgroundGeolocation.onActivityChange((a){
-      print("print : "+a.activity.toString());
+      print("print a : "+a.activity.toString());
     });
     bg.BackgroundGeolocation.onSchedule((s){
-      print("print : "+s.allowIdenticalLocations.toString());
+      print("print : sc"+s.allowIdenticalLocations.toString());
 
     });
 
@@ -157,12 +145,15 @@ class BackgroudLocationServiz extends GetxController {
         foregroundService: true,
         startOnBoot: true,
         debug: false,
+        showsBackgroundLocationIndicator: false,
         forceReloadOnSchedule: true,
         distanceFilter: 0,
         //locationUpdateInterval: 50000,//50 saniye
         locationUpdateInterval: 20000,
         //20 saniye
         maxRecordsToPersist: 1,
+        forceReloadOnLocationChange: true,
+
         backgroundPermissionRationale: PermissionRationale(
             title: "Allow {applicationName} to access to this device's location in the background?",
             message: "This app collects location data to enable tracking even when the app is closed or not in use. Please enable {backgroundPermissionOptionLabel} location permission",

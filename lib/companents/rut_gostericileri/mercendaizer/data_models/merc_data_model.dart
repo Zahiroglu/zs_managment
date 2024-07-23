@@ -9,10 +9,13 @@ class MercDataModel {
   UserMerc? user;
   @HiveField(2)
   List<MercCustomersDatail>? mercCustomersDatail;
+  @HiveField(3)
+  MotivationData? motivationData;
 
   MercDataModel({
     this.user,
     this.mercCustomersDatail,
+    this.motivationData,
   });
 
   factory MercDataModel.fromRawJson(String str) => MercDataModel.fromJson(json.decode(str));
@@ -22,10 +25,12 @@ class MercDataModel {
   factory MercDataModel.fromJson(Map<String, dynamic> json) => MercDataModel(
     user: UserMerc.fromJson(json["user"]),
     mercCustomersDatail: List<MercCustomersDatail>.from(json["customers"].map((x) => MercCustomersDatail.fromJson(x))),
+    motivationData: json["motivationData"]!=null? MotivationData.fromJson(json["motivationData"]):MotivationData(),
   );
 
   Map<String, dynamic> toJson() => {
     "user": user?.toJson(),
+    "motivationData": motivationData?.toJson(),
     "mercCustomersDatail": List<dynamic>.from(mercCustomersDatail!.map((x) => x.toJson())),
   };
 
@@ -265,4 +270,46 @@ class UserMerc {
   String toString() {
     return 'UserMerc{code: $code, name: $name, totalPlan: $totalPlan, totalSelling: $totalSelling, totalRefund: $totalRefund}';
   }
+}
+
+@HiveType(typeId: 37)
+class MotivationData {
+  @HiveField(1)
+  double? byNetSales;
+  @HiveField(2)
+  double? byPlan;
+  @HiveField(3)
+  double? byWasteProduct;
+  @HiveField(4)
+  double? planPersent;
+  @HiveField(5)
+  double? wasteProductPersent;
+
+  MotivationData({
+    this.byNetSales,
+    this.byPlan,
+    this.byWasteProduct,
+    this.planPersent,
+    this.wasteProductPersent,
+  });
+
+  factory MotivationData.fromRawJson(String str) => MotivationData.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory MotivationData.fromJson(Map<String, dynamic> json) => MotivationData(
+    byNetSales: json["byNetSales"],
+    byPlan: json["byPlan"],
+    byWasteProduct: json["byWasteProduct"],
+    planPersent: json["planPersent"],
+    wasteProductPersent: json["wasteProductPersent"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "byNetSales": byNetSales,
+    "byPlan": byPlan,
+    "byWasteProduct": byWasteProduct,
+    "planPersent": planPersent,
+    "wasteProductPersent": wasteProductPersent,
+  };
 }

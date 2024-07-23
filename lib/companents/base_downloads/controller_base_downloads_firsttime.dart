@@ -455,28 +455,30 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         }
         break;
       case "enter":
-        loggedUserModel =  localUserServices.getLoggedUser();
-          List<MercDataModel> data = [];
+        loggedUserModel = localUserServices.getLoggedUser();
+        List<MercDataModel> data = [];
         if (loggedUserModel.userModel!.roleId == 21 || loggedUserModel.userModel!.roleId == 22) {
           getAllGirisCixis(loggedUserModel.userModel!.code!,loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
             data = await getAllMercCariBazaMotivasiya();
           });
-          }else{
+        } else {
+          await getAllGirisCixis(loggedUserModel.userModel!.code!,loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
             data = await getAllMercCariBazaMotivasiya();
+          });
+        }
+        if (data.isNotEmpty) {
+          listDonwloads.remove(model);
+          model.lastDownDay = DateTime.now().toIso8601String();
+          model.musteDonwload = false;
+          localBaseDownloads.addDownloadedBaseInfo(model);
+          localBaseDownloads.addAllToMercBase(data);
+          if (guncelle) {
+            listDownloadsFromLocalDb.remove(model);
+            listDownloadsFromLocalDb.add(model);
+          } else {
+            listDownloadsFromLocalDb.add(model);
           }
-          if (data.isNotEmpty) {
-            listDonwloads.remove(model);
-            model.lastDownDay = DateTime.now().toIso8601String();
-            model.musteDonwload = false;
-            localBaseDownloads.addDownloadedBaseInfo(model);
-            localBaseDownloads.addAllToMercBase(data);
-            if (guncelle) {
-              listDownloadsFromLocalDb.remove(model);
-              listDownloadsFromLocalDb.add(model);
-            } else {
-              listDownloadsFromLocalDb.add(model);
-            }
-          }
+        }
       case "myRut":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();

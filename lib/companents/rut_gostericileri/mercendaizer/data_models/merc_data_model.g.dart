@@ -19,17 +19,20 @@ class MercDataModelAdapter extends TypeAdapter<MercDataModel> {
     return MercDataModel(
       user: fields[1] as UserMerc?,
       mercCustomersDatail: (fields[2] as List?)?.cast<MercCustomersDatail>(),
+      motivationData: fields[3] as MotivationData?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MercDataModel obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(1)
       ..write(obj.user)
       ..writeByte(2)
-      ..write(obj.mercCustomersDatail);
+      ..write(obj.mercCustomersDatail)
+      ..writeByte(3)
+      ..write(obj.motivationData);
   }
 
   @override
@@ -228,6 +231,52 @@ class UserMercAdapter extends TypeAdapter<UserMerc> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is UserMercAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class MotivationDataAdapter extends TypeAdapter<MotivationData> {
+  @override
+  final int typeId = 37;
+
+  @override
+  MotivationData read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return MotivationData(
+      byNetSales: fields[1] as double?,
+      byPlan: fields[2] as double?,
+      byWasteProduct: fields[3] as double?,
+      planPersent: fields[4] as double?,
+      wasteProductPersent: fields[5] as double?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, MotivationData obj) {
+    writer
+      ..writeByte(5)
+      ..writeByte(1)
+      ..write(obj.byNetSales)
+      ..writeByte(2)
+      ..write(obj.byPlan)
+      ..writeByte(3)
+      ..write(obj.byWasteProduct)
+      ..writeByte(4)
+      ..write(obj.planPersent)
+      ..writeByte(5)
+      ..write(obj.wasteProductPersent);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MotivationDataAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

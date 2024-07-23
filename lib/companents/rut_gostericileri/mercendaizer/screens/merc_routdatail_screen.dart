@@ -82,6 +82,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     tabController.addListener(() {});
     super.initState();
   }
+
   void melumatlariGuneGoreDoldur() {
     DateTime dateTime = DateTime.now();
     switch (dateTime.weekday) {
@@ -483,6 +484,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   }
 
   Widget infoSatisMenu() {
+    double totalPrim=widget.modelMercBaza.motivationData!.byNetSales!+widget.modelMercBaza.motivationData!.byPlan!
+    +widget.modelMercBaza.motivationData!.byWasteProduct!;
     return Obx(() => SingleChildScrollView(
       child: Stack(
         children: [
@@ -759,7 +762,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
               ),
             ),
           ),
-          controllerRoutDetailUser.planFizi >= 100
+          widget.modelMercBaza.motivationData!.planPersent! >= 100
               ? Positioned(
               top: 0,
               bottom: 0,
@@ -778,13 +781,13 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(50),
-                      color: controllerRoutDetailUser.totalPrim >= 0
+                      color: totalPrim >= 0
                           ? Colors.green
                           : Colors.red),
                   child: Center(
                     child: CustomText(
                       labeltext:
-                      "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.totalPrim)} ${"manatSimbol".tr}",
+                      "${controllerRoutDetailUser.prettify(totalPrim)} ${"manatSimbol".tr}",
                       fontWeight: FontWeight.bold,
                     ),
                   )))
@@ -838,7 +841,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.netSatisdanPul)} ${"manatSimbol".tr}"),
+                                  "${controllerRoutDetailUser.prettify(widget.modelMercBaza.motivationData!.byNetSales!)} ${"manatSimbol".tr}"),
                         ],
                       ),
                     ),
@@ -857,9 +860,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           const SizedBox(
                             width: 5,
                           ),
-                          CustomText(
-                              labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.plandanPul)} ${"manatSimbol".tr}"),
+                          CustomText(labeltext:"${controllerRoutDetailUser.prettify(widget.modelMercBaza.motivationData!.byPlan!)} ${"manatSimbol".tr}"),
                         ],
                       ),
                     ),
@@ -873,9 +874,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           const SizedBox(
                             width: 5,
                           ),
-                          CustomText(
-                              labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.planFizi)} %"),
+                          CustomText(labeltext:"${widget.modelMercBaza.motivationData!.planPersent!} %"),
                         ],
                       ),
                     ),
@@ -896,7 +895,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.cerimePul)} ${"manatSimbol".tr}"),
+                                  "${controllerRoutDetailUser.prettify(widget.modelMercBaza.motivationData!.byWasteProduct!)} ${"manatSimbol".tr}"),
                         ],
                       ),
                     ),
@@ -912,7 +911,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.zaymalFaizi)} %"),
+                                  "${widget.modelMercBaza.motivationData!.wasteProductPersent!} %"),
                         ],
                       ),
                     ),
