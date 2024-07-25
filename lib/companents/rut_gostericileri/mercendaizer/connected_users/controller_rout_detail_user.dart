@@ -8,6 +8,8 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
+import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
+import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/base_responce.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
@@ -29,10 +31,7 @@ import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
-
-import '../giris_cixis/models/model_request_inout.dart';
-import '../giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
-import '../rut_gostericileri/mercendaizer/data_models/model_mercbaza.dart';
+import '../../../login/models/user_model.dart';
 import 'model_main_inout.dart';
 
 class ControllerRoutDetailUser extends GetxController {
@@ -44,30 +43,38 @@ class ControllerRoutDetailUser extends GetxController {
       mapType: MapType.google,
       icon:
       'packages/map_launcher/assets/icons/${CustomMapType.google}.svg').obs;
-  late Rx<UserModel> selectedUser = UserModel().obs;
-  RxList<UserModel> listUsers = List<UserModel>.empty(growable: true).obs;
-  RxList<UserModel> filteredListUsers = List<UserModel>.empty(growable: true).obs;
-  RxList<ModelCariler> listSelectedCustomers = List<ModelCariler>.empty(growable: true).obs;
-  RxList<MercCustomersDatail> listSelectedMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;
-  RxList<ModelCariler> listFilteredCustomers = List<ModelCariler>.empty(growable: true).obs;
-  RxList<ModelMercBaza> listFilteredMercBaza = List<ModelMercBaza>.empty(growable: true).obs;
+  RxList<MercDataModel> listMercler = List<MercDataModel>.empty(growable: true).obs;
   RxList<ModelMainInOut> listGirisCixis = List<ModelMainInOut>.empty(growable: true).obs;
   RxBool dataLoading = true.obs;
   TextEditingController ctTemsilciKodu = TextEditingController();
-  String soapadress = "http://193.105.123.215:9689/WebService1.asmx";
-  String soaphost = "193.105.123.215";
-  RxList<ModelSifarislerTablesi> listTabSifarisler = List<ModelSifarislerTablesi>.empty(growable: true).obs;
-  late Rx<ModelSifarislerTablesi> selectedTab = ModelSifarislerTablesi().obs;
   RxBool routDataLoading = true.obs;
-  RxString fistTabSelected = "Exp".obs;
   String languageIndex = "az";
   late CheckDviceType checkDviceType = CheckDviceType();
   ExeptionHandler exeptionHandler=ExeptionHandler();
+  RxList<MercCustomersDatail> listMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;
+  RxList<UserModel> listUsers = List<UserModel>.empty(growable: true).obs;
+
 
   @override
   void onInit() {
-    getAllUsers();
+    getMercRutDetail();
     super.onInit();
+  }
+
+  getMercRutDetail() async {
+    listMercler.value=await localBaseDownloads.getAllMercDatail();
+    for (var e in listMercler) {
+      for (var a in e.mercCustomersDatail!) {
+        listMercBaza.add(a);
+      }
+      listUsers.add(UserModel(
+          roleName: "Mercendaizer",
+          roleId: 23,
+          username: e.user!.name,
+          code: e.user!.code,
+          gender: 0));
+    }
+    update();
   }
 
 
@@ -75,80 +82,6 @@ class ControllerRoutDetailUser extends GetxController {
   void dispose() {
     Get.delete<ControllerRoutDetailUser>;
     super.dispose();
-  }
-
-  Future<void> getAllUsers() async {
-    await localBaseDownloads.init();
-    dataLoading.value = true;
-    listUsers.value= await localBaseDownloads
-        .getAllConnectedUserFromLocal();
-    listUsers.add(UserModel(
-      code: "174",
-      name: "Test MERC",
-      roleId: 23,
-      gender: 0,
-      roleName: "Mercendaizer"
-    ));
-    if(listUsers.isEmpty){
-      listUsers.value = [
-        UserModel(
-            roleName: "Expeditor",
-            roleId: 17,
-            username: "Asif Memmedov",
-            code: "112",
-            gender: 0),
-        UserModel(
-            roleName: "Expeditor",
-            roleId: 17,
-            username: "Zaur Eliyev",
-            code: "132",
-            gender: 0),
-        UserModel(
-            roleName: "Expeditor-Mercendaizer",
-            roleId: 17,
-            username: "Arzu Haciyeva",
-            code: "142",
-            gender: 1),
-        UserModel(
-            roleName: "Expeditor",
-            roleId: 17,
-            username: "Eli Qasimov",
-            code: "31",
-            gender: 0),
-        UserModel(
-            roleName: "Mercendaizer",
-            roleId: 23,
-            username: "Zuleyxa Kerimova",
-            code: "A1",
-            gender: 1),
-        UserModel(
-            roleName: "Mercendaizer",
-            roleId: 23,
-            username: "Nazile Qasimli",
-            code: "A2",
-            gender: 1),
-        UserModel(
-            roleName: "Mercendaizer",
-            roleId: 23,
-            username: "Aysu Qemberova",
-            code: "B2",
-            gender: 1),
-        UserModel(
-            roleName: "Mercendaizer",
-            roleId: 23,
-            username: "Qaragoz Afdandilova",
-            code: "B2",
-            gender: 1),
-        UserModel(
-            roleName: "Mercendaizer",
-            roleId: 23,
-            username: "Qafuq Memmedob",
-            code: "MIN01",
-            gender: 0),
-      ];}
-    filteredListUsers.value = listUsers.where((p0) => p0.roleId == 17).toList();
-    dataLoading.value = false;
-    update();
   }
 
 
@@ -209,7 +142,6 @@ class ControllerRoutDetailUser extends GetxController {
                     CustomElevetedButton(
                       cllback: () {
                         Get.back();
-                        temsilciMelumatlariniGetirElevetedButton(ctTemsilciKodu.text);
                         ctTemsilciKodu.clear();
                       },
                       label: "tesdiqle".tr,
@@ -242,96 +174,6 @@ class ControllerRoutDetailUser extends GetxController {
     );
   }
 
-  Future<void> temsilciMelumatlariniGetirElevetedButton(String model) async {
-    listSelectedCustomers.clear();
-    listFilteredCustomers.clear();
-    if (fistTabSelected.value == "Exp") {
-      DialogHelper.showLoading("cmendirilir".tr);
-      UserModel userModel=UserModel(roleId: 17,code: model,name: "tapilmadi".tr);
-      listSelectedCustomers.value = await getAllCustomers(model);
-      DialogHelper.hideLoading();
-      if (listSelectedCustomers.isNotEmpty) {
-        DialogHelper.showLoading("gcendirilir".tr);
-        listGirisCixis.value=await getAllGirisCixis(model,"17");
-        DialogHelper.hideLoading();
-        tabMelumatlariYukle();
-         changeSelectedTabItems(listTabSifarisler.first);
-        print("Evvel listFilteredCustomers : "+listFilteredCustomers.length.toString());
-        Get.toNamed(RouteHelper.screenExpRoutDetail, arguments: [this,userModel,listUsers]);
-      } else {
-        Get.dialog(ShowInfoDialog(
-            messaje: "mtapilmadi".tr,
-            icon: Icons.error,
-            callback: () {
-              Get.back();
-            }));
-      }
-    //  tabMelumatlariYukle();
-    } else {
-      DialogHelper.showLoading("cmendirilir".tr);
-      MercDataModel modela = await getAllCustomersMerc(model);
-      DialogHelper.hideLoading();
-      if (modela.user!=null) {
-        DialogHelper.showLoading("gcendirilir".tr);
-        listGirisCixis.value=await getAllGirisCixis(model,"23");
-        DialogHelper.hideLoading();
-        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [listSelectedMercBaza,listGirisCixis,listUsers.where((p0) => p0.roleId==23).toList()]);
-      } else {
-        Get.dialog(ShowInfoDialog(
-            messaje: "mtapilmadi".tr,
-            icon: Icons.error,
-            callback: () {
-              Get.back();
-            }));
-      }
-    }
-  }
-
-  Future<void> temsilciMelumatlariniGetir(UserModel model) async {
-    selectedUser.value=model;
-    listSelectedCustomers.clear();
-    listFilteredCustomers.clear();
-    if (fistTabSelected.value == "Exp") {
-      DialogHelper.showLoading("cmendirilir".tr);
-      listSelectedCustomers.value = await getAllCustomers(model.code!);
-      DialogHelper.hideLoading();
-      if (listSelectedCustomers.isNotEmpty) {
-        DialogHelper.showLoading("gcendirilir".tr);
-        await getAllGirisCixis(model.code!,model.roleId!.toString());
-        DialogHelper.hideLoading();
-        tabMelumatlariYukle();
-        changeSelectedTabItems(listTabSifarisler.first);
-        Get.toNamed(RouteHelper.screenExpRoutDetail, arguments: [this,model,listUsers.where((p0) => p0.roleId==23).toList()]);
-      } else {
-        Get.dialog(ShowInfoDialog(
-            messaje: "mtapilmadi".tr,
-            icon: Icons.error,
-            callback: () {
-              Get.back();
-            }));
-      }
-      tabMelumatlariYukle();
-    } else {
-      DialogHelper.showLoading("cmendirilir".tr);
-      MercDataModel modela = await getAllCustomersMerc(model.code!);
-      DialogHelper.hideLoading();
-      if (modela.user!=null) {
-        DialogHelper.showLoading("gcendirilir".tr);
-        List<ModelMainInOut> listGirisCixisa  = await getAllGirisCixis(model.code!,model.roleId!.toString());
-        DialogHelper.hideLoading();
-        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela,listGirisCixisa,listUsers.where((p0) => p0.roleId==23).toList()]);
-      } else {
-        Get.dialog(ShowInfoDialog(
-            messaje: "mtapilmadi".tr,
-            icon: Icons.error,
-            callback: () {
-              Get.back();
-              Get.back();
-            }));
-      }
-    }
-  }
-
   List<ModelCariler> createRandomOrdenNumber(List<ModelCariler> list) {
     List<ModelCariler> yeniList = [];
     List<ModelCariler> listBir = list.where((p) => p.days!=null?p.days!.any((element) => element.day==1):false).toList();
@@ -347,107 +189,6 @@ class ControllerRoutDetailUser extends GetxController {
     yeniList.addAll(listBes);
     yeniList.addAll(listAlti);
     return yeniList;
-  }
-
-  void tabMelumatlariYukle() {
-    listTabSifarisler.clear();
-    listTabSifarisler.value = [
-      ModelSifarislerTablesi(
-          label: "Umumi cariler",
-          summa: double.tryParse(listSelectedCustomers.length.toString()),
-          type: "uc",
-          color: Colors.blue),
-      ModelSifarislerTablesi(
-          label: "Passiv cariler",
-          summa: double.tryParse(listSelectedCustomers
-              .where((p) => p.action == false)
-              .length
-              .toString()),
-          type: "pc",
-          color: Colors.orange),
-      ModelSifarislerTablesi(
-          label: "Bagli cariler",
-          summa: 0,
-          // summa: double.tryParse(listSelectedCustomers
-          //     .where((p) => p.days!.any((element) => element.day==7))
-          //     .length
-          //     .toString()),
-          type: "bc",
-          color: Colors.red),
-      ModelSifarislerTablesi(
-          label: "Rutsuz cariler",
-          summa: listSelectedCustomers.any((element) => element.days!=null)?double.tryParse(listSelectedCustomers
-              .where((p) =>
-          !p.days!.any((element) => element.day==1)&&
-              !p.days!.any((element) => element.day==2)&&
-              !p.days!.any((element) => element.day==3)&&
-              !p.days!.any((element) => element.day==4)&&
-              !p.days!.any((element) => element.day==5)&&
-              !p.days!.any((element) => element.day==6) &&
-              !p.days!.any((element) => element.day==7))
-              .length
-              .toString()):0,
-          type: "rc",
-          color: Colors.deepPurple),
-    ];
-    update();
-  }
-
-  void changeSelectedTabItems(ModelSifarislerTablesi element) {
-    routDataLoading.value = true;
-    selectedTab.value = element;
-    listFilteredCustomers.clear();
-    switch (element.type) {
-      case "uc":
-        listSelectedCustomers.toList().forEach((a) {
-          listFilteredCustomers.add(a);
-        });
-        break;
-      case "pc":
-        listSelectedCustomers
-            .where((p) => p.action == false)
-            .toList()
-            .forEach((a) {
-          listFilteredCustomers.add(a);
-        });
-        break;
-      case "bc":
-        listSelectedCustomers
-            .where((p) => !p.days!.any((element) => element.day==7))
-            .toList()
-            .forEach((a) {
-          listFilteredCustomers.add(a);
-        });
-        break;
-      case "rc":
-        listSelectedCustomers
-            .where((p) =>
-        !p.days!.any((element) => element.day==1)&&
-            !p.days!.any((element) => element.day==2)&&
-            !p.days!.any((element) => element.day==3)&&
-            !p.days!.any((element) => element.day==4)&&
-            !p.days!.any((element) => element.day==5)&&
-            !p.days!.any((element) => element.day==6) &&
-            !p.days!.any((element) => element.day==7))
-            .toList()
-            .forEach((a) {
-          listFilteredCustomers.add(a);
-        });
-        break;
-    }
-    routDataLoading.value = false;
-    update();
-  }
-
-  void changeUsers(String s) {
-    if (s == "Exp") {
-      filteredListUsers.value =
-          listUsers.where((p0) => p0.roleId == 17).toList();
-    } else {
-      filteredListUsers.value =
-          listUsers.where((p0) => p0.roleId ==23).toList();
-    }
-    update();
   }
 
   ///Cari Baza endirme/////////

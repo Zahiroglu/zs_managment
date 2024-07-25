@@ -33,6 +33,7 @@ class CustomText extends StatelessWidget {
     bool isDark=Get.isDarkMode;
     return GetBuilder<LocalizationController>(builder: (localizationController)
     {return AutoSizeText(
+      textScaleFactor: 1,
         minFontSize: 8,
         labeltext.tr,
         style: GoogleFonts.nunitoSans(

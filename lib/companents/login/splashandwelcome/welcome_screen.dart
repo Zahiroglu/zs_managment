@@ -62,15 +62,13 @@ class _WellCameScreenState extends State<WellCameScreen> with TickerProviderStat
         }
       }
       else {
-        Get.offNamed(RouteHelper.getbazaDownloadMobile());
-
-        // bool base=localBaseDownloads.checkIfUserMustDonwloadsBaseFirstTime(loggedUserModel.userModel!.roleId!);
-        // print("Yukelnmeli baza var? "+base.toString());
-        // if (base) {
-        //   Get.offNamed(RouteHelper.getbazaDownloadMobile());
-        // } else {
-        //   Get.offNamed(RouteHelper.getMobileMainScreen());
-        // }
+        bool base=await localBaseDownloads.checkIfUserMustDonwloadsBaseFirstTime(loggedUserModel.userModel!.roleId!);
+        print("Yukelnmeli baza var? "+base.toString());
+        if (base) {
+          Get.offNamed(RouteHelper.getbazaDownloadMobile());
+        } else {
+          Get.offNamed(RouteHelper.getMobileMainScreen());
+        }
       }
     }
 

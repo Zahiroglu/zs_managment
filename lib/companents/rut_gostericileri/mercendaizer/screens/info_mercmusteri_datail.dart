@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
-import 'package:zs_managment/companents/login/models/user_model.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/controller_mercpref.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
@@ -296,7 +294,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                 padding: const EdgeInsets.all(0),
                 constraints: const BoxConstraints(
                     maxHeight: 50, minHeight: 30, maxWidth: 50, minWidth: 30),
-              )):SizedBox()
+              )):const SizedBox()
         ],
       ),
     ));
@@ -365,11 +363,8 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
     int minutes = 0;
     Duration difference = const Duration(seconds: 0,hours: 0);
     for (var element in list) {
-      print("element.in :"+element.inDate.toString());
-      print("element.out :"+element.outDate.toString());
       if(element.outDate!=null){
       difference = difference + DateTime.parse(element.outDate).difference(DateTime.parse(element.inDate));
-      print("difference :"+difference.toString());
 
       }}
     hours = hours + difference.inHours % 24;
@@ -590,7 +585,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                       height: 20,
                       color: Colors.blue,
                     ),
-                    CustomText(labeltext: "girisVaxt".tr + " : "),
+                    CustomText(labeltext: "${"girisVaxt".tr} : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -608,7 +603,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                       height: 20,
                       color: Colors.red,
                     ),
-                    CustomText(labeltext: "cixisVaxt".tr + " : "),
+                    CustomText(labeltext: "${"cixisVaxt".tr} : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -627,7 +622,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: "time".tr + " : "),
+                    CustomText(labeltext: "${"time".tr} : "),
                     const SizedBox(
                       width: 2,
                     ),
@@ -646,9 +641,9 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                         child: CustomText(
                             maxline: 3,
                             fontsize: 12,
-                            labeltext: "qeyd".tr + " : " + model.outNote),
+                            labeltext: "${"qeyd".tr} : " + model.outNote),
                       ),
-                    ):SizedBox(),
+                    ):const SizedBox(),
                     Expanded(
                       flex: 2,
                       child: CustomText(
@@ -700,7 +695,6 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   Future<void> _editMercCari() async {
     String dey=await Get.toNamed(RouteHelper.getScreenEditMercMusteri(), arguments: [widget.controllerMercPref]);
     setState(() {
-      print("dey :"+dey.toString());
     });
   }
 

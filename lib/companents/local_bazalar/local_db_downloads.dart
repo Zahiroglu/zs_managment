@@ -146,6 +146,7 @@ class LocalBaseDownloads {
     }else{
       deyer = listustDown.where((element) => element.musteDonwload == true).length;
     }
+    print("deyer :"+deyer.toString());
     return deyer==0?false:true;
   }
 
@@ -372,7 +373,6 @@ class LocalBaseDownloads {
     List<MercDataModel> list = [];
     boxListMercBaza.toMap().forEach((key, value) {
       if(value.user.code==code){
-
         list.add(value);
       }
       });

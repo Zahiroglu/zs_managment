@@ -7,8 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' as getx;
 import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/anbar/screan_anbar_esas.dart';
-import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
-import 'package:zs_managment/companents/connected_users/rout_detail_users_screen.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
 import 'package:zs_managment/companents/live_track/screen_live_track.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
@@ -36,6 +34,8 @@ import 'package:zs_managment/widgets/sual_dialog.dart';
 import '../../base_downloads/screen_download_base.dart';
 import '../../hesabatlar/wrong_entries/screen_wrongEntries.dart';
 import '../../local_bazalar/local_bazalar.dart';
+import '../../rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
+import '../../rut_gostericileri/mercendaizer/connected_users/rout_detail_users_screen.dart';
 import '../../tapsiriqlar/screen_tasks.dart';
 import '../../users_panel/mobile/users_panel_mobile_screen.dart';
 

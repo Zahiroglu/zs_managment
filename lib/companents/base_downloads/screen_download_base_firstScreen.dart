@@ -48,7 +48,6 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
                 InkWell(
                     onTap: (){
                       _butunMelumatlariSyncEt();
-
                     },
                     child: Image.asset("images/sync.png",width: 30,height: 30,)),
                 SizedBox(width: 20,),
@@ -62,74 +61,7 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
                 color: Colors.blueAccent,
               ),
             )
-                : SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10,),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height-MediaQuery.of(context).size.height*0.25,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: controller.getWidgetDownloads(context),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  controllerBaseDownloads.davamEtButonuGorunsun.isFalse?SizedBox():Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex:5,
-                            child: CustomElevetedButton(
-                              cllback: () async {
-                                await controllerBaseDownloads.saveChangedSettingtoDb(false);
-                              },
-                              label: "goAhead".tr,
-                              height: 40,
-                              icon: Icons.info,
-                              surfaceColor: Colors.white,
-                              textColor: Colors.orangeAccent,
-                              borderColor: Colors.orangeAccent,
-                              elevation: 10,
-                            ),
-                          ),
-                          SizedBox(width: 10,),
-                          Expanded(
-                            flex: 5,
-                            child: CustomElevetedButton(
-                              cllback: () async {
-                                await controllerBaseDownloads.saveChangedSettingtoDb(true);
-                              },
-                              textColor: Colors.green,
-                              icon: Icons.work_history,
-                              label: "startWork".tr,
-                              height: 40,
-                              surfaceColor: Colors.white,
-                              borderColor: Colors.green,
-                              elevation: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )),
+                :  controller.getWidgetDownloads(context)),
           );
         }),
       ),

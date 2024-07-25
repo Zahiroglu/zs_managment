@@ -6,7 +6,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:lottie/lottie.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
@@ -23,6 +22,7 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
 import '../../../giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
+import '../../mercendaizer/connected_users/model_main_inout.dart';
 
 class ControllerExpPref extends GetxController {
   LocalUserServices userService = LocalUserServices();

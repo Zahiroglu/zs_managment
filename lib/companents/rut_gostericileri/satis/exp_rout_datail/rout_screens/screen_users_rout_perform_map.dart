@@ -7,7 +7,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:hive/hive.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/connected_users/controller_rout_detail_user.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';

@@ -281,16 +281,16 @@ class MotivationData {
   @HiveField(3)
   double? byWasteProduct;
   @HiveField(4)
-  double? planPersent;
+  double? planPercent;
   @HiveField(5)
-  double? wasteProductPersent;
+  double? wasteProductPercent;
 
   MotivationData({
     this.byNetSales,
     this.byPlan,
     this.byWasteProduct,
-    this.planPersent,
-    this.wasteProductPersent,
+    this.planPercent,
+    this.wasteProductPercent,
   });
 
   factory MotivationData.fromRawJson(String str) => MotivationData.fromJson(json.decode(str));
@@ -301,15 +301,20 @@ class MotivationData {
     byNetSales: json["byNetSales"],
     byPlan: json["byPlan"],
     byWasteProduct: json["byWasteProduct"],
-    planPersent: json["planPersent"],
-    wasteProductPersent: json["wasteProductPersent"],
+    planPercent: json["planPercent"],
+    wasteProductPercent: json["wasteProductPercent"],
   );
 
   Map<String, dynamic> toJson() => {
     "byNetSales": byNetSales,
     "byPlan": byPlan,
     "byWasteProduct": byWasteProduct,
-    "planPersent": planPersent,
-    "wasteProductPersent": wasteProductPersent,
+    "planPercent": planPercent,
+    "wasteProductPercent": wasteProductPercent,
   };
+
+  @override
+  String toString() {
+    return 'MotivationData{byNetSales: $byNetSales, byPlan: $byPlan, byWasteProduct: $byWasteProduct, planPersent: $planPercent, wasteProductPersent: $wasteProductPercent}';
+  }
 }

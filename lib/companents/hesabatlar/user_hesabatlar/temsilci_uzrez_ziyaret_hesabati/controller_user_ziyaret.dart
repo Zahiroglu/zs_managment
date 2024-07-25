@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
-import '../../../connected_users/model_main_inout.dart';
 
 class ControllerUserZiyaret extends GetxController {
   LocalUserServices userService = LocalUserServices();

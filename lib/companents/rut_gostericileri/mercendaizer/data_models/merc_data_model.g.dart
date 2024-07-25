@@ -249,8 +249,8 @@ class MotivationDataAdapter extends TypeAdapter<MotivationData> {
       byNetSales: fields[1] as double?,
       byPlan: fields[2] as double?,
       byWasteProduct: fields[3] as double?,
-      planPersent: fields[4] as double?,
-      wasteProductPersent: fields[5] as double?,
+      planPercent: fields[4] as double?,
+      wasteProductPercent: fields[5] as double?,
     );
   }
 
@@ -265,9 +265,9 @@ class MotivationDataAdapter extends TypeAdapter<MotivationData> {
       ..writeByte(3)
       ..write(obj.byWasteProduct)
       ..writeByte(4)
-      ..write(obj.planPersent)
+      ..write(obj.planPercent)
       ..writeByte(5)
-      ..write(obj.wasteProductPersent);
+      ..write(obj.wasteProductPercent);
   }
 
   @override

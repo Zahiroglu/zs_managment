@@ -199,6 +199,7 @@
     "temsilciler": "Təmsilçilər",
     "temsilciSec": "Təmsilçi seç",
     "temsilciSecmi": "Təmsilçi seçimi",
+    "temsilciSayi": "Təmsilçi sayi",
     "temKod": "Təmsilçi kodu",
     "cayPlan": "Cari ay plan",
     "istMelEndirilir": "İstifadəçi məlumatları endilir",
@@ -321,5 +322,8 @@
     "rutDuzgunluyuKenar": "Rut duzgunluyu : Rutdan kenardir",
     "girisTarixi": "Giris tarixi : ",
     "cixiEtmekIsteyi": "adli marketden Cixis ucun Eminsiniz?",
-    "merketdenUzaqCixisXeta": "Marketden  uzaqda oldugunuz ucun cixis ede bilmezsiniz.Teleb olunan uzaqliq "
+    "merketdenUzaqCixisXeta": "Marketden  uzaqda oldugunuz ucun cixis ede bilmezsiniz.Teleb olunan uzaqliq ",
+    "totalSatis": "Total satış",
+    "totalPlan": "Total plan",
+    "totalIade": "Total iade"
 }

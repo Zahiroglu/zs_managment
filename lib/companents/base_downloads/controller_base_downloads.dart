@@ -7,17 +7,18 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
-import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_satis.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
+import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/helpers/user_permitions_helper.dart';
+import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
@@ -40,12 +41,8 @@ class ControllerBaseDownloads extends GetxController {
   late CheckDviceType checkDviceType = CheckDviceType();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   LocalUserServices localUserServices = LocalUserServices();
-  RxList<ModelDownloads> listDonwloads = List<ModelDownloads>.empty(
-      growable: true).obs;
-  RxList<ModelDownloads> listDownloadsFromLocalDb = List<ModelDownloads>.empty(
-      growable: true).obs;
-  RxList<ModelDownloads> listDonwloadsAll = List<ModelDownloads>.empty(
-      growable: true).obs;
+  RxList<ModelDownloads> listDonwloads = List<ModelDownloads>.empty(growable: true).obs;
+  RxList<ModelDownloads> listDownloadsFromLocalDb = List<ModelDownloads>.empty(growable: true).obs;
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   RxBool dataLoading = true.obs;
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
@@ -57,7 +54,8 @@ class ControllerBaseDownloads extends GetxController {
   ModelAppSetting modelsetting = ModelAppSetting(
       mapsetting: null, girisCixisType: "", userStartWork: false);
   List<AvailableMap> listApps = [];
-  late AvailableMap selectedApp = AvailableMap(mapName: MapType.google.name.tr,
+  late AvailableMap selectedApp = AvailableMap(
+      mapName: MapType.google.name.tr,
       mapType: MapType.google,
       icon: const Icon(Icons.map).toString());
   LocalAppSetting localAppSetting = LocalAppSetting();
@@ -66,17 +64,20 @@ class ControllerBaseDownloads extends GetxController {
   late Rx<ModelGirisCixisScreenType> selectedModelGirisCixis = ModelGirisCixisScreenType().obs;
   late Rx<ModelAppSetting> modelAppSetting = ModelAppSetting().obs;
   List<ModelGirisCixisScreenType> listGirisCixisType = [
-    ModelGirisCixisScreenType(name: "map",
-        icon: const Icon(Icons.map, color: Colors.green,),
+    ModelGirisCixisScreenType(
+        name: "map",
+        icon: const Icon(
+          Icons.map,
+          color: Colors.green,
+        ),
         kod: "map"),
     ModelGirisCixisScreenType(
         name: "list", icon: const Icon(Icons.list_alt), kod: "list")
   ];
-  UserPermitionsHelper userPermitionSercis=UserPermitionsHelper();
+  UserPermitionsHelper userPermitionSercis = UserPermitionsHelper();
 
   @override
-  onInit() {
-    callLocalBases();
+  onInit() async {
     _donloadListiniDoldur();
     getAPPlist();
     super.onInit();
@@ -94,7 +95,8 @@ class ControllerBaseDownloads extends GetxController {
       if (modelMapApp.name == "null") {
         selectedApp = listApps.first;
       } else {
-        selectedApp = AvailableMap(mapName: modelMapApp.name!,
+        selectedApp = AvailableMap(
+            mapName: modelMapApp.name!,
             mapType: mapType,
             icon: modelMapApp.icon!);
       }
@@ -119,54 +121,10 @@ class ControllerBaseDownloads extends GetxController {
     update();
   }
 
-
-  _donloadListiniDoldur() async {
-    listDonwloads.clear();
-    await localUserServices.init();
-    List<ModelUserPermissions> listUsersPermitions = localUserServices
-        .getLoggedUser()
-        .userModel!
-        .permissions!;
-    for (var element in listUsersPermitions) {
-      switch (element.code) {
-        case "myConnectedRutMerch":
-          listDonwloads.add(ModelDownloads(
-              name: "connextedUsers".tr,
-              code: "myConnectedRutMerch",
-              info: "connextedUsersExplain".tr,
-              lastDownDay: "",
-              donloading: false,
-              musteDonwload: true));
-          break;
-        case "warehouse":
-          listDonwloads.add(ModelDownloads(
-              name: "warehouse".tr,
-              code: "warehouse",
-              info: "warehouseExplain".tr,
-              lastDownDay: "",
-              donloading: false,
-              musteDonwload: true));
-          break;
-        // case "myRut":
-        //   listDonwloads.add(ModelDownloads(
-        //       name: "myRut".tr,
-        //       donloading: false,
-        //       code: "myRut",
-        //       info: "myRutExplain".tr,
-        //       lastDownDay: "",
-        //       musteDonwload: true));
-        //   break;
-        case "enter":
-          listDonwloads.add(ModelDownloads(
-              name: "currentBase".tr,
-              donloading: false,
-              code: "enter",
-              info: "currentBaseExplain".tr,
-              lastDownDay: "",
-              musteDonwload: true));
-          break;
-
-    }}
+  Future<void> saveChangedSettingtoDb(bool istrue) async {
+    modelsetting.userStartWork = istrue;
+    await localAppSetting.addSelectedMyTypeToLocalDB(modelsetting);
+    Get.offNamed(RouteHelper.mobileMainScreen);
   }
 
   Future<void> clearAllDataSatis() async {
@@ -188,144 +146,74 @@ class ControllerBaseDownloads extends GetxController {
     ifUserMustLocateAllWordDay.value == loggedUserModel.userModel!.permissions!.any((element) => element.code == "liveAllDay");
     listDownloadsFromLocalDb.value = await localBaseDownloads.getAllDownLoadBaseList();
     getMustDownloadBase(loggedUserModel.userModel!.roleId!, listDownloadsFromLocalDb);
-    if (await localBaseDownloads.checkIfUserMustDonwloadsBaseFirstTime(
-        loggedUserModel.userModel!.roleId!)) {
-        davamEtButonuGorunsun.value = false;
-    } else {
-      if (listDonwloads.isNotEmpty) {
-        davamEtButonuGorunsun.value = false;
-      } else {
-        davamEtButonuGorunsun.value = true;
+    intentScreen();
+    update();
+  }
+
+  Future<void> _donloadListiniDoldur() async {
+    listDonwloads.clear();
+    int sayList = 0;
+    await localUserServices.init();
+    List<ModelUserPermissions> listUsersPermitions =
+    localUserServices.getLoggedUser().userModel!.permissions!;
+    sayList = sayList + 1;
+    for (var element in listUsersPermitions) {
+      switch (element.code) {
+        case "myConnectedRutMerch":
+          listDonwloads.add(ModelDownloads(
+              name: "connextedUsers".tr,
+              code: "myConnectedRutMerch",
+              info: "connextedUsersExplain".tr,
+              lastDownDay: "",
+              donloading: false,
+              musteDonwload: true));
+          break;
+        case "warehouse":
+          listDonwloads.add(ModelDownloads(
+              name: "warehouse".tr,
+              code: "warehouse",
+              info: "warehouseExplain".tr,
+              lastDownDay: "",
+              donloading: false,
+              musteDonwload: true));
+          break;
+        case "enter":
+          listDonwloads.add(ModelDownloads(
+              name: "currentBase".tr,
+              donloading: false,
+              code: "enter",
+              info: "currentBaseExplain".tr,
+              lastDownDay: "",
+              musteDonwload: true));
+          break;
       }
     }
+    await callLocalBases();
     update();
   }
 
   getWidgetDownloads(BuildContext context) {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          listDonwloads.isNotEmpty
-              ? Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: CustomText(
-                  labeltext: "baseMustDownload".tr,
-                  fontsize: 18,
-                  color: Colors.black,
-                ),
-              ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white10, width: 2),
-                    borderRadius:
-                    const BorderRadius.all(Radius.circular(15)),
-                    color: Colors.white),
-                child: SizedBox(
-                  height: listDonwloads.length * 80,
-                  child: ListView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(2),
-                    scrollDirection: Axis.vertical,
-                    children: listDonwloads
-                        .map((e) =>
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: itemsEndirilmeliBazalar(e, context),
-                        ))
-                        .toList(),
-                  ),
-                ),
-              )
-            ],
-          )
-              : const SizedBox(),
-          SizedBox(
-            height: listDonwloads.isNotEmpty ? 30 : 0,
+    return Obx(() => listDonwloads.isNotEmpty
+        ? Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(0),
+            scrollDirection: Axis.vertical,
+            children: listDonwloads
+                .map((e) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: itemsGuncellenmeliBazalar(e, context),
+            ))
+                .toList(),
           ),
-          listDownloadsFromLocalDb.isNotEmpty
-              ? Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: CustomText(
-                  color: Colors.black,
-                  labeltext: "baseDownloaded".tr,
-                  fontsize: 18,
-                ),
-              ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                    borderRadius:
-                    const BorderRadius.all(Radius.circular(15)),
-                    color: Colors.white,
-                    border: Border.all(color: Colors.green, width: 1)),
-                child: SizedBox(
-                  height: listDownloadsFromLocalDb.length * 100,
-                  child: ListView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(0),
-                    scrollDirection: Axis.vertical,
-                    children: listDownloadsFromLocalDb
-                        .map((e) =>
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child:
-                          itemsGuncellenmeliBazalar(e, context),
-                        ))
-                        .toList(),
-                  ),
-                ),
-              )
-            ],
-          )
-              : const SizedBox(),
-        ]);
-  }
-
-  Widget itemsEndirilmeliBazalar(ModelDownloads model, BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue.withOpacity(0.5)),
-          borderRadius: const BorderRadius.all(Radius.circular(15))),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 10, bottom: 5, top: 5, right: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                      labeltext: model.name!,
-                      fontsize: 14,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                  InkWell(
-                      onTap: () {
-                        melumatlariEndir(model, false);
-                      },
-                      child: const Icon(Icons.upload_rounded))
-                ]),
-            CustomText(
-              labeltext: model.info!,
-              maxline: 2,
-              fontsize: 10,
-              color: Colors.grey,
-              overflow: TextOverflow.ellipsis,
-            )
-          ],
         ),
-      ),
-    );
+      ],
+    )
+        : const SizedBox());
   }
 
   Widget itemsGuncellenmeliBazalar(ModelDownloads model, BuildContext context) {
@@ -351,29 +239,34 @@ class ControllerBaseDownloads extends GetxController {
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                           fontsize: 16),
-                      model.lastDownDay!.length > 1 ? Row(
+                      model.donloading!
+                          ?CustomText(labeltext: "loading".tr,color: Colors.red,): model.lastDownDay!.length > 1
+                          ? Row(
                         children: [
                           CustomText(
                               color: model.musteDonwload == true
                                   ? Colors.red
-                                  : Get.isDarkMode ? Colors.white : Colors
-                                  .black,
+                                  : Get.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
                               fontsize: 12,
                               labeltext:
-                              "${"lastRefresh".tr}: ${model.lastDownDay!
-                                  .substring(0, 10)}"),
-                          const SizedBox(width: 5,),
+                              "${"lastRefresh".tr}: ${model.lastDownDay!.substring(0, 10)}"),
+                          const SizedBox(
+                            width: 5,
+                          ),
                           CustomText(
                               color: model.musteDonwload == true
                                   ? Colors.red
-                                  : Get.isDarkMode ? Colors.white : Colors
-                                  .black,
+                                  : Get.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
                               fontsize: 12,
-                              labeltext: "( ${model.lastDownDay!.substring(
-                                  11, 16)} )"),
-
+                              labeltext:
+                              "( ${model.lastDownDay!.substring(11, 16)} )"),
                         ],
-                      ) : const SizedBox(),
+                      )
+                          : const SizedBox(),
                       CustomText(
                         labeltext: model.info!,
                         maxline: 3,
@@ -381,7 +274,8 @@ class ControllerBaseDownloads extends GetxController {
                         color: Colors.black,
                         fontsize: 12,
                       ),
-                      model.musteDonwload == true ? Row(
+                      model.musteDonwload == true
+                          ? Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           const Icon(
@@ -389,7 +283,9 @@ class ControllerBaseDownloads extends GetxController {
                             Icons.info,
                             color: Colors.red,
                           ),
-                          const SizedBox(width: 5,),
+                          const SizedBox(
+                            width: 5,
+                          ),
                           Expanded(
                             child: CustomText(
                               labeltext: "infoRefresh".tr,
@@ -399,13 +295,18 @@ class ControllerBaseDownloads extends GetxController {
                               fontsize: 12,
                             ),
                           ),
-
                         ],
-                      ) : const SizedBox()
+                      )
+                          : const SizedBox()
                     ],
                   ),
                 ),
-                model.donloading! ? const FlutterLogo() : InkWell(
+                model.donloading!
+                    ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(color: Colors.blue,))
+                    : InkWell(
                     onTap: () {
                       melumatlariEndir(model, true);
                     },
@@ -421,107 +322,75 @@ class ControllerBaseDownloads extends GetxController {
   getMustDownloadBase(int roleId, List<ModelDownloads> listDownloadsFromLocalDb) {
     for (var e in listDownloadsFromLocalDb) {
       if (listDonwloads.any((element) => element.code == e.code)) {
-        listDonwloads.remove(listDonwloads
-            .where((a) => a.code == e.code)
-            .first);
+        listDonwloads.remove(listDonwloads.where((a) => a.code == e.code).first);
+        listDonwloads.add(e);
       }
     }
     dataLoading = false.obs;
   }
 
   Future<void> melumatlariEndir(ModelDownloads model, bool guncelle) async {
-    DialogHelper.showLoading("${model.name!} endirilir...");
     switch (model.code) {
       case "myConnectedRutMerch":
         await localGirisCixisServiz.init();
+        updateElementDownloading(model,true);
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
         await localBaseDownloads.addConnectedUsers(listUser);
+        updateElementDownloading(model,false);
         if (listUser.isNotEmpty) {
-          listDonwloads.remove(model);
+          //listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
-          if (guncelle) {
-            listDownloadsFromLocalDb.remove(model);
-            listDownloadsFromLocalDb.add(model);
-          } else {
-            listDownloadsFromLocalDb.add(model);
-          }
+          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
         }
         break;
       case "warehouse":
         await localGirisCixisServiz.init();
+        updateElementDownloading(model,true);
         loggedUserModel = localUserServices.getLoggedUser();
         List<ModelAnbarRapor> data = await getDataAnbar();
         await localBaseDownloads.addAnbarBaza(data);
+        updateElementDownloading(model,false);
         if (data.isNotEmpty) {
-          listDonwloads.remove(model);
+          //listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
-          //  localGirisCixisServiz.clearAllGiris();
-          if (guncelle) {
-            listDownloadsFromLocalDb.remove(model);
-            listDownloadsFromLocalDb.add(model);
-          } else {
-            listDownloadsFromLocalDb.add(model);
-          }
+          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
         }
         break;
       case "enter":
         loggedUserModel = localUserServices.getLoggedUser();
-          List<MercDataModel> data = [];
-          if (loggedUserModel.userModel!.roleId == 21 || loggedUserModel.userModel!.roleId == 22) {
-            getAllGirisCixis(loggedUserModel.userModel!.code!,loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
-              data = await getAllMercCariBazaMotivasiya();
-            });
-          } else {
-            await getAllGirisCixis(loggedUserModel.userModel!.code!,loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
-              data = await getAllMercCariBazaMotivasiya();
-            });
-          }
-          if (data.isNotEmpty) {
-            listDonwloads.remove(model);
-            model.lastDownDay = DateTime.now().toIso8601String();
-            model.musteDonwload = false;
-            localBaseDownloads.addDownloadedBaseInfo(model);
-            localBaseDownloads.addAllToMercBase(data);
-            if (guncelle) {
-              listDownloadsFromLocalDb.remove(model);
-              listDownloadsFromLocalDb.add(model);
-            } else {
-              listDownloadsFromLocalDb.add(model);
-            }
-          }
+        updateElementDownloading(model,true);
+        List<MercDataModel> data = [];
+        if (loggedUserModel.userModel!.roleId == 21 ||
+            loggedUserModel.userModel!.roleId == 22) {
+          data = await getAllMercCariBazaMotivasiya();
+        } else {
+          await getAllGirisCixis(loggedUserModel.userModel!.code!,
+              loggedUserModel.userModel!.roleId.toString())
+              .whenComplete(() async {
+            data = await getAllMercCariBazaMotivasiya();
+          });
+        }
+        updateElementDownloading(model,false);
+        if (data.isNotEmpty) {
+          // listDonwloads.removeWhere((e) => e.code == model.code);
+          model.lastDownDay = DateTime.now().toIso8601String();
+          model.musteDonwload = false;
+          localBaseDownloads.addDownloadedBaseInfo(model);
+          localBaseDownloads.addAllToMercBase(data);
+          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+          // listDonwloads.add(model);
+        }
       case "myRut":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
-        if (loggedUserModel.userModel!.moduleId ==
-            3) //merc cari baza endirmek ucundur
-            {
-          List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
-          if (data.isNotEmpty) {
-            listDonwloads.remove(model);
-            model.lastDownDay = DateTime.now().toIso8601String();
-            model.musteDonwload = false;
-            localBaseDownloads.addDownloadedBaseInfo(model);
-            localBaseDownloads.addDataMotivationMerc(data);
-            if (guncelle) {
-              listDownloadsFromLocalDb.remove(model);
-              listDownloadsFromLocalDb.add(model);
-            } else {
-              listDownloadsFromLocalDb.add(model);
-            }
-          }
-        } else {
-          /// expeditor giris edende rutu gorunsun
-        }
-
         break;
     }
-    await callLocalBases();
-    DialogHelper.hideLoading();
+    intentScreen();
     update();
   }
 
@@ -557,7 +426,6 @@ class ControllerBaseDownloads extends GetxController {
           ),
         );
 
-
         if (response.statusCode == 200) {
           var userlist = json.encode(response.data['result']);
           List listuser = jsonDecode(userlist);
@@ -592,6 +460,69 @@ class ControllerBaseDownloads extends GetxController {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
 
+  ///Get Exp cari Baza From Serviz
+  Future<List<ModelCariler>> getAllCustomers() async {
+    List<ModelCariler> listUsers = [];
+    int dviceType = checkDviceType.getDviceType();
+    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+    List<String> secilmisTemsilciler = [];
+    await localBaseDownloads.init();
+    List<UserModel> listUsersSelected =
+    localBaseDownloads.getAllConnectedUserFromLocal();
+    if (listUsersSelected.isEmpty) {
+      secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
+    } else {
+      for (var element in listUsersSelected) {
+        secilmisTemsilciler.add(element.code!);
+      }
+    }
+
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      final response = await ApiClient().dio(false).post(
+        "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-forwarders",
+        data: jsonEncode(secilmisTemsilciler),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'abs': '123456',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        var dataModel = json.encode(response.data['result']);
+        List listuser = jsonDecode(dataModel);
+        for (var i in listuser) {
+          var dataCus = json.encode(i['customers']);
+          var temsilciKodu = i['user']['code'];
+
+          List listDataCustomers = jsonDecode(dataCus);
+          for (var a in listDataCustomers) {
+            ModelCariler model = ModelCariler.fromJson(a);
+            model.forwarderCode = temsilciKodu;
+            listUsers.add(model);
+          }
+        }
+      }
+    }
+    return listUsers;
+  }
+
   ///Cari Merc Baza endirme/////////
   Future<List<MercDataModel>> getAllMercCariBazaMotivasiya() async {
     List<MercDataModel> listUsers = [];
@@ -600,8 +531,8 @@ class ControllerBaseDownloads extends GetxController {
     List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
     LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
-    List<UserModel> listUsersSelected =  localBaseDownloads
-        .getAllConnectedUserFromLocal();
+    List<UserModel> listUsersSelected =
+    localBaseDownloads.getAllConnectedUserFromLocal();
     if (listUsersSelected.isEmpty) {
       secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
     } else {
@@ -619,86 +550,10 @@ class ControllerBaseDownloads extends GetxController {
         callback: () {},
       ));
     } else {
-      try {
-        var response;
-        if(userPermitionSercis.hasUserPermition("canEnterOtherMerchCustomers", loggedUserModel.userModel!.permissions!)){
-          response = await ApiClient().dio(false).get(
-            "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
-            options: Options(
-              receiveTimeout: const Duration(seconds: 60),
-              headers: {
-                'Lang': languageIndex,
-                'Device': dviceType,
-                'abs': '123456',
-                "Authorization": "Bearer $accesToken"
-              },
-              validateStatus: (_) => true,
-              contentType: Headers.jsonContentType,
-              responseType: ResponseType.json,
-            ),
-          );
-
-        }
-        else{
-          response = await ApiClient().dio(false).post(
-            "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
-            data: jsonEncode(secilmisTemsilciler),
-            options: Options(
-              receiveTimeout: const Duration(seconds: 60),
-              headers: {
-                'Lang': languageIndex,
-                'Device': dviceType,
-                'abs': '123456',
-                "Authorization": "Bearer $accesToken"
-              },
-              validateStatus: (_) => true,
-              contentType: Headers.jsonContentType,
-              responseType: ResponseType.json,
-            ),
-          );
-        }
-        if (response.statusCode == 200) {
-          var dataModel = json.encode(response.data['result']);
-          List listuser = jsonDecode(dataModel);
-          for (var i in listuser) {
-            listUsers.add(MercDataModel.fromJson(i));
-            listConnectedUsers.add(UserModel(
-              roleName: "Mercendaizer",
-              roleId: 23,
-              code:MercDataModel.fromJson(i).user!.code,
-              name: MercDataModel.fromJson(i).user!.name,
-              gender: 0,
-            ));
-          }
-        } else {
-          exeptionHandler.handleExeption(response);
-        }
-      } on DioException catch (e) {
-        if (e.response != null) {
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-        }
-      }
-    }
-    await localBaseDownloads.addConnectedUsers(listConnectedUsers);
-    return listUsers;
-  }
-
-  Future<List<MercDataModel>> getAllMercCariBaza() async {
-    List<MercDataModel> listUsers = [];
-    languageIndex = await getLanguageIndex();
-    int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {},
-      ));
-    } else {
-      try {
-        final response = await ApiClient().dio(false).get(
+      var response;
+      if (userPermitionSercis.hasUserPermition("canEnterOtherMerchCustomers",
+          loggedUserModel.userModel!.permissions!)) {
+        response = await ApiClient().dio(false).get(
           "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -713,44 +568,45 @@ class ControllerBaseDownloads extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-
-        if (response.statusCode == 200) {
-          var dataModel = json.encode(response.data['result']);
-          List listuser = jsonDecode(dataModel);
-          for (var i in listuser) {
-            listUsers.add(MercDataModel.fromJson(i));
-          }
-        } else {
-          exeptionHandler.handleExeption(response);
+      } else {
+        response = await ApiClient().dio(false).post(
+          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+          data: jsonEncode(secilmisTemsilciler),
+          options: Options(
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+      }
+      if (response.statusCode == 200) {
+        var dataModel = json.encode(response.data['result']);
+        List listuser = jsonDecode(dataModel);
+        for (var i in listuser) {
+          listUsers.add(MercDataModel.fromJson(i));
+          listConnectedUsers.add(UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            code: MercDataModel.fromJson(i).user!.code,
+            name: MercDataModel.fromJson(i).user!.name,
+            gender: 0,
+          ));
         }
-      } on DioException catch (e) {
-        if (e.response != null) {
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
       }
     }
+    await localBaseDownloads.addConnectedUsers(listConnectedUsers);
     return listUsers;
-  }
-
-  _getValue(Iterable<XmlElement> items) {
-    var textValue;
-    items.map((XmlElement node) {
-      textValue = node;
-    }).toList();
-    return textValue;
   }
 
   String rutDuzgunluyuYoxla(ModelCariler selectedModel) {
     String rutgun = "Sef";
-    int hefteningunu = DateTime
-        .now()
-        .weekday;
+    int hefteningunu = DateTime.now().weekday;
     switch (hefteningunu) {
       case 1:
         if (selectedModel.days!.any((element) => element.day == 1)) {
@@ -792,11 +648,10 @@ class ControllerBaseDownloads extends GetxController {
   Future<List<ModelAnbarRapor>> getDataAnbar() async {
     List<ModelAnbarRapor> listProducts = [];
     languageIndex = await getLanguageIndex();
-    var data={
-      "date": DateTime.now().toString().substring(0,9)
-    };
+    var data = {"date": DateTime.now().toString().substring(0, 9)};
     int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    await localUserServices.init();
+    String accesToken = await localUserServices.getLoggedToken();
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
@@ -805,88 +660,55 @@ class ControllerBaseDownloads extends GetxController {
         callback: () {},
       ));
     } else {
-      try {
-        final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/api/v1/Report/warehouse-remainder",
-          data:data,
-          options: Options(
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
+      final response = await ApiClient().dio(false).post(
+        "${loggedUserModel.baseUrl}/api/v1/Report/warehouse-remainder",
+        data: data,
+        options: Options(
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'abs': '123456',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
 
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-
-        if (response.statusCode == 200) {
-          var dataModel = json.encode(response.data['result']);
-          List listuser = jsonDecode(dataModel);
-          for (var i in listuser) {
-            listProducts.add(ModelAnbarRapor.fromJson(i));
-          }
-        } else {
-          exeptionHandler.handleExeption(response);
+      if (response.statusCode == 200) {
+        var dataModel = json.encode(response.data['result']);
+        List listuser = jsonDecode(dataModel);
+        for (var i in listuser) {
+          listProducts.add(ModelAnbarRapor.fromJson(i));
         }
-
-      } on DioException catch (e) {
-        if (e.response != null) {
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
       }
     }
     return listProducts;
   }
 
-
   void syncAllInfo() async {
     await localUserServices.init();
     loggedUserModel = localUserServices.getLoggedUser();
-    _donloadListiniDoldur();
-    callLocalBases();
-    listDonwloadsAll.clear();
     for (var element in listDonwloads) {
-      listDonwloadsAll.add(element);
+      await melumatlariEndir(element, true);
     }
-    for (var element in listDownloadsFromLocalDb) {
-      listDonwloadsAll.add(element);
-    }
-    for (var element in listDonwloadsAll) {
-      listDonwloads.remove(element);
-      listDownloadsFromLocalDb.remove(element);
-      element.donloading == true;
-      listDownloadsFromLocalDb.add(element);
-      await melumatlariEndir(element, true).whenComplete(() {
-        listDownloadsFromLocalDb.remove(element);
-        element.donloading == false;
-        listDownloadsFromLocalDb.add(element);
-      });
-    }
+    intentScreen();
+    update();
   }
 
-  Future<List<ModelMainInOut>> getAllGirisCixis(String temsilcikodu,String roleId) async {
+  Future<List<ModelMainInOut>> getAllGirisCixis(String temsilcikodu, String roleId) async {
     List<ModelMainInOut> listUsers = [];
     final now = DateTime.now();
     var date = DateTime(now.year, now.month, 1).toString();
     DateTime dateParse = DateTime.parse(date);
     String ilkGun = intl.DateFormat('yyyy/MM/dd').format(dateParse);
     String songun = intl.DateFormat('yyyy/MM/dd').format(now);
-    LoggedUserModel loggedUserModel =  localUserServices.getLoggedUser();
-    ModelRequestInOut model=ModelRequestInOut(
+    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
+    ModelRequestInOut model = ModelRequestInOut(
         userRole: [UserRole(code: temsilcikodu, role: roleId)],
         endDate: songun,
-        startDate: ilkGun
-    );
+        startDate: ilkGun);
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();
@@ -920,15 +742,13 @@ class ControllerBaseDownloads extends GetxController {
           List listuser = jsonDecode(dataModel);
           await localGirisCixisServiz.clearAllGirisServer();
           for (var i in listuser) {
-            ModelMainInOut model=ModelMainInOut.fromJson(i);
+            ModelMainInOut model = ModelMainInOut.fromJson(i);
             await localGirisCixisServiz.addSelectedGirisCixisDBServer(model);
             listUsers.add(model);
           }
         } else {
           exeptionHandler.handleExeption(response);
-
         }
-
       } on DioException catch (e) {
         if (e.response != null) {
         } else {
@@ -942,6 +762,25 @@ class ControllerBaseDownloads extends GetxController {
       }
     }
     return listUsers;
+  }
+
+  void intentScreen() {
+    if (listDonwloads.any((e) => e.musteDonwload == true)) {
+      davamEtButonuGorunsun.value = false;
+    } else {
+      if (modelsetting.userStartWork == true) {
+        Get.offNamed(RouteHelper.mobileMainScreen);
+      }
+      else {
+        davamEtButonuGorunsun.value = true;
+      }
+    }
+  }
+
+  void updateElementDownloading(ModelDownloads model, bool isdownloading) {
+    model.donloading=isdownloading;
+    listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+
   }
 
 }

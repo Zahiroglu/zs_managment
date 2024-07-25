@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import '../../../connected_users/model_main_inout.dart';
 import '../../../live_track/model/model_live_track.dart';
 
 class MyConnectedUsersCurrentLocationReport {

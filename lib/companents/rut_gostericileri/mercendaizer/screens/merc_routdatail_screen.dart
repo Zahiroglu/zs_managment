@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
@@ -12,6 +11,8 @@ import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_mode
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
+
+import '../connected_users/model_main_inout.dart';
 
 class ScreenMercRoutDatail extends StatefulWidget {
 
@@ -484,8 +485,11 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   }
 
   Widget infoSatisMenu() {
-    double totalPrim=widget.modelMercBaza.motivationData!.byNetSales!+widget.modelMercBaza.motivationData!.byPlan!
-    +widget.modelMercBaza.motivationData!.byWasteProduct!;
+    double totalPrim=0;
+    if(widget.modelMercBaza.motivationData!.byNetSales!=null){
+      totalPrim=widget.modelMercBaza.motivationData!.byNetSales!+widget.modelMercBaza.motivationData!.byPlan!
+          +widget.modelMercBaza.motivationData!.byWasteProduct!;
+    }
     return Obx(() => SingleChildScrollView(
       child: Stack(
         children: [
@@ -762,7 +766,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
               ),
             ),
           ),
-          widget.modelMercBaza.motivationData!.planPersent! >= 100
+          widget.modelMercBaza.motivationData!.byNetSales!=null? widget.modelMercBaza.motivationData!.planPercent! >= 100
               ? Positioned(
               top: 0,
               bottom: 0,
@@ -773,7 +777,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   controller: _animationController,
                   repeat: false,
                   fit: BoxFit.fill))
-              : const SizedBox(),
+              : const SizedBox():const SizedBox(),
           Positioned(
               top: 55,
               right: 15,
@@ -841,7 +845,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(widget.modelMercBaza.motivationData!.byNetSales!)} ${"manatSimbol".tr}"),
+                              widget.modelMercBaza.motivationData!.byNetSales!=null?"${widget.modelMercBaza.motivationData!.byNetSales!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
                         ],
                       ),
                     ),
@@ -860,7 +864,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           const SizedBox(
                             width: 5,
                           ),
-                          CustomText(labeltext:"${controllerRoutDetailUser.prettify(widget.modelMercBaza.motivationData!.byPlan!)} ${"manatSimbol".tr}"),
+                          CustomText(labeltext:widget.modelMercBaza.motivationData!.byPlan!=null?"${widget.modelMercBaza.motivationData!.byPlan!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
                         ],
                       ),
                     ),
@@ -874,7 +878,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           const SizedBox(
                             width: 5,
                           ),
-                          CustomText(labeltext:"${widget.modelMercBaza.motivationData!.planPersent!} %"),
+                          CustomText(labeltext:widget.modelMercBaza.motivationData!.planPercent!=null?"${widget.modelMercBaza.motivationData!.planPercent!.toStringAsFixed(2)} %":""),
                         ],
                       ),
                     ),
@@ -895,7 +899,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(widget.modelMercBaza.motivationData!.byWasteProduct!)} ${"manatSimbol".tr}"),
+                              widget.modelMercBaza.motivationData!.byWasteProduct!=null?"${widget.modelMercBaza.motivationData!.byWasteProduct!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
                         ],
                       ),
                     ),
@@ -911,7 +915,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                                  "${widget.modelMercBaza.motivationData!.wasteProductPersent!} %"),
+                              widget.modelMercBaza.motivationData!.wasteProductPercent!=null?"${widget.modelMercBaza.motivationData!.wasteProductPercent!} %":""),
                         ],
                       ),
                     ),

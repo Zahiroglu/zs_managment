@@ -1,7 +1,7 @@
 
 import 'package:hive/hive.dart';
-import 'package:zs_managment/companents/connected_users/model_main_inout.dart';
 import '../giris_cixis/models/model_customers_visit.dart';
+import '../rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 
 class LocalGirisCixisServiz {
   late Box girisCixis = Hive.box<ModelCustuomerVisit>("girisCixis");
