@@ -487,11 +487,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-              controllerGirisCixis.marketeGirisEdilib.isFalse &&
-                      (controllerGirisCixis.listSifarisler.isNotEmpty ||
-                          controllerGirisCixis.listIadeler.isNotEmpty)
-                  ? controllerGirisCixis.cardTotalSifarisler(context, false)
-                  : const SizedBox(),//sifarisleri gosteren hisse
+              controllerGirisCixis.marketeGirisEdilib.isFalse && (controllerGirisCixis.listSifarisler.isNotEmpty || controllerGirisCixis.listIadeler.isNotEmpty) ? controllerGirisCixis.cardTotalSifarisler(context, false) : const SizedBox(),//sifarisleri gosteren hisse
               if (controllerGirisCixis.selectedTabItem.value.keyText!="z"&&controllerGirisCixis.selectedTabItem.value.keyText!="gz")
           Padding(padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
           child: CustomText(
@@ -682,7 +678,79 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
         });
         // Get.back(result: e);
       },
-      child: Stack(
+      child:e.postalCode=="region" ?Stack(
+        children: [
+          Card(
+            color: selectedCariModel == e
+                ? Colors.yellow.withOpacity(0.6)
+                : controllerGirisCixis.modelRutPerform.value.listGirisCixislar!
+                .where((a) => a.customerCode == e.code)
+                .isEmpty
+                ? Colors.white
+                : Colors.white,
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            elevation: selectedCariModel == e ? 10 : 5,
+            shadowColor: selectedCariModel == e
+                ? Colors.grey
+                : controllerGirisCixis.modelRutPerform.value.listGirisCixislar!
+                .where((a) => a.customerCode == e.code).isEmpty?Colors.blueAccent.withOpacity(0.4):Colors.green,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(2.0).copyWith(left: 8,top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: CustomText(
+                            maxline: 2,
+                            labeltext: e.name!,
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.w700,
+                            fontsize: selectedCariModel == e ? 18 : 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(3.0),
+                    child: Divider(height: 1, color: Colors.black),
+                  ),
+                  selectedCariModel == e
+                      ? widgetGirisUcun():const SizedBox()
+
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+              right: 15,
+              top: 15,
+              child: Row(
+                children: [
+                  CustomText(
+                    labeltext: e.code!,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w300,
+                    fontsize: 12,
+                  ),
+                  const SizedBox(width: 5,),
+                  InkWell(
+                      onTap: (){
+                        Get.toNamed(RouteHelper.getwidgetScreenMusteriDetail(),arguments: [e,controllerGirisCixis.availableMap.value]);
+                      },
+                      child: const Icon(
+                          size: 18,
+                          Icons.info,color: Colors.blue)),
+                ],
+              ))
+        ],
+      ):Stack(
         children: [
           Card(
             color: selectedCariModel == e

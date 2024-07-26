@@ -290,7 +290,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenExpRoutDetail, page: () {
-      return   ScreenExpRoutPerform(controllerRoutDetailUser: Get.arguments[0],userModel: Get.arguments[1], listUsers:Get.arguments[2],);
+      return   ScreenExpRoutPerform(controllerRoutDetailUser: Get.arguments[0],userModel: Get.arguments[1], listCariler:Get.arguments[2],);
       return  Container();
     }),
     GetPage(

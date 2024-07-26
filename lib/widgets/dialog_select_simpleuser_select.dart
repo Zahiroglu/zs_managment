@@ -132,7 +132,7 @@ class _DialogSimpleUserSelectState
     return InkWell(
       onTap: (){
         setState(() {
-          widget.selectedUserCode==element.code;
+          widget.selectedUserCode=element.code.toString();
         });
         widget.getSelectedUse(element);
         Get.back();

@@ -203,6 +203,20 @@ class ControllerGirisCixisReklam extends GetxController {
     listCariler.clear();
     listSelectedMusteriler.clear();
     List<MercDataModel> listmodel = await localBase.getAllMercDatail();
+    listCariler.insert(0,ModelCariler(
+        name: loggedUserModel.userModel!.regionName.toString(),
+        code: loggedUserModel.userModel!.regionCode.toString(),
+        latitude: 0.0,
+        longitude: 0.0,
+        postalCode: "region"
+    ));
+    listSelectedMusteriler.insert(0,ModelCariler(
+        name: loggedUserModel.userModel!.regionName.toString(),
+        code: loggedUserModel.userModel!.regionCode.toString(),
+        latitude: 0.0,
+        longitude: 0.0,
+        postalCode: "region"
+    ));
     if(listmodel.isNotEmpty){
       for (MercDataModel model in listmodel) {
         List<MercCustomersDatail> musteriler = model.mercCustomersDatail!;

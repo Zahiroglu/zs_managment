@@ -12,10 +12,10 @@ import '../../../mercendaizer/connected_users/model_main_inout.dart';
 
 class ScreenExpRoutPerform extends StatefulWidget {
   ControllerRoutDetailUser controllerRoutDetailUser;
-  UserModel userModel;
-  List<UserModel> listUsers;
+  String userModel;
+  List<ModelCariler> listCariler;
 
-  ScreenExpRoutPerform({required this.controllerRoutDetailUser,required this.userModel,required this.listUsers, super.key});
+  ScreenExpRoutPerform({required this.controllerRoutDetailUser,required this.userModel,required this.listCariler, super.key});
 
   @override
   State<ScreenExpRoutPerform> createState() => _ScreenExpRoutPerformState();
@@ -52,7 +52,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
       });
     });
     if (controllerRoutDetailUser.initialized) {
-    //  controllerRoutDetailUser.getAllCariler(widget.controllerRoutDetailUser.listFilteredCustomers, widget.controllerRoutDetailUser.listGirisCixis,widget.listUsers);
+      controllerRoutDetailUser.getAllCariler(widget.listCariler, [],widget.controllerRoutDetailUser.listUsers);
       _animationController = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 5000));
       _animationController.forward();
@@ -96,7 +96,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
   void fillAllPages() {
     listBodyWidgets.clear();
     listHeaderWidgets.clear();
-    //listHeaderWidgets.add(_infoUmumiCariler(widget.controllerRoutDetailUser.listFilteredCustomers.first));
+    listHeaderWidgets.add(_infoUmumiCariler(widget.listCariler.first));
     listHeaderWidgets.add(infoRutGunleri());
     listBodyWidgets.add(_pageViewUmumiCariler());
     listBodyWidgets.add(_pageViewUmumiRutGunleri());
@@ -142,7 +142,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
                           Get.toNamed(RouteHelper.screenExpRoutDetailMap,arguments: controllerRoutDetailUser);
                         }, icon:const Icon( Icons.map))],
                         title: CustomText(
-                            labeltext: widget.userModel.name!),
+                            labeltext: widget.userModel),
                         flexibleSpace: FlexibleSpaceBar(
                           stretchModes: const [StretchMode.blurBackground],
                           background: pagetViewInfo(),

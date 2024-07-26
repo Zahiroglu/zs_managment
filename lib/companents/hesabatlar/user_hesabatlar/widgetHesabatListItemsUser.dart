@@ -459,7 +459,6 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
         List<UserModel> listUsers = [];
         MercDataModel modela = await getAllCustomersMerc(widget.userCode);
         listGirisCixis=await getAllGirisCixis(widget.userCode, widget.roleId);
-        DialogHelper.hideLoading();
         if (modela.user != null) {
           Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela, listGirisCixis, listUsers]);
         } else {
@@ -475,7 +474,6 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
         case "tzhesab":
         DialogHelper.showLoading("tzhesab".tr);
         List<ModelMainInOut> listGirisCixis=await getAllGirisCixis(widget.userCode, widget.roleId);
-        DialogHelper.hideLoading();
         if (listGirisCixis.isNotEmpty) {
           Get.toNamed(RouteHelper.screenTemZiyaret, arguments: [listGirisCixis]);
         } else {
@@ -547,8 +545,6 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
                 responseType: ResponseType.json,
               ),
             );
-        print("responce kode :" + response.data.toString());
-
           if (response.statusCode == 200) {
             var dataModel = json.encode(response.data['result']);
             List listuser = jsonDecode(dataModel);
@@ -587,7 +583,6 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();
-
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
@@ -595,7 +590,8 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
         messaje: "internetError".tr,
         callback: () {},
       ));
-    } else {
+    }
+    else {
       try {
         final response = await ApiClient().dio(false).post(
               "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
@@ -619,13 +615,14 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
             List listuser = jsonDecode(dataModel);
             for (var i in listuser) {
               ModelMainInOut model = ModelMainInOut.fromJson(i);
-              print("model :" + model.toString());
               listGirisCixis.add(model);
             }
         }
+
       } on DioException catch (e) {
       }
     }
+    DialogHelper.hideLoading();
     return listGirisCixis;
   }
 

@@ -358,7 +358,7 @@ class ControllerExpPref extends GetxController {
 
   void _intentAdToMercRut(ModelCariler element) {
     print("list merc count :"+listMercs.length.toString());
-    Get.toNamed(RouteHelper.screenMercAdinaMusteriAt,arguments: [element,listMercs.where((p0) => p0.roleId==23).toList(),availableMap.value]);
+    Get.toNamed(RouteHelper.screenMercAdinaMusteriAt,arguments: [element,listMercs,availableMap.value]);
   }
 
   void showEditDialog(ModelCariler element, BuildContext context) {

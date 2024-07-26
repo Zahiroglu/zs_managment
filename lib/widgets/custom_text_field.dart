@@ -77,8 +77,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 child: TextFormField(
                   maxLines:  widget.maxLines,
                   onFieldSubmitted: (s){
-                    widget.onSubmit!.call(s);
-                  },
+                    if(s.isEmpty) {
+                      widget.onSubmit!.call(s);
+                    }},
                   inputFormatters: widget.inputType == TextInputType.phone ? <
                       TextInputFormatter>[maskFormatter,
                   ] : [],

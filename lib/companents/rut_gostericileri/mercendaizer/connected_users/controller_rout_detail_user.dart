@@ -44,6 +44,7 @@ class ControllerRoutDetailUser extends GetxController {
       icon:
       'packages/map_launcher/assets/icons/${CustomMapType.google}.svg').obs;
   RxList<MercDataModel> listMercler = List<MercDataModel>.empty(growable: true).obs;
+  RxList<MercDataModel> listFilteredMerc= List<MercDataModel>.empty(growable: true).obs;
   RxList<ModelMainInOut> listGirisCixis = List<ModelMainInOut>.empty(growable: true).obs;
   RxBool dataLoading = true.obs;
   TextEditingController ctTemsilciKodu = TextEditingController();
@@ -63,6 +64,7 @@ class ControllerRoutDetailUser extends GetxController {
 
   getMercRutDetail() async {
     listMercler.value=await localBaseDownloads.getAllMercDatail();
+    listFilteredMerc.value=await localBaseDownloads.getAllMercDatail();
     for (var e in listMercler) {
       for (var a in e.mercCustomersDatail!) {
         listMercBaza.add(a);
@@ -70,13 +72,12 @@ class ControllerRoutDetailUser extends GetxController {
       listUsers.add(UserModel(
           roleName: "Mercendaizer",
           roleId: 23,
-          username: e.user!.name,
+          name: e.user!.name,
           code: e.user!.code,
           gender: 0));
     }
     update();
   }
-
 
   @override
   void dispose() {
@@ -140,8 +141,16 @@ class ControllerRoutDetailUser extends GetxController {
                           fontsize: 14),
                     ),
                     CustomElevetedButton(
-                      cllback: () {
+                      cllback: () async {
                         Get.back();
+                        List<ModelCariler> listCariler=await getAllCustomers(ctTemsilciKodu.text);
+                        if(listCariler.isEmpty){
+                          Get.dialog(ShowInfoDialog(messaje: "melumatTapilmadi".tr, icon: Icons.error, callback: (){
+                            Get.back();
+                          }));
+                        }else{
+                          Get.toNamed(RouteHelper.screenExpRoutDetail,arguments: [this,ctTemsilciKodu.text,listCariler]);
+                        }
                         ctTemsilciKodu.clear();
                       },
                       label: "tesdiqle".tr,
@@ -174,29 +183,13 @@ class ControllerRoutDetailUser extends GetxController {
     );
   }
 
-  List<ModelCariler> createRandomOrdenNumber(List<ModelCariler> list) {
-    List<ModelCariler> yeniList = [];
-    List<ModelCariler> listBir = list.where((p) => p.days!=null?p.days!.any((element) => element.day==1):false).toList();
-    List<ModelCariler> listIki =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==2):false).toList();
-    List<ModelCariler> listUc =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==3):false).toList();
-    List<ModelCariler> listDort =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==4):false).toList();
-    List<ModelCariler> listBes =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==5):false).toList();
-    List<ModelCariler> listAlti =  list.where((p) => p.days!=null?p.days!.any((element) => element.day==6):false).toList();
-    yeniList.addAll(listBir);
-    yeniList.addAll(listIki);
-    yeniList.addAll(listUc);
-    yeniList.addAll(listDort);
-    yeniList.addAll(listBes);
-    yeniList.addAll(listAlti);
-    return yeniList;
-  }
-
   ///Cari Baza endirme/////////
   Future<List<ModelCariler>> getAllCustomers(String temKod) async {
     List<ModelCariler> listUsers=[];
     languageIndex = await getLanguageIndex();
     List<String> secilmisTemsilciler=[];
     secilmisTemsilciler.add(temKod);
+    DialogHelper.showLoading("cmendirilir".tr);
     print("temsilci Kodu :"+secilmisTemsilciler.toString());
     int dviceType = checkDviceType.getDviceType();
     LoggedUserModel loggedUserModel=userService.getLoggedUser();
@@ -261,8 +254,9 @@ class ControllerRoutDetailUser extends GetxController {
           callback: () {},
         ));
       }
-    }
 
+    }
+    DialogHelper.hideLoading();
     return listUsers;
   }
   ///Get MercBaza
@@ -453,5 +447,19 @@ class ControllerRoutDetailUser extends GetxController {
 
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
+  }
+
+  void changeSearchValue(String ckarakter) {
+    listFilteredMerc.clear();
+    if(ckarakter.isEmpty){
+     listMercler.forEach((e){
+       listFilteredMerc.add(e);
+     });
+    }else{
+      listFilteredMerc.value= listMercler.where((e)=>e.user!.code.toUpperCase().contains(ckarakter.toUpperCase())||
+          e.user!.name.toUpperCase().contains(ckarakter.toUpperCase())
+      ).toList();
+    }
+    update();
   }
 }

@@ -62,7 +62,7 @@ class _TemsilciUzreZiyaretHesabatiState extends State<TemsilciUzreZiyaretHesabat
           ? Column(
               children: [
                 Expanded(flex: 1, child: infoZiyaretTarixcesi()),
-                Expanded(flex: 8, child: _pageViewZiyaretTarixcesi()),
+                Expanded(flex: 7, child: _pageViewZiyaretTarixcesi()),
               ],
             )
           : const Center(

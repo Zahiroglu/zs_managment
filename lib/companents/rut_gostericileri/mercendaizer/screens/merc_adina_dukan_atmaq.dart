@@ -178,7 +178,7 @@ class _ScreenMercAdinaMusteriEalveEtmeState
                 children: [
                   CustomText(
                     fontsize: 18,
-                    labeltext: element.name!,
+                    labeltext: element.name.toString(),
                     fontWeight: FontWeight.w600,
                     maxline: 2,
                   ),
@@ -385,7 +385,7 @@ class _ScreenMercAdinaMusteriEalveEtmeState
                               children: [
                                 CustomText(labeltext: "merc".tr + " : "),
                                 CustomText(
-                                  labeltext: selectedMerc.name!,
+                                  labeltext: selectedMerc.name.toString(),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ],
