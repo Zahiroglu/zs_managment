@@ -8,12 +8,14 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:lottie/lottie.dart';
 
+import '../services/api_services/firebase_users_controller_mobile.dart';
+
 //import 'package:platform_device_id/platform_device_id.dart';
 
 class ScreenRequestCheckMobile extends StatelessWidget {
   ScreenRequestCheckMobile({Key? key}) : super(key: key);
 
-  UserApiControllerMobile apiController = Get.put(UserApiControllerMobile());
+  FirebaseUserApiControllerMobile apiController = Get.put(FirebaseUserApiControllerMobile());
 
   @override
   Widget build(BuildContext context) {
