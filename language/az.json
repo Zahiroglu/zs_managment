@@ -317,6 +317,7 @@
     "zayMaldan": "Zaymaldan : ",
     "motivasiya": "Motivasiya",
     "marketdenUzaqliq": "Marketden uzaqliq",
+    "ofisdenUzaqliq": "Ofisden uzaqliq",
     "gpsAxtarilir": "Gps axtarilir...",
     "rutDuzgunluyuDuz": "Rut duzgunluyu : Duzdur",
     "rutDuzgunluyuKenar": "Rut duzgunluyu : Rutdan kenardir",
@@ -326,5 +327,6 @@
     "totalSatis": "Total satış",
     "totalPlan": "Total plan",
     "totalIade": "Total iade",
-    "mercSistem": "Merc system"
+    "mercSistem": "Merc system",
+    "notInWorkUsers": "tarixinde islemeyen isciler"
 }

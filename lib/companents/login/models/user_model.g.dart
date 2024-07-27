@@ -47,13 +47,15 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       requestNumber: fields[27] as String?,
       lastOnlineDate: fields[28] as String?,
       active: fields[29] as bool?,
+      regionLongitude: fields[31] as double?,
+      regionLatitude: fields[30] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(30)
+      ..writeByte(32)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -113,7 +115,11 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(28)
       ..write(obj.lastOnlineDate)
       ..writeByte(29)
-      ..write(obj.active);
+      ..write(obj.active)
+      ..writeByte(30)
+      ..write(obj.regionLatitude)
+      ..writeByte(31)
+      ..write(obj.regionLongitude);
   }
 
   @override

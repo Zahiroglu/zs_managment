@@ -1,13 +1,29 @@
+import 'dart:convert';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_month_picker/flutter_custom_month_picker.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/model_merc_customers_edit.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
+import '../../../dio_config/api_client.dart';
+import '../../../helpers/dialog_helper.dart';
+import '../../../helpers/exeption_handler.dart';
+import '../../../helpers/user_permitions_helper.dart';
+import '../../../utils/checking_dvice_type.dart';
+import '../../../widgets/simple_info_dialog.dart';
+import '../../base_downloads/models/model_downloads.dart';
 import '../../giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
+import '../../local_bazalar/local_db_downloads.dart';
 import 'connected_users/model_main_inout.dart';
+import 'package:intl/intl.dart' as intl;
 
 class ControllerMercPref extends GetxController {
   RxList<MercCustomersDatail> listMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;
@@ -26,10 +42,18 @@ class ControllerMercPref extends GetxController {
   bool userHasPermitionEditRutSira=true;
   LocalUserServices userLocalService=LocalUserServices();
   LoggedUserModel loggedUserModel=LoggedUserModel();
+  LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
+  late CheckDviceType checkDviceType = CheckDviceType();
+  ExeptionHandler exeptionHandler=ExeptionHandler();
+  UserPermitionsHelper userPermitionSercis = UserPermitionsHelper();
+  String languageIndex = "az";
+
+
 
   @override
   Future<void> onInit() async {
     await userLocalService.init();
+    await localBaseDownloads.init();
     loggedUserModel=userLocalService.getLoggedUser();
     // TODO: implement onInit
     super.onInit();
@@ -42,36 +66,15 @@ class ControllerMercPref extends GetxController {
     super.dispose();
   }
 
-  void melumatlariGuneGoreDoldur() {
-    DateTime dateTime = DateTime.now();
-    switch (dateTime.weekday) {
-      case 1:
-        hefteninGunu = "gun1";
-        break;
-      case 2:
-        hefteninGunu = "gun2";
-        break;
-      case 3:
-        hefteninGunu = "gun3";
-        break;
-      case 4:
-        hefteninGunu = "gun4";
-        break;
-      case 5:
-        hefteninGunu = "gun5";
-        break;
-      case 6:
-        hefteninGunu = "gun6";
-        break;
-    }
-    changeRutGunu(dateTime.weekday);
-    update();
-
-  }
-
 
   ////umumi cariler hissesi
-  void getAllCariler(MercDataModel model, List<ModelMainInOut> listGirisCixis,List<UserModel> listUser) {
+  Future<void> getAllCariler(MercDataModel model, List<ModelMainInOut> listGirisCixis,List<UserModel> listUser)async {
+    listRutGunleri.clear();
+    modelInOut.clear();
+    listZiyeretEdilmeyenler.clear();
+    listMercBaza.clear();
+    listTabItems.clear();
+    ////////////////////////
     selectedMercBaza.value=model;
     modelInOut.value=listGirisCixis;
     if(listGirisCixis.isNotEmpty){
@@ -124,7 +127,33 @@ class ControllerMercPref extends GetxController {
     melumatlariGuneGoreDoldur();
     update();
   }
-  
+
+  void melumatlariGuneGoreDoldur() {
+    DateTime dateTime = DateTime.now();
+    switch (dateTime.weekday) {
+      case 1:
+        hefteninGunu = "gun1";
+        break;
+      case 2:
+        hefteninGunu = "gun2";
+        break;
+      case 3:
+        hefteninGunu = "gun3";
+        break;
+      case 4:
+        hefteninGunu = "gun4";
+        break;
+      case 5:
+        hefteninGunu = "gun5";
+        break;
+      case 6:
+        hefteninGunu = "gun6";
+        break;
+    }
+    changeRutGunu(dateTime.weekday);
+    update();
+
+  }
 
 
   String curculateTimeDistanceForVisit(List<ModelInOut> list) {
@@ -241,4 +270,200 @@ class ControllerMercPref extends GetxController {
     update();
   }
 
+  void getNewDatasFromServer(BuildContext context) {
+    showMonthPicker(context,
+        onSelected: (month, year) async {
+          List<MercDataModel> data=await getAllMercCariBazaMotivasiya(month,year);
+          List<ModelMainInOut> girisCixislar=await getAllGirisCixis(year,month);
+          if(data.isNotEmpty){
+            ModelDownloads model= ModelDownloads(
+                name: "currentBase".tr,
+                donloading: false,
+                code: "enter",
+                info: "currentBaseExplain".tr,
+                lastDownDay: DateTime.now().toIso8601String(),
+                musteDonwload: false);
+            await localBaseDownloads.addDownloadedBaseInfo(model);
+            await localBaseDownloads.addAllToMercBase(data);
+            await getAllCariler(data.first,girisCixislar,listUsers);
+          }
+        },
+        initialSelectedMonth: DateTime.now().month,
+        initialSelectedYear: DateTime.now().year,
+        firstEnabledMonth: 12,
+        lastEnabledMonth: DateTime.now().month,
+        firstYear: 2015,
+        lastYear: DateTime.now().year,
+        selectButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        highlightColor: Colors.blue,
+        textColor: Colors.white,
+        contentBackgroundColor: Colors.white,
+        dialogBackgroundColor: Colors.white
+    );
+  }
+
+  Future<List<MercDataModel>> getAllMercCariBazaMotivasiya(int month, int year) async {
+    List<MercDataModel> listUsers = [];
+    List<UserModel> listConnectedUsers = [];
+    languageIndex = await getLanguageIndex();
+    DialogHelper.showLoading("cmendirilir",false);
+    List<String> secilmisTemsilciler = [];
+    await localBaseDownloads.init();
+    LoggedUserModel loggedUserModel = userLocalService.getLoggedUser();
+    List<UserModel> listUsersSelected =
+    localBaseDownloads.getAllConnectedUserFromLocal();
+    if (listUsersSelected.isEmpty) {
+      secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
+    } else {
+      for (var element in listUsersSelected) {
+        secilmisTemsilciler.add(element.code!);
+      }
+    }
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      var response;
+      if (userPermitionSercis.hasUserPermition(UserPermitionsHelper.canEnterOtherMerchCustomers,
+          loggedUserModel.userModel!.permissions!)) {
+        response = await ApiClient().dio(false).get(
+          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+      } else {
+        response = await ApiClient().dio(false).post(
+          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+          data: jsonEncode(secilmisTemsilciler),
+          options: Options(
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+      }
+      if (response.statusCode == 200) {
+        var dataModel = json.encode(response.data['result']);
+        List listuser = jsonDecode(dataModel);
+        for (var i in listuser) {
+          listUsers.add(MercDataModel.fromJson(i));
+          listConnectedUsers.add(UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            code: MercDataModel.fromJson(i).user!.code,
+            name: MercDataModel.fromJson(i).user!.name,
+            gender: 0,
+          ));
+        }
+      }
+    }
+    await localBaseDownloads.addConnectedUsers(listConnectedUsers);
+    return listUsers;
+  }
+
+  Future<List<ModelMainInOut>> getAllGirisCixis(int year,int month) async {
+    List<ModelMainInOut> listUsers = [];
+    var date = DateTime(year, month, 1).toString();
+    var date2 = DateTime(year, month, DateTime.now().day).toString();
+    DateTime dateParse = DateTime.parse(date);
+    DateTime dateParse2 = DateTime.parse(date2);
+    String ilkGun = intl.DateFormat('yyyy/MM/dd').format(dateParse);
+    String songun = intl.DateFormat('yyyy/MM/dd').format(dateParse2);
+    LoggedUserModel loggedUserModel = userLocalService.getLoggedUser();
+    ModelRequestInOut model=ModelRequestInOut(
+        userRole: [UserRole(code: selectedMercBaza.value.user!.code, role: "23")],
+        endDate: songun,
+        startDate: ilkGun
+    );
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio(false).post(
+          "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
+          data: model.toJson(),
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+        print("selected Object :"+response.toString());
+
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['result']);
+          List listuser = jsonDecode(dataModel);
+          for (var i in listuser) {
+            ModelMainInOut model=ModelMainInOut.fromJson(i);
+            print("model :"+model.toString());
+            listUsers.add(model);
+          }
+        } else {
+          exeptionHandler.handleExeption(response);
+
+        }
+
+      } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print(e.requestOptions);
+          print(e.message);
+        }
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
+      }
+    }
+    DialogHelper.hideLoading();
+
+    return listUsers;
+  }
+
+  Future<String> getLanguageIndex() async {
+    return await Hive.box("myLanguage").get("langCode") ?? "az";
+  }
 }

@@ -83,23 +83,28 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
                   controllerRoutDetailUser.changeSearchValue("");
                 }
               });
-          }, icon:  Icon(searchModeAktiv?Icons.search_off:Icons.search))
+          }, icon:  Icon(searchModeAktiv?Icons.search_off:Icons.search)),
+            IconButton(onPressed: (){
+              setState(() {
+              controllerRoutDetailUser.changeDateSelect(context);
+              });
+          }, icon:  Icon(Icons.calendar_month))
           ],
         ),
-        body: _body(context),
+        body:Obx(()=> controllerRoutDetailUser.dataLoading.isTrue?Center(child: CircularProgressIndicator(color: Colors.green,),):_body(context)),
       ),
     );
   }
 
   _body(BuildContext context) {
-    return Obx(()=>Column(
+    return Obx(()=> searchModeAktiv? Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         searchModeAktiv?_widhetSearchMode():hasEndList?const SizedBox():_widgetUmumiInfoPanel(context, Colors.white),
         const SizedBox(height: 10,),
         Expanded(child: ListView.builder(
-          controller: scrollController,
+            controller: scrollController,
             shrinkWrap: true,
             itemCount: controllerRoutDetailUser.listFilteredMerc.length,
             itemBuilder: (c,index){
@@ -107,6 +112,24 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
 
             }))
       ],
+    ):SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          searchModeAktiv?_widhetSearchMode():hasEndList?const SizedBox():_widgetUmumiInfoPanel(context, Colors.white),
+          const SizedBox(height: 10,),
+          SizedBox(child: ListView.builder(
+            controller: scrollController,
+              primary: false,
+              shrinkWrap: true,
+              itemCount: controllerRoutDetailUser.listFilteredMerc.length,
+              itemBuilder: (c,index){
+                return widgetItemMerc(controllerRoutDetailUser.listFilteredMerc.elementAt(index));
+
+              })),
+        ],
+      ),
     ));
   }
 
@@ -155,7 +178,7 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
               ],
               // border: Border.all(color: Colors.black,width: 0.2)
             ),
-            height: 160,
+            height: 200,
             child: Padding(
               padding: const EdgeInsets.all(10.0).copyWith(bottom: 5),
               child: Column(
@@ -376,6 +399,45 @@ class _RoutDetailScreenUsersState extends State<RoutDetailScreenUsers> {
                           ),
                         ),
                       )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  const Divider(
+                      height: 1, color: Colors.black45, thickness: 0.5),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Image.asset(
+                        "images/time.png",
+                        width: 20,
+                        height: 20,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                          child: CustomText(
+                        labeltext: "sonYenilenme".tr,
+                        fontWeight: FontWeight.normal,
+                      )),
+                      const Spacer(),
+                      Container(
+                          height: 20,
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: CustomText( labeltext: controllerRoutDetailUser.sonYenilenme.value,)),
+                      const SizedBox(width: 5,),
                     ],
                   ),
                 ],

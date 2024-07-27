@@ -34,7 +34,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   late Position _currentLocation;
   late LocationSettings locationSettings;
   int defaultTargetPlatform=0;
-  bool followMe = true;
+  bool followMe = false;
   String selectedItemsLabel = "Gunluk Rut";
   ModelCariler selectedCariModel = ModelCariler();
   int marketeGirisIcazeMesafesi = 120000;
@@ -497,7 +497,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               fontWeight: FontWeight.bold,
               textAlign: TextAlign.start),
         ) else const SizedBox(),
-        SizedBox(
+          SizedBox(
             height: MediaQuery.of(context).size.height * 0.70,
             child:  controllerGirisCixis.selectedTabItem.value.keyText!="z"&&controllerGirisCixis.selectedTabItem.value.keyText!="gz"
                 ? ListView(
@@ -678,7 +678,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
         });
         // Get.back(result: e);
       },
-      child:e.postalCode=="region" ?Stack(
+      child:e.postalCode=="region" ?widgetOfisGiris(e):Stack(
         children: [
           Card(
             color: selectedCariModel == e
@@ -722,79 +722,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                     child: Divider(height: 1, color: Colors.black),
                   ),
                   selectedCariModel == e
-                      ? widgetGirisUcun():const SizedBox()
-
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-              right: 15,
-              top: 15,
-              child: Row(
-                children: [
-                  CustomText(
-                    labeltext: e.code!,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w300,
-                    fontsize: 12,
-                  ),
-                  const SizedBox(width: 5,),
-                  InkWell(
-                      onTap: (){
-                        Get.toNamed(RouteHelper.getwidgetScreenMusteriDetail(),arguments: [e,controllerGirisCixis.availableMap.value]);
-                      },
-                      child: const Icon(
-                          size: 18,
-                          Icons.info,color: Colors.blue)),
-                ],
-              ))
-        ],
-      ):Stack(
-        children: [
-          Card(
-            color: selectedCariModel == e
-                ? Colors.yellow.withOpacity(0.6)
-                : controllerGirisCixis.modelRutPerform.value.listGirisCixislar!
-                .where((a) => a.customerCode == e.code)
-                .isEmpty
-                ? Colors.white
-                : Colors.white,
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            elevation: selectedCariModel == e ? 10 : 5,
-            shadowColor: selectedCariModel == e
-                ? Colors.grey
-                : controllerGirisCixis.modelRutPerform.value.listGirisCixislar!
-                .where((a) => a.customerCode == e.code).isEmpty?Colors.blueAccent.withOpacity(0.4):Colors.green,
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(2.0).copyWith(left: 8,top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: CustomText(
-                            maxline: 2,
-                            labeltext: e.name!,
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.w700,
-                            fontsize: selectedCariModel == e ? 18 : 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(3.0),
-                    child: Divider(height: 1, color: Colors.black),
-                  ),
-                  selectedCariModel == e
-                      ? widgetGirisUcun()
+                      ? widgetGirisUcun(e)
                       : Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -971,12 +899,12 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
         fontSize: 16.0);
   }
 
-  Widget widgetGirisUcun() {
+  Widget widgetGirisUcun(ModelCariler e) {
     return  Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
+        e.postalCode=="region"?SizedBox():SizedBox(
             height: 150,
             child: controllerGirisCixis
                 .widgetMusteriHesabatlari(selectedCariModel)),
@@ -1004,10 +932,9 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                         .copyWith(top: 2, bottom: 0),
                     child: CustomText(
                         fontsize: marketeGirisIcazesi ? 14 : 16,
-                        labeltext:
-                        "${"marketdenUzaqliq".tr} : $secilenMarketdenUzaqliqString"),
+                        labeltext: "${e.postalCode=="region"?"ofisdenUzaqliq".tr:"marketdenUzaqliq".tr} : $secilenMarketdenUzaqliqString"),
                   ),
-                  Padding(
+                  e.postalCode=="region"?SizedBox():Padding(
                     padding: const EdgeInsets.all(5.0)
                         .copyWith(top: 2, bottom: 0),
                     child: CustomText(
@@ -1631,6 +1558,91 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       });
 
     });
+  }
+
+  widgetOfisGiris(ModelCariler e) {
+    return Stack(
+      children: [
+        Card(
+          color: selectedCariModel == e
+              ? Colors.yellow.withOpacity(0.6)
+              : controllerGirisCixis.modelRutPerform.value.listGirisCixislar!
+              .where((a) => a.customerCode == e.code)
+              .isEmpty
+              ? Colors.white
+              : Colors.white,
+          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          elevation: selectedCariModel == e ? 10 : 5,
+          shadowColor: selectedCariModel == e
+              ? Colors.grey
+              : controllerGirisCixis.modelRutPerform.value.listGirisCixislar!
+              .where((a) => a.customerCode == e.code).isEmpty?Colors.blueAccent.withOpacity(0.4):Colors.green,
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(2.0).copyWith(left: 8,top: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset("images/office.png",width: 35,height: 50,),
+                          const SizedBox(width: 10,),
+                          CustomText(
+                            maxline: 2,
+                            labeltext: e.name!,
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.w700,
+                            fontsize: selectedCariModel == e ? 18 : 16,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Icon(Icons.social_distance,size: 18,),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          CustomText(
+                            fontsize: 12,
+                            maxline: 1,
+                            overflow: TextOverflow.ellipsis,
+                            labeltext: e.mesafe!,
+                            color: Colors.black,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                selectedCariModel == e
+                    ? widgetGirisUcun(e): const SizedBox()],
+            ),
+          ),
+        ),
+        Positioned(
+            right: 15,
+            top: 15,
+            child: Row(
+              children: [
+                CustomText(
+                  labeltext: e.code!,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w300,
+                  fontsize: 12,
+                ),
+              ],
+            ))
+      ],
+    );
   }
 
 }

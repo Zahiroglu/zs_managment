@@ -15,7 +15,6 @@ import 'package:zs_managment/widgets/widget_rutgunu.dart';
 import '../connected_users/model_main_inout.dart';
 
 class ScreenMercRoutDatail extends StatefulWidget {
-
   MercDataModel modelMercBaza;
   List<ModelMainInOut> listGirisCixis;
   List<UserModel> listUsers;
@@ -172,7 +171,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                       title: CustomText(
                           labeltext: widget.modelMercBaza.user!.name),
                       actions: [IconButton(onPressed: (){
-                        _getNewDatasFromServer();
+                        controllerRoutDetailUser.getNewDatasFromServer(context);
 
                       }, icon: const Icon(Icons.calendar_month))],
                       flexibleSpace: FlexibleSpaceBar(

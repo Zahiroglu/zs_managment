@@ -74,6 +74,10 @@ class UserModel {
   String? lastOnlineDate;
   @HiveField(29)
   bool? active;
+  @HiveField(30)
+  double? regionLatitude;
+  @HiveField(31)
+  double? regionLongitude;
 
   UserModel({
     this.id,
@@ -106,6 +110,8 @@ class UserModel {
     this.requestNumber,
     this.lastOnlineDate,
     this.active,
+    this.regionLongitude,
+    this.regionLatitude,
   });
 
   UserModel copyWith({
@@ -139,6 +145,8 @@ class UserModel {
     String? requestNumber,
     String? lastOnlineDate,
     bool? active,
+    double? regionLongitude,
+    double? regionLatitude,
   }) =>
       UserModel(
         id: id ?? this.id,
@@ -171,6 +179,8 @@ class UserModel {
         requestNumber: requestNumber ?? this.requestNumber,
         lastOnlineDate: lastOnlineDate ?? this.lastOnlineDate,
         active: active ?? this.active,
+        regionLatitude: regionLatitude ?? this.regionLatitude,
+        regionLongitude: regionLongitude ?? this.regionLongitude,
       );
 
   factory UserModel.fromRawJson(String str) => UserModel.fromJson(json.decode(str));
@@ -208,6 +218,8 @@ class UserModel {
     requestNumber: json["requestNumber"],
     lastOnlineDate: json["lastOnlineDate"],
     active: json["active"],
+    regionLongitude: double.tryParse(json["regionLongitude"]??"0"),
+    regionLatitude: double.tryParse(json["regionLatitude"]??"0"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -241,6 +253,8 @@ class UserModel {
     "requestNumber": requestNumber,
     "lastOnlineDate": lastOnlineDate,
     "active": active,
+    "regionLatitude": regionLatitude,
+    "regionLongitude": regionLongitude,
   };
 
   @override

@@ -411,12 +411,10 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         loggedUserModel = localUserServices.getLoggedUser();
         updateElementDownloading(model,true);
         List<MercDataModel> data = [];
-        if (loggedUserModel.userModel!.roleId == 21 ||
-            loggedUserModel.userModel!.roleId == 22) {
+        if (loggedUserModel.userModel!.roleId == 21 || loggedUserModel.userModel!.roleId == 22) {
           data = await getAllMercCariBazaMotivasiya();
         } else {
-          await getAllGirisCixis(loggedUserModel.userModel!.code!,
-                  loggedUserModel.userModel!.roleId.toString())
+          await getAllGirisCixis(loggedUserModel.userModel!.code!, loggedUserModel.userModel!.roleId.toString())
               .whenComplete(() async {
             data = await getAllMercCariBazaMotivasiya();
           });
@@ -597,7 +595,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
       ));
     } else {
       var response;
-      if (userPermitionSercis.hasUserPermition("canEnterOtherMerchCustomers",
+      if (userPermitionSercis.hasUserPermition(UserPermitionsHelper.canEnterOtherMerchCustomers,
           loggedUserModel.userModel!.permissions!)) {
         response = await ApiClient().dio(false).get(
               "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",

@@ -22,6 +22,7 @@ import '../companents/hesabatlar/cari_hesabat/cari_ziyaret_hesabati/screen_ziyar
 import '../companents/hesabatlar/errors_hesabat/screen_errors.dart';
 import '../companents/hesabatlar/user_hesabatlar/liveTrack/screen_livetrack_report.dart';
 import '../companents/hesabatlar/user_hesabatlar/temsilci_uzrez_ziyaret_hesabati/temsilci_uzre_ziyaret_hesabati.dart';
+import '../companents/live_track/screen_not_in_work.dart';
 import '../companents/live_track/screen_search_live_users.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/merc_cari_edit.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/screen_rutsirasi_edit.dart';
@@ -81,6 +82,7 @@ class RouteHelper {
   static const String screenComplateCariTask = '/screenComplateCariTask';
   static const String screenTemZiyaret = '/screenTemZiyaret';
   static const String screenErrorsReport = '/screenErrorsReport';
+  static const String screenNotInWorkUsers = '/screenNotInWorkUsers';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
@@ -122,8 +124,17 @@ class RouteHelper {
   static String getScreenComplateCariTask() => screenComplateCariTask;
   static String getScreenTemZiyaret() => screenTemZiyaret;
   static String getScreenErrorsReport() => screenErrorsReport;
+  static String getScreenNotInWorkUsers() => screenNotInWorkUsers;
 
   static List<GetPage> routes = [
+
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenNotInWorkUsers, page: () {
+      return   ScreenNotInWorkUsers(listModel:Get.arguments[0]);
+      return  Container();
+    }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),

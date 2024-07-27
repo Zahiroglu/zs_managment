@@ -328,8 +328,7 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
         child: InkWell(
           focusColor: Colors.transparent,
           onTap: () {
-            ModelRequestUsersFilter modelRequestUsersFilter =
-                ModelRequestUsersFilter(moduleId: element.id);
+            ModelRequestUsersFilter modelRequestUsersFilter = ModelRequestUsersFilter(moduleId: element.id);
             controller.getAllUsersByParams(modelRequestUsersFilter);
             selectedElement = element;
           },
@@ -345,9 +344,9 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
                     ? Colors.indigoAccent
                     : Colors.grey,
             elevation: 5,
-            margin: const EdgeInsets.all(10),
+            margin: const EdgeInsets.all(7).copyWith(bottom: 15),
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(10.0).copyWith(bottom: 0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,

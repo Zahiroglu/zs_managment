@@ -206,15 +206,15 @@ class ControllerGirisCixisReklam extends GetxController {
     listCariler.insert(0,ModelCariler(
         name: loggedUserModel.userModel!.regionName.toString(),
         code: loggedUserModel.userModel!.regionCode.toString(),
-        latitude: 0.0,
-        longitude: 0.0,
+        latitude:loggedUserModel.userModel!.regionLatitude,
+        longitude: loggedUserModel.userModel!.regionLongitude,
         postalCode: "region"
     ));
     listSelectedMusteriler.insert(0,ModelCariler(
         name: loggedUserModel.userModel!.regionName.toString(),
         code: loggedUserModel.userModel!.regionCode.toString(),
-        latitude: 0.0,
-        longitude: 0.0,
+        latitude:loggedUserModel.userModel!.regionLatitude,
+        longitude: loggedUserModel.userModel!.regionLongitude,
         postalCode: "region"
     ));
     if(listmodel.isNotEmpty){

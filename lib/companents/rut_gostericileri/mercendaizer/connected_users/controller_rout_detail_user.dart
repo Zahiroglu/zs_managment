@@ -3,11 +3,13 @@ import 'dart:ui';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_month_picker/flutter_custom_month_picker.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:map_launcher/map_launcher.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
+import 'package:zs_managment/companents/base_downloads/models/model_downloads.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
@@ -21,6 +23,7 @@ import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
+import 'package:zs_managment/helpers/user_permitions_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
@@ -54,7 +57,8 @@ class ControllerRoutDetailUser extends GetxController {
   ExeptionHandler exeptionHandler=ExeptionHandler();
   RxList<MercCustomersDatail> listMercBaza = List<MercCustomersDatail>.empty(growable: true).obs;
   RxList<UserModel> listUsers = List<UserModel>.empty(growable: true).obs;
-
+  UserPermitionsHelper userPermitionSercis = UserPermitionsHelper();
+  RxString sonYenilenme="".obs;
 
   @override
   void onInit() {
@@ -63,8 +67,14 @@ class ControllerRoutDetailUser extends GetxController {
   }
 
   getMercRutDetail() async {
+    listMercler.clear();
+    listFilteredMerc.clear();
+    listUsers.clear();
+    listMercBaza.clear();
+    dataLoading.value=true;
     listMercler.value=await localBaseDownloads.getAllMercDatail();
     listFilteredMerc.value=await localBaseDownloads.getAllMercDatail();
+    sonYenilenme.value=localBaseDownloads.getLastUpdatedFieldDate("enter");
     for (var e in listMercler) {
       for (var a in e.mercCustomersDatail!) {
         listMercBaza.add(a);
@@ -76,6 +86,7 @@ class ControllerRoutDetailUser extends GetxController {
           code: e.user!.code,
           gender: 0));
     }
+    dataLoading.value=false;
     update();
   }
 
@@ -462,4 +473,120 @@ class ControllerRoutDetailUser extends GetxController {
     }
     update();
   }
+
+  void changeDateSelect(BuildContext context) {
+    showMonthPicker(context,
+        onSelected: (month, year) async {
+          List<MercDataModel> data=await getAllMercCariBazaMotivasiya(month,year);
+          if(data.isNotEmpty){
+            ModelDownloads model= ModelDownloads(
+                name: "currentBase".tr,
+                donloading: false,
+                code: "enter",
+                info: "currentBaseExplain".tr,
+                lastDownDay: DateTime.now().toIso8601String(),
+                musteDonwload: false);
+            await localBaseDownloads.addDownloadedBaseInfo(model);
+           await localBaseDownloads.addAllToMercBase(data);
+           await getMercRutDetail();
+          }
+        },
+        initialSelectedMonth: DateTime.now().month,
+        initialSelectedYear: DateTime.now().year,
+        firstEnabledMonth: 12,
+        lastEnabledMonth: DateTime.now().month,
+        firstYear: 2015,
+        lastYear: DateTime.now().year,
+        selectButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        highlightColor: Colors.blue,
+        textColor: Colors.white,
+        contentBackgroundColor: Colors.white,
+        dialogBackgroundColor: Colors.white
+    );
+  }
+
+
+  Future<List<MercDataModel>> getAllMercCariBazaMotivasiya(int month, int year) async {
+    List<MercDataModel> listUsers = [];
+    List<UserModel> listConnectedUsers = [];
+    languageIndex = await getLanguageIndex();
+    DialogHelper.showLoading("cmendirilir",false);
+    List<String> secilmisTemsilciler = [];
+    await localBaseDownloads.init();
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    List<UserModel> listUsersSelected =
+    localBaseDownloads.getAllConnectedUserFromLocal();
+    if (listUsersSelected.isEmpty) {
+      secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
+    } else {
+      for (var element in listUsersSelected) {
+        secilmisTemsilciler.add(element.code!);
+      }
+    }
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      var response;
+      if (userPermitionSercis.hasUserPermition(UserPermitionsHelper.canEnterOtherMerchCustomers,
+          loggedUserModel.userModel!.permissions!)) {
+        response = await ApiClient().dio(false).get(
+          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+      } else {
+        response = await ApiClient().dio(false).post(
+          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
+          data: jsonEncode(secilmisTemsilciler),
+          options: Options(
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'abs': '123456',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+      }
+      if (response.statusCode == 200) {
+        var dataModel = json.encode(response.data['result']);
+        List listuser = jsonDecode(dataModel);
+        for (var i in listuser) {
+          listUsers.add(MercDataModel.fromJson(i));
+          listConnectedUsers.add(UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            code: MercDataModel.fromJson(i).user!.code,
+            name: MercDataModel.fromJson(i).user!.name,
+            gender: 0,
+          ));
+        }
+      }
+    }
+    await localBaseDownloads.addConnectedUsers(listConnectedUsers);
+    DialogHelper.hideLoading();
+    return listUsers;
+  }
+
 }

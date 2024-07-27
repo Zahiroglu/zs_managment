@@ -34,7 +34,7 @@ class SearchLiveUsers extends StatelessWidget {
         body: ListView.builder(
             itemCount: listUsers.length,
             itemBuilder: (context,index){
-          return userItem(context,listUsers.elementAt(index));
+          return WidgetWorkerItemLiveTtack(context: context, element: listUsers.elementAt(index));
         }),
       ),
     );
@@ -42,19 +42,33 @@ class SearchLiveUsers extends StatelessWidget {
 
   void searchUsers(String s) {}
 
-  Widget userItem(BuildContext context, ModelLiveTrack element) {
+}
+
+class WidgetWorkerItemLiveTtack extends StatelessWidget {
+  const WidgetWorkerItemLiveTtack({
+    super.key,
+    required this.context,
+    required this.element,
+  });
+
+  final BuildContext context;
+  final ModelLiveTrack element;
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: (){
-        Get.back(result: element);
+        if(element.currentLocation!=null){
+        Get.back(result: element);}
       },
       child: Container(
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(10)
         ),
         margin: const EdgeInsets.only(left: 10,right: 10,top: 10),
-        child: Column(
+        child: element.lastInoutAction!=null?Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -64,8 +78,7 @@ class SearchLiveUsers extends StatelessWidget {
                   flex: 8,
                   child: CustomText(
                     overflow: TextOverflow.ellipsis,
-                    labeltext:
-                    "${element.userCode!}-${element.currentLocation!.userFullName}",
+                    labeltext: "${element.userCode!}-${element.currentLocation!.userFullName}",
                     fontsize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -144,7 +157,22 @@ class SearchLiveUsers extends StatelessWidget {
                 ),
               ],
             ),
-        ],),
+        ],):Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CustomText(
+                  overflow: TextOverflow.ellipsis,
+                  labeltext: "${element.userCode!}-${element.userFullName.toString()}",
+                  fontsize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ],
+            ),
+
+          ],),
       ),
     );
   }
