@@ -49,7 +49,10 @@ class LoggedUserModel {
 
   String toRawJson() => json.encode(toJson());
 
-
+  factory LoggedUserModel.fromJson(Map<String, dynamic> json) => LoggedUserModel(
+    tokenModel: TokenModel.fromJson(json["token"]),
+    userModel: UserModel.fromJson(json["user"]),
+  );
 
   Map<String, dynamic> toJson() => {
     "TokenModel": tokenModel?.toJson(),

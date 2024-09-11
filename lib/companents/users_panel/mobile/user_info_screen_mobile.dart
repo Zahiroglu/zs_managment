@@ -84,8 +84,9 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
   Widget _body(){
     return SingleChildScrollView(
       child: Container(
+        height: MediaQuery.of(context).size.height*0.9,
         padding: const EdgeInsets.symmetric(vertical: 5,horizontal: 5),
-        margin: const EdgeInsets.symmetric(horizontal: 15,vertical: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
         decoration: const BoxDecoration(
             color: Colors.lightBlueAccent,
             borderRadius: BorderRadius.all(Radius.circular(15))
@@ -96,7 +97,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
               children: [
                Column(
                  children: [
-                   SizedBox(height: 20,width: MediaQuery.of(context).size.width,),
+                   SizedBox(height: 5,width: MediaQuery.of(context).size.width,),
                    headerInfoUser(),
                    Container(
                      padding: const EdgeInsets.all(2),
@@ -136,17 +137,17 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                    const SizedBox(height: 5,),
                  ],
                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.width,
-                  child: PageView(
-                    controller: controller,
-                    children: [
-                      widgetGenralInfo(),
-                      widgetBaglantilarInfo(),
-                      widgetPermisonsInfo()
-                    ],
-                  ),
-                ),
+                Expanded(child: PageView(
+                  onPageChanged: (ind){
+                    controller.animateToPage(ind, duration: Duration(milliseconds: 150), curve: Curves.bounceOut);
+                  },
+                  controller: controller,
+                  children: [
+                    widgetGenralInfo(),
+                    widgetBaglantilarInfo(),
+                    widgetPermisonsInfo()
+                  ],
+                )),
                 Align(
                     alignment: Alignment.bottomCenter,
                     child: widgetFooter()),
@@ -166,8 +167,7 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
   ConstrainedBox widgetClouse() {
     return ConstrainedBox(
       constraints: const BoxConstraints(
-          maxHeight: 40,
-          minWidth: 120
+          maxHeight: 30,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -445,38 +445,42 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
   }
 
   Widget widgetPermisonsInfo() {
-    return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
+    return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(
-            height: 0,
+            height: 20,
           ),
           Container(
-              padding: EdgeInsets.only(left: 20),
-              width: MediaQuery.of(context).size.width,
-              height: 25,
-              decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5)
-              ),
-              child: Center(child: CustomText(labeltext: "Menular"+" ("+widget.model.permissions!.where((a) => a.category==1).length.toString()+")"))),
-          Expanded(child: ListView(
-            children: widget.model.permissions!.where((a) => a.category==1).map((e) => itemsPermitions(e)).toList(),
-          )),
+            padding: const EdgeInsets.only(left: 10),
+            width: MediaQuery.of(context).size.width,
+            height: 25,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.5),
+            ),
+            child: CustomText(labeltext: "Menular (${widget.model.draweItems!.length})"),
+          ),
+          ListView(
+            shrinkWrap: true, // Ensures ListView takes only the space it needs
+            physics: NeverScrollableScrollPhysics(), // Prevents scrolling within the ListView itself
+            children: widget.model.draweItems!.map((e) => itemsPermitions(e)).toList(),
+          ),
           Container(
-              padding: EdgeInsets.only(left: 20),
-              width: MediaQuery.of(context).size.width,
-              height: 25,
-              decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5)
-              ),
-              child: Center(child: CustomText(labeltext: "Diger icezeler"+" ("+widget.model.permissions!.where((a) => a.category!=1).length.toString()+")"))),
-          Expanded(child: ListView(
-            children: widget.model.permissions!.where((a) => a.category!=1).map((e) => itemsPermitions(e)).toList(),
-          ))
+            padding: const EdgeInsets.only(left: 20),
+            width: MediaQuery.of(context).size.width,
+            height: 25,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.5),
+            ),
+            child: CustomText(labeltext: "Diger icezeler (${widget.model.permissions!.length})"),
+          ),
+          ListView(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            children: widget.model.permissions!.map((e) => itemsPermitions(e)).toList(),
+          ),
         ],
       ),
     );
@@ -484,28 +488,39 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
 
   Widget itemsPermitions(ModelUserPermissions e) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 5, 15, 5),
+      padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                  flex: 11,
-                  child: CustomText(
-                      maxline: 2,
-                      labeltext: "${e.name} : ",color: Colors.black,fontsize: 14,fontWeight: FontWeight.w500)),
-              const SizedBox(width: 2,),
-              Expanded(
-                  flex: 3,
-                  child: CustomText(
-                      maxline: 2,
-                      labeltext: "${e.valName.toString()}",color: Colors.white,fontsize: 14,fontWeight: FontWeight.w800)),
+                  flex: 7,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomText(
+                          maxline: 2,
+                          labeltext: "${e.name}",
+                          color: Colors.black,
+                          fontsize: 14,
+                          fontWeight: FontWeight.w500),
+                      CustomText(
+                          maxline: 3,
+                          labeltext: "${e.valName}",
+                          color: Colors.black38,
+                          fontsize: 12,
+                          fontWeight: FontWeight.w500),
+                    ],
+                  )),
+              const SizedBox(width: 5,),
+              Icon(Icons.verified_outlined,color: Colors.white,),
             ],
           ),
           const SizedBox(height: 5,),
           Container(
             height: 0.5,
-            decoration:  BoxDecoration(
+            decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
                       color: Colors.white.withOpacity(0.4),
@@ -514,11 +529,13 @@ class _ScreenUserInfoMobileState extends State<ScreenUserInfoMobile> with Single
                   )
                 ]
             ),
-            width: MediaQuery.of(context).size.width,)
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,)
         ],
       ),
     );
-
   }
 
 

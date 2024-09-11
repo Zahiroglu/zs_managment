@@ -188,38 +188,38 @@ class UserModel {
   String toRawJson() => json.encode(toJson());
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
-    id: json["id"],
-    code: json["code"],
-    name: json["name"],
-    surname: json["surname"],
-    fatherName: json["fatherName"],
-    birthdate: json["birthdate"],
-    gender: json["gender"],
-    phone: json["phone"],
-    email: json["email"],
-    deviceId: json["deviceId"],
-    moduleId: json["moduleId"],
-    moduleName: json["moduleName"],
-    roleId: json["roleId"],
-    roleName: json["roleName"],
-    regionCode: json["regionCode"],
-    regionName: json["regionName"],
-    deviceLogin: json["deviceLogin"],
-    usernameLogin: json["usernameLogin"],
-    username: json["username"],
-    companyId: json["companyId"],
-    companyName: json["companyName"],
-    modelModules: json["modelModules"] == null ? [] : List<ModelModule>.from(json["modelModules"]!.map((x) => ModelModule.fromJson(x))),
-    connections: json["connections"] == null ? [] : List<ModelUserConnection>.from(json["connections"]!.map((x) => ModelUserConnection.fromJson(x))),
-    permissions: json["permissions"] == null ? [] : List<ModelUserPermissions>.from(json["permissions"]!.map((x) => ModelUserPermissions.fromJson(x))),
-    draweItems: json["cards"] == null ? [] : List<ModelUserPermissions>.from(json["cards"]!.map((x) => ModelUserPermissions.fromJson(x))),
-    expDate: json["expDate"],
-    addDateStr: json["addDateStr"],
-    requestNumber: json["requestNumber"],
-    lastOnlineDate: json["lastOnlineDate"],
-    active: json["active"],
-    regionLongitude: double.tryParse(json["regionLongitude"]??"0"),
-    regionLatitude: double.tryParse(json["regionLatitude"]??"0"),
+    id: json["Id"],
+    code: json["Code"],
+    name: json["Name"],
+    surname: json["Surname"],
+    fatherName: json["FatherName"],
+    birthdate: json["Birthdate"],
+    gender: json["Gender"]?1:0,
+    phone: json["Phone"],
+    email: json["Email"],
+    deviceId: json["DeviceId"],
+    moduleId: json["ModuleId"],
+    moduleName: json["ModuleName"],
+    roleId: json["RoleId"],
+    roleName: json["RoleName"],
+    regionCode: json["RegionCode"],
+    regionName: json["RegionName"],
+    regionLatitude: double.tryParse(json['RegionLatitude'].toString()),
+    regionLongitude: double.tryParse(json['RegionLongitude'].toString()),
+    deviceLogin: json["DeviceLogin"],
+    usernameLogin: json["UsernameLogin"],
+    username: json["Username"],
+    companyId: json["CompanyId"],
+    companyName: json["CompanyName"],
+    modelModules: json["ModelModules"] == null ? [] : List<ModelModule>.from(json["ModelModules"]!.map((x) => ModelModule.fromJson(x))),
+    connections: json["Connections"] == null ? [] : List<ModelUserConnection>.from(json["Connections"]!.map((x) => ModelUserConnection.fromJson(x))),
+    permissions: json["Permissions"] == null ? [] : List<ModelUserPermissions>.from(json["Permissions"]!.map((x) => ModelUserPermissions.fromJson(x))),
+    draweItems: json["Cards"] == null ? [] : List<ModelUserPermissions>.from(json["Cards"]!.map((x) => ModelUserPermissions.fromJson(x))),
+    expDate: json["ExpDate"],
+    addDateStr: json["AddDateStr"],
+    requestNumber: json["RequestNumber"],
+    lastOnlineDate: json["LastOnlineDate"],
+    active: json["Active"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -259,7 +259,7 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel{id: $id, code: $code, name: $name, surname: $surname, fatherName: $fatherName, birthdate: $birthdate, gender: $gender, phone: $phone, email: $email, deviceId: $deviceId, moduleId: $moduleId, moduleName: $moduleName, roleId: $roleId, roleName: $roleName, regionCode: $regionCode, regionName: $regionName, deviceLogin: $deviceLogin, usernameLogin: $usernameLogin, username: $username, companyId: $companyId, companyName: $companyName, modelModules: $modelModules, connections: $connections, permissions: $permissions, expDate: $expDate, addDateStr: $addDateStr, requestNumber: $requestNumber, lastOnlineDate: $lastOnlineDate}';
+    return 'UserModel{id: $id, code: $code, name: $name, surname: $surname, fatherName: $fatherName, birthdate: $birthdate, gender: $gender, phone: $phone, email: $email, deviceId: $deviceId, moduleId: $moduleId, moduleName: $moduleName, roleId: $roleId, roleName: $roleName, regionCode: $regionCode, regionName: $regionName, deviceLogin: $deviceLogin, usernameLogin: $usernameLogin, username: $username, companyId: $companyId, companyName: $companyName, modelModules: $modelModules, connections: $connections, permissions: $permissions, draweItems: $draweItems, expDate: $expDate, addDateStr: $addDateStr, requestNumber: $requestNumber, lastOnlineDate: $lastOnlineDate, active: $active, regionLatitude: $regionLatitude, regionLongitude: $regionLongitude}';
   }
 }
 

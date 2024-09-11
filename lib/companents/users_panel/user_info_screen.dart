@@ -446,26 +446,26 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
             height: 20,
           ),
           Container(
-            padding: EdgeInsets.only(left: 20),
+            padding: const EdgeInsets.only(left: 10),
             width: MediaQuery.of(context).size.width,
               height: 25,
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.5)
               ),
-              child: CustomText(labeltext: "Menular"+" ("+widget.model.permissions!.where((a) => a.category==1).length.toString()+")")),
+              child: CustomText(labeltext: "Menular (${widget.model.draweItems!.length})")),
           Expanded(child: ListView(
-            children: widget.model.permissions!.where((a) => a.category==1).map((e) => itemsPermitions(e)).toList(),
+            children: widget.model.draweItems!.map((e) => itemsPermitions(e)).toList(),
           )),
           Container(
-              padding: EdgeInsets.only(left: 20),
+              padding: const EdgeInsets.only(left: 20),
               width: MediaQuery.of(context).size.width,
               height: 25,
               decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.5)
               ),
-              child: CustomText(labeltext: "Diger icezeler"+" ("+widget.model.permissions!.where((a) => a.category!=1).length.toString()+")")),
+              child: CustomText(labeltext: "Diger icezeler (${widget.model.permissions!.length})")),
           Expanded(child: ListView(
-            children: widget.model.permissions!.where((a) => a.category!=1).map((e) => itemsPermitions(e)).toList(),
+            children: widget.model.permissions!.map((e) => itemsPermitions(e)).toList(),
           ))
         ],
       ),
@@ -473,8 +473,9 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
   }
 
   Widget itemsPermitions(ModelUserPermissions e) {
+    print("permitions : $e");
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 15, 5),
+      padding: const EdgeInsets.fromLTRB(20, 5, 15, 5),
       child: Column(
         children: [
           Row(
@@ -483,19 +484,18 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                   flex: 7,
                   child: CustomText(
                       maxline: 2,
-                      labeltext: "${e.name} : ",color: Colors.black,fontsize: 14,fontWeight: FontWeight.w500)),
+                      labeltext: "${e.name} : ",
+                      color: Colors.black,
+                      fontsize: 14,
+                      fontWeight: FontWeight.w500)),
               const SizedBox(width: 5,),
-              Expanded(
-                  flex: 3,
-                  child: CustomText(
-                      maxline: 2,
-                      labeltext: "${e.valName.toString()}",color: Colors.white,fontsize: 14,fontWeight: FontWeight.w800)),
+              Icon(Icons.verified_outlined,color: Colors.white,),
             ],
           ),
           const SizedBox(height: 5,),
           Container(
             height: 0.5,
-            decoration:  BoxDecoration(
+            decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
                       color: Colors.white.withOpacity(0.4),
@@ -504,11 +504,13 @@ class _ScreenUserInfoState extends State<ScreenUserInfo> with SingleTickerProvid
                   )
                 ]
             ),
-            width: MediaQuery.of(context).size.width,)
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,)
         ],
       ),
     );
-
   }
 
 

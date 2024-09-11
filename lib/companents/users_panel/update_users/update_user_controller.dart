@@ -13,7 +13,6 @@ import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/users_panel/mobile/dialog_select_user_connections_mobile.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
-import 'package:zs_managment/companents/users_panel/new_user_create/models/model_roles.dart';
 import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
@@ -21,8 +20,11 @@ import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 
+import '../../login/models/model_userconnnection.dart';
+import '../models_user/model_requet_allusers.dart';
+
 class UpdateUserController extends GetxController {
-  UserModel selectedUserModel = UserModel();
+  Rx<UserModel> selectedUserModel = UserModel().obs;
   LocalUserServices localUserServices = LocalUserServices();
   late CheckDviceType checkDviceType = CheckDviceType();
   List<String> listStepper = [
@@ -61,6 +63,7 @@ class UpdateUserController extends GetxController {
   RxList<ModelUserRolesTest> listSobeler = List<ModelUserRolesTest>.empty(growable: true).obs;
   RxList<Role> listVezifeler = List<Role>.empty(growable: true).obs;
   RxList<ModelUserPermissions> listPermisions = List<ModelUserPermissions>.empty(growable: true).obs;
+  RxList<PermitionRegister> listPermisionsForSend = List<PermitionRegister>.empty(growable: true).obs;
   RxList<ModelConnectionsTest> listGroupNameConnection = List<ModelConnectionsTest>.empty(growable: true).obs;
   RxList<int> listSelectedGroupId = List<int>.empty(growable: true).obs;
   RxList<ModelMustConnect> listUserConnections = List<ModelMustConnect>.empty(growable: true).obs;
@@ -124,44 +127,43 @@ class UpdateUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/Dictionary/regions",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          var regionlist = json.encode(response.data['result']);
-          List list = jsonDecode(regionlist);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            ModelRegions model = ModelRegions.fromJson(jsonDecode(s));
-            listRegionlar.add(model);
-            if (selectedUserModel.regionCode == model.code) {
-              regionSecildi.value = true;
-              selectedRegion.value = model;
-            }
-          }
-          getRolesFromApiService(controller);
-        }else{
-          DialogHelper.hideLoading();
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/getCompanyRegions",
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        var regionlist = json.encode(response.data['Result']);
+        List list = jsonDecode(regionlist);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          ModelRegions model = ModelRegions.fromJson(jsonDecode(s));
+          listRegionlar.add(model);
         }
+        selectedRegion.value=listRegionlar.firstWhere((e)=>e.code==selectedUserModel.value.regionCode!);
+        if(selectedRegion.value!=null){
+          regionSecildi.value=true;
+        }
+        getRolesFromApiService(controller);
+      }
+
     }
   }
 
@@ -176,66 +178,89 @@ class UpdateUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/Dictionary/roles",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          var userresult = json.encode(response.data['result']);
-          List list = jsonDecode(userresult);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            ModelUserRolesTest model =
-                ModelUserRolesTest.fromJson(jsonDecode(s));
-            if (selectedUserModel.moduleId == model.id) {
-              sobeSecildi.value = true;
-              selectedSobe.value = model;
-            }
-            listSobeler.add(model);
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/getCompanyAktivRoles",
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        var userresult = json.encode(response.data['Result']);
+        List list = jsonDecode(userresult);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          ModelUserRolesTest model =
+          ModelUserRolesTest.fromJson(jsonDecode(s));
+          if (selectedUserModel.value.moduleId == model.id) {
+            sobeSecildi.value = true;
+            selectedSobe.value = model;
           }
-          if( listSobeler.where((element) => element.id == selectedUserModel.moduleId).isNotEmpty){
-          ModelUserRolesTest modela = listSobeler.where((element) => element.id == selectedUserModel.moduleId).first;
-          listVezifeler.value = modela.roles!;}
-          if (listVezifeler.where((x) => x.id == selectedUserModel.roleId).isNotEmpty) {
-            selectedVezife.value = listVezifeler
-                .where((x) => x.id == selectedUserModel.roleId)
-                .first;
-            vezifeSecildi.value = true;
-            canUserMobilePermitions.value = selectedVezife.value!.deviceLogin!;
-            canUserWindowsPermitions.value =
-                selectedVezife.value!.usernameLogin!;
-            if (selectedRegion.value == null) {
-              regionSecildi.value = false;
-              sobeSecildi.value = false;
-              vezifeSecildi.value = false;
-            } else {
-              regionSecildi.value = true;
-              canUseNextButton.value = true;
-            }
-          }
-          regionSecilmelidir.value = true;
-          incrementCustomStepper(controller);
-          DialogHelper.hideLoading();
-        }else{
-          DialogHelper.hideLoading();
+          listSobeler.add(model);
         }
+        if( listSobeler.where((element) => element.id == selectedUserModel.value.moduleId).isNotEmpty){
+          ModelUserRolesTest modela = listSobeler.where((element) => element.id == selectedUserModel.value.moduleId).first;
+          listVezifeler.value = modela.roles!;}
+        if (listVezifeler.where((x) => x.id == selectedUserModel.value.roleId).isNotEmpty) {
+          selectedVezife.value = listVezifeler
+              .where((x) => x.id == selectedUserModel.value.roleId)
+              .first;
+          vezifeSecildi.value = true;
+          canUserMobilePermitions.value = selectedVezife.value!.deviceLogin!;
+          canUserWindowsPermitions.value = selectedVezife.value!.usernameLogin!;
+          if (selectedRegion.value == null) {
+            regionSecildi.value = false;
+            sobeSecildi.value = false;
+            vezifeSecildi.value = false;
+          } else {
+            regionSecildi.value = true;
+            canUseNextButton.value = true;
+          }
+        }
+        regionSecilmelidir.value = true;
+        incrementCustomStepper(controller);
+        DialogHelper.hideLoading();
+        // var userresult = json.encode(response.data['Result']);
+        // List list = jsonDecode(userresult);
+        // for (int i = 0; i < list.length; i++) {
+        //   var s = jsonEncode(list.elementAt(i));
+        //   ModelUserRolesTest model = ModelUserRolesTest.fromJson(jsonDecode(s));
+        //   listSobeler.add(model);
+        // }
+        // selectedSobe.value=listSobeler.firstWhere((e)=>e.id==selectedUserModel.value.moduleId!);
+        // if(selectedSobe.value!=null){
+        //   sobeSecildi.value=true;
+        //   listVezifeler.value=selectedSobe.value!.roles!;
+        //   selectedVezife.value=selectedSobe.value!.roles!.firstWhere((w)=>w.id==selectedUserModel.value.roleId!);
+        //   if(selectedVezife.value!=null){
+        //     vezifeSecildi.value=true;
+        //     canUserMobilePermitions.value = selectedVezife.value!.deviceLogin!;
+        //     canUserWindowsPermitions.value = selectedVezife.value!.usernameLogin!;
+        //     canUseNextButton.value = true;
+        //   }
+        //  }
+        // //regionSecilmelidir.value = true;
+        // incrementCustomStepper(controller);
+        // canUseNextButton.value = false;
+        // DialogHelper.hideLoading();
+      }else{
+        DialogHelper.hideLoading();
+        exeptionHandler.handleExeption(response);
+      }
     }
   }
 
@@ -294,10 +319,12 @@ class UpdateUserController extends GetxController {
         regionSecilmelidir.value = true;
         canUseNextButton.value = true;
         incrementCustomStepper(controller);
-      } else {
+      }
+      else {
         getRegionsFromApiService(controller);
       }
     }
+    update();
   }
 
   void decrementCustomStepper(PageController controlle) {
@@ -331,20 +358,20 @@ class UpdateUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
       final response = await ApiClient().dio(false).get(
-        "${loggedUserModel.baseUrl}/api/v1/User/user-by-code-for-register/${cttextCode.text.toString()}/${selectedVezife.value!.id}",
+        AppConstands.baseUrlsMain+"/UserControl/getUserInfoByCodeAndRoleId?userCode="+cttextCode.text.toString()+"&roleId="+selectedVezife.value!.id.toString(),
         options: Options(
           receiveTimeout: const Duration(seconds: 60),
           headers: {
             'Lang': languageIndex,
             'Device': dviceType,
-            'abs': '123456',
+            'smr': '12345',
             "Authorization": "Bearer $accesToken"
           },
           validateStatus: (_) => true,
@@ -353,13 +380,34 @@ class UpdateUserController extends GetxController {
         ),
       );
       if (response.statusCode == 200) {
-        Get.dialog(ShowInfoDialog(messaje: response.data.toString(), icon: Icons.error, callback: (){}));
+        var connections = json.encode(response.data['Result']['Connections']);
+        List list = jsonDecode(connections);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          User model = User.fromJson(jsonDecode(s));
+          if(model.code!=null){
+
+          }
+
+          model.isSelected=true;
+          selectedListUserConnections.add(model);
+          print("selectedListUserConnections :"+selectedListUserConnections.toString());
+        }
+        var permitions = json.encode(response.data['Result']['Permissions']);
+        List listpermissions = jsonDecode(permitions);
+        for (int i = 0; i < listpermissions.length; i++) {
+          ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(listpermissions.elementAt(i));
+          listModelSelectUserPermitions.add(model);
+        }
         DialogHelper.hideLoading();
-      }else{
+        getConnectionsFromApiService(controller);
+      }
+      else{
         DialogHelper.hideLoading();
+        Get.back();
+        getConnectionsFromApiService(controller);
       }
     }
-    getConnectionsFromApiService(controller);
   }
 
 
@@ -376,58 +424,56 @@ class UpdateUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/Dictionary/connections",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          var userresult = json.encode(response.data['result']);
-          List list = jsonDecode(userresult);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            ModelConnectionsTest model = ModelConnectionsTest.fromJson(jsonDecode(s));
-            listGroupNameConnection.add(model);
-            listGroupNameConnection.value = checkListGroupNameConnection(listGroupNameConnection);
-          }
-          if (listGroupNameConnection.isNotEmpty) {
-            selectedGroupName.value = listGroupNameConnection.elementAt(0);
-            if (selectedGroupName.value.connections!.isNotEmpty) {
-              listUserConnections.value = selectedGroupName.value.connections!
-                  .where(
-                      (elementa) => elementa.roleId == selectedVezife.value!.id)
-                  .toList();
-            }
-          }
-          canUseNextButton.value=true;
-          getUsersPermitionsFromApi(controller);
-        }else{
-          DialogHelper.hideLoading();
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/getCompanyDefautRoleConnectionByRoleId?selectedRole="+selectedVezife.value!.id.toString(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        var userresult = json.encode(response.data['Result']);
+        List list = jsonDecode(userresult);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          ModelConnectionsTest model = ModelConnectionsTest.fromJson(jsonDecode(s));
+          listGroupNameConnection.add(model);
+          //checkListGroupNameConnection(listGroupNameConnection);
         }
+        if (listGroupNameConnection.isNotEmpty) {
+          selectedGroupName.value = listGroupNameConnection.elementAt(0);
+          if (selectedGroupName.value.connections!.isNotEmpty) {
+            listUserConnections.value = selectedGroupName.value.connections!;
+          }
+        }
+        getUsersPermitionsFromApi(controller);
+      }else{
+        DialogHelper.hideLoading();
+        exeptionHandler.handleExeption(response);
+      }
     }
   }
 
   Future<void> getUsersPermitionsFromApi(PageController controller) async {
-    listPermisions.clear();
+    listPermisions.value=[];
+    listModelSelectUserPermitions.value=[];
+    selectedModulPermitions.value=ModelSelectUserPermitions();
     DialogHelper.showLoading("Icaze melumatlari axtarilir".tr);
-    listModelSelectUserPermitions.clear();
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -436,61 +482,89 @@ class UpdateUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/Dictionary/permissions-by-role/${selectedVezife.value!.id}",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          incrementCustomStepper(controller);
-          var permitions = json.encode(response.data['result']);
-          List list = jsonDecode(permitions);
-          for (int i = 0; i < list.length; i++) {
-            ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(list.elementAt(i));
-            for (var element in model.permissions!) {
-              element.val=0;
-              listPermisions.add(element);
-            }
-            listModelSelectUserPermitions.add(model);
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/GetRoleDefaultPermitionsByRoleId?selectedRole="+selectedVezife.value!.id.toString(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        incrementCustomStepper(controller);
+        var permitions = json.encode(response.data['Result']);
+        List list = jsonDecode(permitions);
+        for (int i = 0; i < list.length; i++) {
+          List<ModelUserPermissions> lista=[];
+          ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(list.elementAt(i));
+          for (var element in model.permissions!) {
+            var elemntVal=selectedUserModel.value.permissions!.any((el)=>el.id==element.id);
+            var elementVal2=selectedUserModel.value.draweItems!.any((el)=>el.id==element.id);
+            print("selected user: "+selectedUserModel.toString());
+            print("selected userin permitionlari : "+selectedUserModel.value.permissions.toString());
+            print("axtarilan element id : "+element.id.toString());
+            print("axtarilan element userde var? : "+elemntVal.toString());
+            element.val=elemntVal||elementVal2?1:0;
+            listPermisions.add(element);
+            lista.add(element);
           }
-          if (listModelSelectUserPermitions.isNotEmpty) {
-            changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
-          }
+          listModelSelectUserPermitions.add(model);
+        }
+        if (listModelSelectUserPermitions.isNotEmpty) {
+          changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
+        }
 
-          if(selectedUserModel.roleId==selectedVezife.value!.id) {
-            for (var element in selectedUserModel.permissions!) {
-              listPermisions
-                  .where((p) => p.code == element.code)
-                  .first
-                  .val = element.val;
-            }
+        if(selectedUserModel.value.roleId==selectedVezife.value!.id) {
+          for (var element in selectedUserModel.value.permissions!) {
+            listPermisions
+                .where((p) => p.id == element.id)
+                .first
+                .val = element.val;
           }
-          else{
-            listPermisions.value=listModelSelectUserPermitions.first.permissions!;
-            selectedPermitions.value=listModelSelectUserPermitions.first.permissions!;
+        }
+        else{
+          if(listModelSelectUserPermitions.isNotEmpty) {
+            listPermisions.value =
+            listModelSelectUserPermitions.first.permissions!;
+            selectedPermitions.value =
+            listModelSelectUserPermitions.first.permissions!;
             selectedModulPermitions.value = listModelSelectUserPermitions.first;
-          }
-        }else{
-          DialogHelper.hideLoading();
-        }
-        }
+          }}
+
+
+        // DialogHelper.hideLoading();
+        // incrementCustomStepper(controller);
+        // var permitions = json.encode(response.data['Result']);
+        // print("Gelen permitionslar :"+permitions);
+        //
+        // List list = jsonDecode(permitions);
+        // for (int i = 0; i < list.length; i++) {
+        //   //var s = jsonEncode(list.elementAt(i));
+        //   ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(list.elementAt(i));
+        //   for (var element in model.permissions!) {
+        //     listPermisions.add(element);
+        //   }
+        //   listModelSelectUserPermitions.add(model);
+        // }
+        // if (listModelSelectUserPermitions.isNotEmpty) {
+        //   changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
+        // }
+      }
+    }
     canUseNextButton.value = true;
 
   }
@@ -505,7 +579,6 @@ class UpdateUserController extends GetxController {
 
   void changeSelectedVezife(Role val) {
     selectedVezife.value = val;
-    print("selected vezife :"+selectedVezife.toString());
     canUserMobilePermitions.value = selectedVezife.value!.deviceLogin!;
     canUserWindowsPermitions.value = selectedVezife.value!.usernameLogin!;
     vezifeSecildi.value = true;
@@ -538,24 +611,43 @@ class UpdateUserController extends GetxController {
   /////users connections part
   void changeSelectedGroupConnected(ModelConnectionsTest element) {
     selectedGroupName.value = element;
-    listUserConnections.value = element.connections!
-        .where((elementa) => elementa.roleId == selectedVezife.value!.id)
-        .toList();
+    listUserConnections.value = element.connections!;
     update();
   }
 
-  List<ModelConnectionsTest> checkListGroupNameConnection(List<ModelConnectionsTest> groupList) {
-    List<ModelConnectionsTest> list = [];
+  void checkListGroupNameConnection(List<ModelConnectionsTest> groupList) {
     for (ModelConnectionsTest element in groupList) {
-      for (ModelMustConnect model in element.connections!) {
-        if (model.roleId == selectedVezife.value!.id) {
-          if (!list.contains(element)) {
-            list.add(element);
+      for(ModelMustConnect model in element.connections!){
+        List<ModelUserConnection> listConnected=selectedUserModel.value.connections!.where((el)=>el.roleId==model.connectionRoleId).toList();
+        for (var e in listConnected) {
+          if(!selectedListUserConnections.contains(User(
+              id:  e.userId,
+              roleId:  e.roleId,
+              roleName:  e.roleName,
+              code: e.code,
+              fullName: e.fullName,
+              isSelected: true,
+              modulCode: element.name
+
+          ))) {
+            selectedListUserConnections.add(User(
+                id: e.userId,
+                roleId: e.roleId,
+                roleName: e.roleName,
+                code: e.code,
+                fullName: e.fullName,
+                isSelected: true,
+                modulCode: element.name
+
+            ));
           }
         }
+
       }
+      print("selected Model: "+element.toString());
     }
-    return list;
+
+    update();
   }
 
   Future<void> getConnectionMustSelect(ModelMustConnect element, bool isWindows) async {
@@ -564,12 +656,11 @@ class UpdateUserController extends GetxController {
 
   Future<List<User>> getUserListApiService(ModelMustConnect element, bool isWindows) async {
     List<User> listUsers = [];
-    Map data = {
-      "roleId": element.connectionRoleId,
-      "connRoleId": 0,
-      "connUserCode": "ok"
-    };
-    DialogHelper.showLoading("Istifadeciler axtarilir");
+    ModelRequestUsersFilter modelFilter=ModelRequestUsersFilter(
+        roleId: element.connectionRoleId,
+        moduleId: null,
+    );
+    DialogHelper.showLoading("yoxlanir".tr);
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -578,76 +669,75 @@ class UpdateUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient()
-            .dio(false)
-            .post("${loggedUserModel.baseUrl}/api/v1/User/user-by-connection",
-                options: Options(
-                  receiveTimeout: const Duration(seconds: 60),
-                  headers: {
-                    'Lang': languageIndex,
-                    'Device': dviceType,
-                    'abs': '123456',
-                    "Authorization": "Bearer $accesToken"
-                  },
-                  validateStatus: (_) => true,
-                  contentType: Headers.jsonContentType,
-                  responseType: ResponseType.json,
-                ),
-                data: data);
-        if (response.statusCode == 200) {
-          var userresult = json.encode(response.data['result']);
-          List list = jsonDecode(userresult);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            int roleId = jsonDecode(s)['roleId'];
-            String roleName = jsonDecode(s)['roleName'];
-            String code = jsonDecode(s)['code'];
-            String fullName = jsonDecode(s)['fullName'] ?? "Melumat Tapilmadi";
-            User user = User(
-                roleId: roleId,
-                roleName: roleName,
-                fullName: fullName,
-                code: code,
-                modulCode: selectedGroupName.value.id.toString(),
-                isSelected: selectedListUserConnections
-                    .where((p) => p.code.toString() == code&&p.roleId==roleId)
-                    .isNotEmpty);
-            listUsers.add(user);
-          }
-          DialogHelper.hideLoading();
-          if(isWindows) {
-            Get.dialog(DialogSelectedUserConnectinsMobile(
-              isWindows: isWindows,
-              selectedListUsers: selectedListUserConnections,
-              addConnectin: (listSelected, listDeselected) {
-                addSelectedUserToList(
-                    listSelected, listDeselected, selectedGroupName.value.id);
-              },
-              listUsers: listUsers,
-              vezifeAdi: selectedGroupName.value.name!,
-            ));
-          }else{
-            Get.dialog(DialogSelectedUserConnectinsMobile(
-              isWindows: isWindows,
-              selectedListUsers: selectedListUserConnections,
-              addConnectin: (listSelected, listDeselected) {
-                addSelectedUserToList(
-                    listSelected, listDeselected, selectedGroupName.value.id);
-              },
-              listUsers: listUsers,
-              vezifeAdi: selectedGroupName.value.name!,
-            ));
-
-          }}else{
-          DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
+      final response = await ApiClient()
+          .dio(false)
+          .post(AppConstands.baseUrlsMain+"/Admin/getAllUserMyModuleIdMyltyProcedure",
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'smr': '12345',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+          data: modelFilter.toJson());
+      if (response.statusCode == 200) {
+        var userresult = json.encode(response.data['Result']);
+        List list = jsonDecode(userresult);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          int userId = jsonDecode(s)['Id'];
+          int roleId = jsonDecode(s)['RoleId'];
+          String roleName = jsonDecode(s)['RoleName'];
+          String code = jsonDecode(s)['Code'];
+          String fullName = jsonDecode(s)['Name']+" "+jsonDecode(s)['Surname'] ?? "Melumat Tapilmadi";
+          User user = User(
+              id: userId,
+              roleId: roleId,
+              roleName: roleName,
+              fullName: fullName,
+              code: code,
+              modulCode: selectedGroupName.value.id.toString(),
+              isSelected: selectedListUserConnections
+                  .where((p) => p.code.toString() == code&&p.roleId==roleId)
+                  .isNotEmpty);
+          listUsers.add(user);
         }
+        DialogHelper.hideLoading();
+        if(isWindows) {
+          Get.dialog(DialogSelectedUserConnectinsMobile(
+            isWindows: isWindows,
+            selectedListUsers: selectedListUserConnections,
+            addConnectin: (listSelected, listDeselected) {
+              addSelectedUserToList(
+                  listSelected, listDeselected, selectedGroupName.value.id);
+            },
+            listUsers: listUsers,
+            vezifeAdi: selectedGroupName.value.name!,
+          ));
+        }else{
+          Get.dialog(DialogSelectedUserConnectinsMobile(
+            isWindows: isWindows,
+            selectedListUsers: selectedListUserConnections,
+            addConnectin: (listSelected, listDeselected) {
+              addSelectedUserToList(
+                  listSelected, listDeselected, selectedGroupName.value.id);
+            },
+            listUsers: listUsers,
+            vezifeAdi: selectedGroupName.value.name!,
+          ));
+
+        }}
     }
     return listUsers;
   }
@@ -660,7 +750,7 @@ class UpdateUserController extends GetxController {
 
   void addSelectedUserToList(List<User> value, List<User> listDeselected, int? id) {
     for (var element in value) {
-      var contain = selectedListUserConnections.where((element2) => element2.code == element.code&&element2.roleId==element.roleId);
+      var contain = selectedListUserConnections.where((element2) => element2.id == element.id);
       if (contain.isEmpty) {
         element.modulCode="";
         selectedListUserConnections.add(element);
@@ -687,59 +777,51 @@ class UpdateUserController extends GetxController {
   void changeSelectedModelSelectUserPermitions(ModelSelectUserPermitions e) {
     selectedModulPermitions.value = e;
     selectedPermitions.value=e.permissions!;
+    print("Model per :"+e.toString());
     update();
   }
 
-  Future<RegisterUserModel> updateUserEndpoint() async {
-    for (ModelSelectUserPermitions modelP in listModelSelectUserPermitions) {
-      print("listModelSelectUserPermitions element :"+modelP.toString());
-      for (var e in modelP.permissions!) {
-        if(!listPermisions.contains(e)) {
-          listPermisions.add(e);
-        }}
-    }
-    DialogHelper.showLoading("Melumatlar deyisdirilir...");
+
+  Future<bool> updateUserEndpoint() async {
+    bool succes=false;
+    DialogHelper.showLoading("yoxlanir".tr,false);
     List<ConnectionRegister> listcon = [];
-    if (selectedVezife.value!.usernameLogin!) {
-      canUseWindows.value = true;
-    } else {
-      canUseWindows.value = false;
-    }
-    if (selectedVezife.value!.deviceLogin!) {
-      canUseMobile.value = true;
-    } else {
-      canUseMobile.value = false;
-    }
+    List<PermitionRegister> listper = [];
+    for(var e in listPermisions){
+      if(e.val==1) {
+        listper.add(PermitionRegister(e.id!));
+      }}
     for (var element in selectedListUserConnections) {
       ConnectionRegister cn = ConnectionRegister(
-          roleId: element.roleId,
-          code: element.code,
-          roleName: element.roleName,
-          fullName: element.fullName);
+          myAssociatedUsersId: element.id,
+          myAssociatedUsersRoleId: element.roleId);
       listcon.add(cn);
     }
     RegisterUserModel registerData = RegisterUserModel(
-        id: selectedUserModel.id,
-        name: cttextAd.text.trim(),
-        permissions: listPermisions,
-        code: cttextCode.text.trim(),
+        id: selectedUserModel.value.id,
+        name: cttextAd.text,
+        permissions: listper,
+        code: cttextCode.text.toString(),
+        companyId: loggedUserModel.userModel!.companyId!,
+        moduleId: selectedSobe.value!.id,
         roleId: selectedVezife.value!.id,
         usernameLogin: canUseWindows.value,
-        surname: cttextSoyad.text.trim(),
-        phone: cttextTelefon.text.toString().removeAllWhitespace.trim(),
+        surname: cttextSoyad.text,
+        phone: cttextTelefon.text.toString().removeAllWhitespace,
         gender: genderSelect.value ? 0 : 1,
         fatherName: "",
-        email: cttextEmail.text.trim(),
+        regionId: selectedRegion.value!.id,
+        email: cttextEmail.text,
         deviceLogin: canUseMobile.value,
-        deviceId: cttextDviceId.text.trim(),
+        deviceId: cttextDviceId.text,
         connections: listcon,
         birthdate: cttextDogumTarix.text.trim(),
         createrUser: loggedUserModel.userModel!.id,
         macAddress: "00wdew555151",
-        username: cttextUsername.text.trim(),
-        password: cttextPassword.text.trim(),
-        regionCode: selectedRegion.value!.code!);
-    print("registerData :"+registerData.toString());
+        username: cttextUsername.text,
+        password: cttextPassword.text,
+        folloginService: "true"
+    );
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -748,47 +830,44 @@ class UpdateUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
-        callback: () {
-          Get.back();
-        },
+        messaje: "internetError".tr,
+        callback: () {},
       ));
     } else {
-        final response = await ApiClient().dio(true).put(
-              "${loggedUserModel.baseUrl}/api/v1/User/edit-user",
-              data: registerData.toJson(),
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          BaseResponce responce=BaseResponce.fromJson(response.data);
-          DialogHelper.hideLoading();
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/UpdateByAdminMain",
+        data: registerData.toJson(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        if(response.statusCode!=null&&response.statusCode==200){
           Get.dialog(ShowInfoDialog(
-            icon: Icons.verified_user_outlined,
-            color: Colors.green,
-            messaje:responce.result,
+            color: Colors.blue,
+            icon: Icons.verified,
+            messaje: response.data['Result'],
             callback: () {
-              Get.until((route) => !Get.isDialogOpen!);
-              },
+              Get.back();
+              succes=true;
+              Get.back();
+            },
           ));
-
-        }else{
-          DialogHelper.hideLoading();
         }
-        //dataLoading.value = false;
       }
-    return registerData;
     }
+
+    return succes;
+  }
 
   void callDatePickerFirst() async {
     String day = "01";
@@ -839,7 +918,7 @@ class UpdateUserController extends GetxController {
   }
 
   void addSelecTedUser(UserModel model) {
-    selectedUserModel = model;
+    selectedUserModel.value = model;
     canUseWindows.value = model.usernameLogin!;
     canUseMobile.value = model.deviceLogin!;
     cttextSoyad.text = model.surname ?? "Bosdur";
@@ -850,9 +929,10 @@ class UpdateUserController extends GetxController {
     cttextCode.text = model.code ?? "Bosdur";
     cttextTelefon.text = model.phone ?? "";
     cttextDviceId.text = model.deviceId!;
+    print("Selected users connectoons :"+model.connections.toString());
     for (var element in model.connections!) {
       User userS = User(
-          id: 0,
+          id: element.userId,
           fullName: element.fullName,
           code: element.code,
           isSelected: true,
@@ -861,6 +941,7 @@ class UpdateUserController extends GetxController {
           roleId: element.roleId);
       selectedListUserConnections.add(userS);
     }
+    print("ufter add selected : "+selectedListUserConnections.toString());
     update();
   }
 

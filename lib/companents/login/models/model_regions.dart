@@ -59,14 +59,14 @@ class ModelRegions{
   String toRawJson() => json.encode(toJson());
 
   factory ModelRegions.fromJson(Map<String, dynamic> json) => ModelRegions(
-    id: json["id"],
-    code: json["code"],
-    name: json["name"],
-    level: json["level"],
-    parentId: json["parentId"],
-    locationLatitude: json["locationLatitude"],
-    locationLongitude: json["locationLongitude"],
-    address: json["address"],
+    id: json["Id"],
+    code: json["Code"],
+    name: json["Name"],
+    level: json["Level"],
+    parentId: json["ParentId"],
+    locationLatitude: json["LocationLatitude"],
+    locationLongitude: json["LocationLongitude"],
+    address: json["Address"],
   );
 
   Map<String, dynamic> toJson() => {

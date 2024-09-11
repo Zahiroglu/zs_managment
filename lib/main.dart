@@ -36,9 +36,9 @@ import 'language/utils/messages.dart';
 
 Future<void>  main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: const FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w',
-      appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',
-      projectId: 'zscontrollsystem'));
+  // await Firebase.initializeApp(options: const FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w',
+  //     appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',
+  //     projectId: 'zscontrollsystem'));
   await Hive.initFlutter();
   Map<String, Map<String, String>> languages = await dep.init();
   //sonuncu HiveType 37-di

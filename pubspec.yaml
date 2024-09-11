@@ -46,7 +46,7 @@ dependencies:
   android_id: ^0.3.3
   #platform_device_id: ^1.0.1
   #for api request
-  dio:
+  dio: ^5.7.0
   #for checking internet connection
   connectivity_plus: ^4.0.0
   # for text make up

@@ -15,7 +15,7 @@ import '../services/api_services/firebase_users_controller_mobile.dart';
 class ScreenRequestCheckMobile extends StatelessWidget {
   ScreenRequestCheckMobile({Key? key}) : super(key: key);
 
-  FirebaseUserApiControllerMobile apiController = Get.put(FirebaseUserApiControllerMobile());
+  UserApiControllerMobile apiController = Get.put(UserApiControllerMobile());
 
   @override
   Widget build(BuildContext context) {

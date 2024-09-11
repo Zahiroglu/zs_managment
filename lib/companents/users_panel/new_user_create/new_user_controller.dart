@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_regions.dart';
-import 'package:zs_managment/companents/login/models/model_token.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
@@ -23,6 +22,7 @@ import 'package:zs_managment/widgets/simple_info_dialog.dart';
 
 import '../../login/models/base_responce.dart';
 import '../mobile/dialog_select_user_connections_mobile.dart';
+import '../models_user/model_requet_allusers.dart';
 
 class NewUserController extends GetxController {
   LocalUserServices localUserServices = LocalUserServices();
@@ -128,40 +128,38 @@ class NewUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/Dictionary/regions",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          var regionlist = json.encode(response.data['result']);
-          List list = jsonDecode(regionlist);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            ModelRegions model = ModelRegions.fromJson(jsonDecode(s));
-            listRegionlar.add(model);
-          }
-          getRolesFromApiService(controller);
-        }else{
-          DialogHelper.hideLoading();
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/getCompanyRegions",
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        var regionlist = json.encode(response.data['Result']);
+        List list = jsonDecode(regionlist);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          ModelRegions model = ModelRegions.fromJson(jsonDecode(s));
+          listRegionlar.add(model);
         }
+        getRolesFromApiService(controller);
+      }
 
     }
   }
@@ -177,43 +175,43 @@ class NewUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/Dictionary/roles",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          var userresult = json.encode(response.data['result']);
-          List list = jsonDecode(userresult);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            ModelUserRolesTest model = ModelUserRolesTest.fromJson(jsonDecode(s));
-            listSobeler.add(model);
-          }
-            regionSecilmelidir.value = true;
-            incrementCustomStepper(controller);
-            canUseNextButton.value = false;
-          DialogHelper.hideLoading();
-        }else{
-          DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/getCompanyAktivRoles",
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        var userresult = json.encode(response.data['Result']);
+        List list = jsonDecode(userresult);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          ModelUserRolesTest model = ModelUserRolesTest.fromJson(jsonDecode(s));
+          listSobeler.add(model);
         }
+        regionSecilmelidir.value = true;
+        incrementCustomStepper(controller);
+        canUseNextButton.value = false;
+        DialogHelper.hideLoading();
+      }else{
+        DialogHelper.hideLoading();
+        exeptionHandler.handleExeption(response);
+      }
     }
   }
 
@@ -368,48 +366,51 @@ class NewUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/User/user-by-code-for-register/${cttextCode.text.toString()}/${selectedVezife.value!.id}",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          var connections = json.encode(response.data['result']['user']['connections']);
-          List list = jsonDecode(connections);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            User model = User.fromJson(jsonDecode(s));
-            model.isSelected=true;
-            selectedListUserConnections.add(model);
-            print("selectedListUserConnections :"+selectedListUserConnections.toString());
-          }
-          var permitions = json.encode(response.data['result']['user']['permissions']);
-          List listpermissions = jsonDecode(permitions);
-          for (int i = 0; i < listpermissions.length; i++) {
-            ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(listpermissions.elementAt(i));
-            listModelSelectUserPermitions.add(model);
-          }
-          DialogHelper.hideLoading();
-          getConnectionsFromApiService(controller);
-        }else{
-          DialogHelper.hideLoading();
+      final response = await ApiClient().dio(false).get(
+        AppConstands.baseUrlsMain+"/UserControl/getUserInfoByCodeAndRoleId?userCode="+cttextCode.text.toString()+"&roleId="+selectedVezife.value!.id.toString(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        var connections = json.encode(response.data['Result']['Connections']);
+        List list = jsonDecode(connections);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          User model = User.fromJson(jsonDecode(s));
+          model.isSelected=true;
+          selectedListUserConnections.add(model);
+          print("selectedListUserConnections :"+selectedListUserConnections.toString());
         }
+        var permitions = json.encode(response.data['Result']['Permissions']);
+        List listpermissions = jsonDecode(permitions);
+        for (int i = 0; i < listpermissions.length; i++) {
+          ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(listpermissions.elementAt(i));
+          listModelSelectUserPermitions.add(model);
+        }
+        DialogHelper.hideLoading();
+        getConnectionsFromApiService(controller);
+      }
+      else{
+        DialogHelper.hideLoading();
+        Get.back();
+        getConnectionsFromApiService(controller);
+      }
     }
   }
 
@@ -426,51 +427,51 @@ class NewUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-          "${loggedUserModel.baseUrl}/api/v1/Dictionary/connections",
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          var userresult = json.encode(response.data['result']);
-          print("Connections :" + userresult.toString());
-          List list = jsonDecode(userresult);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            ModelConnectionsTest model = ModelConnectionsTest.fromJson(jsonDecode(s));
-            listGroupNameConnection.add(model);
-            listGroupNameConnection.value = checkListGroupNameConnection(listGroupNameConnection);
-          }
-          if (listGroupNameConnection.isNotEmpty) {
-            selectedGroupName.value = listGroupNameConnection.elementAt(0);
-            if (selectedGroupName.value.connections!.isNotEmpty) {
-              listUserConnections.value = selectedGroupName.value.connections!
-                  .where(
-                      (elementa) => elementa.roleId == selectedVezife.value!.id)
-                  .toList();
-            }
-          }
-          getUsersPermitionsFromApi(controller);
-        }else{
-          DialogHelper.hideLoading();
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/getCompanyDefautRoleConnectionByRoleId?selectedRole="+selectedVezife.value!.id.toString(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        var userresult = json.encode(response.data['Result']);
+        print("Connections :" + userresult.toString());
+        List list = jsonDecode(userresult);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          ModelConnectionsTest model = ModelConnectionsTest.fromJson(jsonDecode(s));
+          listGroupNameConnection.add(model);
+          listGroupNameConnection.value = checkListGroupNameConnection(listGroupNameConnection);
+          print("MODEL :" + model.toString());
+
         }
+        if (listGroupNameConnection.isNotEmpty) {
+          selectedGroupName.value = listGroupNameConnection.elementAt(0);
+          if (selectedGroupName.value.connections!.isNotEmpty) {
+            listUserConnections.value = selectedGroupName.value.connections!;
+          }
+        }
+        getUsersPermitionsFromApi(controller);
+      }else{
+        DialogHelper.hideLoading();
+        exeptionHandler.handleExeption(response);
+      }
     }
   }
 
@@ -491,135 +492,55 @@ class NewUserController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "Internet baglanti problemi",
+        messaje: "internetError".tr,
         callback: () {
           Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/Dictionary/permissions-by-role/${selectedVezife.value!.id}",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          incrementCustomStepper(controller);
-          var permitions = json.encode(response.data['result']);
-          print("Gelen permitionslar :"+permitions);
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/GetRoleDefaultPermitionsByRoleId?selectedRole="+selectedVezife.value!.id.toString(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        incrementCustomStepper(controller);
+        var permitions = json.encode(response.data['Result']);
+        print("Gelen permitionslar :"+permitions);
 
-          List list = jsonDecode(permitions);
-          for (int i = 0; i < list.length; i++) {
-            //var s = jsonEncode(list.elementAt(i));
-            ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(list.elementAt(i));
-            for (var element in model.permissions!) {
-              listPermisions.add(element);
-            }
-            listModelSelectUserPermitions.add(model);
+        List list = jsonDecode(permitions);
+        for (int i = 0; i < list.length; i++) {
+          //var s = jsonEncode(list.elementAt(i));
+          ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(list.elementAt(i));
+          for (var element in model.permissions!) {
+            listPermisions.add(element);
           }
-          if (listModelSelectUserPermitions.isNotEmpty) {
-            changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
-          }
-        }else{
-          DialogHelper.hideLoading();
+          listModelSelectUserPermitions.add(model);
         }
+        if (listModelSelectUserPermitions.isNotEmpty) {
+          changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
+        }
+      }
     }
     canUseNextButton.value = true;
 
-    // ModelSelectUserPermitions modelanbar=ModelSelectUserPermitions(
-    //   id: 5,
-    //   name: "Anbar",
-    //   permissions: [
-    //     ModelUserPermissions(
-    //       id: 1,
-    //       name: "Anbar raporunu gore bilsun",
-    //       valName: "Tam Icazeli"
-    //     ),
-    //     ModelUserPermissions(
-    //         id: 2,
-    //         name: "Mehsullarin qiymetini gore bilsin",
-    //       valName: "Tam Icazeli"
-    //     ),
-    //     ModelUserPermissions(
-    //         id: 3,
-    //         name: "Mehsullarin qaliq miqdarini gore bilsin",
-    //       valName: "Tam Icazeli"
-    //     ),
-    //   ]
-    // );
-    // ModelSelectUserPermitions modelSatis=ModelSelectUserPermitions(
-    //   id: 7,
-    //   name: "Satis Modulu",
-    //   permissions: [
-    //     ModelUserPermissions(
-    //         id: 4,
-    //         name: "Butun Expeditorlari gore bilsin?",
-    //       valName: "Tam Icazeli",
-    //       val: 0
-    //     ),
-    //     ModelUserPermissions(
-    //         id: 5,
-    //         name: "Satis ede bilsin?",
-    //       valName: "Icazesiz",
-    //       val: 1
-    //     ),
-    //     ModelUserPermissions(
-    //       id: 6,
-    //       name: "Sifarisde deyisiklik ede bilsin?",
-    //       valName: "Icazesiz",
-    //       val: 0
-    //     ),
-    //     ModelUserPermissions(
-    //       id: 6,
-    //       name: "Sifarisde deyisiklik ede bilsin?",
-    //       valName: "Icazesiz",
-    //       val: 0
-    //     ),
-    //   ]
-    // );
-    // ModelSelectUserPermitions moduleMerc=ModelSelectUserPermitions(
-    //   id: 6,
-    //   name: "Reklam modulu",
-    //   permissions: [
-    //     ModelUserPermissions(
-    //       id: 7,
-    //       name: "Online map sehfesini gore bilsin?",
-    //       valName: "Tam Icazeli",
-    //       val: 0
-    //     ),
-    //     ModelUserPermissions(
-    //       id: 8,
-    //       name: "Mercendaizer motivasiya sehfesini gore bilsin?",
-    //       valName: "Tam Icazeli",
-    //       val: 0
-    //     ),
-    //     ModelUserPermissions(
-    //       id: 9,
-    //       name: "Mercendaizer detayli rutuna baxa bilsin",
-    //       valName: "Icazesiz",
-    //       val: 1
-    //     ),
-    //   ]
-    // );
-    // listModelSelectUserPermitions.add(modelanbar);
-    // listModelSelectUserPermitions.add(modelSatis);
-    // listModelSelectUserPermitions.add(moduleMerc);
   }
 
   void changeSelectedSobe(ModelUserRolesTest val) {
     selectedSobe.value = val;
     selectedVezife.value = null;
-    print("Roles count :" + val.roles!.length.toString());
+    print("selected Sobe id :"+val.id.toString());
     listVezifeler.value = val.roles ?? [];
     sobeSecildi.value = true;
     update();
@@ -627,6 +548,7 @@ class NewUserController extends GetxController {
 
   void changeSelectedVezife(Role val) {
     selectedVezife.value = val;
+    print("selected vezife id :"+val.id.toString());
     vezifeSecildi.value = true;
     canUserMobilePermitions.value=selectedVezife.value!.deviceLogin!;
     canUserWindowsPermitions.value=selectedVezife.value!.usernameLogin!;
@@ -666,7 +588,7 @@ class NewUserController extends GetxController {
   void changeSelectedGroupConnected(ModelConnectionsTest element) {
     selectedGroupName.value = element;
     listUserConnections.value = element.connections!
-        .where((elementa) => elementa.roleId == selectedVezife.value!.id)
+        .where((elementa) => elementa.connectionRoleId == selectedVezife.value!.id)
         .toList();
     update();
   }
@@ -675,10 +597,12 @@ class NewUserController extends GetxController {
     List<ModelConnectionsTest> list = [];
     for (ModelConnectionsTest element in groupList) {
       for (ModelMustConnect model in element.connections!) {
-        if (model.roleId == selectedVezife.value!.id) {
-          if (!list.contains(element)) {
-            list.add(element);
-          }
+        print("ModelMustConnect connection :"+model.toString());
+        print("selected group connection :"+groupList.toString());
+        print("selectedVezife.value!.id :"+selectedVezife.value!.id.toString());
+        if (!list.contains(element)) {
+          list.add(element);
+
         }
       }
     }
@@ -686,17 +610,16 @@ class NewUserController extends GetxController {
   }
 
   Future<void> getConnectionMustSelect(ModelMustConnect element) async {
-    await getUserListApiService(element);
+    await getUserListApiService(element,true);
   }
 
-  Future<List<User>> getUserListApiService(ModelMustConnect element) async {
+  Future<List<User>> getUserListApiService(ModelMustConnect element,bool isWindows) async {
     List<User> listUsers = [];
-    Map data = {
-      "roleId": element.connectionRoleId,
-      "connRoleId": 0,
-      "connUserCode": "ok"
-    };
-    DialogHelper.showLoading("mYoxlanilir".tr);
+    ModelRequestUsersFilter modelFilter=ModelRequestUsersFilter(
+        roleId: element.connectionRoleId,
+        moduleId: null,
+    );
+    DialogHelper.showLoading("yoxlanir".tr);
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -711,54 +634,57 @@ class NewUserController extends GetxController {
         },
       ));
     } else {
-        final response = await ApiClient()
-            .dio(false)
-            .post("${loggedUserModel.baseUrl}/api/v1/User/user-by-connection",
-                options: Options(
-                  headers: {
-                    'Lang': languageIndex,
-                    'Device': dviceType,
-                    'abs': '123456',
-                    "Authorization": "Bearer $accesToken"
-                  },
-                  validateStatus: (_) => true,
-                  contentType: Headers.jsonContentType,
-                  responseType: ResponseType.json,
-                ),
-                data: data);
-        if (response.statusCode == 200) {
-          var userresult = json.encode(response.data['result']);
-          List list = jsonDecode(userresult);
-          for (int i = 0; i < list.length; i++) {
-            var s = jsonEncode(list.elementAt(i));
-            int roleId = jsonDecode(s)['roleId'];
-            String roleName = jsonDecode(s)['roleName'];
-            String code = jsonDecode(s)['code'];
-            String fullName = jsonDecode(s)['fullName'] ?? "Melumat Tapilmadi";
-            User user = User(
-                roleId: roleId,
-                roleName: roleName,
-                fullName: fullName,
-                code: code,
-                modulCode: selectedGroupName.value.id.toString(),
-                isSelected: selectedListUserConnections
-                    .where((p) => p.code.toString() == code&&p.roleId==roleId)
-                    .isNotEmpty);
-            listUsers.add(user);
-          }
+      final response = await ApiClient()
+          .dio(false)
+          .post(AppConstands.baseUrlsMain+"/Admin/getAllUserMyModuleIdMyltyProcedure",
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'smr': '12345',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+          data: modelFilter.toJson());
+      if (response.statusCode == 200) {
+        var userresult = json.encode(response.data['Result']);
+        List list = jsonDecode(userresult);
+        for (int i = 0; i < list.length; i++) {
+          var s = jsonEncode(list.elementAt(i));
+          int userId = jsonDecode(s)['Id'];
+          int roleId = jsonDecode(s)['RoleId'];
+          String roleName = jsonDecode(s)['RoleName'];
+          String code = jsonDecode(s)['Code'];
+          String fullName = jsonDecode(s)['Name']+" "+jsonDecode(s)['Surname'] ?? "Melumat Tapilmadi";
+          User user = User(
+              id: userId,
+              roleId: roleId,
+              roleName: roleName,
+              fullName: fullName,
+              code: code,
+              modulCode: selectedGroupName.value.id.toString(),
+              isSelected: selectedListUserConnections
+                  .where((p) => p.code.toString() == code&&p.roleId==roleId)
+                  .isNotEmpty);
+          listUsers.add(user);
+        }
+        DialogHelper.hideLoading();
 
-          DialogHelper.hideLoading();
           Get.dialog(DialogSelectedUserConnectinsMobile(
-            isWindows: true,
+            isWindows: isWindows,
             selectedListUsers: selectedListUserConnections,
             addConnectin: (listSelected, listDeselected) {
-              addSelectedUserToList(listSelected, listDeselected, selectedGroupName.value.id);
+              addSelectedUserToList(
+                  listSelected, listDeselected, selectedGroupName.value.id);
             },
             listUsers: listUsers,
             vezifeAdi: selectedGroupName.value.name!,
           ));
-        }else{
-          DialogHelper.hideLoading();
+
         }
     }
     return listUsers;
@@ -805,27 +731,33 @@ class NewUserController extends GetxController {
 
   Future<bool> registerUserEndpoint() async {
     bool succes=false;
-    DialogHelper.showLoading("mYoxlanilir".tr,false);
+    DialogHelper.showLoading("yoxlanir".tr,false);
     List<ConnectionRegister> listcon = [];
+    List<PermitionRegister> listper = [];
+    for(var e in listPermisions){
+      print("permition id :"+e.id.toString());
+      listper.add(PermitionRegister(e.id!));
+    }
     for (var element in selectedListUserConnections) {
       ConnectionRegister cn = ConnectionRegister(
-          roleId: element.roleId,
-          code: element.code,
-          roleName: element.modulCode,
-          fullName: element.fullName);
+          myAssociatedUsersId: element.id,
+          myAssociatedUsersRoleId: element.roleId);
       listcon.add(cn);
     }
     registerData.value = RegisterUserModel(
-      id: 0,
+        id: 0,
         name: cttextAd.text,
-        permissions: listPermisions,
+        permissions: listper,
         code: cttextCode.text.toString(),
+        companyId: loggedUserModel.userModel!.companyId!,
+        moduleId: selectedSobe.value!.id,
         roleId: selectedVezife.value!.id,
         usernameLogin: canUseWindows.value,
         surname: cttextSoyad.text,
         phone: cttextTelefon.text.toString().removeAllWhitespace,
         gender: genderSelect.value ? 0 : 1,
         fatherName: "",
+        regionId: selectedRegion.value!.id,
         email: cttextEmail.text,
         deviceLogin: canUseMobile.value,
         deviceId: cttextDviceId.text,
@@ -835,7 +767,8 @@ class NewUserController extends GetxController {
         macAddress: "00wdew555151",
         username: cttextUsername.text,
         password: cttextPassword.text,
-        regionCode:selectedRegion.value!.code!);
+        folloginService: "true"
+    );
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -848,70 +781,31 @@ class NewUserController extends GetxController {
         callback: () {},
       ));
     } else {
-        final response = await ApiClient().dio(false).post(
-              "${loggedUserModel.baseUrl}/api/v1/User/register",
-              data: registerData.toJson(),
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-
-        if (response.statusCode == 200) {
-          acceptRecistredUser(response.data['result'],registerData.value);
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/RegisterByAdmin",
+        data: registerData.toJson(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        if(response.statusCode!=null&&response.statusCode==200){
           succes=true;
-          Get.back();
-        }else{
-          DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
+
         }
+      }
     }
 
     return succes;
-  }
-
-  Future<void> acceptRecistredUser(String recNom, RegisterUserModel registerData) async {
-    DialogHelper.hideLoading();
-    DialogHelper.showLoading("${"qeydiyyatTesdiqlenir".tr}...",false);
-    String languageIndex = await getLanguageIndex();
-    int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      DialogHelper.hideLoading();
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {
-          Get.back();
-        },
-      ));
-    } else {
-        final response = await ApiClient().dio(true).get(
-              "${"${loggedUserModel.baseUrl}/api/v1/User/confirm-new-user/${loggedUserModel.userModel!.companyId}"}/$recNom",
-              data: registerData.toJson(),
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-    }
   }
 
   void callDatePickerFirst() async {
@@ -929,7 +823,7 @@ class NewUserController extends GetxController {
       ay = order.month.toString();
     }
     selectedDate.value = "$day.$ay.${order.year}";
-      cttextDogumTarix.text = "$day.$ay.${order.year}";
+    cttextDogumTarix.text = "$day.$ay.${order.year}";
   }
 
   void callDatePicker() async {
@@ -947,7 +841,7 @@ class NewUserController extends GetxController {
       ay = order.month.toString();
     }
     selectedDate.value = "$day.$ay.${order.year}";
-      cttextDogumTarix.text = "$day.$ay.${order.year}";
+    cttextDogumTarix.text = "$day.$ay.${order.year}";
   }
 
   Future<DateTime?> getDate() {
@@ -1017,18 +911,18 @@ class User {
   String toRawJson() => json.encode(toJson());
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json["id"],
-        roleId: json["roleId"],
-        fullName: json["fullName"],
-        code: json["code"],
-      );
+    id: json["id"],
+    roleId: json["roleId"],
+    fullName: json["fullName"],
+    code: json["code"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "fullName": fullName,
-        "roleId": roleId,
-        "code": code,
-      };
+    "id": id,
+    "fullName": fullName,
+    "roleId": roleId,
+    "code": code,
+  };
 
   @override
   String toString() {
@@ -1065,20 +959,25 @@ class ModelUserRolesTest {
 
   factory ModelUserRolesTest.fromJson(Map<String, dynamic> json) =>
       ModelUserRolesTest(
-        id: json["id"],
-        name: json["name"],
-        roles: json["roles"] == null
+        id: json["Id"],
+        name: json["Name"],
+        roles: json["Roles"] == null
             ? []
-            : List<Role>.from(json["roles"]!.map((x) => Role.fromJson(x))),
+            : List<Role>.from(json["Roles"]!.map((x) => Role.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "roles": roles == null
-            ? []
-            : List<dynamic>.from(roles!.map((x) => x.toJson())),
-      };
+    "Id": id,
+    "Name": name,
+    "Roles": roles == null
+        ? []
+        : List<dynamic>.from(roles!.map((x) => x.toJson())),
+  };
+
+  @override
+  String toString() {
+    return 'ModelUserRolesTest{id: $id, name: $name, roles: $roles}';
+  }
 }
 
 class Role {
@@ -1112,18 +1011,18 @@ class Role {
   String toRawJson() => json.encode(toJson());
 
   factory Role.fromJson(Map<String, dynamic> json) => Role(
-        id: json["id"],
-        name: json["name"],
-        usernameLogin: json["usernameLogin"],
-        deviceLogin: json["deviceLogin"],
-      );
+    id: json["Id"],
+    name: json["Name"],
+    usernameLogin: json["UsernameLogin"],
+    deviceLogin: json["DeviceLogin"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "usernameLogin": usernameLogin,
-        "deviceLogin": deviceLogin,
-      };
+    "Id": id,
+    "Name": name,
+    "UsernameLogin": usernameLogin,
+    "DeviceLogin": deviceLogin,
+  };
 
   @override
   String toString() {
@@ -1160,21 +1059,21 @@ class ModelConnectionsTest {
 
   factory ModelConnectionsTest.fromJson(Map<String, dynamic> json) =>
       ModelConnectionsTest(
-        connections: json["connections"] == null
+        connections: json["Connections"] == null
             ? []
             : List<ModelMustConnect>.from(
-                json["connections"]!.map((x) => ModelMustConnect.fromJson(x))),
-        id: json["id"],
-        name: json["name"],
+            json["Connections"]!.map((x) => ModelMustConnect.fromJson(x))),
+        id: json["Id"],
+        name: json["Name"],
       );
 
   Map<String, dynamic> toJson() => {
-        "connections": connections == null
-            ? []
-            : List<dynamic>.from(connections!.map((x) => x.toJson())),
-        "id": id,
-        "name": name,
-      };
+    "connections": connections == null
+        ? []
+        : List<dynamic>.from(connections!.map((x) => x.toJson())),
+    "id": id,
+    "name": name,
+  };
 
   @override
   String toString() {
@@ -1183,14 +1082,10 @@ class ModelConnectionsTest {
 }
 
 class ModelMustConnect {
-  int? roleId;
-  String? roleName;
   int? connectionRoleId;
   String? connectionRoleName;
 
   ModelMustConnect({
-    this.roleId,
-    this.roleName,
     this.connectionRoleId,
     this.connectionRoleName,
   });
@@ -1202,8 +1097,6 @@ class ModelMustConnect {
     String? connectionRoleName,
   }) =>
       ModelMustConnect(
-        roleId: roleId ?? this.roleId,
-        roleName: roleName ?? this.roleName,
         connectionRoleId: connectionRoleId ?? this.connectionRoleId,
         connectionRoleName: connectionRoleName ?? this.connectionRoleName,
       );
@@ -1215,22 +1108,18 @@ class ModelMustConnect {
 
   factory ModelMustConnect.fromJson(Map<String, dynamic> json) =>
       ModelMustConnect(
-        roleId: json["roleId"],
-        roleName: json["roleName"],
-        connectionRoleId: json["connectionRoleId"],
-        connectionRoleName: json["connectionRoleName"],
+        connectionRoleId: json["ConnectionRoleId"],
+        connectionRoleName: json["ConnectionRoleName"],
       );
 
   Map<String, dynamic> toJson() => {
-        "roleId": roleId,
-        "roleName": roleName,
-        "connectionRoleId": connectionRoleId,
-        "connectionRoleName": connectionRoleName,
-      };
+    "ConnectionRoleId": connectionRoleId,
+    "ConnectionRoleName": connectionRoleName,
+  };
 
   @override
   String toString() {
-    return 'ModelMustConnect{roleId: $roleId, roleName: $roleName, connectionRoleId: $connectionRoleId, connectionRoleName: $connectionRoleName}';
+    return 'ModelMustConnect{ connectionRoleId: $connectionRoleId, connectionRoleName: $connectionRoleName}';
   }
 }
 
@@ -1263,21 +1152,21 @@ class ModelSelectUserPermitions {
 
   factory ModelSelectUserPermitions.fromJson(Map<String, dynamic> json) =>
       ModelSelectUserPermitions(
-        permissions: json["permissions"] == null
+        permissions: json["Permitions"] == null
             ? []
-            : List<ModelUserPermissions>.from(json["permissions"]!
-                .map((x) => ModelUserPermissions.fromJson(x))),
-        id: json["id"],
-        name: json["name"],
+            : List<ModelUserPermissions>.from(json["Permitions"]!
+            .map((x) => ModelUserPermissions.fromJson(x))),
+        id: json["Id"],
+        name: json["Name"],
       );
 
   Map<String, dynamic> toJson() => {
-        "permissions": permissions == null
-            ? []
-            : List<dynamic>.from(permissions!.map((x) => x.toJson())),
-        "id": id,
-        "name": name,
-      };
+    "permissions": permissions == null
+        ? []
+        : List<dynamic>.from(permissions!.map((x) => x.toJson())),
+    "id": id,
+    "name": name,
+  };
 
   @override
   String toString() {
@@ -1296,7 +1185,10 @@ class RegisterUserModel {
   String? phone;
   String? email;
   int? roleId;
+  int? moduleId;
+  int? companyId;
   String? regionCode;
+  int? regionId;
   String? deviceId;
   int? createrUser;
   String? macAddress;
@@ -1305,7 +1197,8 @@ class RegisterUserModel {
   String? username;
   String? password;
   List<ConnectionRegister>? connections;
-  List<ModelUserPermissions>? permissions;
+  List<PermitionRegister>? permissions;
+  String? folloginService;
 
   RegisterUserModel({
     this.id,
@@ -1318,6 +1211,9 @@ class RegisterUserModel {
     this.phone,
     this.email,
     this.roleId,
+    this.moduleId,
+    this.companyId,
+    this.regionId,
     this.regionCode,
     this.deviceId,
     this.createrUser,
@@ -1328,169 +1224,72 @@ class RegisterUserModel {
     this.password,
     this.connections,
     this.permissions,
+    this.folloginService,
   });
 
-  RegisterUserModel copyWith({
-    int? id,
-    String? code,
-    String? name,
-    String? surname,
-    String? fatherName,
-    String? birthdate,
-    int? gender,
-    String? phone,
-    String? email,
-    int? roleId,
-    String? regionCode,
-    String? deviceId,
-    int? createrUser,
-    String? macAddress,
-    bool? deviceLogin,
-    bool? usernameLogin,
-    String? username,
-    String? password,
-    List<ConnectionRegister>? connections,
-    List<ModelUserPermissions>? permissions,
-  }) =>
-      RegisterUserModel(
-        id: id ?? this.id,
-        code: code ?? this.code,
-        name: name ?? this.name,
-        surname: surname ?? this.surname,
-        fatherName: fatherName ?? this.fatherName,
-        birthdate: birthdate ?? this.birthdate,
-        gender: gender ?? this.gender,
-        phone: phone ?? this.phone,
-        email: email ?? this.email,
-        roleId: roleId ?? this.roleId,
-        regionCode: regionCode ?? this.regionCode,
-        deviceId: deviceId ?? this.deviceId,
-        createrUser: createrUser ?? this.createrUser,
-        macAddress: macAddress ?? this.macAddress,
-        deviceLogin: deviceLogin ?? this.deviceLogin,
-        usernameLogin: usernameLogin ?? this.usernameLogin,
-        username: username ?? this.username,
-        password: password ?? this.password,
-        connections: connections ?? this.connections,
-        permissions: permissions ?? this.permissions,
-      );
-
-  factory RegisterUserModel.fromRawJson(String str) =>
-      RegisterUserModel.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory RegisterUserModel.fromJson(Map<String, dynamic> json) =>
-      RegisterUserModel(
-        id: json["id"],
-        code: json["code"],
-        name: json["name"],
-        surname: json["surname"],
-        fatherName: json["fatherName"],
-        birthdate: json["birthdate"],
-        gender: json["gender"],
-        phone: json["phone"],
-        email: json["email"],
-        roleId: json["roleId"],
-        regionCode: json["regionCode"],
-        deviceId: json["deviceId"],
-        createrUser: json["createrUser"],
-        macAddress: json["macAddress"],
-        deviceLogin: json["deviceLogin"],
-        usernameLogin: json["usernameLogin"],
-        username: json["username"],
-        password: json["password"],
-        connections: json["connections"] == null
-            ? []
-            : List<ConnectionRegister>.from(json["connections"]!
-                .map((x) => ConnectionRegister.fromJson(x))),
-        permissions: json["permissions"] == null
-            ? []
-            : List<ModelUserPermissions>.from(json["permissions"]!
-                .map((x) => ModelUserPermissions.fromJson(x))),
-      );
-
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "code": code,
-        "name": name,
-        "surname": surname,
-        "fatherName": fatherName,
-        "birthdate": birthdate,
-        "gender": gender,
-        "phone": phone,
-        "email": email,
-        "roleId": roleId,
-        "regionCode": regionCode,
-        "deviceId": deviceId,
-        "createrUser": createrUser,
-        "macAddress": macAddress,
-        "deviceLogin": deviceLogin,
-        "usernameLogin": usernameLogin,
-        "username": username,
-        "password": password,
-        "connections": connections == null
-            ? []
-            : List<dynamic>.from(connections!.map((x) => x.toJson())),
-        "permissions": permissions == null
-            ? []
-            : List<dynamic>.from(permissions!.map((x) => x.toJson())),
-      };
-
-  @override
-  String toString() {
-    return 'RegisterUserModel{id: $id, code: $code, name: $name, surname: $surname, fatherName: $fatherName, birthdate: $birthdate, gender: $gender, phone: $phone, email: $email, roleId: $roleId, regionCode: $regionCode, deviceId: $deviceId, createrUser: $createrUser, macAddress: $macAddress, deviceLogin: $deviceLogin, usernameLogin: $usernameLogin, username: $username, password: $password, connections: $connections, permissions: $permissions}';
-  }
+    "Id": id,
+    "Code": code,
+    "Name": name,
+    "Surname": surname,
+    "FatherName": fatherName,
+    "Birthdate": birthdate,
+    "Gender": gender,
+    "Phone": phone,
+    "Email": email,
+    "CompanyId": companyId,
+    "ModuleId": moduleId,
+    "RoleId": roleId,
+    "RegionId": regionId,
+    "DeviceId": deviceId,
+    "CreaterUser": createrUser,
+    "MacAddress": macAddress,
+    "DeviceLogin": deviceLogin,
+    "UsernameLogin": usernameLogin,
+    "Username": username,
+    "Password": password,
+    "FolloginService": folloginService,
+    "Connections": connections?.map((e) => e.toJson()).toList(),
+    "Permissions": permissions?.map((e) => e.toJson()).toList(),
+  };
 }
 
 class ConnectionRegister {
-  int? roleId;
-  String? roleName;
-  String? code;
-  String? fullName;
+  int? myAssociatedUsersId;
+  int? myAssociatedUsersRoleId;
+
 
   ConnectionRegister({
-    this.roleId,
-    this.roleName,
-    this.code,
-    this.fullName,
+    this.myAssociatedUsersId,
+    this.myAssociatedUsersRoleId,
+
   });
 
-  ConnectionRegister copyWith({
-    int? roleId,
-    String? roleName,
-    String? code,
-    String? fullName,
-  }) =>
-      ConnectionRegister(
-        roleId: roleId ?? this.roleId,
-        roleName: roleName ?? this.roleName,
-        code: code ?? this.code,
-        fullName: fullName ?? this.fullName,
-      );
-
-  factory ConnectionRegister.fromRawJson(String str) =>
-      ConnectionRegister.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory ConnectionRegister.fromJson(Map<String, dynamic> json) =>
-      ConnectionRegister(
-        roleId: json["roleId"],
-        roleName: json["roleName"],
-        code: json["code"],
-        fullName: json["fullName"],
-      );
 
   Map<String, dynamic> toJson() => {
-        "roleId": roleId,
-        "roleName": roleName,
-        "code": code,
-        "fullName": fullName,
-      };
+    "MyAssociatedUsersId": myAssociatedUsersId,
+    "myAssociatedUsersRoleId": myAssociatedUsersRoleId,
 
-  @override
-  String toString() {
-    return 'ConnectionRegister{roleId: $roleId, roleName: $roleName, code: $code, fullName: $fullName}';
-  }
+  };
+
+}
+
+class PermitionRegister {
+  int? perId;
+
+  PermitionRegister(this.perId);
+
+
+
+
+  String toRawJson() => json.encode(toJson());
+
+
+  Map<String, dynamic> toJson() => {
+    "perId": perId,
+  };
+
 }

@@ -255,7 +255,7 @@ class ControllerDashBorudExp extends GetxController {
                           ),
                           CustomText(
                             labeltext:
-                                "${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!.surname!}",
+                                "${loggedUserModel.userModel!.name.toString()} ${loggedUserModel.userModel!.surname.toString()}",
                             fontsize: 18,
                             color: Colors.black,
                             fontWeight: FontWeight.normal,

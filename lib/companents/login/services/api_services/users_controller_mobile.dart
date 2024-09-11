@@ -24,6 +24,7 @@ import 'package:zs_managment/widgets/simple_info_dialog.dart';
 export 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../../../../dio_config/custim_interceptor.dart';
 import '../../../local_bazalar/local_db_downloads.dart';
 import '../../../notifications/firebase_notificatins.dart';
 
@@ -41,7 +42,7 @@ class UserApiControllerMobile extends GetxController {
   String basVerenXeta = "";
   String languageIndex = "az";
   DrawerMenuController controller = Get.put(DrawerMenuController());
-  FirebaseNotyficationController fireTokenServiz=FirebaseNotyficationController();
+  //FirebaseNotyficationController fireTokenServiz=FirebaseNotyficationController();
   @override
   void onInit() {
     localUserServices.init();
@@ -68,7 +69,7 @@ class UserApiControllerMobile extends GetxController {
     if (dviceId.value.isNotEmpty) {
       String val=await localUserServices.getCanGetBaseUrl();
       if(val=="Bos"){
-        getCompanyUrlByDivaceId();
+        loginWithMobileDviceId("aa");
       }else{
         changeLoading();
         loginWithMobileDviceId(val);
@@ -98,10 +99,10 @@ class UserApiControllerMobile extends GetxController {
     Get.reset(clearRouteBindings: true); SystemNavigator.pop();
   }
 
-  Future<void> getCompanyUrlByDivaceId() async {
-    changeLoading();
+
+  Future<void> loginWithMobileDviceId(String baseUrl) async {
     languageIndex = await getLanguageIndex();
-    dviceType = checkDviceType.getDviceType();
+    changeLoading();
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(
@@ -110,155 +111,87 @@ class UserApiControllerMobile extends GetxController {
         callback: () {},
       ));
       changeLoading();
-    } else {
+    }
+    else {
       try {
         final response = await dio.post(
-          "${AppConstands.baseUrlsMain}v1/User/serviceurl-by-device",
-          data: {"deviceId": dviceId.value, "macAddress": "123-123-123-123"},
+          AppConstands.baseUrlsMain+"/v1/LoginController/LoginWithDeviceId",
+          data: {
+              "deviceId":  dviceId.value,
+              "firebaseId": "string",
+              "macAddress": "string"
+
+          },
           options: Options(
-            // receiveTimeout: const Duration(seconds: 60),
+            receiveTimeout: const Duration(seconds: 60),
             headers: {
               'Lang': languageIndex,
               'Device': dviceType,
-              'abs': '1234589'
+              'smr': '12345'
             },
             validateStatus: (_) => true,
             contentType: Headers.jsonContentType,
             responseType: ResponseType.json,
           ),
         );
-        print("Request url:"+response.requestOptions.headers.toString());
-        print("Request:"+response.data.toString());
+        print("login-with-username :"+response.requestOptions.path.toString());
+        print("login-with-username :"+response.data.toString());
+        print("login-with-username code:"+response.statusCode.toString());
+
         if (response.statusCode == 404) {
           changeLoading();
-          basVerenXeta = "baglantierror".tr;
           Get.dialog(ShowInfoDialog(
             icon: Icons.error,
             messaje: "baglantierror".tr,
-            callback: () {
-              changeLoading();
-            },
+            callback: () {},
           ));
-        }
-        else {
+        } else {
           if (response.statusCode == 200) {
-            String baseUrl=response.data['result'];
-            await localUserServices.addCanGetBaseUrl(baseUrl);
-            loginWithMobileDviceId(baseUrl);
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            basVerenXeta = baseResponce.exception!.message!;
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {
-                changeLoading();
-              },
-            ));
-            if (baseResponce.code == 400) {
-              deviceIdMustvisible.value = true;
+            LoggedUserModel modelLogged = LoggedUserModel.fromJson(response.data['Result']);
+            print("logged user :"+modelLogged.toString());
+            localUserServices.init();
+            localUserServices.addUserToLocalDB(modelLogged);
+            Future.delayed(const Duration(seconds: 1), () {
+              Get.offNamed(RouteHelper.mobileMainScreen,arguments: modelLogged);
+              changeLoading();
+            });
 
+          } else {
+            if(response.data['Exception']!=null){
+              ModelExceptions model = ModelExceptions.fromJson(response.data['Exception']);
+              Get.dialog(ShowInfoDialog(
+                icon: Icons.error_outline,
+                messaje: model.message.toString(),
+                callback: () {},
+              ));
+              basVerenXeta= model.message.toString();
+              deviceIdMustvisible.value=true;
+              changeLoading();
             }
+
           }
         }
       } on DioException catch (e) {
+        if (e.response != null) {
+          print(e.response!.data);
+          print(e.response!.headers);
+          print(e.response!.requestOptions);
+        } else {
+          // Something happened in setting up or sending the request that triggered an Error
+          print("Xeta : "+e.requestOptions.toString());
+          print("Xeta : "+e.message.toString());
+        }
+        print(e.message);
+        Get.dialog(ShowInfoDialog(
+          icon: Icons.error_outline,
+          messaje: e.message??"Xeta bas verdi.Adminle elaqe saxlayin",
+          callback: () {},
+        ));
         changeLoading();
-        if (e.response != null) {
-        } else {}
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "baglantierror".tr,
-          callback: () {
-            changeLoading();
-          },
-        ));
       }
     }
   }
 
-
-  Future<void> loginWithMobileDviceId(String baseUrl) async {
-    print("baseUrl :"+baseUrl.toString());
-    languageIndex = await getLanguageIndex();
-    dviceType = checkDviceType.getDviceType();
-    var data={
-    "deviceId": dviceId.value,
-    "firebaseId": await fireTokenServiz.getFireToken(),
-    "macAddress": "123-123-123-123"
-    };
-    print("Data :"+data.toString());
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.dialog(ShowInfoDialog(
-        icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
-        callback: () {
-          changeLoading();
-        },
-      ));
-    } else {
-      try {
-        final response = await dio.post(
-          "$baseUrl/api/v1/User/login-with-deviceid", data:data,
-          options: Options(
-            // receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456'
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        print("request:"+response.requestOptions.headers.toString());
-        print("responce:"+response.data.toString());
-        if (response.statusCode == 404) {
-          basVerenXeta = "baglantierror".tr;
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {
-              changeLoading();
-            },
-          ));
-        } else {
-          if (response.statusCode == 200) {
-            TokenModel modelToken = TokenModel.fromJson(response.data['result']);
-            getLoggedUserInfo(modelToken,baseUrl);
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            basVerenXeta = baseResponce.exception!.message!;
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {
-                changeLoading();
-              },
-            ));
-            if (baseResponce.code == 400) {
-              deviceIdMustvisible.value = true;
-
-            }
-          }
-        }
-      } on DioException catch (e) {
-        if (e.response != null) {
-          changeLoading();
-        } else {
-          changeLoading();
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {
-            changeLoading();
-          },
-        ));
-      }
-    }
-  }
 
   Future<void> getLoggedUserInfo(TokenModel modelToken, String baseUrl) async {
     languageIndex = await getLanguageIndex();

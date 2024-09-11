@@ -42,7 +42,7 @@ class FirebaseUserApiControllerMobile extends GetxController {
   String basVerenXeta = "";
   String languageIndex = "az";
   DrawerMenuController controller = Get.put(DrawerMenuController());
-  FirebaseNotyficationController fireTokenServiz=FirebaseNotyficationController();
+  //FirebaseNotyficationController fireTokenServiz=FirebaseNotyficationController();
   @override
   void onInit() {
     localUserServices.init();

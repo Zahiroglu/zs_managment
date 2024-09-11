@@ -76,49 +76,48 @@ class UserMainScreenController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
+        messaje: "Internet baglanti problemi",
         callback: () {
+          Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get("${loggedUserModel.baseUrl}/api/v1/User/user-counts",
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        if (response.statusCode == 200) {
-           DialogHelper.hideLoading();
-           userLisanceLoading.value=false;
-           selectedModelAllUsersLisance.value=ModelAllUsersLisance.fromJson(response.data['result']);
-           listModelAllUsersLisanceUserCount.value=  selectedModelAllUsersLisance.value.userCounts!;
-        }else{
-          DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
-        }
+      final response = await ApiClient().dio(false).get(
+        AppConstands.baseUrlsMain+"/Admin/getCompanyLisanceCountDetail?compId="+loggedUserModel.userModel!.companyId.toString(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        userLisanceLoading.value=false;
+        selectedModelAllUsersLisance.value=ModelAllUsersLisance.fromJson(response.data['Result']);
+        listModelAllUsersLisanceUserCount.value=  selectedModelAllUsersLisance.value.userCounts!;
+      }
     }
     List<ModelAllUsersItemsLisance>list=[];
     if(selectedModelAllUsersLisance.value.userCounts!=null){
-    for (var element in selectedModelAllUsersLisance.value.userCounts!) {
-      ModelAllUsersItemsLisance count=ModelAllUsersItemsLisance(
-        roleName: element.name,
-        totalCount: element.userCounts!.fold<int>(0, (sum, element) => sum+element.totalCount!),
-        usedCount:  element.userCounts!.fold<int>(0, (sum, element) => sum+element.usedCount!)
-      );
-      list.add(count);
-    }}
+      for (var element in selectedModelAllUsersLisance.value.userCounts!) {
+        ModelAllUsersItemsLisance count=ModelAllUsersItemsLisance(
+            roleName: element.name,
+            totalCount: element.userCounts!.fold<int>(0, (sum, element) => sum+element.totalCount!),
+            usedCount:  element.userCounts!.fold<int>(0, (sum, element) => sum+element.usedCount!)
+        );
+        list.add(count);
+      }}
     ModelAllUsersLisanceUserCount totalModel=ModelAllUsersLisanceUserCount(
-      name: "usercount".tr,
-      id: -1,
-      userCounts: list
+        name: "usercount".tr,
+        id: -1,
+        userCounts: list
     );
     listModelAllUsersLisanceUserCount.insert(0, totalModel);
     for (var element in listModelAllUsersLisanceUserCount.value) {
@@ -132,8 +131,11 @@ class UserMainScreenController extends GetxController {
   }
 
 
-  void exportUsersDataGridToExcel(GlobalKey<SfDataGridState> key) {
+  Future<void> exportUsersDataGridToExcel(GlobalKey<SfDataGridState> key) async {
+    DialogHelper.showLoading("excelyaradilir".tr);
+    await Future.delayed(const Duration(seconds: 2));
     serviceExcell.exportUsersDataGridToExcel(key);
+    DialogHelper.hideLoading();
     update();
   }
 
@@ -157,40 +159,38 @@ class UserMainScreenController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
+        messaje: "Internet baglanti problemi",
         callback: () {
+          Get.back();
         },
       ));
     } else {
-        final response = await ApiClient().dio(false).get(
-          "${loggedUserModel.baseUrl}/api/v1/User/all-users",
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          var userlist = json.encode(response.data['result']);
-          print("userlist :"+userlist.toString());
-          List list = jsonDecode(userlist);
-          for(var i in list){
-            UserModel model=UserModel.fromJson(i);
-            listUsers!.add(model);
-          }
-
-        }else{
-          DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
+      final response = await ApiClient().dio(false).get(
+        "${loggedUserModel.baseUrl}/api/v1/User/all-users",
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'abs': '123456',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        var userlist = json.encode(response.data['result']);
+        print("userlist :"+userlist.toString());
+        List list = jsonDecode(userlist);
+        for(var i in list){
+          UserModel model=UserModel.fromJson(i);
+          listUsers!.add(model);
         }
+
+      }
 
     }
 
@@ -200,6 +200,9 @@ class UserMainScreenController extends GetxController {
   }
 
   Future<void> getAllUsersByParams(ModelRequestUsersFilter element) async {
+    if(element.moduleId==-1){
+      element.moduleId=null;
+    }
     openUserInfoTable.value=false;
     listUsers!.clear();
     userloadding.value = true;
@@ -214,44 +217,43 @@ class UserMainScreenController extends GetxController {
       DialogHelper.hideLoading();
       Get.dialog(ShowInfoDialog(
         icon: Icons.network_locked_outlined,
-        messaje: "internetError".tr,
+        messaje: "Internet baglanti problemi",
         callback: () {
+          Get.back();
         },
       ));
-    } else {
-        final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/api/v1/User/users-by-filter",
-         data: element.toJson(),
-          //data: data,
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          var userlist = json.encode(response.data['result']);
-          List list = jsonDecode(userlist);
-          for(var i in list){
-            UserModel model=UserModel.fromJson(i);
-            listUsers!.add(model);
-          }
-
-        }else{
-          DialogHelper.hideLoading();
-          exeptionHandler.handleExeption(response);
+    }
+    else {
+      final response = await ApiClient().dio(false).post(
+        AppConstands.baseUrlsMain+"/Admin/getAllUserMyModuleIdMyltyProcedure",
+        data: element.toJson(),
+        //data: data,
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        var userlist = json.encode(response.data['Result']);
+        print("userlist :"+userlist.toString());
+        List list = jsonDecode(userlist);
+        for(var i in list){
+          UserModel model=UserModel.fromJson(i);
+          listUsers!.add(model);
         }
 
-    }
+      }
 
+    }
     DialogHelper.hideLoading();
     userloadding.value = false;
     update();
@@ -366,7 +368,7 @@ class ModelAllUsersItemsLisance {
   int? usedCount;
   int? remainderCount;
   int? totalCount;
-  int? countLimit;
+  //int? countLimit;
   bool? newUserAccess;
 
   ModelAllUsersItemsLisance({
@@ -375,7 +377,7 @@ class ModelAllUsersItemsLisance {
     this.usedCount,
     this.remainderCount,
     this.totalCount,
-    this.countLimit,
+    // this.countLimit,
     this.newUserAccess,
   });
 
@@ -394,7 +396,7 @@ class ModelAllUsersItemsLisance {
         usedCount: usedCount ?? this.usedCount,
         remainderCount: remainderCount ?? this.remainderCount,
         totalCount: totalCount ?? this.totalCount,
-        countLimit: countLimit ?? this.countLimit,
+        // countLimit: countLimit ?? this.countLimit,
         newUserAccess: newUserAccess ?? this.newUserAccess,
       );
 
@@ -408,7 +410,7 @@ class ModelAllUsersItemsLisance {
     usedCount: json["usedCount"],
     remainderCount: json["remainderCount"],
     totalCount: json["totalCount"],
-    countLimit: json["countLimit"],
+    // countLimit: json["countLimit"],
     newUserAccess: json["newUserAccess"],
   );
 
@@ -418,12 +420,12 @@ class ModelAllUsersItemsLisance {
     "usedCount": usedCount,
     "remainderCount": remainderCount,
     "totalCount": totalCount,
-    "countLimit": countLimit,
+    // "countLimit": countLimit,
     "newUserAccess": newUserAccess,
   };
 
   @override
   String toString() {
-    return 'ModelAllUsersItemsLisance{roleId: $roleId, roleName: $roleName, usedCount: $usedCount, remainderCount: $remainderCount, totalCount: $totalCount, countLimit: $countLimit, newUserAccess: $newUserAccess}';
+    return 'ModelAllUsersItemsLisance{roleId: $roleId, roleName: $roleName, usedCount: $usedCount, remainderCount: $remainderCount, totalCount: $totalCount, newUserAccess: $newUserAccess}';
   }
 }

@@ -25,7 +25,7 @@ import 'package:zs_managment/companents/satis_emeliyyatlari/sifaris_detallari/sc
 import 'package:zs_managment/companents/local_bazalar/local_app_setting.dart';
 import 'package:zs_managment/companents/setting_panel/setting_panel_controller.dart';
 import 'package:zs_managment/companents/setting_panel/setting_screen_mobile.dart';
-import 'package:zs_managment/companents/users_panel/user_panel_windows_screen.dart';
+import 'package:zs_managment/companents/users_panel/user_panel_screen.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -545,9 +545,9 @@ class DrawerMenuController extends getx.GetxController {
         pageView = ScreenBaseDownloads(fromFirstScreen: false,drawerMenuController: this,
         );
         break;
-      case "userController":
+      case "admincontrol":
         if (desktop) {
-          pageView = const UserPanelWindosScreen();
+          pageView = const UserPanelScreen();
         } else {
           pageView =  UsersPanelScreenMobile(drawerMenuController: this,);
         }

@@ -27,6 +27,12 @@ class ModelUserPermissions {
   int? selectIcon;
   @HiveField(8)
   int? category;
+  @HiveField(9)
+  bool? byUser;
+  @HiveField(10)
+  String? dvc;
+  @HiveField(11)
+  String? url;
 
   ModelUserPermissions({
     this.id,
@@ -38,6 +44,9 @@ class ModelUserPermissions {
     this.icon,
     this.selectIcon,
     this.category,
+    this.byUser,
+    this.dvc,
+    this.url,
   });
 
   ModelUserPermissions copyWith({
@@ -50,6 +59,9 @@ class ModelUserPermissions {
     int? icon,
     int? selectIcon,
     int? category,
+    bool? byUser,
+    String? dvc,
+    String? url,
   }) =>
       ModelUserPermissions(
         id: id ?? this.id,
@@ -61,6 +73,9 @@ class ModelUserPermissions {
         icon: icon ?? this.icon,
         selectIcon: selectIcon ?? this.selectIcon,
         category: category ?? this.category,
+        byUser: byUser ?? this.byUser,
+        dvc: dvc ?? this.dvc,
+        url: url ?? this.url,
       );
 
   factory ModelUserPermissions.fromRawJson(String str) => ModelUserPermissions.fromJson(json.decode(str));
@@ -68,15 +83,18 @@ class ModelUserPermissions {
   String toRawJson() => json.encode(toJson());
 
   factory ModelUserPermissions.fromJson(Map<String, dynamic> json) => ModelUserPermissions(
-    id: json["id"],
-    code: json["code"],
-    name: json["name"],
-    val: json["val"],
-    valName: json["valName"],
-    screen: json["screen"],
-    icon: json["icon"],
-    selectIcon: json["selectIcon"],
-    category: json["category"],
+    id: json["PerId"],
+    code: json["Code"],
+    name: json["Name"],
+    val: json["Val"],
+    valName: json["Explanation"],
+    screen: json["Screen"],
+    icon: json["Icon"],
+    selectIcon: json["SelectIcon"],
+    category: json["Category"],
+    byUser: json["ByUser"],
+    dvc: json["Dvc"],
+    url: json["Url"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -89,10 +107,13 @@ class ModelUserPermissions {
     "icon": icon,
     "selectIcon": selectIcon,
     "category": category,
+    "byUser": byUser,
+    "dvc": dvc,
+    "url": url,
   };
 
   @override
   String toString() {
-    return 'ModelUserPermissions{id: $id, code: $code, name: $name, val: $val, valName: $valName, screen: $screen, icon: $icon, selectIcon: $selectIcon, category: $category}';
+    return 'ModelUserPermissions{code: $code, name: $name, val: $val, valName: $valName, screen: $screen, category: $category, byUser: $byUser, dvc: $dvc, url: $url}';
   }
 }

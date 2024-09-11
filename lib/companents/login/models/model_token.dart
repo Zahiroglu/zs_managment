@@ -32,8 +32,8 @@ class TokenModel {
   String toRawJson() => json.encode(toJson());
 
   factory TokenModel.fromJson(Map<String, dynamic> json) => TokenModel(
-    accessToken: json["accessToken"],
-    refreshToken: json["refreshToken"],
+    accessToken: json["AccessToken"],
+    refreshToken: json["RefreshToken"],
   );
 
   Map<String, dynamic> toJson() => {

@@ -23,7 +23,7 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
   int slideIndex = 0;
   late PageController controller;
   LocalUserServices userLocalService=LocalUserServices();
-  FirebaseNotyficationController firebaseNotyficationController=FirebaseNotyficationController();
+  //FirebaseNotyficationController firebaseNotyficationController=FirebaseNotyficationController();
 
   Widget _buildPageIndicator(bool isCurrentPage) {
     return Container(
@@ -52,8 +52,8 @@ class _LoginMobileFirstScreenState extends State<LoginMobileFirstScreen> {
     mySLides = getSlides();
     controller = PageController(initialPage: slideIndex);
     controller.addListener(() => _changeIndex());
-    firebaseNotyficationController.reguestForFirebaseNoty();
-    firebaseNotyficationController.fireBaseMessageInit();
+    // firebaseNotyficationController.reguestForFirebaseNoty();
+    // firebaseNotyficationController.fireBaseMessageInit();
   }
 
   _changeIndex() {

@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
-
 import '../../routs/rout_controller.dart';
 
 class ControllerAnbar extends GetxController {

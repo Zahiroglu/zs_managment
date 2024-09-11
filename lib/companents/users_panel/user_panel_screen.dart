@@ -18,14 +18,14 @@ import 'package:zs_managment/widgets/widget_notdata_found.dart';
 
 import '../../widgets/loagin_animation.dart';
 
-class UserPanelWindosScreen extends StatefulWidget {
-  const UserPanelWindosScreen({super.key});
+class UserPanelScreen extends StatefulWidget {
+  const UserPanelScreen({super.key});
 
   @override
-  State<UserPanelWindosScreen> createState() => _UserPanelWindosScreenState();
+  State<UserPanelScreen> createState() => _UserPanelScreenState();
 }
 
-class _UserPanelWindosScreenState extends State<UserPanelWindosScreen>
+class _UserPanelScreenState extends State<UserPanelScreen>
     with SingleTickerProviderStateMixin {
   UserMainScreenController controller = Get.put(UserMainScreenController());
   final GlobalKey<SfDataGridState> _key = GlobalKey<SfDataGridState>();

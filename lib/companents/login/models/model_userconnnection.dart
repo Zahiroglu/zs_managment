@@ -16,12 +16,15 @@ class ModelUserConnection {
   String? code;
   @HiveField(3)
   String? fullName;
+  @HiveField(4)
+  int? userId;
 
   ModelUserConnection({
     this.roleId,
     this.roleName,
     this.code,
     this.fullName,
+    this.userId,
   });
 
   ModelUserConnection copyWith({
@@ -29,12 +32,14 @@ class ModelUserConnection {
     String? roleName,
     String? code,
     String? fullName,
+    int? userId,
   }) =>
       ModelUserConnection(
         roleId: roleId ?? this.roleId,
         roleName: roleName ?? this.roleName,
         code: code ?? this.code,
         fullName: fullName ?? this.fullName,
+        userId: userId ?? this.userId,
       );
 
   factory ModelUserConnection.fromRawJson(String str) => ModelUserConnection.fromJson(json.decode(str));
@@ -42,10 +47,11 @@ class ModelUserConnection {
   String toRawJson() => json.encode(toJson());
 
   factory ModelUserConnection.fromJson(Map<String, dynamic> json) => ModelUserConnection(
-    roleId: json["roleId"],
-    roleName: json["roleName"],
-    code: json["code"],
-    fullName: json["fullName"],
+    roleId: json["RoleId"],
+    roleName: json["RoleName"],
+    code: json["Code"],
+    fullName: json["FullName"],
+    userId: json["UserId"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -53,5 +59,11 @@ class ModelUserConnection {
     "roleName": roleName,
     "code": code,
     "fullName": fullName,
+    "UserId": userId,
   };
+
+  @override
+  String toString() {
+    return 'ModelUserConnection{roleId: $roleId, roleName: $roleName, code: $code, fullName: $fullName}';
+  }
 }
