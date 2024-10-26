@@ -361,7 +361,7 @@ class _UsersPanelScreenMobileState extends State<UsersPanelScreenMobile>
                                 ? Colors.white
                                 : Colors.black,
                             labeltext: element.name!.toUpperCase(),
-                            fontsize: 18,
+                            fontsize: 16,
                             fontWeight: FontWeight.w700),
                       ),
                       Expanded(

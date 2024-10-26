@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 
+import '../../login/models/model_userspormitions.dart';
+
 class ModelCariHesabatlar {
   String? label;
   IconData? icon;
@@ -74,8 +76,9 @@ class ModelCariHesabatlar {
 
     return cariHesabatlar;
   }
-  List<ModelCariHesabatlar> getAllUserHesabatlarListy() {
+  List<ModelCariHesabatlar> getAllUserHesabatlarListy(List<ModelUserPermissions> list) {
     List<ModelCariHesabatlar> cariHesabatlar = [];
+    List<ModelCariHesabatlar> gonderilen = [];
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Temsilci rut hesabati",
         icon: Icons.list_alt,
@@ -93,14 +96,6 @@ class ModelCariHesabatlar {
         needDate: true,
         key: "tzhesab"));
     cariHesabatlar.add(ModelCariHesabatlar(
-        label: "Temsilci izleme hesabati",
-        icon: Icons.spatial_tracking_outlined,
-        color: Colors.grey,
-        needTime: true,
-        //routName: RouteHelper.getCariSatilanCesidRaporu(),
-        needDate: true,
-        key: "tizlemehesab"));
-    cariHesabatlar.add(ModelCariHesabatlar(
         label: "Temsilci xetalar raporu",
         icon: Icons.error,
         color: Colors.red,
@@ -108,7 +103,7 @@ class ModelCariHesabatlar {
         //routName: RouteHelper.getCariSatilanCesidRaporu(),
         needDate: true,
         key: "terror"));
-
-    return cariHesabatlar;
+    gonderilen=cariHesabatlar.where((e)=>list.any((a)=>a.code==e.key)).toList();
+    return gonderilen;
   }
 }

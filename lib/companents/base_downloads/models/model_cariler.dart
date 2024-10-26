@@ -79,28 +79,6 @@ class ModelCariler {
 
   String toRawJson() => json.encode(toJson());
 
-  factory ModelCariler.fromJson(Map<String, dynamic> json) => ModelCariler(
-    code: json["code"],
-    name: json["name"],
-    fullAddress: json["fullAddress"],
-    ownerPerson: json["ownerPerson"],
-    phone: json["phone"],
-    postalCode: json["postalCode"],
-    area: json["area"],
-    category: json["category"],
-    regionalDirectorCode: json["regionalDirectorCode"],
-    salesDirectorCode: json["salesDirectorCode"],
-    forwarderCode: json["forwarderCode"],
-    latitude: json["latitude"],
-    longitude: json["longitude"],
-    district: json["district"],
-    tin: json["tin"],
-    mainCustomer: json["mainCustomer"],
-    debt: json["debt"],
-    action: json["action"],
-    days: json["days"]==null?null:List<Day>.from(json["days"].map((x) => Day.fromJson(x))),
-  );
-
   Map<String, dynamic> toJson() => {
     "code": code,
     "name": name,
@@ -127,6 +105,29 @@ class ModelCariler {
   String toString() {
     return 'ModelCariler{code: $code, name: $name, fullAddress: $fullAddress, ownerPerson: $ownerPerson, phone: $phone, postalCode: $postalCode, area: $area, category: $category, regionalDirectorCode: $regionalDirectorCode, salesDirectorCode: $salesDirectorCode, latitude: $latitude, longitude: $longitude, district: $district, tin: $tin, mainCustomer: $mainCustomer, debt: $debt, action: $action, days: $days, forwarderCode: $forwarderCode, ziyaretSayi: $ziyaretSayi, sndeQalmaVaxti: $sndeQalmaVaxti, rutGunu: $rutGunu, mesafe: $mesafe, mesafeInt: $mesafeInt, ziyaret: $ziyaret}';
   }
+  factory ModelCariler.fromJson(Map<String, dynamic> json) => ModelCariler(
+    code: json["Code"],
+    name: json["Name"],
+    fullAddress: json["FullAddress"],
+    ownerPerson: json["OwnerPerson"],
+    phone: json["Phone"],
+    postalCode: json["PostalCode"],
+    area: json["Area"],
+    category: json["Category"],
+    regionalDirectorCode: json["RegionalDirectorCode"],
+    salesDirectorCode: json["SalesDirectorCode"],
+    forwarderCode: json["ForwarderCode"],
+    latitude: double.tryParse(json["Latitude"].toString().replaceAll(RegExp(r','),".").toString()),
+    longitude: double.tryParse(json["Longitude"].toString().replaceAll(RegExp(r','),".").toString()),
+    district: json["District"],
+    tin: json["Tin"],
+    mainCustomer: json["MainCustomer"],
+    debt: json["Debt"],
+    action: json["Action"],
+    days: json["Days"]==null?null:List<Day>.from(json["Days"].map((x) => Day.fromJson(x))),
+  );
+
+
 }
 
 @HiveType(typeId: 26)
@@ -135,10 +136,13 @@ class Day {
   int day;
   @HiveField(2)
   int orderNumber;
+  @HiveField(3)
+  String? cariKod;
 
   Day({
     required this.day,
     required this.orderNumber,
+    this.cariKod,
   });
 
   factory Day.fromRawJson(String str) => Day.fromJson(json.decode(str));
@@ -146,13 +150,15 @@ class Day {
   String toRawJson() => json.encode(toJson());
 
   factory Day.fromJson(Map<String, dynamic> json) => Day(
-    day: json["day"],
-    orderNumber: json["orderNumber"],
+    day: json["DayNumber"],
+    orderNumber: json["OrderNumber"],
+    cariKod: json["CariCode"],
   );
 
   Map<String, dynamic> toJson() => {
-    "day": day,
-    "orderNumber": orderNumber,
+    "DayNumber": day,
+    "OrderNumber": orderNumber,
+    "CariCode": cariKod??"0",
   };
 
   @override

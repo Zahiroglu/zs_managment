@@ -23,6 +23,7 @@ class CustomTextField extends StatefulWidget {
       this.updizayn = true,
       this.align=TextAlign.start,
       this.isvalid,
+      this.readOnly=false,
         this.isImportant=false,
         this.hintTextColor=Colors.grey,
         this.textColor,
@@ -39,6 +40,7 @@ class CustomTextField extends StatefulWidget {
   double fontsize;
   String? valdateText;
   bool? isvalid;
+  bool readOnly=false;
   bool? hasBourder;
   bool obscureText=false;
   double? containerHeight;
@@ -94,6 +96,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       : null,
                   // onSaved: (value) => _email = value,
                   controller: widget.controller,
+                  readOnly: widget.readOnly,
                   keyboardType: widget.inputType,
                   style: TextStyle(
                     fontSize: widget.fontsize,
@@ -175,9 +178,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
               onFieldSubmitted: (s){
                 widget.onSubmit!.call(s);
               },
+              readOnly: widget.readOnly,
               textAlignVertical: TextAlignVertical.center,
               textAlign: widget.align,
-              obscureText: widget.obscureText!,
+              obscureText: widget.obscureText,
               validator: (value) =>
               value!.isEmpty
                   ? widget.isvalid!

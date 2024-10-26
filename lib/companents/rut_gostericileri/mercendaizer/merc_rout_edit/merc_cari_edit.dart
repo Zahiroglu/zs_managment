@@ -1,13 +1,12 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
-import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
-import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/controller_mercpref.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
@@ -17,6 +16,7 @@ import 'package:zs_managment/companents/users_panel/new_user_create/new_user_con
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
+import 'package:zs_managment/helpers/user_permitions_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -24,13 +24,12 @@ import 'package:zs_managment/widgets/custom_text_field.dart';
 import 'package:zs_managment/widgets/dialog_select_simpleuser_select.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 
+import '../../../local_bazalar/local_db_downloads.dart';
+import '../../../login/models/user_model.dart';
+
 class ScreenMercCariEdit extends StatefulWidget {
   ControllerMercPref controllerMercPref;
 
-  // MercCustomersDatail modelMerc;
-  // List<UserModel> listUsers;
-  // String mercKod;
-  // String mercAd;
 
   ScreenMercCariEdit(
       {required this.controllerMercPref,super.key});
@@ -57,10 +56,13 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   List<SellingData> selectedSellingDatas=[];
   List<Day> selectedDays=[];
   ExeptionHandler exeptionHandler=ExeptionHandler();
+  UserPermitionsHelper userPermitionsHelper=UserPermitionsHelper();
+  LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
 
   @override
   void initState() {
-    for (var element in widget.controllerMercPref.listUsers.value) {
+    userService.init();
+    for (var element in widget.controllerMercPref.listUsers) {
       listUsers.add(User(
         code: element.code,
         roleId: element.roleId,
@@ -94,7 +96,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         child: SafeArea(
             child: Scaffold(
       appBar: AppBar(
-        title: CustomText(labeltext: widget.controllerMercPref.selectedMercBaza.value.user!.name),
+        title: CustomText(labeltext: widget.controllerMercPref.selectedCustomers.value.name!),
       ),
       body: _body(context),
     )));
@@ -106,27 +108,56 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         children: [
           _infoMerc(context),
           _infoPlan(context),
-          widget.controllerMercPref.loggedUserModel.userModel!.permissions!.any((element) => element.id==29)?widgetRutGunleri(context):SizedBox(),
-  Align(
+          userPermitionsHelper.hasUserPermition("canEditMercCustomersRutDay", userService.getLoggedUser().userModel!.permissions!)?widgetRutGunleri(context):const SizedBox(),
+          Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 20),
-              child: CustomElevetedButton(
-                clicble: buttonClicble,
-                width: MediaQuery.of(context).size.width / 2,
-                height: 40,
-                elevation: 10,
-                borderColor: Colors.green,
-                surfaceColor: Colors.white,
-                textColor: Colors.green,
-                fontWeight: FontWeight.bold,
-                label: "change".tr,
-                cllback: () async {
-                  await _sendDataToBase();
-                },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 10,),
+                  Expanded(
+                    flex: 5,
+                    child: CustomElevetedButton(
+                      icon: Icons.delete,
+                      clicble: buttonClicble,
+                      height: 40,
+                      elevation: 10,
+                      borderColor: Colors.red,
+                      surfaceColor: Colors.white,
+                      textColor: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      label: "sil".tr,
+                      cllback: () async {
+                       _musteriniBazadanSil();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 20,),
+                  Expanded(
+                    flex: 5,
+                    child: CustomElevetedButton(
+                      icon: Icons.change_circle,
+                      clicble: buttonClicble,
+                      height: 40,
+                      elevation: 10,
+                      borderColor: Colors.green,
+                      surfaceColor: Colors.white,
+                      textColor: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      label: "change".tr,
+                      cllback: () async {
+                        await _sendDataToBase();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10,),
+                ],
               ),
             ),
-          )
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height*0.3,)
         ],
       ),
     );
@@ -134,7 +165,9 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
 
   Widget _infoMerc(BuildContext context) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        await localBaseDownloads.init();
+        List<UserModel> listUsersSelected = localBaseDownloads.getAllConnectedUserFromLocal();
         Get.dialog(DialogSimpleUserSelect(
           selectedUserCode: widget.controllerMercPref.selectedMercBaza.value.user!.code,
           getSelectedUse: (selectedUser) {
@@ -143,7 +176,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
               selectedMercAd = selectedUser.name!;
             });
           },
-          listUsers:  widget.controllerMercPref.listUsers,
+          listUsers:  listUsersSelected,
           vezifeAdi: "mercler".tr,
         ));
       },
@@ -258,7 +291,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                   children: [
                     DecoratedBox(
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
+                          borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(10),
                               topRight: Radius.circular(10)),
                           color: Colors.grey.withOpacity(0.3)),
@@ -270,14 +303,14 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                           children: [
                             Row(
                               children: [
-                                CustomText(labeltext: "plan".tr + " : "),
+                                CustomText(labeltext: "${"plan".tr} : "),
                                 CustomText(
                                     labeltext: modelMerc.totalPlan.toString())
                               ],
                             ),
                             Row(
                               children: [
-                                CustomText(labeltext: "satis".tr + " : "),
+                                CustomText(labeltext: "${"satis".tr} : "),
                                 CustomText(
                                     labeltext:
                                         modelMerc.totalSelling.toString())
@@ -285,7 +318,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                             ),
                             Row(
                               children: [
-                                CustomText(labeltext: "zaymal".tr + " : "),
+                                CustomText(labeltext: "${"zaymal".tr} : "),
                                 CustomText(
                                     labeltext: modelMerc.totalRefund.toString())
                               ],
@@ -295,9 +328,9 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                       ),
                     ),
                     SizedBox(
-                      height: modelMerc.sellingDatas!.length * 110,
+                      height: modelMerc.sellingDatas!.length * 120,
                       child: ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.zero,
                           itemCount: modelMerc.sellingDatas!.length,
                           itemBuilder: (c, index) {
@@ -390,19 +423,29 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                 )
               ],
             ),
-            widget.controllerMercPref.loggedUserModel.userModel!.permissions!.any((element) => element.id==31)? Positioned(
+            userPermitionsHelper.hasUserPermition("canEditMercCustomersPlan", userService.getLoggedUser().userModel!.permissions!)? Positioned(
                 top: 0,
                 right: 0,
-                height: 50,
-                child: CustomElevetedButton(
-                  label: "planDeyis".tr,
-                  cllback: () {
+                height: 80,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: (){},
+                      splashColor: Colors.grey,
+                      icon: Icon(Icons.delete,color: Colors.red,),
+                    ),
+                    IconButton(
+                      onPressed: (){
+                        _editPlanDialogAc(element);
+                      },
+                      splashColor: Colors.orange,
+                      icon: Icon(Icons.mode_edit,color: Colors.orange,),
+                    ),
 
-                    _editPlanDialogAc(element);
-                  },
-                  elevation: 5,
-                  icon: Icons.edit,
-                )):SizedBox()
+                  ],
+                )):const SizedBox()
           ],
         ),
       ),
@@ -539,6 +582,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
   }
 
   Widget dialogEditPlan(SellingData element) {
+
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -581,7 +625,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                   const SizedBox(
                     height: 15,
                   ),
-                  Align(
+                  userPermitionsHelper.hasUserPermition("canEditMercCustomersPlan", userService.getLoggedUser().userModel!.permissions!)?Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 15),
@@ -595,14 +639,14 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                           textColor: Colors.white,
                           cllback: () {
                             if(ctNewPlan.text.isNotEmpty){
-                            _btnPlandeyis(element);
+                              _btnPlandeyis(element);
                             }else{
                               Fluttertoast.showToast(msg: "yeniPlanError".tr,gravity: ToastGravity.TOP,backgroundColor: Colors.red);
                             }
                           },
                           label:"tesdiqle".tr),
                     ),
-                  )
+                  ):const SizedBox()
                 ],
               ),
             ),
@@ -614,7 +658,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                       ctNewPlan.clear();
                       Get.back();
                     },
-                    child: Icon(Icons.clear,color: Colors.red,)))
+                    child: const Icon(Icons.clear,color: Colors.red,)))
           ],
         ),
       ),
@@ -637,7 +681,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       Get.dialog(DialogSelectExpeditor(sellingDatas:modelMerc.sellingDatas!,getDataBack: (listSelectedExp){
         selectedSellingDatas=listSelectedExp;
         Get.back();
-        _callApiServiz();
+        _callApiUpdateData();
       },));
 
     }else {
@@ -645,13 +689,13 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       setState(() {
         buttonClicble = false;
       });
-      await _callApiServiz();
+      await _callApiUpdateData();
       setState(() {
         buttonClicble = true;
       });
     }}
 
-  Future<void> _callApiServiz() async {
+  Future<void> _callApiUpdateData() async {
     if(rutGunuBir){
       selectedDays.add(Day(day: 1, orderNumber: 0));
     }if(rutGunuIki){
@@ -676,6 +720,8 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       forwarderCodes: lisexpeditorlar
     );
     ModelUpdateMercCustomers modelUpdateMercCustomers=ModelUpdateMercCustomers(
+      auiditCode: "0",
+      sprCode: "0",
       merchCode:  widget.controllerMercPref.selectedMercBaza.value.user!.code,
       days: selectedDays,
       changeMerch: changeMerch,
@@ -699,15 +745,112 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         },
       ));
     } else {
-      final response = await ApiClient().dio(true).put(
-        "${loggedUserModel.baseUrl}/api/v1/Sales/edit-merch-customer",
+      final response = await ApiClient().dio(true).post(
+        "${loggedUserModel.baseUrl}/MercSystem/UpdateCustomerInMercBaze",
         data: modelUpdateMercCustomers.toJson(),
         options: Options(
           receiveTimeout: const Duration(seconds: 60),
           headers: {
             'Lang': languageIndex,
             'Device': dviceType,
-            'abs': '123456',
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        Get.dialog(ShowInfoDialog(
+          color: Colors.teal,
+          icon: Icons.verified,
+          messaje: response.data["Result"],
+          callback: () {
+            widget.controllerMercPref.updateData(modelUpdateMercCustomers,listPlanlar.length==widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length,selectedSellingDatas);
+            if(listPlanlar.length==widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length){
+              Get.back();
+              Get.back();
+              Get.back(result: "OK");
+            }else{
+              Get.back();
+              Get.back(result: "OK");
+            }
+          },
+        ));
+      }else{
+        exeptionHandler.handleExeption(response);
+
+      }
+    }
+  }
+
+
+  Future<String> getLanguageIndex() async {
+    return await Hive.box("myLanguage").get("langCode") ?? "az";
+  }
+
+  void _musteriniBazadanSil() {}
+
+  Future<void> _callApiDeleteCustomer() async {
+    if(rutGunuBir){
+      selectedDays.add(Day(day: 1, orderNumber: 0));
+    }if(rutGunuIki){
+      selectedDays.add(Day(day: 2, orderNumber: 0));
+    }if(rutGunuUc){
+      selectedDays.add(Day(day: 3, orderNumber: 0));
+    }if(rutGunuDort){
+      selectedDays.add(Day(day: 4, orderNumber: 0));
+    }if(rutGunuBes){
+      selectedDays.add(Day(day: 5, orderNumber: 0));
+    }if(rutGunuAlti){
+      selectedDays.add(Day(day: 6, orderNumber: 0));
+    }
+    List<String> lisexpeditorlar=[];
+    List<Plan> listPlanlar=[];
+    for (var element in selectedSellingDatas) {
+      lisexpeditorlar.add(element.forwarderCode);
+      listPlanlar.add(Plan(forwarderCode: element.forwarderCode, plan: element.plans));
+    }
+    ChangeMerch changeMerch=ChangeMerch(
+        newMerchCode: selectedMercKod,
+        forwarderCodes: lisexpeditorlar
+    );
+    ModelUpdateMercCustomers modelUpdateMercCustomers=ModelUpdateMercCustomers(
+      sprCode: "0",
+        auiditCode: "0",
+        merchCode:  widget.controllerMercPref.selectedMercBaza.value.user!.code,
+        days: selectedDays,
+        changeMerch: changeMerch,
+        customerCode: modelMerc.code!,
+        plans:listPlanlar
+    );
+    await userService.init();
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    DialogHelper.showLoading("mDeyisdirilir".tr, false);
+    String languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      DialogHelper.hideLoading();
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {
+          Get.back();
+        },
+      ));
+    } else {
+      final response = await ApiClient().dio(true).put(
+        "${loggedUserModel.baseUrl}/MercSystem/UpdateCustomerInMercBaze",
+        data: modelUpdateMercCustomers.toJson(),
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
             "Authorization": "Bearer $accesToken"
           },
           validateStatus: (_) => true,
@@ -739,9 +882,6 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
     }
   }
 
-  Future<String> getLanguageIndex() async {
-    return await Hive.box("myLanguage").get("langCode") ?? "az";
-  }
 
 
 }

@@ -33,5 +33,10 @@ class MyConnectedUsersCurrentLocation {
     "notInWorkUserCount": notInWorkUserCount,
     "errorCount": errorCount,
   };
+
+  @override
+  String toString() {
+    return 'MyConnectedUsersCurrentLocation{userLocation: $userLocation, notInWorkUserCount: $notInWorkUserCount, errorCount: $errorCount, notInWorkUsers: $notInWorkUsers}';
+  }
 }
 

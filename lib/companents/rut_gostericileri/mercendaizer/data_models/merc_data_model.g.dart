@@ -79,13 +79,15 @@ class MercCustomersDatailAdapter extends TypeAdapter<MercCustomersDatail> {
       totalPlan: fields[20] as double?,
       totalSelling: fields[21] as double?,
       totalRefund: fields[22] as double?,
+      ziyaretSayi: fields[23] as int?,
+      sndeQalmaVaxti: fields[24] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MercCustomersDatail obj) {
     writer
-      ..writeByte(22)
+      ..writeByte(24)
       ..writeByte(1)
       ..write(obj.code)
       ..writeByte(2)
@@ -129,7 +131,11 @@ class MercCustomersDatailAdapter extends TypeAdapter<MercCustomersDatail> {
       ..writeByte(21)
       ..write(obj.totalSelling)
       ..writeByte(22)
-      ..write(obj.totalRefund);
+      ..write(obj.totalRefund)
+      ..writeByte(23)
+      ..write(obj.ziyaretSayi)
+      ..writeByte(24)
+      ..write(obj.sndeQalmaVaxti);
   }
 
   @override
@@ -205,13 +211,15 @@ class UserMercAdapter extends TypeAdapter<UserMerc> {
       totalPlan: fields[3] as double,
       totalSelling: fields[4] as double,
       totalRefund: fields[5] as double,
+      roleId: fields[6] as int?,
+      roleName: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserMerc obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(1)
       ..write(obj.code)
       ..writeByte(2)
@@ -221,7 +229,11 @@ class UserMercAdapter extends TypeAdapter<UserMerc> {
       ..writeByte(4)
       ..write(obj.totalSelling)
       ..writeByte(5)
-      ..write(obj.totalRefund);
+      ..write(obj.totalRefund)
+      ..writeByte(6)
+      ..write(obj.roleId)
+      ..writeByte(7)
+      ..write(obj.roleName);
   }
 
   @override

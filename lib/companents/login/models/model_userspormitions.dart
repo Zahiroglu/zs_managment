@@ -1,6 +1,3 @@
-// To parse this JSON data, do
-//
-//     final modelUserPermissions = modelUserPermissionsFromJson(jsonString);
 
 import 'dart:convert';
 import 'package:hive/hive.dart';
@@ -33,6 +30,10 @@ class ModelUserPermissions {
   String? dvc;
   @HiveField(11)
   String? url;
+  @HiveField(12)
+  bool? isSubMenu;
+  @HiveField(13)
+  int? mainPerId;
 
   ModelUserPermissions({
     this.id,
@@ -47,6 +48,8 @@ class ModelUserPermissions {
     this.byUser,
     this.dvc,
     this.url,
+    this.isSubMenu,
+    this.mainPerId,
   });
 
   ModelUserPermissions copyWith({
@@ -62,6 +65,8 @@ class ModelUserPermissions {
     bool? byUser,
     String? dvc,
     String? url,
+    bool? isSubMenu,
+    int? mainPerId,
   }) =>
       ModelUserPermissions(
         id: id ?? this.id,
@@ -76,6 +81,8 @@ class ModelUserPermissions {
         byUser: byUser ?? this.byUser,
         dvc: dvc ?? this.dvc,
         url: url ?? this.url,
+        isSubMenu: isSubMenu ?? this.isSubMenu,
+        mainPerId: mainPerId ?? this.mainPerId,
       );
 
   factory ModelUserPermissions.fromRawJson(String str) => ModelUserPermissions.fromJson(json.decode(str));
@@ -95,6 +102,8 @@ class ModelUserPermissions {
     byUser: json["ByUser"],
     dvc: json["Dvc"],
     url: json["Url"],
+    isSubMenu: json["IsSubmenu"],
+    mainPerId: json["MainPerId"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -110,6 +119,8 @@ class ModelUserPermissions {
     "byUser": byUser,
     "dvc": dvc,
     "url": url,
+    "mainPerId": mainPerId,
+    "isSubMenu": isSubMenu,
   };
 
   @override

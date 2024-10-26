@@ -7,11 +7,11 @@ import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
-import '../../../mercendaizer/connected_users/controller_rout_detail_user.dart';
+import '../../../mercendaizer/connected_users/controller_mymerch_system.dart';
 import '../../../mercendaizer/connected_users/model_main_inout.dart';
 
 class ScreenExpRoutPerform extends StatefulWidget {
-  ControllerRoutDetailUser controllerRoutDetailUser;
+  ControllerMyMerchSystem controllerRoutDetailUser;
   String userModel;
   List<ModelCariler> listCariler;
 
@@ -544,6 +544,7 @@ class _ScreenExpRoutPerformState extends State<ScreenExpRoutPerform>
           ),
         ));
   }
+
   _widgetUmumiCariTapItems(String s, int tip, Color color) {
     int customersCount = 0;
     if (tip == 0) {

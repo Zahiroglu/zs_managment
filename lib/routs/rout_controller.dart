@@ -16,14 +16,13 @@ import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/s
 import 'package:zs_managment/companents/satis_emeliyyatlari/giris_cixis_zamani/screen_sifarisler.dart';
 import 'package:zs_managment/companents/tapsiriqlar/screen_complate_cari_task.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
-import '../companents/base_downloads/screen_download_base.dart';
 import '../companents/hesabatlar/cari_hesabat/cari_ziyaret_hesabati/screen_cari_ziyaret_hesabati.dart';
 import '../companents/hesabatlar/cari_hesabat/cari_ziyaret_hesabati/screen_ziyaretler_detay.dart';
 import '../companents/hesabatlar/errors_hesabat/screen_errors.dart';
-import '../companents/hesabatlar/user_hesabatlar/liveTrack/screen_livetrack_report.dart';
+import '../companents/hesabatlar/user_hesabatlar/liveTrack_report/screen_livetrack_report.dart';
 import '../companents/hesabatlar/user_hesabatlar/temsilci_uzrez_ziyaret_hesabati/temsilci_uzre_ziyaret_hesabati.dart';
 import '../companents/live_track/screen_not_in_work.dart';
-import '../companents/live_track/screen_search_live_users.dart';
+import '../companents/login/register/register_by_user.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/merc_cari_edit.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/screen_rutsirasi_edit.dart';
 import '../companents/rut_gostericileri/mercendaizer/screens/info_mercmusteri_datail.dart';
@@ -44,6 +43,7 @@ class RouteHelper {
   /////////////////constants
   static const String wellcome = '/wellcome_screen';
   static const String mobileLisanceScreen = '/mobile_lisance';
+  static const String registerByUser = '/register_by_user';
   static const String mobileLoginFistScreen = '/mobileLoginFistScreen';
   static const String windosLoginScreen = '/windosLoginScreen';
   static const String mobileMainScreen = '/mobileMainScreen';
@@ -85,6 +85,7 @@ class RouteHelper {
   static const String screenNotInWorkUsers = '/screenNotInWorkUsers';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
+  static String getScreenRegisterByUser() => registerByUser;
   static String getMobileLisanceScreen() => mobileLisanceScreen;
   static String getLoginMobileFirstScreen() => mobileLoginFistScreen;
   static String getWindosLoginScreen() => windosLoginScreen;
@@ -131,9 +132,14 @@ class RouteHelper {
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
+        name: registerByUser, page: () {
+      return   ScreenRegisterByUser(model:Get.arguments[0],deviceId: Get.arguments[1],);
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
         name: screenNotInWorkUsers, page: () {
       return   ScreenNotInWorkUsers(listModel:Get.arguments[0]);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
@@ -141,203 +147,175 @@ class RouteHelper {
         name: screenErrorsReport, page: () {
       return   ScreenErrorsReport(mustgetAllUsers: Get.arguments[0],startDay: Get.arguments[1]
         ,endDay: Get.arguments[2],userCode: Get.arguments[3],userRoleId: Get.arguments[4],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenTemZiyaret, page: () {
       return   TemsilciUzreZiyaretHesabati(listGirisCixis: Get.arguments[0],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenLiveTrackReport, page: () {
-      return   ScreenLiveTrackReport(listGirisCixis: Get.arguments[0],);
-      return  Container();
+      return   ScreenLiveTrackReport(roleId: Get.arguments[0],userCode: Get.arguments[1],
+      rutDay: Get.arguments[2],startDay: Get.arguments[3],endDay: Get.arguments[4],);
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariSatilanCesidRaporu, page: () {
       return   ScreenCariCesidHesabati(tarixIlk: Get.arguments[0],tarixSon: Get.arguments[1],cariKod: Get.arguments[2],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariSatilanCesidRaporuMal, page: () {
       return   ScreenCariCesidHesabatiMal(listCesidler: Get.arguments[0],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariQaytarmaRaporu, page: () {
       return   Center(child: CustomText(labeltext: "cariQaytarmaRaporu"),);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariTaninanMallarHesabati, page: () {
       return   Center(child: CustomText(labeltext: "cariTaninanMallarHesabati"),);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariZiyaretHesabatlari, page: () {
       return  ScreenCariZiyaretHesabat(tarixIlk: Get.arguments[0],tarixSon: Get.arguments[1],cariKod: Get.arguments[2],cariAd: Get.arguments[3]);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariZiyaretDetay, page: () {
       return  ScreenZiyaretlerDetay(selectedUser: Get.arguments[0],listVisits: Get.arguments[1],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariMuqavilelerHesabati, page: () {
       return   Center(child: CustomText(labeltext: "cariMuqavilelerHesabati"),);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: cariSatisHesabati, page: () {
       return   ScreenCariHereket(tarixIlk: Get.arguments[0],tarixSon: Get.arguments[1],cariKod: Get.arguments[2],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: fackturaHesabati, page: () {
       return   ScreenFaktura(recNom: Get.arguments[0],senedTipi: Get.arguments[1],);
-      return  Container();
     }),
     GetPage(name: wellcome, page: () {
       return const WellCameScreen();
-      return  Container();
     }),
     GetPage(
         name: mobileLisanceScreen,
         page: () {
       return  ScreenRequestCheckMobile();
-      return  Container();
     }),
     GetPage(name: mobileLoginFistScreen, page: () {
       return const LoginMobileFirstScreen();
-      return  Container();
     }),
-    GetPage(name: mobileMainScreen, page: () {
+    GetPage(
+        transition: Transition.downToUp,
+        transitionDuration: const Duration(milliseconds: 1),
+        name: mobileMainScreen, page: () {
       return  const MainScreenMobile();
-     // return  const MainScreenMobileYeni();
-      return  Container();
     }),
     GetPage(name: windosMainScreen, page: () {
       return  BaseScreenWindows(loggedUserModel: Get.arguments,);
-      return  Container();
     }),
     GetPage(
         transition: Transition.downToUp,
         transitionDuration: const Duration(seconds: 1),
         name: mobileSearchMusteriMobile, page: () {
       return  ScreenSearchMusteri(listCariler: Get.arguments,);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 600),
         name: mobileMapSettingMobile, page: () {
       return  const ScreenMapsSetting();
-      return  Container();
     }),
     GetPage(
         transition: Transition.upToDown,
         transitionDuration: const Duration(milliseconds: 600),
         name: mobileScreenMusteriDetail, page: () {
       return   ScreenMusteriDetail(modelCariler: Get.arguments[0],availableMap: Get.arguments[1],);
-      return  Container();
     }),
     GetPage(
         name: bazaDownloadMobile, page: () {
       return   FirstScreenBaseDownloads(fromFirstScreen: true);
-      return  Container();
     }),
     GetPage(
         transition: Transition.downToUp,
         transitionDuration: const Duration(milliseconds: 500),
         name: mobileGirisCixisHesabGunluk, page: () {
       return   ScreenGunlukGirisCixis(model: Get.arguments,);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: anbarCesidlerSehfesi, page: () {
       return   ScreanAnbarRapor(listMehsullar:Get.arguments[0],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenSatis, page: () {
       return   ScreenSifarisler(modelCari: Get.arguments[0],satisTipi: Get.arguments[1],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenSifarisElaveEt, page: () {
       return   ScreenSifarisElaveEt(controllerSatis: Get.arguments);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenExpRoutDetail, page: () {
       return   ScreenExpRoutPerform(controllerRoutDetailUser: Get.arguments[0],userModel: Get.arguments[1], listCariler:Get.arguments[2],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenExpRoutDetailMap, page: () {
       return   ScreenUserRoutPerformMap(controllerRoutDetailUser: Get.arguments);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenEditMusteriDetailScreen, page: () {
       return   EditMusteriDetailScreen(controllerRoutDetailUser: Get.arguments[0], routname: Get.arguments[1],cariModel: Get.arguments[2],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.upToDown,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercRoutDatail, page: () {
       return   ScreenMercRoutDatail(modelMercBaza: Get.arguments[0],listGirisCixis: Get.arguments[1],listUsers: Get.arguments[2],isMenumRutum: false,drawerMenuController: DrawerMenuController(),);
-      return  Container();
     }),
     GetPage(
         transition: Transition.upToDown,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercMusteriDetail, page: () {
       return   ScreenMercMusteriDetail(controllerMercPref: Get.arguments[0]);
-      return  Container();
     }),
     GetPage(
         transition: Transition.upToDown,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenZiyaretGirisCixis, page: () {
-      return   ScreenZiyaretGirisCixis(modelGunlukGirisCixis: Get.arguments[0],modelCariler: Get.arguments[2],adSoyad: Get.arguments[1],);
-      return  Container();
+      return   ScreenZiyaretGirisCixis(modelGunlukGirisCixis: Get.arguments[0],modelCariler: Get.arguments[2]??[],adSoyad: Get.arguments[1],);
     }),
     // GetPage(
     //     transition: Transition.upToDown,
@@ -351,49 +329,43 @@ class RouteHelper {
         transitionDuration: const Duration(milliseconds: 500),
         name: screenEditMercMusteri, page: () {
       return   ScreenMercCariEdit(controllerMercPref: Get.arguments[0]);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercRutSiraEdit, page: () {
       return   ScreenMercRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],rutGunuInt: Get.arguments[2],mercKod: Get.arguments[3],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenExpRutSiraEdit, page: () {
       return   ScreenExpRutSirasiEdit(listRutGunleri: Get.arguments[0],rutGunu: Get.arguments[1],);
-      return  Container();
     }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenMercAdinaMusteriAt, page: () {
       return   ScreenMercAdinaMusteriEalveEtme(modelCari:  Get.arguments[0],listUsers: Get.arguments[1],availableMap: Get.arguments[2],);
-      return  Container();
     }),
-    GetPage(
-        transition: Transition.rightToLeft,
-        transitionDuration: const Duration(milliseconds: 500),
-        name: searchLiveUsers, page: () {
-      return   SearchLiveUsers(listUsers:Get.arguments);
-      return  Container();
-    }),
+    // GetPage(
+    //     transition: Transition.rightToLeft,
+    //     transitionDuration: const Duration(milliseconds: 500),
+    //     name: searchLiveUsers, page: () {
+    //   return   SearchLiveUsers(listUsers:Get.arguments);
+    //   return  Container();
+    // }),
     GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: createNewTask, page: () {
-      return   ScreenCreateNewTask();
-      return  Container();
+      return   const ScreenCreateNewTask();
     }),
     GetPage(
         transition: Transition.rightToLeftWithFade,
         transitionDuration: const Duration(milliseconds: 200),
         name: screenComplateCariTask, page: () {
       return   ScreenComplateCariTask(modelResponceTask: Get.arguments[0], loggedUserModel: Get.arguments[1]);
-      return  Container();
     }),
   ];
 }

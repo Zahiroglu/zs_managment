@@ -31,6 +31,8 @@ class ModelUsercCurrentLocationReqeust {
   double? batteryLevel;
   @HiveField(12)
   String? sendingStatus;
+  @HiveField(13)
+  double? locationHeading;
 
   ModelUsercCurrentLocationReqeust({
     this.userCode,
@@ -46,6 +48,7 @@ class ModelUsercCurrentLocationReqeust {
     this.inputCustomerDistance,
     this.batteryLevel,
     this.sendingStatus,
+    this.locationHeading,
   });
 
   factory ModelUsercCurrentLocationReqeust.fromRawJson(String str) => ModelUsercCurrentLocationReqeust.fromJson(json.decode(str));
@@ -65,6 +68,7 @@ class ModelUsercCurrentLocationReqeust {
     pastInputCustomerName: json["pastInputCustomerName"],
     inputCustomerDistance: json["inputCustomerDistance"],
     batteryLevel: json["batteryLevel"].toDouble(),
+    locationHeading: json["heading"].toDouble(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -80,5 +84,6 @@ class ModelUsercCurrentLocationReqeust {
     "pastInputCustomerName": pastInputCustomerName,
     "inputCustomerDistance": inputCustomerDistance,
     "batteryLevel": batteryLevel,
+    "heading": locationHeading,
   };
 }

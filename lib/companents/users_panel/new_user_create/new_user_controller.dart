@@ -23,6 +23,7 @@ import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import '../../login/models/base_responce.dart';
 import '../mobile/dialog_select_user_connections_mobile.dart';
 import '../models_user/model_requet_allusers.dart';
+import 'package:intl/intl.dart';
 
 class NewUserController extends GetxController {
   LocalUserServices localUserServices = LocalUserServices();
@@ -40,6 +41,7 @@ class NewUserController extends GetxController {
   TextEditingController cttextPassword = TextEditingController();
   RxBool cttextPasswordError = false.obs;
   TextEditingController cttextEmail = TextEditingController();
+  TextEditingController cttextDogumTarix = TextEditingController();
   TextEditingController cttextAd = TextEditingController();
   RxBool cttextAdError = false.obs;
   TextEditingController cttextSoyad = TextEditingController();
@@ -48,7 +50,6 @@ class NewUserController extends GetxController {
   RxBool cttextCodeError = false.obs;
   TextEditingController cttextTelefon = TextEditingController();
   RxBool cttextTelefonError = false.obs;
-  TextEditingController cttextDogumTarix = TextEditingController();
   RxBool regionSecilmelidir = false.obs;
   RxBool ilkinMelumatlarSecildi = false.obs;
   RxBool regionSecildi = false.obs;
@@ -97,6 +98,7 @@ class NewUserController extends GetxController {
     super.onInit();
     localUserServices.init();
     loggedUserModel = localUserServices.getLoggedUser();
+    cttextDogumTarix.text=selectedDate.value;
     // TODO: implement onInit
   }
 
@@ -518,15 +520,47 @@ class NewUserController extends GetxController {
         incrementCustomStepper(controller);
         var permitions = json.encode(response.data['Result']);
         print("Gelen permitionslar :"+permitions);
-
         List list = jsonDecode(permitions);
         for (int i = 0; i < list.length; i++) {
           //var s = jsonEncode(list.elementAt(i));
-          ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(list.elementAt(i));
-          for (var element in model.permissions!) {
-            listPermisions.add(element);
-          }
-          listModelSelectUserPermitions.add(model);
+          ModelUserPermissions model = ModelUserPermissions.fromJson(list.elementAt(i));
+          listPermisions.add(model);
+        }
+        var sehfeler=listPermisions.where((e)=>e.category==1).toList();
+        var donwloadBases=listPermisions.where((e)=>e.category==2).toList();
+        var hesabatlar=listPermisions.where((e)=>e.category==3).toList();
+        var digetIcazeler=listPermisions.where((e)=>e.category==0).toList();
+        if(sehfeler.isNotEmpty){
+          listModelSelectUserPermitions.add(ModelSelectUserPermitions(
+              name: "sehfeler".tr,
+              id: 1,
+              permissions: sehfeler
+          ));
+
+        }
+        if(donwloadBases.isNotEmpty){
+          listModelSelectUserPermitions.add(ModelSelectUserPermitions(
+              name: "endirmeler".tr,
+              id: 2,
+              permissions: donwloadBases
+          ));
+
+        }
+        if(hesabatlar.isNotEmpty){
+          listModelSelectUserPermitions.add(ModelSelectUserPermitions(
+              name: "hesabatlar".tr,
+              id: 3,
+              permissions: hesabatlar
+          ));
+
+        }
+        if(digetIcazeler.isNotEmpty){
+          listModelSelectUserPermitions.add(ModelSelectUserPermitions(
+              name: "digericazeler".tr,
+              id: 0,
+              permissions: digetIcazeler
+          ));
+
         }
         if (listModelSelectUserPermitions.isNotEmpty) {
           changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
@@ -740,7 +774,7 @@ class NewUserController extends GetxController {
     }
     for (var element in selectedListUserConnections) {
       ConnectionRegister cn = ConnectionRegister(
-          myAssociatedUsersId: element.id,
+          myAssociatedUserCode: element.code,
           myAssociatedUsersRoleId: element.roleId);
       listcon.add(cn);
     }
@@ -762,7 +796,7 @@ class NewUserController extends GetxController {
         deviceLogin: canUseMobile.value,
         deviceId: cttextDviceId.text,
         connections: listcon,
-        birthdate: cttextDogumTarix.text.trim(),
+        birthdate: selectedDate.value,
         createrUser: loggedUserModel.userModel!.id,
         macAddress: "00wdew555151",
         username: cttextUsername.text,
@@ -812,36 +846,36 @@ class NewUserController extends GetxController {
     String day = "01";
     String ay = "01";
     var order = DateTime.now();
-    if (order.day.toInt() < 10) {
-      day = "0${order.day}";
-    } else {
-      day = order.day.toString();
-    }
-    if (order.month.toInt() < 10) {
-      ay = "0${order.month}";
-    } else {
-      ay = order.month.toString();
-    }
-    selectedDate.value = "$day.$ay.${order.year}";
-    cttextDogumTarix.text = "$day.$ay.${order.year}";
+    // if (order.day.toInt() < 10) {
+    //   day = "0${order.day}";
+    // } else {
+    //   day = order.day.toString();
+    // }
+    // if (order.month.toInt() < 10) {
+    //   ay = "0${order.month}";
+    // } else {
+    //   ay = order.month.toString();
+    // }
+
+    // selectedDate.value = "$day.$ay.${order.year}";
+    selectedDate.value =  DateFormat('yyyy-MM-dd').format(order);
+    cttextDogumTarix.text =  DateFormat('yyyy-MM-dd').format(order);
   }
 
   void callDatePicker() async {
-    String day = "01";
-    String ay = "01";
-    var order = await getDate();
-    if (order!.day.toInt() < 10) {
-      day = "0${order.day}";
-    } else {
-      day = order.day.toString();
-    }
-    if (order.month.toInt() < 10) {
-      ay = "0${order.month}";
-    } else {
-      ay = order.month.toString();
-    }
-    selectedDate.value = "$day.$ay.${order.year}";
-    cttextDogumTarix.text = "$day.$ay.${order.year}";
+    DateTime? order = await getDate();
+    // if (order!.day.toInt() < 10) {
+    //   day = "0${order.day}";
+    // } else {
+    //   day = order.day.toString();
+    // }
+    // if (order.month.toInt() < 10) {
+    //   ay = "0${order.month}";
+    // } else {
+    //   ay = order.month.toString();
+    // }
+    selectedDate.value =  DateFormat('yyyy-MM-dd').format(order!);
+    cttextDogumTarix.text =  DateFormat('yyyy-MM-dd').format(order);
   }
 
   Future<DateTime?> getDate() {
@@ -1255,12 +1289,12 @@ class RegisterUserModel {
 }
 
 class ConnectionRegister {
-  int? myAssociatedUsersId;
+  String? myAssociatedUserCode;
   int? myAssociatedUsersRoleId;
 
 
   ConnectionRegister({
-    this.myAssociatedUsersId,
+    this.myAssociatedUserCode,
     this.myAssociatedUsersRoleId,
 
   });
@@ -1270,7 +1304,7 @@ class ConnectionRegister {
 
 
   Map<String, dynamic> toJson() => {
-    "MyAssociatedUsersId": myAssociatedUsersId,
+    "MyAssociatedUsersCode": myAssociatedUserCode,
     "myAssociatedUsersRoleId": myAssociatedUsersRoleId,
 
   };

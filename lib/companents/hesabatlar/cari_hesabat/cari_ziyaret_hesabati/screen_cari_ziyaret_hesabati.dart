@@ -102,9 +102,9 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
   Future<List<ModelCustuomerVisit>> getAllGirisCixisByCustomers() async {
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     var data = {
-      "code": widget.cariKod.toString(),
-      "startDate": widget.tarixIlk.toString(),
-      "endDate": widget.tarixSon.toString()
+      "cariCode": widget.cariKod.toString(),
+      "firstDate": widget.tarixIlk.toString(),
+      "lastDate": widget.tarixSon.toString()
     };
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -119,14 +119,14 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
     } else {
       try {
         final response = await ApiClient().dio(false).post(
-              "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-by-customers",
+              "${loggedUserModel.baseUrl}/Hesabatlar/GetCustomerGirisCixisByCariCode",
               data: data,
               options: Options(
                 receiveTimeout: const Duration(seconds: 60),
                 headers: {
                   'Lang': languageIndex,
                   'Device': dviceType,
-                  'abs': '123456',
+                  'SMR': '12345',
                   "Authorization": "Bearer $accesToken"
                 },
                 validateStatus: (_) => true,
@@ -142,7 +142,7 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
           ));
         } else {
           if (response.statusCode == 200) {
-            var dataModel = json.encode(response.data['result']);
+            var dataModel = json.encode(response.data['Result']);
             List listuser = jsonDecode(dataModel);
             for (var i in listuser) {
               ModelCustuomerVisit model = ModelCustuomerVisit.fromJson(i);

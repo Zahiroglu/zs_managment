@@ -1,14 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:lottie/lottie.dart';
 
-import '../services/api_services/firebase_users_controller_mobile.dart';
 
 //import 'package:platform_device_id/platform_device_id.dart';
 
@@ -29,7 +26,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 widgetLogoHisse(context),
-                SizedBox(
+                const SizedBox(
                   height: 60,
                 ),
                 Obx(() {
@@ -37,7 +34,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                       ? widgetAnimationYoxlanir(context)
                       : widgetMelumatTapilmadi();
                 }),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
               ],
@@ -53,7 +50,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomRight,
       child: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: CustomText(labeltext: "develop".tr),
       ),
     );
@@ -80,7 +77,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 color: Colors.blueAccent.withOpacity(0.6),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 5,
               ),
             ],
@@ -92,7 +89,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
 
   Padding widgetMelumatTapilmadi() {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -148,7 +145,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                 fontsize: 16,
                 color: Colors.blue,
                 fontWeight: FontWeight.w700),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             Obx(
@@ -180,10 +177,10 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                           fontsize: 16,
                           color: Colors.blue,
                           fontWeight: FontWeight.w600),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
-                      Icon(
+                      const Icon(
                         Icons.copy,
                         color: Colors.grey,
                       )
@@ -210,7 +207,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
           height: 80,
           width: 80,
         ),
-        SizedBox(
+        const SizedBox(
           width: 10,
         ),
         Column(
@@ -222,11 +219,11 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                 fontsize: 20,
                 latteSpacer: 0.2,
                 fontWeight: FontWeight.w800),
-            SizedBox(
+            const SizedBox(
               height: 2,
             ),
             CustomText(labeltext: "nezsystem".tr),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             Container(
@@ -234,7 +231,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
               width: 200,
               color: Colors.black,
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Obx(
@@ -242,7 +239,7 @@ class ScreenRequestCheckMobile extends StatelessWidget {
                   ? widgetDeviceIdhisse(context)
                   : const SizedBox(),
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
           ],

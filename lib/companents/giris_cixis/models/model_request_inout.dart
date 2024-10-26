@@ -22,7 +22,7 @@ class ModelRequestInOut {
   );
 
   Map<String, dynamic> toJson() => {
-    "user": List<dynamic>.from(userRole.map((x) => x.toJson())),
+    "userRole": List<dynamic>.from(userRole.map((x) => x.toJson())),
     "startDate": startDate,
     "endDate": endDate,
   };

@@ -19,7 +19,7 @@ import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
-
+import 'package:intl/intl.dart';
 import '../../login/models/model_userconnnection.dart';
 import '../models_user/model_requet_allusers.dart';
 
@@ -507,22 +507,55 @@ class UpdateUserController extends GetxController {
         DialogHelper.hideLoading();
         incrementCustomStepper(controller);
         var permitions = json.encode(response.data['Result']);
+        print("Gelen permitionslar :"+permitions);
         List list = jsonDecode(permitions);
         for (int i = 0; i < list.length; i++) {
-          List<ModelUserPermissions> lista=[];
-          ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(list.elementAt(i));
-          for (var element in model.permissions!) {
-            var elemntVal=selectedUserModel.value.permissions!.any((el)=>el.id==element.id);
-            var elementVal2=selectedUserModel.value.draweItems!.any((el)=>el.id==element.id);
-            print("selected user: "+selectedUserModel.toString());
-            print("selected userin permitionlari : "+selectedUserModel.value.permissions.toString());
-            print("axtarilan element id : "+element.id.toString());
-            print("axtarilan element userde var? : "+elemntVal.toString());
-            element.val=elemntVal||elementVal2?1:0;
-            listPermisions.add(element);
-            lista.add(element);
-          }
-          listModelSelectUserPermitions.add(model);
+          //var s = jsonEncode(list.elementAt(i));
+          ModelUserPermissions model = ModelUserPermissions.fromJson(list.elementAt(i));
+          var elemntVal=selectedUserModel.value.permissions!.any((el)=>el.id==model.id);
+          var elementVal2=selectedUserModel.value.draweItems!.any((el)=>el.id==model.id);
+          print("selected user: "+selectedUserModel.toString());
+          print("selected userin permitionlari : "+selectedUserModel.value.permissions.toString());
+          print("axtarilan element id : "+model.id.toString());
+          print("axtarilan element userde var? : "+elemntVal.toString());
+          model.val=elemntVal||elementVal2?1:0;
+          listPermisions.add(model);
+        }
+        var sehfeler=listPermisions.where((e)=>e.category==1).toList();
+        var donwloadBases=listPermisions.where((e)=>e.category==2).toList();
+        var hesabatlar=listPermisions.where((e)=>e.category==3).toList();
+        var digetIcazeler=listPermisions.where((e)=>e.category==0).toList();
+        if(sehfeler.isNotEmpty){
+          listModelSelectUserPermitions.add(ModelSelectUserPermitions(
+              name: "sehfeler".tr,
+              id: 1,
+              permissions: sehfeler
+          ));
+
+        }
+        if(donwloadBases.isNotEmpty){
+          listModelSelectUserPermitions.add(ModelSelectUserPermitions(
+              name: "endirmeler".tr,
+              id: 2,
+              permissions: donwloadBases
+          ));
+
+        }
+        if(hesabatlar.isNotEmpty){
+          listModelSelectUserPermitions.add(ModelSelectUserPermitions(
+              name: "hesabatlar".tr,
+              id: 3,
+              permissions: hesabatlar
+          ));
+
+        }
+        if(digetIcazeler.isNotEmpty){
+          listModelSelectUserPermitions.add(ModelSelectUserPermitions(
+              name: "digericazeler".tr,
+              id: 0,
+              permissions: digetIcazeler
+          ));
+
         }
         if (listModelSelectUserPermitions.isNotEmpty) {
           changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
@@ -530,10 +563,7 @@ class UpdateUserController extends GetxController {
 
         if(selectedUserModel.value.roleId==selectedVezife.value!.id) {
           for (var element in selectedUserModel.value.permissions!) {
-            listPermisions
-                .where((p) => p.id == element.id)
-                .first
-                .val = element.val;
+            listPermisions.where((p) => p.id == element.id).first.val = element.val;
           }
         }
         else{
@@ -793,7 +823,7 @@ class UpdateUserController extends GetxController {
       }}
     for (var element in selectedListUserConnections) {
       ConnectionRegister cn = ConnectionRegister(
-          myAssociatedUsersId: element.id,
+          myAssociatedUserCode: element.code,
           myAssociatedUsersRoleId: element.roleId);
       listcon.add(cn);
     }
@@ -873,36 +903,36 @@ class UpdateUserController extends GetxController {
     String day = "01";
     String ay = "01";
     var order = DateTime.now();
-    if (order.day.toInt() < 10) {
-      day = "0${order.day}";
-    } else {
-      day = order.day.toString();
-    }
-    if (order.month.toInt() < 10) {
-      ay = "0${order.month}";
-    } else {
-      ay = order.month.toString();
-    }
-    selectedDate.value = "$day.$ay.${order.year}";
-    cttextDogumTarix.text = "$day.$ay.${order.year}";
+    // if (order.day.toInt() < 10) {
+    //   day = "0${order.day}";
+    // } else {
+    //   day = order.day.toString();
+    // }
+    // if (order.month.toInt() < 10) {
+    //   ay = "0${order.month}";
+    // } else {
+    //   ay = order.month.toString();
+    // }
+
+    // selectedDate.value = "$day.$ay.${order.year}";
+    selectedDate.value =  DateFormat('yyyy-MM-dd').format(order);
+    cttextDogumTarix.text =  DateFormat('yyyy-MM-dd').format(order);
   }
 
   void callDatePicker() async {
-    String day = "01";
-    String ay = "01";
-    var order = await getDate();
-    if (order!.day.toInt() < 10) {
-      day = "0${order.day}";
-    } else {
-      day = order.day.toString();
-    }
-    if (order.month.toInt() < 10) {
-      ay = "0${order.month}";
-    } else {
-      ay = order.month.toString();
-    }
-    selectedDate.value = "$day.$ay.${order.year}";
-    cttextDogumTarix.text = "$day.$ay.${order.year}";
+    DateTime? order = await getDate();
+    // if (order!.day.toInt() < 10) {
+    //   day = "0${order.day}";
+    // } else {
+    //   day = order.day.toString();
+    // }
+    // if (order.month.toInt() < 10) {
+    //   ay = "0${order.month}";
+    // } else {
+    //   ay = order.month.toString();
+    // }
+    selectedDate.value =  DateFormat('yyyy-MM-dd').format(order!);
+    cttextDogumTarix.text =  DateFormat('yyyy-MM-dd').format(order);
   }
 
   Future<DateTime?> getDate() {
@@ -951,6 +981,7 @@ class UpdateUserController extends GetxController {
         element.val=mustAdd?1:0;
       }
     }
+
     update();
   }
 

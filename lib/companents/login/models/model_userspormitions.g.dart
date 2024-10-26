@@ -26,13 +26,18 @@ class ModelUserPermissionsAdapter extends TypeAdapter<ModelUserPermissions> {
       icon: fields[6] as int?,
       selectIcon: fields[7] as int?,
       category: fields[8] as int?,
+      byUser: fields[9] as bool?,
+      dvc: fields[10] as String?,
+      url: fields[11] as String?,
+      isSubMenu: fields[12] as bool?,
+      mainPerId: fields[13] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelUserPermissions obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +55,17 @@ class ModelUserPermissionsAdapter extends TypeAdapter<ModelUserPermissions> {
       ..writeByte(7)
       ..write(obj.selectIcon)
       ..writeByte(8)
-      ..write(obj.category);
+      ..write(obj.category)
+      ..writeByte(9)
+      ..write(obj.byUser)
+      ..writeByte(10)
+      ..write(obj.dvc)
+      ..writeByte(11)
+      ..write(obj.url)
+      ..writeByte(12)
+      ..write(obj.isSubMenu)
+      ..writeByte(13)
+      ..write(obj.mainPerId);
   }
 
   @override

@@ -7,6 +7,7 @@ import 'package:flutter_custom_month_picker/flutter_custom_month_picker.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
+import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
@@ -47,9 +48,9 @@ class ControllerMercPref extends GetxController {
   ExeptionHandler exeptionHandler=ExeptionHandler();
   UserPermitionsHelper userPermitionSercis = UserPermitionsHelper();
   String languageIndex = "az";
-
-
-
+  LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
+  RxInt rutGunu=0.obs;
+  RxBool dataLoading=true.obs;
   @override
   Future<void> onInit() async {
     await userLocalService.init();
@@ -66,67 +67,118 @@ class ControllerMercPref extends GetxController {
     super.dispose();
   }
 
-
   ////umumi cariler hissesi
-  Future<void> getAllCariler(MercDataModel model, List<ModelMainInOut> listGirisCixis,List<UserModel> listUser)async {
+  Future<void> getAllCariler( MercDataModel model, List<ModelMainInOut> listGirisCixis,List<UserModel> listUser) async {
+    totalIsSaati="";
+    dataLoading.value=true;
+    // Siyahıları təmizləyirik
     listRutGunleri.clear();
+    //listUsers.clear();
     modelInOut.clear();
     listZiyeretEdilmeyenler.clear();
     listMercBaza.clear();
     listTabItems.clear();
-    ////////////////////////
-    selectedMercBaza.value=model;
-    modelInOut.value=listGirisCixis;
-    if(listGirisCixis.isNotEmpty){
-      for (var element in modelInOut.first.modelInOutDays) {
-        listGunlukGirisCixislar.add(element);
-      }
+    listGunlukGirisCixislar.clear();
+    listGirisCixislar.clear();
+
+    // Model dəyərlərini yenidən təyin edirik
+    selectedMercBaza.value = model;
+
+    // Giriş-çıxış siyahısı boş deyilsə
+    if (listGirisCixis.isNotEmpty) {
+      modelInOut.value = listGirisCixis;
+      // Giriş-çıxış günlərini əlavə edirik
+      listGunlukGirisCixislar.addAll(modelInOut.first.modelInOutDays);
+      // Günlük giriş-çıxış siyahısını doldururuq
       for (var element in listGunlukGirisCixislar) {
         listGirisCixislar.addAll(element.modelInOut);
       }
     }
-    listUsers.value=listUser;
-    listMercBaza.clear();
+    // İstifadəçilərin siyahısını təyin edirik
+   // listUsers.value = listUser;
+    // Müştərilərin ziyarət məlumatlarını yeniləyirik
     for (MercCustomersDatail model in model.mercCustomersDatail!) {
-      model.ziyaretSayi = listGirisCixislar.where((a) => a.customerCode==model.code).toList().length;
-      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixislar.where((e) => e.customerCode == model.code).toList());
+      model.ziyaretSayi = listGirisCixislar
+          .where((a) => a.customerCode == model.code)
+          .length;
+      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixislar
+          .where((e) => e.customerCode == model.code)
+          .toList());
       listMercBaza.add(model);
     }
-    listRutGunleri.value = listMercBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
-    listZiyeretEdilmeyenler.value = listMercBaza.where((p0) => p0.ziyaretSayi==0).toList();
+    // Rut günlərini təyin edirik
+    listRutGunleri.value = listMercBaza
+        .where((p0) => p0.days!.any((element) => element.day == 1))
+        .toList();
+
+    // Ziyarət edilməyən müştəriləri təyin edirik
+    listZiyeretEdilmeyenler.value =listMercBaza.where((p0) => p0.ziyaretSayi == 0).toList();
+
+    // Tab elementlərini təyin edirik
     listTabItems.value = [
       ModelTamItemsGiris(
-          icon: Icons.list_alt,
-          color: Colors.green,
-          label: "umumiMusteri".tr,
-          selected: true,
-          keyText: "um"),
+        icon: Icons.list_alt,
+        color: Colors.green,
+        label: "umumiMusteri".tr,
+        selected: true,
+        keyText: "um",
+      ),
       ModelTamItemsGiris(
-          icon: Icons.calendar_month,
-          color: Colors.green,
-          label: "rutgunleri".tr,
-          selected: false,
-          keyText: "rh"),
-    ];
-    if(listGirisCixis.isNotEmpty){
-    if(listZiyeretEdilmeyenler.isNotEmpty){
-      listTabItems.add(ModelTamItemsGiris(
-          icon: Icons.visibility_off_outlined,
-          color: Colors.green,
-          label: "ziyaretEdilmeyen".tr,
-          selected: false,
-          keyText: "zem"));
-    }
-    listTabItems.add(ModelTamItemsGiris(
+        icon: Icons.calendar_month,
+        color: Colors.green,
+        label: "rutgunleri".tr,
+        selected: false,
+        keyText: "rh",
+      ),
+      ModelTamItemsGiris(
+        icon: Icons.visibility_off_outlined,
+        color: Colors.green,
+        label: "ziyaretEdilmeyen".tr,
+        selected: false,
+        keyText: "zem",
+      ),
+      ModelTamItemsGiris(
         icon: Icons.share_arrival_time,
         color: Colors.green,
         label: "ziyaretTarixcesi".tr,
         selected: false,
-        keyText: "um"
-    ));}
+        keyText: "um",
+      ),
+
+    ];
+    // Əgər giriş-çıxışlar varsa, ziyarət edilməyənlər üçün əlavə tab yaradırıq
+    // if (listGirisCixis.isNotEmpty) {
+    //   if (listZiyeretEdilmeyenler.isNotEmpty) {
+    //     listTabItems.add(
+    //       ModelTamItemsGiris(
+    //         icon: Icons.visibility_off_outlined,
+    //         color: Colors.green,
+    //         label: "ziyaretEdilmeyen".tr,
+    //         selected: false,
+    //         keyText: "zem",
+    //       ),
+    //     );
+    //   }
+    //   listTabItems.add(
+    //     ModelTamItemsGiris(
+    //       icon: Icons.share_arrival_time,
+    //       color: Colors.green,
+    //       label: "ziyaretTarixcesi".tr,
+    //       selected: false,
+    //       keyText: "um",
+    //     ),
+    //   );
+    // }
+
+    // Günə görə məlumatları doldururuq
     melumatlariGuneGoreDoldur();
+
+    // UI yenilənməsi üçün çağırış
+    dataLoading.value=false;
     update();
   }
+
+  ////
 
   void melumatlariGuneGoreDoldur() {
     DateTime dateTime = DateTime.now();
@@ -155,7 +207,6 @@ class ControllerMercPref extends GetxController {
 
   }
 
-
   String curculateTimeDistanceForVisit(List<ModelInOut> list) {
     int hours = 0;
     int minutes = 0;
@@ -179,44 +230,47 @@ class ControllerMercPref extends GetxController {
     }
   }
 
-
   String prettify(double d) {
     return d.toStringAsFixed(1).replaceFirst(RegExp(r'\.?0*$'), '');
   }
-
-
-  /// rut gunleri hissesi////
 
   String prettifya(String d) {
     return d.substring(0).replaceFirst(RegExp(r'\.?0*$'), '');
   }
 
   void changeRutGunu(int tr) {
+    loggedUserModel=userLocalService.getLoggedUser();
     listRutGunleri.clear();
     switch (tr) {
       case 1:
         listRutGunleri.value = listMercBaza.where((p0) => p0.days!.any((element) => element.day==1)).toList();
-        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,1);
+        if(userPermitionSercis.onlyByRutOrderNumber(loggedUserModel.userModel!.configrations!)){
+        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,1);}
         break;
       case 2:
         listRutGunleri.value = listMercBaza.where((p0) => p0.days!.any((element) => element.day==2)).toList();
-        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,2);
+        if(userPermitionSercis.onlyByRutOrderNumber(loggedUserModel.userModel!.configrations!)){
+          listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,2);}
         break;
       case 3:
         listRutGunleri.value = listMercBaza.where((p0) => p0.days!.any((element) => element.day==3)).toList();
-        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,3);
+        if(userPermitionSercis.onlyByRutOrderNumber(loggedUserModel.userModel!.configrations!)){
+          listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,3);}
         break;
       case 4:
         listRutGunleri.value = listMercBaza.where((p0) => p0.days!.any((element) => element.day==4)).toList();
-        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,4);
+        if(userPermitionSercis.onlyByRutOrderNumber(loggedUserModel.userModel!.configrations!)){
+          listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,4);}
         break;
       case 5:
         listRutGunleri.value = listMercBaza.where((p0) => p0.days!.any((element) => element.day==5)).toList();
-        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,5);
+        if(userPermitionSercis.onlyByRutOrderNumber(loggedUserModel.userModel!.configrations!)){
+          listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,5);}
         break;
       case 6:
         listRutGunleri.value = listMercBaza.where((p0) => p0.days!.any((element) => element.day==6)).toList();
-        listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,6);
+        if(userPermitionSercis.onlyByRutOrderNumber(loggedUserModel.userModel!.configrations!)){
+          listRutGunleri.value=sortListByDayOrderNumber(listRutGunleri,6);}
         break;
     }
     update();
@@ -226,20 +280,36 @@ class ControllerMercPref extends GetxController {
     List<MercCustomersDatail> newList = [];
     final Map<String, MercCustomersDatail> profileMap = {};
     for (var item in listRutGunleri) {
-      profileMap[item.days!
-          .where((element) => element.day == rutgunu)
-          .first
-          .orderNumber
-          .toString()] = item;
+      var matchingDays = item.days!.where((element) => element.day == rutgunu);
+      for (var day in matchingDays) {
+        // Check if the orderNumber key already exists in profileMap
+        if (!profileMap.containsKey((day.orderNumber).toString())) {
+          profileMap[(day.orderNumber).toString()] = item;
+        }else{
+          profileMap[(day.orderNumber+1).toString()] = item;
+        }
+      }
+      // var matchingDays = item.days!.where((element) => element.day == rutgunu);
+      // // Add each matching day to the map
+      // if(profileMap.containsKey(matchingDays)){
+      // for (var day in matchingDays) {
+      //   profileMap[(day.orderNumber+1).toString()] = item;
+      // }}
     }
+
     var mapEntries = profileMap.entries.toList()
       ..sort(((a, b) => a.key.compareTo(b.key)));
     profileMap
       ..clear()
       ..addEntries(mapEntries);
+    print("Profile map :"+profileMap.toString());
+
     for (var element in profileMap.values) {
+      print("Market : "+element.name.toString()+" Days :" +element.days.toString());
         newList.add(element);
     }
+    print("newList map :"+newList.toString());
+
     return newList;
   }
 
@@ -270,56 +340,57 @@ class ControllerMercPref extends GetxController {
     update();
   }
 
-  void getNewDatasFromServer(BuildContext context) {
-    showMonthPicker(context,
-        onSelected: (month, year) async {
-          List<MercDataModel> data=await getAllMercCariBazaMotivasiya(month,year);
-          List<ModelMainInOut> girisCixislar=await getAllGirisCixis(year,month);
-          if(data.isNotEmpty){
-            ModelDownloads model= ModelDownloads(
-                name: "currentBase".tr,
-                donloading: false,
-                code: "enter",
-                info: "currentBaseExplain".tr,
-                lastDownDay: DateTime.now().toIso8601String(),
-                musteDonwload: false);
-            await localBaseDownloads.addDownloadedBaseInfo(model);
-            await localBaseDownloads.addAllToMercBase(data);
-            await getAllCariler(data.first,girisCixislar,listUsers);
-          }
-        },
-        initialSelectedMonth: DateTime.now().month,
-        initialSelectedYear: DateTime.now().year,
-        firstEnabledMonth: 12,
-        lastEnabledMonth: DateTime.now().month,
-        firstYear: 2015,
-        lastYear: DateTime.now().year,
-        selectButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        highlightColor: Colors.blue,
-        textColor: Colors.white,
-        contentBackgroundColor: Colors.white,
-        dialogBackgroundColor: Colors.white
+  Future<void> getNewDatasFromServer(BuildContext context) async{
+    showMonthPicker(
+      context,
+      onSelected: (month, year) async {
+        Get.back();
+        List<MercDataModel> data = await getAllMercCariBazaMotivasiya(month, year);
+        if (data.isNotEmpty) {
+          ModelDownloads model = ModelDownloads(
+            name: "currentBase".tr,
+            donloading: false,
+            code: "donwSingleMercBaza",
+            info: "currentBaseExplain".tr,
+            lastDownDay: DateTime.now().toIso8601String(),
+            musteDonwload: false,
+          );
+          await localBaseDownloads.addDownloadedBaseInfo(model);
+          await localBaseDownloads.addAllToMercBase(data);
+        }
+
+      },
+      initialSelectedMonth: DateTime.now().month,
+      initialSelectedYear: DateTime.now().year,
+      firstEnabledMonth: 12,
+      lastEnabledMonth: DateTime.now().month,
+      firstYear: 2015,
+      lastYear: DateTime.now().year,
+      selectButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      highlightColor: Colors.blue,
+      textColor: Colors.white,
+      contentBackgroundColor: Colors.white,
+      dialogBackgroundColor: Colors.white,
     );
   }
 
   Future<List<MercDataModel>> getAllMercCariBazaMotivasiya(int month, int year) async {
+    DialogHelper.showLoading("Cari baza yuklenir...");
     List<MercDataModel> listUsers = [];
-    List<UserModel> listConnectedUsers = [];
     languageIndex = await getLanguageIndex();
-    DialogHelper.showLoading("cmendirilir",false);
-    List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
     LoggedUserModel loggedUserModel = userLocalService.getLoggedUser();
-    List<UserModel> listUsersSelected =
-    localBaseDownloads.getAllConnectedUserFromLocal();
-    if (listUsersSelected.isEmpty) {
-      secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
-    } else {
-      for (var element in listUsersSelected) {
-        secilmisTemsilciler.add(element.code!);
-      }
-    }
+    var data=
+    {
+      "code":loggedUserModel.userModel!.code,
+      "companyId": loggedUserModel.userModel!.companyId,
+      "roleId": loggedUserModel.userModel!.roleId,
+      "il": year,
+      "ay": month
+
+    };
+
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -330,62 +401,47 @@ class ControllerMercPref extends GetxController {
         callback: () {},
       ));
     } else {
-      var response;
-      if (userPermitionSercis.hasUserPermition(UserPermitionsHelper.canEnterOtherMerchCustomers,
-          loggedUserModel.userModel!.permissions!)) {
-        response = await ApiClient().dio(false).get(
-          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-      } else {
-        response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
-          data: jsonEncode(secilmisTemsilciler),
-          options: Options(
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-      }
+      var response = await ApiClient().dio(false).post(
+        "${loggedUserModel.baseUrl}/MercSystem/getAllMercRout",
+        data: data,
+        options: Options(
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      print("respince : "+response.toString());
       if (response.statusCode == 200) {
-        var dataModel = json.encode(response.data['result']);
+        var dataModel = json.encode(response.data['Result']);
         List listuser = jsonDecode(dataModel);
         for (var i in listuser) {
           listUsers.add(MercDataModel.fromJson(i));
-          listConnectedUsers.add(UserModel(
-            roleName: "Mercendaizer",
-            roleId: 23,
-            code: MercDataModel.fromJson(i).user!.code,
-            name: MercDataModel.fromJson(i).user!.name,
-            gender: 0,
-          ));
         }
+        modelInOut.value = await getAllGirisCixis(
+          listUsers,
+          loggedUserModel.userModel!.code!,
+          loggedUserModel.userModel!.roleId!.toString(),
+          year,
+          month,
+        );
       }
+
     }
-    await localBaseDownloads.addConnectedUsers(listConnectedUsers);
+    DialogHelper.hideLoading();
     return listUsers;
   }
 
-  Future<List<ModelMainInOut>> getAllGirisCixis(int year,int month) async {
-    List<ModelMainInOut> listUsers = [];
+
+  Future<List<ModelMainInOut>> getAllGirisCixis(List<MercDataModel> listCari,String temsilcikodu, String roleId,int year,int month) async {
+    List<ModelMainInOut> listGirisler = [];
+    DialogHelper.showLoading("Ziyaretler yuklenir...");
+    await localGirisCixisServiz.init();
     var date = DateTime(year, month, 1).toString();
     var date2 = DateTime(year, month, DateTime.now().day).toString();
     DateTime dateParse = DateTime.parse(date);
@@ -393,11 +449,10 @@ class ControllerMercPref extends GetxController {
     String ilkGun = intl.DateFormat('yyyy/MM/dd').format(dateParse);
     String songun = intl.DateFormat('yyyy/MM/dd').format(dateParse2);
     LoggedUserModel loggedUserModel = userLocalService.getLoggedUser();
-    ModelRequestInOut model=ModelRequestInOut(
-        userRole: [UserRole(code: selectedMercBaza.value.user!.code, role: "23")],
-        endDate: songun,
-        startDate: ilkGun
-    );
+    ModelRequestInOut model = ModelRequestInOut(
+        userRole: [UserRole(code: temsilcikodu, role: roleId)],
+        endDate: "$songun 00:01",
+        startDate: "$ilkGun 23:59");
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();
@@ -411,14 +466,14 @@ class ControllerMercPref extends GetxController {
     } else {
       try {
         final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-customers-by-user",
+          "${loggedUserModel.baseUrl}/GirisCixisSystem/GetUserDataByRoleAndDate",
           data: model.toJson(),
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
             headers: {
               'Lang': languageIndex,
               'Device': dviceType,
-              'abs': '123456',
+              'smr': '12345',
               "Authorization": "Bearer $accesToken"
             },
             validateStatus: (_) => true,
@@ -426,30 +481,24 @@ class ControllerMercPref extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        print("selected Object :"+response.toString());
-
         if (response.statusCode == 200) {
-          var dataModel = json.encode(response.data['result']);
+          var dataModel = json.encode(response.data['Result']);
           List listuser = jsonDecode(dataModel);
+          await localGirisCixisServiz.clearAllGirisServer();
           for (var i in listuser) {
-            ModelMainInOut model=ModelMainInOut.fromJson(i);
-            print("model :"+model.toString());
-            listUsers.add(model);
+            ModelMainInOut model = ModelMainInOut.fromJson(i);
+            await localGirisCixisServiz.addSelectedGirisCixisDBServer(model);
+            listGirisler.add(model);
           }
+          await getAllCariler(listCari.first,listGirisler,listUsers);
+
         } else {
           exeptionHandler.handleExeption(response);
-
         }
-
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
@@ -459,8 +508,7 @@ class ControllerMercPref extends GetxController {
       }
     }
     DialogHelper.hideLoading();
-
-    return listUsers;
+    return listGirisler;
   }
 
   Future<String> getLanguageIndex() async {

@@ -29,7 +29,7 @@ class _ScreenNotInWorkUsersState extends State<ScreenNotInWorkUsers> {
         child: ListView.builder(
     itemCount: widget.listModel.length,
     itemBuilder: (context,index){
-    return WidgetWorkerItemLiveTtack(context: context, element: widget.listModel.elementAt(index));
+    return WidgetWorkerItemNotWorkedToday(context: context, element: widget.listModel.elementAt(index), callBack: (e) {  },);
   })));
 
 }

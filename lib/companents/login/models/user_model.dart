@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:hive/hive.dart';
 
 import 'model_company.dart';
+import 'model_configrations.dart';
 import 'model_userconnnection.dart';
 import 'model_userspormitions.dart';
 part 'user_model.g.dart';
@@ -78,6 +79,8 @@ class UserModel {
   double? regionLatitude;
   @HiveField(31)
   double? regionLongitude;
+  @HiveField(32)
+  List<ModelConfigrations>? configrations;
 
   UserModel({
     this.id,
@@ -112,6 +115,7 @@ class UserModel {
     this.active,
     this.regionLongitude,
     this.regionLatitude,
+    this.configrations,
   });
 
   UserModel copyWith({
@@ -147,6 +151,8 @@ class UserModel {
     bool? active,
     double? regionLongitude,
     double? regionLatitude,
+    List<ModelConfigrations>? configrations,
+
   }) =>
       UserModel(
         id: id ?? this.id,
@@ -181,6 +187,8 @@ class UserModel {
         active: active ?? this.active,
         regionLatitude: regionLatitude ?? this.regionLatitude,
         regionLongitude: regionLongitude ?? this.regionLongitude,
+        configrations: configrations ?? this.configrations,
+
       );
 
   factory UserModel.fromRawJson(String str) => UserModel.fromJson(json.decode(str));
@@ -220,6 +228,8 @@ class UserModel {
     requestNumber: json["RequestNumber"],
     lastOnlineDate: json["LastOnlineDate"],
     active: json["Active"],
+    configrations: json["Configrations"] == null ? [] : List<ModelConfigrations>.from(json["Configrations"]!.map((x) => ModelConfigrations.fromJson(x))),
+
   );
 
   Map<String, dynamic> toJson() => {
@@ -255,6 +265,8 @@ class UserModel {
     "active": active,
     "regionLatitude": regionLatitude,
     "regionLongitude": regionLongitude,
+    "configrations": configrations == null ? [] : List<dynamic>.from(configrations!.map((x) => x.toJson())),
+
   };
 
   @override

@@ -5,14 +5,17 @@ import 'package:zs_managment/companents/hesabatlar/cari_hesabat/widgetHesabatLis
 import 'package:zs_managment/companents/hesabatlar/user_hesabatlar/widgetHesabatListItemsUser.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
+import '../../login/models/model_userspormitions.dart';
+
 class WidgetRuthesabatlar extends StatefulWidget {
   String roleId;
   String temsilciKodu;
   double height;
+  List<ModelUserPermissions> listP;
   Function onClick;
 
   WidgetRuthesabatlar(
-      {required this.onClick,required this.roleId, required this.temsilciKodu, required this.height, super.key});
+      {required this.listP, required this.onClick,required this.roleId, required this.temsilciKodu, required this.height, super.key});
 
   @override
   State<WidgetRuthesabatlar> createState() => _WidgetRuthesabatlarState();
@@ -65,7 +68,7 @@ class _WidgetRuthesabatlarState extends State<WidgetRuthesabatlar> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: modelCariHesabatlar
-                      .getAllUserHesabatlarListy()
+                      .getAllUserHesabatlarListy(widget.listP)
                       .map((e) => WidgetHesabatListItemsUser(
                             context: context,
                             modelCariHesabatlar: e, userCode: widget.temsilciKodu,roleId: widget.roleId.toString(), onclick: (){

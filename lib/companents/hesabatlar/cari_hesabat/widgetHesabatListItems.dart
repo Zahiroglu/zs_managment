@@ -6,6 +6,7 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
+import 'package:intl/intl.dart';
 
 class WidgetHesabatListItemsCari extends StatefulWidget {
   BuildContext context;
@@ -229,25 +230,16 @@ class _WidgetHesabatListItemsCariState extends State<WidgetHesabatListItemsCari>
   }
 
   void callDatePicker(bool isFistDate) async {
-    String day = "01";
-    String ay = "01";
+
     var order = await getDate();
-    if (order!.day.toInt() < 10) {
-      day = "0${order.day}";
-    } else {
-      day = order.day.toString();
-    }
-    if (order.month.toInt() < 10) {
-      ay = "0${order.month}";
-    } else {
-      ay = order.month.toString();
-    }
+
     if (isFistDate) {
       //ctFistDay.text = "$day.$ay.${order.year}";
-      ctFistDay.text = "${order.year}-$ay-$day";
+      ctFistDay.text = DateFormat('yyyy-MM-dd').format(order!);
+
     } else {
-     // ctLastDay.text = "$day.$ay.${order.year}";
-      ctLastDay.text = "${order.year}-$ay-$day";
+     // ctLastDay.text = "$day.$ay.${order.year}"
+      ctLastDay.text =  DateFormat('yyyy-MM-dd').format(order!);
 
     }
   }
@@ -267,7 +259,7 @@ class _WidgetHesabatListItemsCariState extends State<WidgetHesabatListItemsCari>
   void _intenReqPage() {
    if(widget.modelCariHesabatlar.isAktiv!){
      Get.back();
-     Get.toNamed(widget.modelCariHesabatlar.routName!,arguments: [ctFistDay.text,ctLastDay.text,widget.ckod,widget.cAd]);
+     Get.toNamed(widget.modelCariHesabatlar.routName!,arguments: ["${ctFistDay.text} 00:01:00",ctLastDay.text+" 23:59:00",widget.ckod,widget.cAd]);
    }else{
      Get.dialog(ShowInfoDialog(messaje: "hesbatAktivDeyil".tr, icon: Icons.unpublished, callback: (){
        Get.back();

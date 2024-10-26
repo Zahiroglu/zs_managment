@@ -33,21 +33,13 @@ class LocalUserServices {
     await appFirstTimeOpen.clear();
     await appFirstTimeOpen.put("firstTimeOpen",value);
   }
-  Future<void> addCanGetBaseUrl(String value) async {
-    await canGetBaseUrl.clear();
-    await canGetBaseUrl.put("canGetBaseUrl",value);
-  }
 
 
   Future<bool> getIfAppOpenFistOrNot() async {
-    bool value = await appFirstTimeOpen.get("LoggedUsers")??false;
+    bool value = await appFirstTimeOpen.get("firstTimeOpen")??false;
     return value;
   }
 
-  Future<String> getCanGetBaseUrl() async {
-    String value = await canGetBaseUrl.get("canGetBaseUrl")??"Bos";
-    return value;
-  }
 
   clearALLdata() {
     late Box loggedUserBox = Hive.box("LoggedUsers");

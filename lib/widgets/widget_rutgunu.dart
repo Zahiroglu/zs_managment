@@ -6,7 +6,8 @@ class WidgetRutGunu extends StatelessWidget {
   String rutGunu;
   String orderNumber;
   LoggedUserModel loggedUserModel;
-   WidgetRutGunu({required this.rutGunu,this.orderNumber="null",required this.loggedUserModel,super.key});
+  bool rutSirasiGorunsun;
+   WidgetRutGunu({required this.rutGunu,this.orderNumber="null",required this.loggedUserModel,this.rutSirasiGorunsun=false,super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class WidgetRutGunu extends StatelessWidget {
           ),
           child: CustomText(labeltext: rutGunu, color: Colors.white, fontsize: 12),
         ),
-        orderNumber!="null"?Positioned(
+        orderNumber!="null"&&rutSirasiGorunsun?Positioned(
             top: 0,
             right: 0,
             child: Container(

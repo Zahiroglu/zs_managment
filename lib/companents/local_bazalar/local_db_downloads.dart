@@ -342,28 +342,30 @@ class LocalBaseDownloads {
   }
 
   ///listUsers baza
-  Future<void> addConnectedUsers(List<UserModel> listUser) async {
-    await boxAnbarBaza.clear();
+  Future<void> addConnectedUsers(List<UserModel> listUser) async {await boxListConnectedUsers.clear();
     for (UserModel model in listUser) {
       if(model.name==null){
         await boxListConnectedUsers.put(model.code!, model);
       }else{
         await boxListConnectedUsers.put(model.name!, model);
-
       }
     }
   }
 
   List<UserModel> getAllConnectedUserFromLocal() {
     List<UserModel> list = [];
-      boxListConnectedUsers.toMap().forEach((key, value) {list.add(value);});
+      boxListConnectedUsers.toMap().forEach((key, value) {
+        print(value.toString());
+        list.add(value);});
     return list;
   }
+
   List<UserModel> getAllConnectedUserFromLocalMerc() {
     List<UserModel> list = [];
     boxListConnectedUsers.toMap().forEach((key, value) {list.add(value);});
-    return list.where((e)=>e.roleId==23||e.roleId==24).toList();
+    return list.where((e)=>e.roleId==2).toList();
   }
+
   Future<List<MercDataModel>> getAllMercDatail() async {
     List<MercDataModel> list = [];
     boxListMercBaza.toMap().forEach((key, value) {list.add(value);});

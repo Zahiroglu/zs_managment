@@ -15,6 +15,7 @@ import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
+import '../../../../helpers/user_permitions_helper.dart';
 import '../../../hesabatlar/cari_hesabat/cari_ziyaret_hesabati/widget_giriscixis_item.dart';
 import '../../../hesabatlar/cari_hesabat/cari_ziyaret_hesabati/widget_giriscixis_item_gonderilmeyen.dart';
 import '../../../local_bazalar/local_users_services.dart';
@@ -31,13 +32,14 @@ class ScreenGirisCixisReklam extends StatefulWidget {
 
 class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with WidgetsBindingObserver{
   ControllerGirisCixisReklam controllerGirisCixis = Get.put(ControllerGirisCixisReklam());
+  PageController pageController=PageController();
   late Position _currentLocation;
   late LocationSettings locationSettings;
   int defaultTargetPlatform=0;
   bool followMe = false;
   String selectedItemsLabel = "Gunluk Rut";
   ModelCariler selectedCariModel = ModelCariler();
-  int marketeGirisIcazeMesafesi = 120000;
+  int marketeGirisIcazeMesafesi = 1;
   String secilenMarketdenUzaqliqString = "";
   String girisErrorQeyd = "";
   double secilenMarketdenUzaqliq = 0;
@@ -51,7 +53,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   bool positionStreamStarted = false;
   LocalUserServices userService = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
-
+  UserPermitionsHelper permitionsHelper=UserPermitionsHelper();
   @override
   void initState() {
     initConfigrations();
@@ -76,8 +78,9 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   Future<void> initConfigrations() async {
     await userService.init();
     loggedUserModel= userService.getLoggedUser();
-    marketeGirisIcazeMesafesi=int.parse(loggedUserModel.companyConfigModel!.where((element) => element.confCode=="territorialDistance").first.confVal.toString());
-   // secilenMusterininRutGunuDuzluyu=bool.parse(loggedUserModel.companyConfigModel!.where((element) => element.confCode=="rootDay"&&element.roleId==loggedUserModel.userModel!.roleId).first.confVal.toString());
+    marketeGirisIcazeMesafesi=permitionsHelper.getEnterDistance(loggedUserModel.userModel!.configrations!);
+    istifadeciRutdanKenarGirisEdebiler=!permitionsHelper.getOnlyByRutDay(loggedUserModel.userModel!.configrations!);
+
   }
 
 
@@ -240,7 +243,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               controllerGirisCixis.marketeGirisEdilib.isFalse?Padding(
                 padding: const EdgeInsets.only(right: 0),
                 child: IconButton(icon: const Icon(Icons.supervised_user_circle_outlined,color: Colors.black,),onPressed: (){
-               controllerGirisCixis.getExpList(LatLng(_currentLocation.latitude, _currentLocation.longitude));
+               controllerGirisCixis.getExpListDialog(LatLng(_currentLocation.latitude, _currentLocation.longitude));
                 }),
               ):const SizedBox(),
               Padding(
@@ -341,7 +344,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
                 child: Obx(()=>ListView(
                   padding: const EdgeInsets.all(0),
                   scrollDirection: Axis.horizontal,
-                  children: controllerGirisCixis.listTabItems
+                  children: controllerGirisCixis.listTabItemsRutGostericileri
                       .map((element) => widgetListTabItems(element))
                       .toList(),
                 )),
@@ -838,55 +841,65 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
 
   Widget _infoMarketRout(ModelCariler element, BuildContext context) {
     int valuMore = 0;
-    if (element.days!.any((element) => element.day==1)) {
-      valuMore = valuMore + 1;
+    if(element.days!=null) {
+      if (element.days!.any((element) => element.day == 1)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day == 2)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day == 3)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day == 4)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day == 5)) {
+        valuMore = valuMore + 1;
+      }
+      if (element.days!.any((element) => element.day == 6)) {
+        valuMore = valuMore + 1;
+      }
+      return SizedBox(
+        height: valuMore > 5 ? 28 : 28,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: [
+            element.days!.any((element) => element.day == 1)
+                ? WidgetRutGunu(
+                rutGunu: "gun1".tr, loggedUserModel: loggedUserModel)
+                : const SizedBox(),
+            element.days!.any((element) => element.day == 2)
+                ? WidgetRutGunu(
+                rutGunu: "gun2".tr, loggedUserModel: loggedUserModel)
+                : const SizedBox(),
+            element.days!.any((element) => element.day == 3)
+                ? WidgetRutGunu(
+                rutGunu: "gun3".tr, loggedUserModel: loggedUserModel)
+                : const SizedBox(),
+            element.days!.any((element) => element.day == 4)
+                ? WidgetRutGunu(
+                rutGunu: "gun4".tr, loggedUserModel: loggedUserModel)
+                : const SizedBox(),
+            element.days!.any((element) => element.day == 5)
+                ? WidgetRutGunu(
+                rutGunu: "gun5".tr, loggedUserModel: loggedUserModel)
+                : const SizedBox(),
+            element.days!.any((element) => element.day == 6)
+                ? WidgetRutGunu(
+                rutGunu: "gun6".tr, loggedUserModel: loggedUserModel)
+                : const SizedBox(),
+            element.days!.any((element) => element.day == 7)
+                ? WidgetRutGunu(
+              rutGunu: "bagli".tr, loggedUserModel: loggedUserModel,)
+                : const SizedBox(),
+          ],
+        ),
+      );
+    }else{
+      return const SizedBox();
     }
-    if (element.days!.any((element) => element.day==2)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==3)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==4)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==5)) {
-      valuMore = valuMore + 1;
-    }
-    if (element.days!.any((element) => element.day==6)) {
-      valuMore = valuMore + 1;
-    }
-    return SizedBox(
-      height: valuMore > 5 ? 28 : 28,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          element.days!.any((element) => element.day==1)
-              ? WidgetRutGunu(rutGunu: "gun1".tr,loggedUserModel: loggedUserModel)
-              : const SizedBox(),
-          element.days!.any((element) => element.day==2)
-              ? WidgetRutGunu(rutGunu: "gun2".tr,loggedUserModel: loggedUserModel)
-              : const SizedBox(),
-          element.days!.any((element) => element.day==3)
-              ? WidgetRutGunu(rutGunu: "gun3".tr,loggedUserModel: loggedUserModel)
-              : const SizedBox(),
-          element.days!.any((element) => element.day==4)
-              ? WidgetRutGunu(rutGunu: "gun4".tr,loggedUserModel: loggedUserModel)
-              : const SizedBox(),
-          element.days!.any((element) => element.day==5)
-              ? WidgetRutGunu(rutGunu: "gun5".tr,loggedUserModel: loggedUserModel)
-              : const SizedBox(),
-          element.days!.any((element) => element.day==6)
-              ? WidgetRutGunu(rutGunu: "gun6".tr,loggedUserModel: loggedUserModel)
-              : const SizedBox(),
-          element.days!.any((element) => element.day==7)
-              ? WidgetRutGunu(rutGunu: "bagli".tr,loggedUserModel: loggedUserModel,)
-              : const SizedBox(),
-        ],
-      ),
-    );
   }
-
 
   void funFlutterToast(String s) {
     Fluttertoast.showToast(

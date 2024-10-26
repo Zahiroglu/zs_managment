@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../../../base_downloads/models/model_cariler.dart';
+
 class ModelMercBazaInsert {
   String merchCode;
   String customerCode;
@@ -7,7 +9,7 @@ class ModelMercBazaInsert {
   String auditCode;
   String superviserCode;
   double plan;
-  List<DayOrderNumber> days;
+  List<Day> days;
 
   ModelMercBazaInsert({
     required this.merchCode,
@@ -30,17 +32,17 @@ class ModelMercBazaInsert {
     auditCode: json["auditCode"],
     superviserCode: json["superviserCode"],
     plan: json["plan"],
-    days: List<DayOrderNumber>.from(json["days"].map((x) => DayOrderNumber.fromJson(x))),
+    days: List<Day>.from(json["Days"].map((x) => Day.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
-    "merchCode": merchCode,
-    "customerCode": customerCode,
-    "forwarderCode": forwarderCode,
-    "auditCode": auditCode,
-    "superviserCode": superviserCode,
-    "plan": plan,
-    "days": days,
+    "MerchCode": merchCode,
+    "CustomerCode": customerCode,
+    "ForwarderCode": forwarderCode,
+    "AuditCode": auditCode,
+    "SuperviserCode": superviserCode,
+    "Plan": plan,
+    "Days": days,
   };
 }
 

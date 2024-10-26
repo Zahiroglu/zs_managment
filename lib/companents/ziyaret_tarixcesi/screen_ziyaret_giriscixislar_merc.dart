@@ -35,23 +35,30 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
   String hefteninGunu = "";
   int sefZiyaret=0;
   LocalUserServices userServices=LocalUserServices();
+  List<Widget> listPages=[];
+  bool  dataloading=true;
 
   @override
   void initState() {
     userServices.init();
+
     _scrollControllerNested = ScrollController();
-    _controllerInfo =
-        PageController(initialPage: _initialIndex, viewportFraction: 1);
+    _controllerInfo = PageController(initialPage: _initialIndex, viewportFraction: 1);
+    listPages.add(_widgetListGirisler());
+    if(widget.modelCariler.isNotEmpty){
     melumatlariGuneGoreDoldur();
+    listPages.add(_widgetListCariler());
+    }
     // TODO: implement initState
     super.initState();
   }
 
   void melumatlariGuneGoreDoldur() {
-    String ay=widget.modelGunlukGirisCixis.day.substring(3,5);
-    String gun=widget.modelGunlukGirisCixis.day.substring(0,2);
-    String il=widget.modelGunlukGirisCixis.day.substring(6,10);
+    String ay=widget.modelGunlukGirisCixis.day.substring(5,7);
+    String gun=widget.modelGunlukGirisCixis.day.substring(8,10);
+    String il=widget.modelGunlukGirisCixis.day.substring(0,4);
     DateTime dateTime = DateTime.parse("$il-$ay-$gun");
+    print("dateTime.weekday :"+dateTime.weekday.toString());
     switch (dateTime.weekday) {
       case 1:
         hefteninGunu = "gun1";
@@ -61,13 +68,12 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
           if(listCustomersByDay.where((e) =>e.name==element.name ).isEmpty){
           listCustomersByDay.add(element);}
         });
+        setState(() {});
         break;
       case 2:
         hefteninGunu = "gun2";
-        widget.modelCariler
-            .where((element) => element.days!.any((e) => e.day==2))
-            .toList()
-            .forEach((element) {
+        widget.modelCariler.where((element) => element.days!.any((e) => e.day==2))
+            .toList() .forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.modelInOut
               .where((e) => e.customerName == element.name)
               .length;
@@ -77,13 +83,13 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
               .toList());
           if(listCustomersByDay.where((e) =>e.name==element.name ).isEmpty){
             listCustomersByDay.add(element);}     });
+        setState(() {});
         break;
       case 3:
         hefteninGunu = "gun3";
         widget.modelCariler
             .where((element) => element.days!.any((e) => e.day==3))
-            .toList()
-            .forEach((element) {
+            .toList().forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.modelInOut
               .where((e) => e.customerName == element.name)
               .length;
@@ -92,26 +98,32 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
               .where((e) => e.customerName == element.name)
               .toList());
           if(listCustomersByDay.where((e) =>e.name==element.name ).isEmpty){
-            listCustomersByDay.add(element);}       });
+            setState(() {
+              listCustomersByDay.add(element);
+            });
+
+            }
+
+        });
         break;
       case 4:
         hefteninGunu = "gun4";
         widget.modelCariler
             .where((element) => element.days!.any((e) => e.day==4))
-            .toList()
-            .forEach((element) {
+            .toList().forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.modelInOut.where((e) => e.customerName == element.name).length;
           element.sndeQalmaVaxti = curculateTimeDistanceForVisit(widget.modelGunlukGirisCixis.modelInOut.where((e) => e.customerName == element.name).toList());
           if(listCustomersByDay.where((e) =>e.name==element.name ).isEmpty){
-            listCustomersByDay.add(element);}
+            setState(() {
+              listCustomersByDay.add(element);
+            });          }
             });
         break;
       case 5:
         hefteninGunu = "gun5";
         widget.modelCariler
             .where((element) => element.days!.any((e) => e.day==5))
-            .toList()
-            .forEach((element) {
+            .toList() .forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.modelInOut
               .where((e) => e.customerName == element.name)
               .length;
@@ -120,14 +132,16 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
               .where((e) => e.customerName == element.name)
               .toList());
           if(listCustomersByDay.where((e) =>e.name==element.name ).isEmpty){
-            listCustomersByDay.add(element);}       });
+            setState(() {
+              listCustomersByDay.add(element);
+            });
+          }       });
         break;
       case 6:
         hefteninGunu = "gun6";
         widget.modelCariler
             .where((element) => element.days!.any((e) => e.day==6))
-            .toList()
-            .forEach((element) {
+            .toList().forEach((element) {
           element.ziyaretSayi = widget.modelGunlukGirisCixis.modelInOut
               .where((e) => e.customerName == element.name)
               .length;
@@ -137,6 +151,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
               .toList());
           if(listCustomersByDay.where((e) =>e.name==element.name ).isEmpty){
             listCustomersByDay.add(element);}      });
+        setState(() {});
         break;
     }
     for (var element in listCustomersByDay) {
@@ -153,7 +168,10 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
         sefZiyaret=sefZiyaret+1;
       }
     }
-    setState(() {});
+    print("listCustomersByDay count :"+listCustomersByDay.length.toString());
+    setState(() {
+      dataloading=false;
+    });
   }
 
   String curculateTimeDistanceForVisit(List<ModelInOut> list) {
@@ -201,7 +219,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                       collapseMode: CollapseMode.values[0],
                       centerTitle: true,
                     ),
-                    bottom: PreferredSize(
+                    bottom: widget.modelCariler.isNotEmpty?PreferredSize(
                         preferredSize: const Size.fromHeight(60),
                         child: ColoredBox(
                           color: Colors.grey.withOpacity(0.3),
@@ -213,7 +231,8 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                               ],
                             ),
                           ),
-                        )),
+                        )):const PreferredSize(
+                      preferredSize:Size.fromHeight(5) ,child: SizedBox(),),
                   ),
                 )
               ];
@@ -242,7 +261,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
               "${"giriscixis".tr} ( ${widget.modelGunlukGirisCixis.modelInOut.length} )",
         ),
         const Spacer(),
-        CustomElevetedButton(
+        widget.modelCariler.isNotEmpty?CustomElevetedButton(
           surfaceColor: _initialIndex == 1 ? Colors.green : Colors.white,
           height: 35,
           width: MediaQuery.of(context).size.width * 0.4,
@@ -251,8 +270,8 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
           },
           label:
               "${"cariRut".tr} ( ${listCustomersByDay.length.toString()} )",
-        ),
-        const Spacer(),
+        ):SizedBox(),
+        widget.modelCariler.isNotEmpty?const Spacer():SizedBox(),
       ],
     );
   }
@@ -437,7 +456,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
     return PageView(
       onPageChanged: _onPageViewChangeInfo,
       controller: _controllerInfo,
-      children: [_widgetListGirisler(), _widgetListCariler()],
+      children: listPages,
     );
   }
 
@@ -452,8 +471,8 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
     return ListView.builder(
         itemCount: widget.modelGunlukGirisCixis.modelInOut.length,
         itemBuilder: (c, index) {
-          return widgetListGirisItems(
-              widget.modelGunlukGirisCixis.modelInOut.elementAt(index));
+          return  widget.modelGunlukGirisCixis.modelInOut.elementAt(index).inDate!=null?widgetListGirisItems(
+              widget.modelGunlukGirisCixis.modelInOut.elementAt(index)):SizedBox();
         });
   }
 
@@ -476,7 +495,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                   children: [
                     Expanded(
                         child: CustomText(
-                      labeltext: model.customerName,
+                      labeltext: model.customerName!=null?model.customerName:"Tapilmadi",
                       fontsize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue,
@@ -612,7 +631,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
   ///cari melumatlar
   Widget _widgetListCariler() {
     return ListView.builder(
-        itemCount: listCustomersByDay.length,
+        itemCount:listCustomersByDay.length,
         itemBuilder: (c, index) {
           return itemsCustomers(listCustomersByDay.elementAt(index));
         });

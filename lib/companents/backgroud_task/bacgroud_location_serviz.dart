@@ -18,7 +18,6 @@ import '../giris_cixis/models/model_customers_visit.dart';
 import '../giris_cixis/models/model_request_giriscixis.dart';
 import '../local_bazalar/local_bazalar.dart';
 import '../local_bazalar/local_users_services.dart';
-import '../login/services/api_services/users_apicontroller_web_windows.dart';
 import '../login/services/api_services/users_controller_mobile.dart';
 import '../main_screen/controller/drawer_menu_controller.dart';
 import 'backgroud_errors/local_backgroud_events.dart';
@@ -45,7 +44,7 @@ class BackgroudLocationServiz extends GetxController {
     ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
     bg.BackgroundGeolocation.onLocation((bg.Location location) async {
       if (location.mock) {
-        sendErrorsToServers(blok, modela.customerCode.toString() + "adlimarkerBlockMock".tr);
+        //sendErrorsToServers(blok, modela.customerCode.toString() + "adlimarkerBlockMock".tr);
       } else {
         if (isFistTime.isTrue) {
           isFistTime.value = false;
@@ -66,7 +65,7 @@ class BackgroudLocationServiz extends GetxController {
                 body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}",
                 fln: flutterLocalNotificationsPlugin);
             await sendInfoLocationsToDatabase(location, modela);
-            await checkUnsendedErrors();
+           // await checkUnsendedErrors();
           }
         }
       }
@@ -86,7 +85,7 @@ class BackgroudLocationServiz extends GetxController {
               body:
               "Gps xidmetine mudaxile etdiyiniz ucun bloklandiniz.Tarix:${DateTime.now()}",
               fln: flutterLocalNotificationsPlugin);
-          await sendErrorsToServers(blok,"${"adlimarkerprogramMudaxile".tr} Type : AUTHORIZATION_STATUS_DENIED");
+         // await sendErrorsToServers(blok,"${"adlimarkerprogramMudaxile".tr} Type : AUTHORIZATION_STATUS_DENIED");
           break;
         case bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS:
         break;
@@ -97,7 +96,7 @@ class BackgroudLocationServiz extends GetxController {
               body: "Gps xidmetine mudaxile etdiyiniz ucun bloklandiniz.Tarix:${DateTime
                   .now()}",
               fln: flutterLocalNotificationsPlugin);
-           await sendErrorsToServers(blok,"${"adlimarkerprogramMudaxile".tr} Type : AUTHORIZATION_STATUS_WHEN_IN_USE");
+          // await sendErrorsToServers(blok,"${"adlimarkerprogramMudaxile".tr} Type : AUTHORIZATION_STATUS_WHEN_IN_USE");
           break;
       }
     });
@@ -107,9 +106,9 @@ class BackgroudLocationServiz extends GetxController {
         await localGirisCixisServiz.init();
         ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
         await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-        await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
+       // await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
       } else {
-        await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
+        //await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
         await flutterLocalNotificationsPlugin.cancel(1);
       }
     });
@@ -207,11 +206,12 @@ class BackgroudLocationServiz extends GetxController {
       batteryLevel: location.battery.level * 100,
       inputCustomerDistance: uzaqliq.round(),
       isOnline: true,
-      latitude: location.coords.latitude,
+      latitude:  location.coords.latitude,
       longitude: location.coords.longitude,
       locationDate: DateTime.now().toString().substring(0, 18),
       pastInputCustomerCode: modela.customerCode??"0",
       pastInputCustomerName: modela.customerName??"0",
+      locationHeading: location.coords.heading,
       speed: location.coords.speed,
       userFullName:
       "${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!
@@ -222,13 +222,13 @@ class BackgroudLocationServiz extends GetxController {
     if(hasConnection.isTrue){
       try{
         final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
+          "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
           data: model.toJson(),
           options: Options(
             headers: {
               'Lang': languageIndex,
               'Device': dviceType,
-              'abs': '123456',
+              'smr': '12345',
               "Authorization": "Bearer $accesToken"
             },
             validateStatus: (_) => true,
@@ -265,13 +265,13 @@ class BackgroudLocationServiz extends GetxController {
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     if(hasConnection.isTrue){
         final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/api/v1/InputOutput/add-user-location",
+          "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
           data: model.toJson(),
           options: Options(
             headers: {
               'Lang': languageIndex,
               'Device': dviceType,
-              'abs': '123456',
+              'smr': '12345',
               "Authorization": "Bearer $accesToken"
             },
             validateStatus: (_) => true,
@@ -281,7 +281,7 @@ class BackgroudLocationServiz extends GetxController {
         );
         if (response.statusCode == 200) {
           await localBackgroundEvents.deleteItemLocation(model);
-          checkUnsendedLocations();
+          //checkUnsendedLocations();
         }
     }
   }
@@ -297,7 +297,7 @@ class BackgroudLocationServiz extends GetxController {
   }
 
   ////////// back errors
-  Future<void> sendErrorsToServers(String xetaBasliq, String xetaaciqlama) async {
+  Future<void> sendErrorsToServersa(String xetaBasliq, String xetaaciqlama) async {
     await userService.init();
     await localBackgroundEvents.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
@@ -305,6 +305,7 @@ class BackgroudLocationServiz extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     ModelBackErrors model = ModelBackErrors(
+      userId: loggedUserModel.userModel!.id,
       deviceId: dviceType.toString(),
       errCode: xetaBasliq,
       errDate: DateTime.now().toString(),
@@ -319,13 +320,13 @@ class BackgroudLocationServiz extends GetxController {
     );
     if(hasConnection.isTrue){
     final response = await ApiClient().dio(false).post(
-      "${loggedUserModel.baseUrl}/api/v1/User/add-user-error",
+      "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
       data: model.toJson(),
       options: Options(
         headers: {
           'Lang': languageIndex,
           'Device': dviceType,
-          'abs': '123456',
+          'SMR': '12345',
           "Authorization": "Bearer $accesToken"
         },
         validateStatus: (_) => true,
@@ -364,13 +365,13 @@ class BackgroudLocationServiz extends GetxController {
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     if(hasConnection.isTrue){
     final response = await ApiClient().dio(false).post(
-      "${loggedUserModel.baseUrl}/api/v1/User/add-user-error",
+      "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
       data: unsendedModel.toJson(),
       options: Options(
         headers: {
           'Lang': languageIndex,
           'Device': dviceType,
-          'abs': '123456',
+          'SMR': '12345',
           "Authorization": "Bearer $accesToken"
         },
         validateStatus: (_) => true,
@@ -380,7 +381,7 @@ class BackgroudLocationServiz extends GetxController {
     );
     if (response.statusCode == 200) {
       localBackgroundEvents.deleteItemErrors(unsendedModel);
-      await checkUnsendedErrors();
+     // await checkUnsendedErrors();
     }
     }else{
       await checkUnsendedLocations();
@@ -441,14 +442,14 @@ class BackgroudLocationServiz extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     final response = await ApiClient().dio(false).post(
-      "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
+      "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
       data: model.toJson(),
       options: Options(
         receiveTimeout: const Duration(seconds: 60),
         headers: {
           'Lang': languageIndex,
           'Device': dviceType,
-          'abs': '123456',
+          'smr': '12345',
           "Authorization": "Bearer $accesToken"
         },
         validateStatus: (_) => true,
@@ -474,7 +475,6 @@ class BackgroudLocationServiz extends GetxController {
 
   Future<void> _sistemiYenidenBaslat() async {
     Get.delete<DrawerMenuController>();
-    Get.delete<UsersApiController>();
     Get.delete<UserApiControllerMobile>();
     // Get.delete<SettingPanelController>();
     Get.delete<ControllerAnbar>();

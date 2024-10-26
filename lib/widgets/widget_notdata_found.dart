@@ -21,7 +21,7 @@ class NoDataFound extends StatelessWidget {
           CustomText(
             labeltext:title.toString(),
             fontWeight: FontWeight.w800,
-            fontsize: 40,
+            fontsize: 30,
           ),
           Lottie.asset(
               height: height,

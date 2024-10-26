@@ -15,7 +15,6 @@ import '../companents/login/models/logged_usermodel.dart';
 
 // import '../companents/login/services/api_services/users_controller_mobile.dart';
 import '../companents/local_bazalar/local_users_services.dart';
-import '../companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import '../companents/main_screen/controller/drawer_menu_controller.dart';
 import '../constands/app_constands.dart';
 import '../widgets/simple_info_dialog.dart';
@@ -39,7 +38,8 @@ class CustomInterceptor extends Interceptor {
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     await localUserServices.init();
     String token = await localUserServices.getLoggedToken();
-    print('Time :' + DateTime.now().toString() + ' Request[=> PATH:${options.path}] data :${options.data} ');
+    print('Time :' + DateTime.now().toString() + ' Request[=> PATH:${options.path}] data :${options.data} token :'+token.toString());
+    print('Time :' + DateTime.now().toString() + options.headers.toString());
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     } else {
@@ -52,10 +52,11 @@ class CustomInterceptor extends Interceptor {
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
     print('Time :' + DateTime.now().toString() + ' Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " result :" + response.data.toString());
-
     if (response.statusCode == 404) {
       Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-    } else if (response.data['Exception'] != null) {
+    }
+    else if(response.data!=null){
+      if (response.data['Exception'] != null) {
       ModelExceptions model = ModelExceptions.fromJson(response.data['Exception']);
       if (model.code == "006") {
         int statusrefresh = await refreshAccessToken();
@@ -84,12 +85,14 @@ class CustomInterceptor extends Interceptor {
           },
         ));
       }
-    } else {
+    }
+    else {
       if (mustShowResult) {
+        Get.back();
         Get.dialog(ShowInfoDialog(
           color: Colors.blue,
           icon: Icons.verified,
-          messaje: response.data['Result'],
+          messaje: response.data['Result'].toString()??response.toString(),
           callback: () {
             Get.back();
           },
@@ -99,6 +102,16 @@ class CustomInterceptor extends Interceptor {
           Get.back();
         }
       }
+    }}else{
+      Get.dialog(ShowInfoDialog(
+        color: Colors.red,
+        icon: Icons.error,
+        messaje: "serverBaglantiXetasi".tr,
+        callback: () {
+          Get.back();
+        },
+      ));
+
     }
     super.onResponse(response, handler);
   }
@@ -254,7 +267,6 @@ class CustomInterceptor extends Interceptor {
 
   Future<void> _sistemiYenidenBaslat() async {
     Get.delete<DrawerMenuController>();
-    Get.delete<UsersApiController>();
     Get.delete<ControllerAnbar>();
     await localBazalar.clearLoggedUserInfo();
     await localBazalar.clearAllBaseDownloads();

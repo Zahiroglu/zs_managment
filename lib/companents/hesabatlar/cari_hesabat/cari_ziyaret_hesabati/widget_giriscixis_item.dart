@@ -72,7 +72,7 @@ class WidgetGirisCixisItem extends StatelessWidget {
                           height: 15,
                         ),
                         const SizedBox(width: 5,),
-                        CustomText(labeltext: changeDistanceToString(element.inDistance!.toString())),
+                        CustomText(labeltext: element.inDistance!.toString()),
 
                       ],
                     )
@@ -109,7 +109,7 @@ class WidgetGirisCixisItem extends StatelessWidget {
                           height: 15,
                         ),
                         const SizedBox(width: 5,),
-                        CustomText(labeltext: element.outDistance!=null?changeDistanceToString(element.outDistance!):"cixisedilmeyib".tr),
+                        CustomText(labeltext: element.outDistance!=null?element.outDistance!:"cixisedilmeyib".tr),
 
                       ],
                     )
@@ -179,14 +179,4 @@ class WidgetGirisCixisItem extends StatelessWidget {
     );
   }
 
- String changeDistanceToString(String dictance) {
-    String mesafe="";
-    double mesafeD=double.parse(dictance);
-    if(mesafeD<=1){
-      mesafe="${(mesafeD*1000).round()} m";
-    }else{
-      mesafe="${mesafeD.round()} km";
-    }
-    return mesafe;
- }
 }

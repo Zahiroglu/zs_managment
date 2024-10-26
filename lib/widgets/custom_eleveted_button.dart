@@ -16,6 +16,7 @@ class CustomElevetedButton extends StatelessWidget {
       this.svcFile = '',
       this.elevation = 2,
       this.clicble = true,
+      this.iconLeft = true,
       this.width = 100,
       this.height = 60,
       this.textsize = 14,
@@ -40,6 +41,7 @@ class CustomElevetedButton extends StatelessWidget {
   IconData? icon;
   FontWeight fontWeight;
   bool clicble;
+  bool iconLeft;
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -59,7 +61,7 @@ class CustomElevetedButton extends StatelessWidget {
         child: SizedBox(
           height: height,
           width: width,
-          child: Row(
+          child: iconLeft?Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -96,6 +98,45 @@ class CustomElevetedButton extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 maxline: 2,
               ))
+            ],
+          ):Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                  child: CustomText(
+                    color: textColor ?? (Get.isDarkMode ? Colors.white : Colors.black),
+                    textAlign: TextAlign.center,
+                    labeltext: label,
+                    fontWeight: fontWeight,
+                    overflow: TextOverflow.ellipsis,
+                    maxline: 2,
+                  )),
+              isSvcFile
+                  ? ClipRRect(
+                clipBehavior: Clip.antiAlias,
+                borderRadius: BorderRadius.circular(20),
+                child: SizedBox(
+                  height: 25,
+                  width: 25,
+                  child: SvgPicture.asset(
+                    fit: BoxFit.fill,
+                    alignment: Alignment.center,
+
+                    svcFile,
+                    width: 24,
+                    height: 24,
+
+                    // ...
+                  ),
+                ),
+              )
+                  : icon == null
+                  ? const SizedBox()
+                  : Icon(icon,
+                  color: textColor ??
+                      (Get.isDarkMode ? Colors.white : Colors.black)),
+
             ],
           ),
         ));

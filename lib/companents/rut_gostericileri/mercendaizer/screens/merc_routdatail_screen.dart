@@ -12,6 +12,7 @@ import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
+import '../../../base_downloads/models/model_cariler.dart';
 import '../connected_users/model_main_inout.dart';
 
 class ScreenMercRoutDatail extends StatefulWidget {
@@ -68,11 +69,12 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
       });
     });
     if (controllerRoutDetailUser.initialized) {
-      controllerRoutDetailUser.getAllCariler(widget.modelMercBaza, widget.listGirisCixis,widget.listUsers);
-      _animationController = AnimationController(
-          vsync: this, duration: const Duration(milliseconds: 5000));
-      _animationController.forward();
-     fillAllPages();
+      controllerRoutDetailUser.getAllCariler(widget.modelMercBaza, widget.listGirisCixis,widget.listUsers).whenComplete((){
+        _animationController = AnimationController(
+            vsync: this, duration: const Duration(milliseconds: 5000));
+        _animationController.forward();
+        fillAllPages();
+      });
     }
     tabController = TabController(
       initialIndex: tabinitialIndex,
@@ -80,6 +82,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
       vsync: this,
     );
     tabController.addListener(() {});
+
     super.initState();
   }
 
@@ -122,14 +125,14 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     listHeaderWidgets.add(infoSatisMenu());
     listBodyWidgets.add(_pageViewUmumiRutGunleri());
     listHeaderWidgets.add(infoRutGunleri());
-    if(widget.listGirisCixis.isNotEmpty) {
-      if (controllerRoutDetailUser.listZiyeretEdilmeyenler.isNotEmpty) {
-        listHeaderWidgets.add(infoZiyaretEdilmeyenler());
-        listBodyWidgets.add(_pageViewUmumiZiyeretEdilmeyenler());
-      }
-      listHeaderWidgets.add(infoZiyaretTarixcesi());
-      listBodyWidgets.add(_pageViewZiyaretTarixcesi());
-    }}
+    listHeaderWidgets.add(infoZiyaretEdilmeyenler());
+    listBodyWidgets.add(_pageViewUmumiZiyeretEdilmeyenler());
+    listHeaderWidgets.add(infoZiyaretTarixcesi());
+    listBodyWidgets.add(_pageViewZiyaretTarixcesi());
+    print("Tab lent+"+controllerRoutDetailUser.listTabItems.length.toString());
+    print("listBodyWidgets+"+listBodyWidgets.length.toString());
+    print("listHeaderWidgets+"+listHeaderWidgets.length.toString());
+    setState(() {});}
 
   @override
   void dispose() {
@@ -145,85 +148,87 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     return Material(
       child: SafeArea(
         child: Scaffold(
-          body:  NestedScrollView(
-              controller: _scrollControllerNested,
-              headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverSafeArea(
-                    sliver: SliverAppBar(
-                      elevation: 0,
-                      backgroundColor: Colors.white,
-                      centerTitle: false,
-                      expandedHeight: tabinitialIndex == 0
-                          ? 355
-                          : tabinitialIndex == 1
-                          ? 320
-                          : 225,
-                      pinned: true,
-                      floating: false,
-                      stretch: true,
-                      leading:widget.isMenumRutum?IconButton(
-                        onPressed: (){
-                          widget.drawerMenuController.openDrawer();
-                        },
-                        icon: const Icon(Icons.menu),
-                      ):null,
-                      title: CustomText(
-                          labeltext: widget.modelMercBaza.user!.name),
-                      actions: [IconButton(onPressed: (){
-                        controllerRoutDetailUser.getNewDatasFromServer(context);
+          body: controllerRoutDetailUser.dataLoading.isTrue?SizedBox(): NestedScrollView(
+            controller: _scrollControllerNested,
+            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                SliverSafeArea(
+                  sliver: SliverAppBar(
+                    elevation: 0,
+                    backgroundColor: Colors.white,
+                    centerTitle: false,
+                    expandedHeight: tabinitialIndex == 0
+                        ? 355
+                        : tabinitialIndex == 1
+                        ? 320
+                        : 225,
+                    pinned: true,
+                    floating: false,
+                    stretch: true,
+                    leading:widget.isMenumRutum?IconButton(
+                      onPressed: (){
+                        widget.drawerMenuController.openDrawer();
+                      },
+                      icon: const Icon(Icons.menu),
+                    ):null,
+                    title: CustomText(
+                        labeltext: widget.modelMercBaza.user!.name),
+                    actions: [IconButton(onPressed: () async {
+                      await controllerRoutDetailUser.getNewDatasFromServer(context).then((v){
+                        fillAllPages();
+                      });
 
-                      }, icon: const Icon(Icons.calendar_month))],
-                      flexibleSpace: FlexibleSpaceBar(
-                        stretchModes: const [StretchMode.blurBackground],
-                        background: pagetViewInfo(),
-                        collapseMode: CollapseMode.values[0],
-                        centerTitle: true,
-                      ),
-                      bottom: PreferredSize(
-                          preferredSize: const Size.fromHeight(50),
-                          child: ColoredBox(
-                            color: Colors.white,
-                            child: TabBar(
-                              physics: const NeverScrollableScrollPhysics(),
-                              onTap: (index) {
-                                setState(() {
-                                  tabinitialIndex == index;
-                                  _controller.jumpToPage(index);
-                                });
-                              },
-                              dividerColor: Colors.grey,
-                              splashBorderRadius: BorderRadius.circular(10),
-                              indicatorColor: Colors.green,
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              indicatorPadding: const EdgeInsets.all(5),
-                              unselectedLabelColor: Colors.black,
-                              dividerHeight: 1,
-                              indicator: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              labelColor: Colors.white,
-                              controller: tabController,
-                              tabs: controllerRoutDetailUser.listTabItems
-                                  .map((element) => Tab(
-                                iconMargin: const EdgeInsets.all(5),
-                                child: Text(element.label!,
-                                    textAlign: TextAlign.center),
-                              ))
-                                  .toList(),
-                            ),
-                          )),
+                    }, icon: const Icon(Icons.calendar_month))],
+                    flexibleSpace: FlexibleSpaceBar(
+                      stretchModes: const [StretchMode.blurBackground],
+                      background: pagetViewInfo(),
+                      collapseMode: CollapseMode.values[0],
+                      centerTitle: true,
                     ),
-                  )
-                ];
-              },
-              body: PageView(
-                onPageChanged: _onPageViewChange,
-                controller: _controller,
-                children: listBodyWidgets.toList(),
-              ),
+                    bottom: PreferredSize(
+                        preferredSize: const Size.fromHeight(50),
+                        child: ColoredBox(
+                          color: Colors.white,
+                          child: Obx(()=>TabBar(
+                            physics: const NeverScrollableScrollPhysics(),
+                            onTap: (index) {
+                              setState(() {
+                                tabinitialIndex == index;
+                                _controller.jumpToPage(index);
+                              });
+                            },
+                            dividerColor: Colors.grey,
+                            splashBorderRadius: BorderRadius.circular(10),
+                            indicatorColor: Colors.green,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            indicatorPadding: const EdgeInsets.all(5),
+                            unselectedLabelColor: Colors.black,
+                            dividerHeight: 1,
+                            indicator: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            labelColor: Colors.white,
+                            controller: tabController,
+                            tabs: controllerRoutDetailUser.listTabItems
+                                .map((element) => Tab(
+                              iconMargin: const EdgeInsets.all(5),
+                              child: Text(element.label!,
+                                  textAlign: TextAlign.center),
+                            ))
+                                .toList(),
+                          )),
+                        )),
+                  ),
+                )
+              ];
+            },
+            body: PageView(
+              onPageChanged: _onPageViewChange,
+              controller: _controller,
+              children: listBodyWidgets.toList(),
             ),
+          ),
           ),
         ),
     );
@@ -245,11 +250,13 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         itemCount: controllerRoutDetailUser.listMercBaza.length,
         itemBuilder: (con, index) {
           return itemsCustomers(
-              controllerRoutDetailUser.listMercBaza.elementAt(index),false);
+              controllerRoutDetailUser.listMercBaza.elementAt(index),
+              controllerRoutDetailUser.userPermitionSercis.
+              onlyByRutOrderNumber(controllerRoutDetailUser.loggedUserModel.userModel!.configrations!),false);
         }));
   }
 
-  Widget itemsCustomers(MercCustomersDatail element, bool rutSirasiGorunsun) {
+  Widget itemsCustomers(MercCustomersDatail element, bool rutSirasiGorunsun,bool showRutSirasiWidget) {
     return InkWell(
       onTap: (){
         controllerRoutDetailUser.intentMercCustamersDatail(element,rutSirasiGorunsun);
@@ -279,11 +286,11 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   const SizedBox(
                     height: 5,
                   ),
-                  _infoMarketRout(element)
+                  _infoMarketRout(element,rutSirasiGorunsun)
                 ],
               ),
             ),
-            Positioned(
+            element.days==null?const SizedBox(): Positioned(
                 top: 5,
                 left: 5,
                 child: Center(
@@ -297,11 +304,11 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                             ? Colors.green
                             : Colors.red),
                     child:rutSirasiGorunsun
-                        ? Center(
+                        ?showRutSirasiWidget?Center(
                         child: CustomText(
                             color: rutSirasiGorunsun?Colors.white:Colors.black,
                             fontWeight: rutSirasiGorunsun?FontWeight.w700:FontWeight.normal,
-                            labeltext:element.days!.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):const SizedBox(),
+                            labeltext:element.days!.firstWhere((e) => e.day==selectedRutGunu).orderNumber.toString())):SizedBox():const SizedBox(),
                   ),
                 )),
             Positioned(
@@ -430,7 +437,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         ));
   }
 
-  Widget _infoMarketRout(MercCustomersDatail element) {
+  Widget _infoMarketRout(MercCustomersDatail element, bool rutSirasiGorunsun) {
     int valuMore = 0;
     if (element.days!.any((element) => element.day==1)) {
       valuMore = valuMore + 1;
@@ -485,9 +492,9 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
 
   Widget infoSatisMenu() {
     double totalPrim=0;
-    if(widget.modelMercBaza.motivationData!.byNetSales!=null){
-      totalPrim=widget.modelMercBaza.motivationData!.byNetSales!+widget.modelMercBaza.motivationData!.byPlan!
-          +widget.modelMercBaza.motivationData!.byWasteProduct!;
+    if(controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byNetSales!=null){
+      totalPrim=controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byNetSales!+controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byPlan!
+          +controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byWasteProduct!;
     }
     return Obx(() => SingleChildScrollView(
       child: Stack(
@@ -765,7 +772,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
               ),
             ),
           ),
-          widget.modelMercBaza.motivationData!.byNetSales!=null? widget.modelMercBaza.motivationData!.planPercent! >= 100
+          controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byNetSales!=null? controllerRoutDetailUser.selectedMercBaza.value.motivationData!.planPercent! >= 100
               ? Positioned(
               top: 0,
               bottom: 0,
@@ -790,7 +797,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   child: Center(
                     child: CustomText(
                       labeltext:
-                      "${controllerRoutDetailUser.prettify(totalPrim)} ${"manatSimbol".tr}",
+                      "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byNetSales!+controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byPlan!
+                          +controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byWasteProduct!)} ${"manatSimbol".tr}",
                       fontWeight: FontWeight.bold,
                     ),
                   )))
@@ -817,13 +825,13 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   children: [
                     CustomText(labeltext: "motivasiya".tr, fontWeight: FontWeight.w700),
                     Container(
-                      height: 20,
-                      padding: const EdgeInsets.all(3),
+                        height: 20,
+                        padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
                           color: Colors.blue.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(5),
                         ),
-                        child: CustomText(labeltext: localBaseDownloads.getLastUpdatedFieldDate("enter"), fontWeight: FontWeight.w700)),
+                        child: CustomText(labeltext: localBaseDownloads.getLastUpdatedFieldDate("donwSingleMercBaza"), fontWeight: FontWeight.w700)),
                   ],
                 ),
                 const SizedBox(
@@ -844,7 +852,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                              widget.modelMercBaza.motivationData!.byNetSales!=null?"${widget.modelMercBaza.motivationData!.byNetSales!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
+                              controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byNetSales!=null?"${controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byNetSales!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
                         ],
                       ),
                     ),
@@ -863,7 +871,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           const SizedBox(
                             width: 5,
                           ),
-                          CustomText(labeltext:widget.modelMercBaza.motivationData!.byPlan!=null?"${widget.modelMercBaza.motivationData!.byPlan!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
+                          CustomText(labeltext:controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byPlan!=null?"${controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byPlan!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
                         ],
                       ),
                     ),
@@ -877,7 +885,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           const SizedBox(
                             width: 5,
                           ),
-                          CustomText(labeltext:widget.modelMercBaza.motivationData!.planPercent!=null?"${widget.modelMercBaza.motivationData!.planPercent!.toStringAsFixed(2)} %":""),
+                          CustomText(labeltext:controllerRoutDetailUser.selectedMercBaza.value.motivationData!.planPercent!=null?"${controllerRoutDetailUser.selectedMercBaza.value.motivationData!.planPercent!.toStringAsFixed(2)} %":""),
                         ],
                       ),
                     ),
@@ -898,7 +906,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                              widget.modelMercBaza.motivationData!.byWasteProduct!=null?"${widget.modelMercBaza.motivationData!.byWasteProduct!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
+                              controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byWasteProduct!=null?"${controllerRoutDetailUser.selectedMercBaza.value.motivationData!.byWasteProduct!.toStringAsFixed(2)} ${"manatSimbol".tr}":""),
                         ],
                       ),
                     ),
@@ -914,7 +922,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           ),
                           CustomText(
                               labeltext:
-                              widget.modelMercBaza.motivationData!.wasteProductPercent!=null?"${widget.modelMercBaza.motivationData!.wasteProductPercent!} %":""),
+                              controllerRoutDetailUser.selectedMercBaza.value.motivationData!.wasteProductPercent!=null?"${controllerRoutDetailUser.selectedMercBaza.value.motivationData!.wasteProductPercent!} %":""),
                         ],
                       ),
                     ),
@@ -971,7 +979,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
         itemCount: controllerRoutDetailUser.listRutGunleri.length,
         itemBuilder: (con, index) {
           return itemsCustomers(
-              controllerRoutDetailUser.listRutGunleri.elementAt(index),true);
+              controllerRoutDetailUser.listRutGunleri.elementAt(index),true,true);
         }));
   }
 
@@ -1047,7 +1055,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                             .toList().isEmpty?const SizedBox():_itemIndoMenuRutGunu(
                             "gun6".tr.toString(),
                             controllerRoutDetailUser.listMercBaza
-                                .where((p0) => p0.days!.any((element) => element.day==7))
+                                .where((p0) => p0.days!.any((element) => element.day==6))
                                 .toList()
                                 .length,6),
                       ],
@@ -1085,7 +1093,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                   : Colors.black12,
               width: 1),
         ),
-        height: 55,
+        //height: 55,
         width: double.infinity,
         child: Stack(
           children: [
@@ -1143,17 +1151,17 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
 
   /// info ziyaretEdilmeyenler
   Widget _pageViewUmumiZiyeretEdilmeyenler() {
-    return ListView.builder(
+    return Obx(()=>ListView.builder(
         padding: const EdgeInsets.all(0),
         itemCount: controllerRoutDetailUser.listZiyeretEdilmeyenler.length,
         itemBuilder: (con, index) {
           return itemsCustomers(controllerRoutDetailUser.listZiyeretEdilmeyenler
-              .elementAt(index),false);
-        });
+              .elementAt(index),false,true);
+        }));
   }
 
   Widget infoZiyaretEdilmeyenler() {
-    return Column(
+    return Obx(()=>Column(
       children: [
         SingleChildScrollView(
           child: Stack(
@@ -1199,7 +1207,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "${"plan".tr} : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalPlan!))} ${"manatSimbol".tr}"),
+                              "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalPlan!))} ${"manatSimbol".tr}"),
                         ],
                       ),
                       Row(
@@ -1207,7 +1215,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "${"satis".tr} : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalSelling!))} ${"manatSimbol".tr}"),
+                              "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalSelling!))} ${"manatSimbol".tr}"),
                         ],
                       ),
                       Row(
@@ -1215,7 +1223,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "${"zaymal".tr} : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalRefund!))} ${"manatSimbol".tr}"),
+                              "${controllerRoutDetailUser.prettify(controllerRoutDetailUser.listZiyeretEdilmeyenler.fold(0, (sum, element) => sum + element.totalRefund!))} ${"manatSimbol".tr}"),
                         ],
                       )
                     ],
@@ -1234,13 +1242,13 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         padding: const EdgeInsets.all(5.0),
                         child: CustomText(
                             labeltext:
-                                "${controllerRoutDetailUser.listZiyeretEdilmeyenler.length} ${"musteri".tr}"),
+                            "${controllerRoutDetailUser.listZiyeretEdilmeyenler.length} ${"musteri".tr}"),
                       )))
             ],
           ),
         )
       ],
-    );
+    ));
   }
 
   _onPageViewChange(int page) {
@@ -1257,13 +1265,13 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
 
   ///ziyaret tarixleri
   Widget _pageViewZiyaretTarixcesi() {
-    return ListView.builder(
+    return Obx(()=>ListView.builder(
         padding: const EdgeInsets.all(0),
         itemCount: controllerRoutDetailUser.listGunlukGirisCixislar.length,
         itemBuilder: (con, index) {
           return itemZiyaretGunluk(
               controllerRoutDetailUser.listGunlukGirisCixislar.elementAt(index));
-        });
+        }));
   }
 
   Widget itemZiyaretGunluk(ModelInOutDay model) {
@@ -1357,7 +1365,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   }
 
   Widget infoZiyaretTarixcesi() {
-    return Column(
+    return Obx(()=>Column(
       children: [
         SingleChildScrollView(
           child: Stack(
@@ -1401,7 +1409,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "${"isgunleri".tr} : "),
                           CustomText(
                               labeltext: "${controllerRoutDetailUser
-                                      .listGunlukGirisCixislar.length} ${"gun".tr}"),
+                                  .listGunlukGirisCixislar.length} ${"gun".tr}"),
                         ],
                       ),
                       Row(
@@ -1409,7 +1417,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "${"ziyaretSayi".tr} : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.listGunlukGirisCixislar.fold(0, (sum, element) => sum + element.visitedCount)} ${"market".tr}"),
+                              "${controllerRoutDetailUser.listGunlukGirisCixislar.fold(0, (sum, element) => sum + element.visitedCount)} ${"market".tr}"),
                         ],
                       ),
                       Row(
@@ -1417,7 +1425,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                           CustomText(labeltext: "${"umumiIssaati".tr} : "),
                           CustomText(
                               labeltext:
-                                  "${controllerRoutDetailUser.totalIsSaati} "),
+                              "${controllerRoutDetailUser.totalIsSaati} "),
                         ],
                       )
                     ],
@@ -1428,7 +1436,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
           ),
         )
       ],
-    );
+    ));
   }
 
   void _intentRutSirasiScreen(String rutGunu, int gunInt) {

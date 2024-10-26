@@ -28,13 +28,14 @@ class ModelBackErrorsAdapter extends TypeAdapter<ModelBackErrors> {
       locationLongitude: fields[8] as String?,
       sendingStatus: fields[9] as String?,
       description: fields[10] as String?,
+      userId: fields[11] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelBackErrors obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.userCode)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class ModelBackErrorsAdapter extends TypeAdapter<ModelBackErrors> {
       ..writeByte(9)
       ..write(obj.sendingStatus)
       ..writeByte(10)
-      ..write(obj.description);
+      ..write(obj.description)
+      ..writeByte(11)
+      ..write(obj.userId);
   }
 
   @override

@@ -5,6 +5,8 @@ import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart
 class ModelUpdateMercCustomers {
   String merchCode;
   String customerCode;
+  String sprCode;
+  String auiditCode;
   List<Plan> plans;
   List<Day> days;
   ChangeMerch changeMerch;
@@ -15,6 +17,8 @@ class ModelUpdateMercCustomers {
     required this.plans,
     required this.days,
     required this.changeMerch,
+    required this.sprCode,
+    required this.auiditCode,
   });
 
   factory ModelUpdateMercCustomers.fromRawJson(String str) => ModelUpdateMercCustomers.fromJson(json.decode(str));
@@ -24,17 +28,21 @@ class ModelUpdateMercCustomers {
   factory ModelUpdateMercCustomers.fromJson(Map<String, dynamic> json) => ModelUpdateMercCustomers(
     merchCode: json["merchCode"],
     customerCode: json["customerCode"],
+    sprCode: json["sprCode"],
+    auiditCode: json["auiditCode"],
     plans: List<Plan>.from(json["plans"].map((x) => Plan.fromJson(x))),
     days: List<Day>.from(json["days"].map((x) => Day.fromJson(x))),
     changeMerch: ChangeMerch.fromJson(json["changeMerch"]),
   );
 
   Map<String, dynamic> toJson() => {
-    "merchCode": merchCode,
+    "oldMerchCode": merchCode,
     "customerCode": customerCode,
     "plans": List<dynamic>.from(plans.map((x) => x.toJson())),
     "days": List<dynamic>.from(days.map((x) => x.toJson())),
     "changeMerch": changeMerch.toJson(),
+    "sprCode": sprCode,
+    "auiditCode": auiditCode,
   };
 
   @override
@@ -88,6 +96,6 @@ class Plan {
 
   Map<String, dynamic> toJson() => {
     "forwarderCode": forwarderCode,
-    "plan": plan,
+    "planAmount": plan,
   };
 }

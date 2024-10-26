@@ -17,6 +17,7 @@ class LocalGirisCixisServiz {
   }
 
   Future<void> addSelectedGirisCixisDBServer(ModelMainInOut model) async {
+    await clearAllGirisServer();
     await girisCixisServer.put("${model.userCode}", model);
   }
   Future<void> clearAllGirisServer() async {

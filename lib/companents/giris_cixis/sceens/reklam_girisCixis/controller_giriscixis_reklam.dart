@@ -44,10 +44,10 @@ import '../../../permitions/permitions_controller.dart';
 import '../../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import '../../../tapsiriqlar/model_task_responce.dart';
 import '../../models/model_customers_visit.dart';
+import 'package:intl/intl.dart';
 
 class ControllerGirisCixisReklam extends GetxController {
-  RxList<ModelCariler> listCariler =
-      List<ModelCariler>.empty(growable: true).obs;
+  RxList<ModelCariler> listCariler = List<ModelCariler>.empty(growable: true).obs;
   LocalUserServices userService = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   RxBool dataLoading = true.obs;
@@ -73,7 +73,7 @@ class ControllerGirisCixisReklam extends GetxController {
   LocalBaseDownloads localBaseDownloads = LocalBaseDownloads();
   Rx<ModelCariler> expandedItem = ModelCariler().obs;
   ScrollController listScrollController = ScrollController();
-  RxList<ModelTamItemsGiris> listTabItems = List<ModelTamItemsGiris>.empty(growable: true).obs;
+  RxList<ModelTamItemsGiris> listTabItemsRutGostericileri = List<ModelTamItemsGiris>.empty(growable: true).obs;
   RxList<ModelCariler> listSelectedMusteriler = List<ModelCariler>.empty(growable: true).obs;
   RxList<ModelSifarislerTablesi> listTabSifarisler = List<ModelSifarislerTablesi>.empty(growable: true).obs;
   RxString snQalmaVaxti = "0".obs;
@@ -142,7 +142,7 @@ class ControllerGirisCixisReklam extends GetxController {
     await localDbGirisCixis.init();
     modelgirisEdilmis.value = await localDbGirisCixis.getGirisEdilmisMarket();
     if (modelgirisEdilmis.value.userCode== null) {
-      await fillExpList(possition);
+      await explistiniDoldur(possition);
       marketeGirisEdilib.value = false;
       slidePanelVisible.value = false;
       dataLoading.value = false;
@@ -168,7 +168,8 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   } // eger markete giris edilibse cixis sehfesi acilmalidir
 
-  Future<void> getExpList(map.LatLng latLng) async {
+  Future<void> getExpListDialog(map.LatLng latLng) async {
+    print("listexpeditorlar count : "+listexpeditorlar.length.toString());
     Get.dialog(DialogSimpleUserSelect(
       selectedUserCode: selectedTemsilci.value.code!,
       getSelectedUse: (user) {
@@ -182,19 +183,32 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  Future<void> fillExpList(map.LatLng possition) async {
+  Future<void> explistiniDoldur(map.LatLng possition) async {
     listexpeditorlar.clear();
-    listexpeditorlar.value = localBaseDownloads.getAllConnectedUserFromLocalMerc();
-    if (loggedUserModel.userModel!.roleId == 21) {
-      listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
-      selectedTemsilci.value = UserModel(code: "h", name: "hamisi".tr);
-    }
+    localBaseDownloads.getAllConnectedUserFromLocal().toList().forEach((e){
+      listexpeditorlar.add(e);
+    });
+
+    if (loggedUserModel.userModel!.roleId == 5||loggedUserModel.userModel!.roleId == 6) {
+         listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
+          selectedTemsilci.value = UserModel(code: "h", name: "hamisi".tr);
+
+        update();
+      }
     else {
-      listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
-      listexpeditorlar.insert(1, UserModel(code: "m", name: "myRut".tr));
-      selectedTemsilci.value = UserModel(code: "m", name: "myRut".tr);
+        if(userPermitionHelper.getOnlyByRutDay(loggedUserModel.userModel!.configrations!)){
+          listexpeditorlar.insert(0, UserModel(code: "m", name: "myRut".tr));
+          selectedTemsilci.value = UserModel(code: "m", name: "myRut".tr);
+          update();
+        }
+        else{
+          listexpeditorlar.insert(0, UserModel(code: "h", name: "hamisi".tr));
+          listexpeditorlar.insert(1, UserModel(code: "m", name: "myRut".tr));
+          selectedTemsilci.value = UserModel(code: "m", name: "myRut".tr);
+          update();
+        }
     }
-    listexpeditorlar.removeWhere((elemebta) => elemebta.code == loggedUserModel.userModel!.code);
+    listexpeditorlar.removeWhere((elemebta) => elemebta.code == loggedUserModel.userModel!.code&&elemebta.roleId==loggedUserModel.userModel!.roleId);
     await getAllDataFormLocale(selectedTemsilci.value.code!,possition);
     update();
   }
@@ -203,14 +217,7 @@ class ControllerGirisCixisReklam extends GetxController {
     listCariler.clear();
     listSelectedMusteriler.clear();
     List<MercDataModel> listmodel = await localBase.getAllMercDatail();
-    listCariler.insert(0,ModelCariler(
-        name: loggedUserModel.userModel!.regionName.toString(),
-        code: loggedUserModel.userModel!.regionCode.toString(),
-        latitude:loggedUserModel.userModel!.regionLatitude,
-        longitude: loggedUserModel.userModel!.regionLongitude,
-        postalCode: "region"
-    ));
-    listSelectedMusteriler.insert(0,ModelCariler(
+    listCariler.add(ModelCariler(
         name: loggedUserModel.userModel!.regionName.toString(),
         code: loggedUserModel.userModel!.regionCode.toString(),
         latitude:loggedUserModel.userModel!.regionLatitude,
@@ -249,9 +256,17 @@ class ControllerGirisCixisReklam extends GetxController {
           modelCari.rutGunu = rutGunu ? "Duz" : "Sef";
           listCariler.add(modelCari);
         }
+        update();
       }
       if(userCode=="m"){
         listSelectedMusteriler.value = listCariler.where((elent) => elent.forwarderCode == loggedUserModel.userModel!.code!).toList();
+        listSelectedMusteriler.add(ModelCariler(
+            name: loggedUserModel.userModel!.regionName.toString(),
+            code: loggedUserModel.userModel!.regionCode.toString(),
+            latitude:loggedUserModel.userModel!.regionLatitude,
+            longitude: loggedUserModel.userModel!.regionLongitude,
+            postalCode: "region"
+        ));
         await  changeSelectedUsersCari(loggedUserModel.userModel!.code!,possition);
       }
       else{
@@ -262,7 +277,6 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   } //butun carilerin listini bazadan ceken
 
-
   Future<void> changeSelectedDistance(UserModel model, map.LatLng possition) async {
     listSelectedMusteriler.value = carculateDistanceList(listSelectedMusteriler, possition);
     update();
@@ -270,26 +284,35 @@ class ControllerGirisCixisReklam extends GetxController {
 
   Future<void> changeSelectedUsersCari(String userCode, map.LatLng possition) async {
     listSelectedMusteriler.clear();
-    if (userCode == "m") {
-      listSelectedMusteriler.value = carculateDistanceList(listCariler.where((elent) => elent.forwarderCode == loggedUserModel.userModel!.code).toList(), possition);
-      await getRutPerformToday(false, userCode);
+    if (userCode == loggedUserModel.userModel!.code!) {
+      if(userPermitionHelper.getOnlyByRutDay(loggedUserModel.userModel!.configrations!)){
+        await getRutPerformToday(false, userCode);
+        listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listGunlukRut!,possition);
+        update();
+      }else {
+        await getRutPerformToday(false, userCode);
+        listSelectedMusteriler.value = carculateDistanceList(listCariler.where((elent) => elent.forwarderCode ==loggedUserModel.userModel!.code).toList(), possition);
+        update();
+      }
     } else if (userCode == "h") {
-      listSelectedMusteriler.value = carculateDistanceList(listCariler, possition);
       await getRutPerformToday(true, userCode);
+      listSelectedMusteriler.value = carculateDistanceList(listCariler, possition);
+      update();
     } else {
-      listSelectedMusteriler.value = carculateDistanceList( listCariler.where((p0) => p0.forwarderCode == userCode).toList(), possition);
       await getRutPerformToday(false, userCode);
+      listSelectedMusteriler.value = carculateDistanceList( listCariler.where((p0) => p0.forwarderCode == userCode).toList(), possition);
+      update();
     }
     update();
   }
 
   Future<ModelRutPerform> getRutPerformToday(bool butunCariler, String selectedUser) async {
 
-    listTabItems.clear();
+    listTabItemsRutGostericileri.clear();
     if (butunCariler) {
      await localBaseDownloads.getRutDatailForMerc(butunCariler, selectedUser,loggedUserModel.userModel!.code!).then((value){
        modelRutPerform.value=value;
-       listTabItems.add(ModelTamItemsGiris(
+       listTabItemsRutGostericileri.add(ModelTamItemsGiris(
            icon: Icons.people_outline_outlined,
            label: "umumiMusteri".tr,
            girisSayi: value.duzgunZiya! +
@@ -298,7 +321,7 @@ class ControllerGirisCixisReklam extends GetxController {
            marketSayi: listCariler.length,
            selected: true,
            color: Colors.deepPurple));
-       listTabItems.add(ModelTamItemsGiris(
+       listTabItemsRutGostericileri.add(ModelTamItemsGiris(
            icon: Icons.verified_user_outlined,
            label: "ziyaretler".tr,
            girisSayi: value.listGirisCixislar!.length,
@@ -307,47 +330,77 @@ class ControllerGirisCixisReklam extends GetxController {
            selected: false,
            color: Colors.green));
      });
-
+      update();
     } else {
       await localBaseDownloads.getRutDatailForMerc(butunCariler, selectedUser,loggedUserModel.userModel!.code!).then((value){
         modelRutPerform.value=value;
-        listTabItems.add(ModelTamItemsGiris(
-            icon: Icons.people_outline_outlined,
-            label: "umumiMusteri".tr,
-            girisSayi: value.duzgunZiya! + value.rutkenarZiya!,
-            keyText: "Gumumi",
-            marketSayi: value.snSayi,
-            selected: true,
-            color: Colors.deepPurple));
-        listTabItems.add(ModelTamItemsGiris(
-            icon: Icons.people_outline_outlined,
-            label: "todeyRut".tr,
-            girisSayi: value.duzgunZiya,
-            keyText: "Grut",
-            marketSayi: value.rutSayi,
-            selected: false,
-            color: Colors.blue));
-        listTabItems.add(ModelTamItemsGiris(
-            icon: Icons.person_off_outlined,
-            label: "unVisited".tr,
-            girisSayi: 0,
-            keyText: "zedilmeyen",
-            marketSayi: value.ziyaretEdilmeyen,
-            selected: false,
-            color: Colors.orange));
-        listTabItems.add(ModelTamItemsGiris(
-            icon: Icons.verified_user_outlined,
-            label: "ziyaretler".tr,
-            girisSayi: value.listGirisCixislar!.length,
-            keyText: "z",
-            marketSayi: value.listGirisCixislar!.length,
-            selected: false,
-            color: Colors.green));
-      });
+        if(userPermitionHelper.getOnlyByRutDay(loggedUserModel.userModel!.configrations!)){
+          listTabItemsRutGostericileri.add(ModelTamItemsGiris(
+              icon: Icons.people_outline_outlined,
+              label: "todeyRut".tr,
+              girisSayi: value.duzgunZiya,
+              keyText: "Grut",
+              marketSayi: value.rutSayi,
+              selected: true,
+              color: Colors.blue));
+          listTabItemsRutGostericileri.add(ModelTamItemsGiris(
+              icon: Icons.person_off_outlined,
+              label: "unVisited".tr,
+              girisSayi: 0,
+              keyText: "zedilmeyen",
+              marketSayi: value.ziyaretEdilmeyen,
+              selected: false,
+              color: Colors.orange));
+          listTabItemsRutGostericileri.add(ModelTamItemsGiris(
+              icon: Icons.verified_user_outlined,
+              label: "ziyaretler".tr,
+              girisSayi: value.listGirisCixislar!.length,
+              keyText: "z",
+              marketSayi: value.listGirisCixislar!.length,
+              selected: false,
+              color: Colors.green));
+          update();
+        }else{
+          listTabItemsRutGostericileri.add(ModelTamItemsGiris(
+              icon: Icons.people_outline_outlined,
+              label: "umumiMusteri".tr,
+              girisSayi: value.duzgunZiya! + value.rutkenarZiya!,
+              keyText: "Gumumi",
+              marketSayi: value.snSayi,
+              selected: true,
+              color: Colors.deepPurple));
+          listTabItemsRutGostericileri.add(ModelTamItemsGiris(
+              icon: Icons.people_outline_outlined,
+              label: "todeyRut".tr,
+              girisSayi: value.duzgunZiya,
+              keyText: "Grut",
+              marketSayi: value.rutSayi,
+              selected: false,
+              color: Colors.blue));
+          listTabItemsRutGostericileri.add(ModelTamItemsGiris(
+              icon: Icons.person_off_outlined,
+              label: "unVisited".tr,
+              girisSayi: 0,
+              keyText: "zedilmeyen",
+              marketSayi: value.ziyaretEdilmeyen,
+              selected: false,
+              color: Colors.orange));
+          listTabItemsRutGostericileri.add(ModelTamItemsGiris(
+              icon: Icons.verified_user_outlined,
+              label: "ziyaretler".tr,
+              girisSayi: value.listGirisCixislar!.length,
+              keyText: "z",
+              marketSayi: value.listGirisCixislar!.length,
+              selected: false,
+              color: Colors.green));
+          update();
+        }
 
+      });
+      update();
     }
     if (modelRutPerform.value.listGonderilmeyenZiyaretler!.isNotEmpty) {
-      listTabItems.insert(0, ModelTamItemsGiris(
+      listTabItemsRutGostericileri.insert(0, ModelTamItemsGiris(
               icon: Icons.unpublished,
               label: "gonderilmeyenler".tr,
               girisSayi:
@@ -355,15 +408,16 @@ class ControllerGirisCixisReklam extends GetxController {
               keyText: "gz",
               marketSayi:
                   modelRutPerform.value.listGonderilmeyenZiyaretler!.length,
-              selected: false,
+              selected: true,
               color: Colors.red));
+      update();
     }
     update();
     return modelRutPerform.value;
   } // bu gune aid rut gunleri,ziyaretler v.s Local bazadan
 
   Future<void> changeTabItemsValue(ModelTamItemsGiris element, map.LatLng currentLocation) async {
-    for (var element2 in listTabItems) {
+    for (var element2 in listTabItemsRutGostericileri) {
       if (element2.label == element.label) {
         element2.selected = true;
         update();
@@ -378,13 +432,16 @@ class ControllerGirisCixisReklam extends GetxController {
         switch (element.keyText) {
           case "Grut":
             listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listGunlukRut!,currentLocation);
+            update();
             break;
           case "Gumumi":
             listSelectedMusteriler.value = carculateDistanceList(listCariler, currentLocation);
+            update();
             break;
           case "zedilmeyen":
             listSelectedMusteriler.value = carculateDistanceList(
                 modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
+            update();
             break;
         }
       }
@@ -392,13 +449,15 @@ class ControllerGirisCixisReklam extends GetxController {
         switch (element.keyText) {
           case "Grut":
             listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listGunlukRut!, currentLocation);
+            update();
             break;
           case "Gumumi":
             listSelectedMusteriler == carculateDistanceList(listCariler.where((elent) => elent.forwarderCode == selectedTemsilci.value.code).toList(), currentLocation);
-
+            update();
             break;
           case "zedilmeyen":
             listSelectedMusteriler.value = carculateDistanceList(modelRutPerform.value.listZiyaretEdilmeyen!, currentLocation);
+            update();
             break;
         }
       }
@@ -1158,14 +1217,18 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   double calculateDistance(lat1, lon1, lat2, lon2) {
+    double latitude1=double.parse(lat1.toString());
+    double latitude2=double.parse(lat2.toString());
+    double longitude1=double.parse(lon1.toString());
+    double longitude2=double.parse(lon2.toString());
     var p = 0.017453292519943295;
     var c = cos;
     // var a = 0.5 -
     //     c((lat2 - lat1) * p) / 2 +
     //     c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     var a = 0.5 -
-        c((lon2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lon2 * p) * (1 - c((lat2 - lon1) * p)) / 2;
+        c((longitude2 - latitude1) * p) / 2 +
+        c(latitude1 * p) * c(longitude2 * p) * (1 - c((latitude2 - longitude1) * p)) / 2;
     double uzaqliq = 12742 * asin(sqrt(a));
     return uzaqliq;
   }
@@ -2126,10 +2189,10 @@ class ControllerGirisCixisReklam extends GetxController {
                     icon: Icons.phonelink_erase_rounded,
                     callback: () {
                       Get.back();
-                      backgroudLocationServiz.sendErrorsToServers(
-                          "Block",
-                          selectedModel.code.toString() +
-                              "adlimarkerBlockMock".tr);
+                      // backgroudLocationServiz.sendErrorsToServers(
+                      //     "Block",
+                      //     selectedModel.code.toString() +
+                      //         "adlimarkerBlockMock".tr);
                     }),
               );
             } else {
@@ -2238,17 +2301,26 @@ class ControllerGirisCixisReklam extends GetxController {
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     ModelRequestGirisCixis model = ModelRequestGirisCixis();
     if (modelvisit.operationType == "in") {
+      final String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format( modelvisit.inDate!);
+
       model = ModelRequestGirisCixis(
+        isRutDay: modelvisit.isRutDay,
+          userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
           userPosition: modelvisit.userPosition.toString(),
           customerCode: modelvisit.customerCode.toString(),
           note: "",
           operationLatitude: modelvisit.inLatitude.toString(),
           operationLongitude: modelvisit.inLongitude.toString(),
-          operationDate: modelvisit.inDate.toString(),
+          operationDate: formattedDate,
+          inDt: formattedDate,
           operationType: "In",
           userCode: modelvisit.userCode.toString());
     } else {
+      final String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(modelgirisEdilmis.value.inDate!);
       model = ModelRequestGirisCixis(
+          isRutDay: modelvisit.isRutDay,
+          userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
+          inDt: formattedDate,
           userPosition: modelvisit.userPosition.toString(),
           customerCode: modelvisit.customerCode.toString(),
           note: modelvisit.outNote.toString(),
@@ -2263,14 +2335,14 @@ class ControllerGirisCixisReklam extends GetxController {
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
       final response = await ApiClient().dio(false).post(
-            "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
+        "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertInOutToSystem",
             data: model.toJson(),
             options: Options(
               receiveTimeout: const Duration(seconds: 60),
               headers: {
                 'Lang': languageIndex,
                 'Device': dviceType,
-                'abs': '123456',
+                'smr': '12345',
                 "Authorization": "Bearer $accesToken"
               },
               validateStatus: (_) => true,
@@ -2279,6 +2351,7 @@ class ControllerGirisCixisReklam extends GetxController {
             ),
           );
       // 404
+      print("responce giris et :"+response.statusCode.toString()+" result :"+response.data.toString());
       if (response.statusCode == 200) {
         DialogHelper.hideLoading();
         modelvisit.gonderilme = "1";
@@ -2346,41 +2419,48 @@ class ControllerGirisCixisReklam extends GetxController {
       ModelCustuomerVisit modelVisit) async {
     DialogHelper.showLoading("Kohne melumatlar gonderilir");
     await userService.init();
+    final String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     ModelRequestGirisCixis model = ModelRequestGirisCixis();
     if (isEnter) {
       model = ModelRequestGirisCixis(
+        isRutDay: selectedModel.rutGunu=="Duz"?true:false,
+        userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
+        inDt: formattedDate,
         userPosition: loggedUserModel.userModel!.roleId.toString(),
         userCode: loggedUserModel.userModel!.code.toString(),
         customerCode: selectedModel.code.toString(),
         note: "",
         operationLatitude: currentLocation.latitude.toString(),
         operationLongitude: currentLocation.longitude.toString(),
-        operationDate: DateTime.now().toString(),
+        operationDate: formattedDate,
         operationType: "In",
       );
     } else {
+      final String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(modelgirisEdilmis.value.inDate!);
       model = ModelRequestGirisCixis(
+          userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
+          inDt: formattedDate,
           userPosition: loggedUserModel.userModel!.roleId.toString(),
           userCode: loggedUserModel.userModel!.code.toString(),
           customerCode: modelgirisEdilmis.value.customerCode.toString(),
           note: ctCixisQeyd.text,
           operationLatitude: currentLocation.latitude.toString(),
           operationLongitude: currentLocation.longitude.toString(),
-          operationDate: DateTime.now().toString(),
+          operationDate: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
           operationType: "Out");
     }
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     final response = await ApiClient().dio(false).post(
-      "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
+      "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertInOutToSystem",
       data: model.toJson(),
       options: Options(
         headers: {
           'Lang': languageIndex,
           'Device': dviceType,
-          'abs': '123456',
+          'smr': '12345',
           "Authorization": "Bearer $accesToken"
         },
         validateStatus: (_) => true,
@@ -2389,6 +2469,7 @@ class ControllerGirisCixisReklam extends GetxController {
       ),
     );
     // 404
+    print("responce giris et :"+response.statusCode.toString()+" result :"+response.data.toString());
     if (response.statusCode == 200) {
       DialogHelper.hideLoading();
       modelVisit.gonderilme = "1";
@@ -2478,30 +2559,38 @@ class ControllerGirisCixisReklam extends GetxController {
     }
   }
 
-  Future<void> _callApiForSendUnsededsTotalSend(
-      ModelCustuomerVisit modelvisit) async {
+  Future<void> _callApiForSendUnsededsTotalSend(ModelCustuomerVisit modelvisit) async {
     DialogHelper.showLoading("allDataSending".tr);
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     ModelRequestGirisCixis model = ModelRequestGirisCixis();
     if (modelvisit.operationType == "in") {
+      final String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(modelvisit.inDate!);
+
       model = ModelRequestGirisCixis(
+          isRutDay: modelvisit.isRutDay,
+
+          userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
           userPosition: modelvisit.userPosition.toString(),
           customerCode: modelvisit.customerCode.toString(),
           note: "",
           operationLatitude: modelvisit.inLatitude.toString(),
           operationLongitude: modelvisit.inLongitude.toString(),
-          operationDate: modelvisit.inDate.toString(),
+          operationDate: formattedDate,
+          inDt: formattedDate,
           operationType: "In",
           userCode: modelvisit.userCode.toString());
     } else {
+      final String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(modelgirisEdilmis.value.inDate!);
       model = ModelRequestGirisCixis(
+          userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
           userPosition: modelvisit.userPosition.toString(),
           customerCode: modelvisit.customerCode.toString(),
           note: modelvisit.outNote.toString(),
           operationLatitude: modelvisit.outLatitude.toString(),
           operationLongitude: modelvisit.outLongitude.toString(),
           operationType: "Out",
+          inDt: formattedDate,
           operationDate: modelvisit.outDate.toString(),
           userCode: modelvisit.userCode.toString());
     }
@@ -2510,14 +2599,14 @@ class ControllerGirisCixisReklam extends GetxController {
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     try {
       final response = await ApiClient().dio(false).post(
-            "${loggedUserModel.baseUrl}/api/v1/InputOutput/in-out-to-customer",
+            "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertInOutToSystem",
             data: model.toJson(),
             options: Options(
               receiveTimeout: const Duration(seconds: 60),
               headers: {
                 'Lang': languageIndex,
                 'Device': dviceType,
-                'abs': '123456',
+                'smr': '12345',
                 "Authorization": "Bearer $accesToken"
               },
               validateStatus: (_) => true,
@@ -2526,39 +2615,13 @@ class ControllerGirisCixisReklam extends GetxController {
             ),
           );
       // 404
+      print("responce giris et :"+response.statusCode.toString()+" result :"+response.data.toString());
       if (response.statusCode == 200) {
         DialogHelper.hideLoading();
         modelvisit.gonderilme = "1";
         localDbGirisCixis.updateSelectedValue(modelvisit);
         checkAllVisitsForTotalSend();
-      } else {
-        if (ModelExceptions.fromJson(response.data['exception']).code != null) {
-          String expCode = ModelExceptions.fromJson(response.data['exception'])
-              .code
-              .toString();
-          String messsaje = ModelExceptions.fromJson(response.data['exception'])
-              .message
-              .toString();
-          if (expCode == "010") {
-            DialogHelper.hideLoading();
-            Get.dialog(ShowInfoDialog(
-                messaje: messsaje, icon: Icons.error, callback: () {}));
-          } else if (expCode == "006") {
-            DialogHelper.hideLoading();
-            Get.dialog(ShowSualDialog(
-                messaje:
-                    "$messsaje.Sistemi yeniden baslatmaq lazimdir.Yeniden baslasin?",
-                callBack: (val) {
-                  if (val) {
-                    Get.offAllNamed(RouteHelper.mobileLoginFistScreen);
-                  }
-                }));
-          } else {
-            DialogHelper.hideLoading();
-          }
-        } else {
-          DialogHelper.hideLoading();
-        }
+
       }
     } on DioException catch (e) {
       DialogHelper.hideLoading();

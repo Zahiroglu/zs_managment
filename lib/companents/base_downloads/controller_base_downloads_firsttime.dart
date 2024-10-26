@@ -23,6 +23,7 @@ import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:intl/intl.dart' as intl;
+import '../../constands/app_constands.dart';
 import '../../global_models/custom_enummaptype.dart';
 import '../../global_models/model_appsetting.dart';
 import '../../global_models/model_maptypeapp.dart';
@@ -155,38 +156,16 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
     int sayList = 0;
     await localUserServices.init();
     List<ModelUserPermissions> listUsersPermitions =
-        localUserServices.getLoggedUser().userModel!.permissions!;
+    localUserServices.getLoggedUser().userModel!.permissions!.where((e)=>e.category==2).toList();
     sayList = sayList + 1;
     for (var element in listUsersPermitions) {
-      switch (element.code) {
-        case "myConnectedRutMerch":
-          listDonwloads.add(ModelDownloads(
-              name: "connextedUsers".tr,
-              code: "myConnectedRutMerch",
-              info: "connextedUsersExplain".tr,
-              lastDownDay: "",
-              donloading: false,
-              musteDonwload: true));
-          break;
-        case "warehouse":
-          listDonwloads.add(ModelDownloads(
-              name: "warehouse".tr,
-              code: "warehouse",
-              info: "warehouseExplain".tr,
-              lastDownDay: "",
-              donloading: false,
-              musteDonwload: true));
-          break;
-        case "enter":
-          listDonwloads.add(ModelDownloads(
-              name: "currentBase".tr,
-              donloading: false,
-              code: "enter",
-              info: "currentBaseExplain".tr,
-              lastDownDay: "",
-              musteDonwload: true));
-          break;
-      }
+      listDonwloads.add(ModelDownloads(
+          name: element.name,
+          code: element.code,
+          info: element.valName,
+          lastDownDay: "",
+          donloading: false,
+          musteDonwload: true));
     }
     await callLocalBases();
     update();
@@ -376,23 +355,24 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   }
 
   Future<void> melumatlariEndir(ModelDownloads model, bool guncelle) async {
+    print("element code :"+model.toString());
     switch (model.code) {
-      case "myConnectedRutMerch":
+      case "myConnectedUsers":
         await localGirisCixisServiz.init();
+        await localBaseDownloads.init();
         updateElementDownloading(model,true);
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
-        await localBaseDownloads.addConnectedUsers(listUser);
         updateElementDownloading(model,false);
         if (listUser.isNotEmpty) {
-          //listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
+          await localBaseDownloads.addConnectedUsers(listUser);
           listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
         }
         break;
-      case "warehouse":
+      case "anbarScreen":
         await localGirisCixisServiz.init();
         updateElementDownloading(model,true);
         loggedUserModel = localUserServices.getLoggedUser();
@@ -407,14 +387,16 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
         }
         break;
-      case "enter":
+      case "enterScreen":
         loggedUserModel = localUserServices.getLoggedUser();
         updateElementDownloading(model,true);
         List<MercDataModel> data = [];
-        if (loggedUserModel.userModel!.roleId == 21 || loggedUserModel.userModel!.roleId == 22) {
+        if (loggedUserModel.userModel!.roleId == 21 ||
+            loggedUserModel.userModel!.roleId == 22) {
           data = await getAllMercCariBazaMotivasiya();
         } else {
-          await getAllGirisCixis(loggedUserModel.userModel!.code!, loggedUserModel.userModel!.roleId.toString())
+          await getAllGirisCixis(loggedUserModel.userModel!.code!,
+              loggedUserModel.userModel!.roleId.toString())
               .whenComplete(() async {
             data = await getAllMercCariBazaMotivasiya();
           });
@@ -432,6 +414,32 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
       case "myRut":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
+        break;
+      case "donwEnterMerc":
+        await localGirisCixisServiz.init();
+        updateElementDownloading(model,true);
+        List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
+        updateElementDownloading(model,false);
+        if (data.isNotEmpty) {
+          model.lastDownDay = DateTime.now().toIso8601String();
+          model.musteDonwload = false;
+          localBaseDownloads.addDownloadedBaseInfo(model);
+          localBaseDownloads.addAllToMercBase(data);
+          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+        }
+        break;
+      case "donwSingleMercBaza":
+        await localGirisCixisServiz.init();
+        updateElementDownloading(model,true);
+        List<MercDataModel> data = await getSingleMercCariBazaMotivasiya();
+        updateElementDownloading(model,false);
+        if (data.isNotEmpty) {
+          model.lastDownDay = DateTime.now().toIso8601String();
+          model.musteDonwload = false;
+          localBaseDownloads.addDownloadedBaseInfo(model);
+          localBaseDownloads.addAllToMercBase(data);
+          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+        }
         break;
     }
     intentScreen();
@@ -453,50 +461,39 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         callback: () {},
       ));
     } else {
-      try {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/User/my-connected-users",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
 
-        if (response.statusCode == 200) {
-          var userlist = json.encode(response.data['result']);
-          List listuser = jsonDecode(userlist);
-          for (var i in listuser) {
-            listUsers.add(UserModel(
-              roleName: i['roleName'],
-              roleId: i['roleId'],
-              code: i['code'],
-              name: i['fullName'],
-              gender: 0,
-            ));
-          }
-        } else {
-          exeptionHandler.handleExeption(response);
+      final response = await ApiClient().dio(false).get(
+        AppConstands.baseUrlsMain+"/UserControl/GetUsersWithConnectedMe",
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        var userlist = json.encode(response.data['Result']);
+        List listuser = jsonDecode(userlist);
+        for (var i in listuser) {
+          listUsers.add(UserModel(
+            id: i['Id'],
+            roleName: i['RoleName'],
+            roleId: i['RoleId'],
+            code: i['Code'],
+            name: i['Name'],
+            gender: 0,
+          ));
         }
-      } on DioException catch (e) {
-        if (e.response != null) {
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
-      }
-    }
+
+      }}
+
     return listUsers;
   }
 
@@ -570,20 +567,20 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   ///Cari Merc Baza endirme/////////
   Future<List<MercDataModel>> getAllMercCariBazaMotivasiya() async {
     List<MercDataModel> listUsers = [];
-    List<UserModel> listConnectedUsers = [];
     languageIndex = await getLanguageIndex();
-    List<String> secilmisTemsilciler = [];
     await localBaseDownloads.init();
     LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
-    List<UserModel> listUsersSelected =
-        localBaseDownloads.getAllConnectedUserFromLocal();
-    if (listUsersSelected.isEmpty) {
-      secilmisTemsilciler.add(loggedUserModel.userModel!.code!);
-    } else {
-      for (var element in listUsersSelected) {
-        secilmisTemsilciler.add(element.code!);
-      }
-    }
+    DateTime dateTime=DateTime.now();
+    var data=
+    {
+      "usersConnectedMe": true,
+      "companyId": loggedUserModel.userModel!.companyId,
+      "regionCode": loggedUserModel.userModel!.regionCode,
+      "il": dateTime.year,
+      "ay": dateTime.month
+
+    };
+
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -594,57 +591,91 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         callback: () {},
       ));
     } else {
-      var response;
-      if (userPermitionSercis.hasUserPermition(UserPermitionsHelper.canEnterOtherMerchCustomers,
-          loggedUserModel.userModel!.permissions!)) {
-        response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-my-region",
-              options: Options(
-                receiveTimeout: const Duration(seconds: 60),
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-      } else {
-        response = await ApiClient().dio(false).post(
-              "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
-              data: jsonEncode(secilmisTemsilciler),
-              options: Options(
-                headers: {
-                  'Lang': languageIndex,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer $accesToken"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
-      }
+      var response = await ApiClient().dio(false).post(
+        "${loggedUserModel.baseUrl}/MercSystem/getAllMercRout",
+        data: data,
+        options: Options(
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      print("respince : "+response.toString());
       if (response.statusCode == 200) {
-        var dataModel = json.encode(response.data['result']);
+        List<UserModel> listConnectedMercs =[];
+        var dataModel = json.encode(response.data['Result']);
         List listuser = jsonDecode(dataModel);
         for (var i in listuser) {
           listUsers.add(MercDataModel.fromJson(i));
-          listConnectedUsers.add(UserModel(
-            roleName: "Mercendaizer",
-            roleId: 23,
-            code: MercDataModel.fromJson(i).user!.code,
-            name: MercDataModel.fromJson(i).user!.name,
-            gender: 0,
-          ));
+          listConnectedMercs.add(UserModel(
+              roleName: MercDataModel.fromJson(i).user!.roleName,
+              roleId: MercDataModel.fromJson(i).user!.roleId,
+              name: MercDataModel.fromJson(i).user!.name,
+              code: MercDataModel.fromJson(i).user!.code,
+              gender: 0));
+
+        }
+        await localBaseDownloads.addConnectedUsers(listConnectedMercs);
+      }    }
+    return listUsers;
+  }
+
+  Future<List<MercDataModel>> getSingleMercCariBazaMotivasiya() async {
+    List<MercDataModel> listUsers = [];
+    languageIndex = await getLanguageIndex();
+    await localBaseDownloads.init();
+    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
+    DateTime dateTime=DateTime.now();
+    var data=
+    {
+      "code":loggedUserModel.userModel!.code,
+      "companyId": loggedUserModel.userModel!.companyId,
+      "roleId": loggedUserModel.userModel!.roleId,
+      "il": dateTime.year,
+      "ay": dateTime.month
+
+    };
+
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      var response = await ApiClient().dio(false).post(
+        "${loggedUserModel.baseUrl}/MercSystem/getAllMercRout",
+        data: data,
+        options: Options(
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      print("respince : "+response.toString());
+      if (response.statusCode == 200) {
+        var dataModel = json.encode(response.data['Result']);
+        List listuser = jsonDecode(dataModel);
+        for (var i in listuser) {
+          listUsers.add(MercDataModel.fromJson(i));
         }
       }
     }
-    await localBaseDownloads.addConnectedUsers(listConnectedUsers);
     return listUsers;
   }
 

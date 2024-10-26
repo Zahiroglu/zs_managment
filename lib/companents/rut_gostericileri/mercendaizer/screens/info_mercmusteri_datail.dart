@@ -9,6 +9,8 @@ import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
+import '../../../../helpers/user_permitions_helper.dart';
+
 class ScreenMercMusteriDetail extends StatefulWidget {
   ControllerMercPref controllerMercPref;
 
@@ -30,7 +32,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   final int _initialIndex = 0;
   int tabinitialIndex = 0;
   late PageController _controller;
-
+  UserPermitionsHelper userPermitionsHelper=UserPermitionsHelper();
 
   @override
   void initState() {
@@ -197,7 +199,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                       ),
                                       CustomText(
                                           labeltext:
-                                          "${prettify(widget.controllerMercPref.selectedCustomers.value.totalSelling!.round() * 1)}${"manatSimbol".tr}",
+                                          "${prettify(widget.controllerMercPref.selectedCustomers.value.totalSelling!.round() * 1)} ${ "manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -209,7 +211,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                                         fontWeight: FontWeight.bold,
                                       ),
                                       CustomText(
-                                          labeltext: "${widget.controllerMercPref.selectedCustomers.value.totalRefund!.round()}${"manatSimbol".tr}",
+                                          labeltext: "${widget.controllerMercPref.selectedCustomers.value.totalRefund!.round()} ${"manatSimbol".tr}",
                                           fontsize: 16),
                                     ],
                                   ),
@@ -283,7 +285,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
               ],
             ),
           ),
-         widget.controllerMercPref.loggedUserModel.userModel!.permissions!.any((element) => element.id==30)?Positioned(
+          userPermitionsHelper.hasUserPermition("canEditMercCustomers", widget.controllerMercPref.loggedUserModel.userModel!.permissions!)?Positioned(
               top: -8,
               right: -5,
               child: IconButton.filled(

@@ -107,17 +107,20 @@ class DayAdapter extends TypeAdapter<Day> {
     return Day(
       day: fields[1] as int,
       orderNumber: fields[2] as int,
+      cariKod: fields[3] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Day obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(1)
       ..write(obj.day)
       ..writeByte(2)
-      ..write(obj.orderNumber);
+      ..write(obj.orderNumber)
+      ..writeByte(3)
+      ..write(obj.cariKod);
   }
 
   @override

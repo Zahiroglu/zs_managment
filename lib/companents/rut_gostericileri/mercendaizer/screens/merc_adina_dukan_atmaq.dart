@@ -602,24 +602,24 @@ class _ScreenMercAdinaMusteriEalveEtmeState
     }
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
-    List<DayOrderNumber> listDays = [];
+    List<Day> listDays = [];
     if (rutGunuBir) {
-      listDays.add(DayOrderNumber(day: 1, orderNumber: 1));
+      listDays.add(Day(day: 1, orderNumber: 1,cariKod: widget.modelCari.code!));
     }
     if (rutGunuIki) {
-      listDays.add(DayOrderNumber(day: 2, orderNumber: 1));
+      listDays.add(Day(day: 2, orderNumber: 1,cariKod: widget.modelCari.code!));
     }
     if (rutGunuUc) {
-      listDays.add(DayOrderNumber(day: 3, orderNumber: 1));
+      listDays.add(Day(day: 3, orderNumber: 1,cariKod: widget.modelCari.code!));
     }
     if (rutGunuDort) {
-      listDays.add(DayOrderNumber(day: 4, orderNumber: 1));
+      listDays.add(Day(day: 4, orderNumber: 1,cariKod: widget.modelCari.code!));
     }
     if (rutGunuBes) {
-      listDays.add(DayOrderNumber(day: 5, orderNumber: 1));
+      listDays.add(Day(day: 5, orderNumber: 1,cariKod: widget.modelCari.code!));
     }
     if (rutGunuAlti) {
-      listDays.add(DayOrderNumber(day: 6, orderNumber: 1));
+      listDays.add(Day(day: 6, orderNumber: 1,cariKod: widget.modelCari.code!));
     }
     ModelMercBazaInsert model = ModelMercBazaInsert(
         merchCode: selectedMerc.code!,
@@ -646,14 +646,13 @@ class _ScreenMercAdinaMusteriEalveEtmeState
       ));
     } else {
       final response = await ApiClient().dio(true).post(
-            "${loggedUserModel.baseUrl}/api/v1/Sales/add-merch-customer",
+            "${loggedUserModel.baseUrl}/MercSystem/InsertNewCustomerToMercBaze",
             data: model.toJson(),
             options: Options(
-              receiveTimeout: const Duration(seconds: 60),
               headers: {
                 'Lang': languageIndex,
                 'Device': dviceType,
-                'abs': '123456',
+                'smr': '12345',
                 "Authorization": "Bearer $accesToken"
               },
               validateStatus: (_) => true,
@@ -661,12 +660,6 @@ class _ScreenMercAdinaMusteriEalveEtmeState
               responseType: ResponseType.json,
             ),
           );
-      if (response.statusCode == 200) {
-        DialogHelper.hideLoading();
-        Get.back();
-      }else{
-        exeptionHandler.handleExeption(response);
-      }
     }
   }
 

@@ -41,8 +41,8 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
                 borderRadius: BorderRadius.all(Radius.circular(20)),
                 color: Colors.white),
             height:MediaQuery.of(context).size.height / 2,
-            width: MediaQuery.of(context).size.height / 2,
-            margin: const EdgeInsets.symmetric(vertical: 200, horizontal: 140),
+            width: MediaQuery.of(context).size.width / 2,
+            margin: const EdgeInsets.symmetric(vertical: 200, horizontal: 50),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +121,7 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
              border: Border.all(color: Colors.grey)
            ),
            
-           width: 110,
+           width: double.infinity,
            child: Column(
              children: [ Row(
                children: [
@@ -216,14 +216,14 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
         },
       ));
     } else {
-        final response = await ApiClient().dio(true).delete(
-          "${widget.loggedUserModel.baseUrl}/api/v1/User/delete-user/${widget.modelUser.code}/${widget.modelUser.roleId}/$deleteMode",
+        final response = await ApiClient().dio(true).post(
+          "${AppConstands.baseUrlsMain}/Admin/DeleteUser?userId=${widget.modelUser.id}&userCode=${widget.modelUser.code}&roleId=${widget.modelUser.roleId}&deleteAllInfo=$valueSelected2",
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
             headers: {
               'Lang': languageIndex,
               'Device': dviceType,
-              'abs': '123456',
+              'smr': '12345',
               "Authorization": "Bearer $accesToken"
             },
             validateStatus: (_) => true,
@@ -231,21 +231,7 @@ class _ScreenDeleteUserState extends State<ScreenDeleteUser> {
             responseType: ResponseType.json,
           ),
         );
-        if (response.statusCode == 200) {
-          DialogHelper.hideLoading();
-          Get.dialog(ShowInfoDialog(
-            color: Colors.green,
-            icon: Icons.verified_user_outlined,
-            messaje: "Melumat ugurla silindi",
-            callback: () {
-              Get.back();
-              widget.deleteCall.call();
-            },
-          ));
 
-        }else{
-          DialogHelper.hideLoading();
-        }
     }
   }
 

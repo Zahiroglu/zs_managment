@@ -26,6 +26,8 @@ class ModelBackErrors {
   String? sendingStatus;
   @HiveField(10)
   String? description;
+  @HiveField(11)
+  int? userId;
 
   ModelBackErrors({
     this.userCode,
@@ -39,6 +41,7 @@ class ModelBackErrors {
     this.locationLongitude,
     this.sendingStatus,
     this.description,
+    this.userId,
   });
 
   factory ModelBackErrors.fromRawJson(String str) => ModelBackErrors.fromJson(json.decode(str));
@@ -56,6 +59,7 @@ class ModelBackErrors {
     locationLatitude: json["locationLatitude"],
     locationLongitude: json["locationLongitude"],
     description: json["description"],
+    userId: json["userId"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -69,5 +73,6 @@ class ModelBackErrors {
     "locationLatitude": locationLatitude,
     "locationLongitude": locationLongitude,
     "description": description,
+    "userId": userId,
   };
 }

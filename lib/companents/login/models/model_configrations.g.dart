@@ -17,31 +17,28 @@ class ModelConfigrationsAdapter extends TypeAdapter<ModelConfigrations> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ModelConfigrations(
-      companyId: fields[1] as int,
+      configId: fields[1] as int,
       confCode: fields[2] as String,
       confVal: fields[3] as String,
-      roleId: fields[4] as int,
-      abbreaviation1: fields[5] as String,
-      abbreaviation2: fields[6] as String,
+      data1: fields[4] as String,
+      data2: fields[5] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelConfigrations obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(5)
       ..writeByte(1)
-      ..write(obj.companyId)
+      ..write(obj.configId)
       ..writeByte(2)
       ..write(obj.confCode)
       ..writeByte(3)
       ..write(obj.confVal)
       ..writeByte(4)
-      ..write(obj.roleId)
+      ..write(obj.data1)
       ..writeByte(5)
-      ..write(obj.abbreaviation1)
-      ..writeByte(6)
-      ..write(obj.abbreaviation2);
+      ..write(obj.data2);
   }
 
   @override

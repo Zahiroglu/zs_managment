@@ -42,13 +42,13 @@ Future<void>  main() async{
   await Hive.initFlutter();
   Map<String, Map<String, String>> languages = await dep.init();
   //sonuncu HiveType 37-di
-  Hive.registerAdapter(MotivationDataAdapter());
-  Hive.registerAdapter(ModelInOutAdapter());
-  Hive.registerAdapter(ModelInOutDayAdapter());
-  Hive.registerAdapter(ModelMainInOutAdapter());
-  Hive.registerAdapter(ModelConfigrationsAdapter());
-  Hive.registerAdapter(ModelBackErrorsAdapter());
-  Hive.registerAdapter(ModelUsercCurrentLocationReqeustAdapter());
+  Hive.registerAdapter(MotivationDataAdapter());//id-37
+  Hive.registerAdapter(ModelInOutAdapter());//id-36
+  Hive.registerAdapter(ModelInOutDayAdapter());//id-35
+  Hive.registerAdapter(ModelMainInOutAdapter());//id-34
+  Hive.registerAdapter(ModelConfigrationsAdapter());//id-33
+  Hive.registerAdapter(ModelBackErrorsAdapter());//id-31
+  Hive.registerAdapter(ModelUsercCurrentLocationReqeustAdapter());//id-32
   Hive.registerAdapter(ModelAnbarRaporAdapter());
   Hive.registerAdapter(LoggedUserModelAdapter());
   Hive.registerAdapter(ModelAppSettingAdapter());

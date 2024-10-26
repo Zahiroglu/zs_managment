@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
@@ -15,7 +14,6 @@ class WidgetDilSecimi extends StatelessWidget {
   Function callBack;
   bool? isLoginScreen = false;
   final apiControllerMobile = Get.lazyPut(() => UserApiControllerMobile()); // will inject that dependecy, and wait until it's used then it will call onInit() method, then onReady() method
-  final apiControllerWindos = Get.lazyPut(() => UsersApiController()); // will inject that dependecy, and wait until it's used then it will call onInit() method, then onReady() method
   LocalUserServices localUserServices=LocalUserServices();
 
   @override

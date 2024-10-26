@@ -183,7 +183,7 @@ class ControllerExpPref extends GetxController {
 
   List<ModelMercBaza> createRandomOrdenNumber(List<ModelMercBaza> list) {
     List<ModelMercBaza> yeniList = [];
-    // List<ModelMercBaza> listBir = list.where((p) => p.gun1.toString() == "1").toList();
+    // List<ModelMercyBaza> listBir = list.where((p) => p.gun1.toString() == "1").toList();
     // List<ModelMercBaza> listIki = list.where((p) => p.gun2.toString() == "1").toList();
     // List<ModelMercBaza> listUc = list.where((p) => p.gun3.toString() == "1").toList();
     // List<ModelMercBaza> listDort = list.where((p) =>p.gun4.toString() == "1").toList();
@@ -373,7 +373,7 @@ class ControllerExpPref extends GetxController {
       print("per :"+element.toString());
     });
     bool canEditCari=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canEditExpCari");
-    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canEditMerchCustomers");
+    bool canAddMercToBase=userService.getLoggedUser().userModel!.permissions!.any((element) => element.code=="canAdExpCustomersToMercRout");
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -470,9 +470,11 @@ class ControllerExpPref extends GetxController {
       ),
     );
   }
+
   Future<void> setAllMarkers() async {
     markers.clear();
     for (ModelCariler model in listFilteredUmumiBaza) {
+      if(model.latitude!=null||model.longitude!=null){
       markers.add(map.Marker(
           markerId: map.MarkerId(model.code!),
           onTap: () {
@@ -482,7 +484,7 @@ class ControllerExpPref extends GetxController {
           icon: await getClusterBitmap2(120, model),
           position: map.LatLng(
               double.parse(model.longitude!.toString()), double.parse(model.latitude!.toString()))));
-    }
+    }}
   }
 
   Future<map.BitmapDescriptor> getClusterBitmap2(int size,ModelCariler model) async {

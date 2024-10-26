@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/local_bazalar/local_bazalar.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/login/services/api_services/users_apicontroller_web_windows.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/setting_panel/screen_user_connections.dart';
@@ -15,6 +14,8 @@ import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/thema/thema_controller.dart';
 import 'package:zs_managment/thema/theme_constants.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
+
+import '../login/models/model_userspormitions.dart';
 
 class SettingScreenMobile extends StatefulWidget {
   DrawerMenuController drawerMenuController;
@@ -504,7 +505,10 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
 
   void icazelerFormunaBax(UserModel model) {
     print(model.permissions.toString());
-    Get.to(ScreenUserPermisions(listPermisions: model.permissions!));
+    List<ModelUserPermissions> listper=[];
+    listper.addAll(model.permissions!);
+    listper.addAll(model.draweItems!);
+    Get.to(ScreenUserPermisions(listPermisions: listper));
 
   }
 
@@ -520,7 +524,6 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
 
   Future<void> _sistemiYenidenBaslat() async {
     Get.delete<DrawerMenuController>();
-    Get.delete<UsersApiController>();
     Get.delete<UserApiControllerMobile>();
    // Get.delete<SettingPanelController>();
     Get.delete<ControllerAnbar>();

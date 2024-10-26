@@ -53,12 +53,12 @@ class ModelRequestUsersFilter {
   );
 
   Map<String, dynamic> toJson() => {
-    "code": code??"",
-    "name": name??"",
-    "surname": surname??"",
-    "deviceId": deviceId??"",
-    "moduleId": moduleId??0,
-    "roleId": roleId??0,
-    "username": username??"",
+    "code": code,
+    "name": name,
+    "surname": surname,
+    "deviceId": deviceId,
+    "moduleId": moduleId,
+    "roleId": roleId,
+    "username": username,
   };
 }

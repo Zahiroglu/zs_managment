@@ -6,12 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:map_launcher/map_launcher.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:zs_managment/companents/live_track/screen_search_live_users.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/routs/rout_controller.dart';
+import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
+import '../../widgets/simple_info_dialog.dart';
 import '../hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import '../hesabatlar/user_hesabatlar/useruzre_hesabatlar.dart';
 import 'controller_live_track/controller_live_track.dart';
@@ -40,7 +45,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
 
   @override
   void initState() {
-    confiqGeolocatior();
+    configGeolocatior();
     _determinePosition().then((value) {
       setState(() {
         _currentLocation = value;
@@ -65,7 +70,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
     super.dispose();
   }
 
-  confiqGeolocatior() {
+  configGeolocatior() {
     if (defaultTargetPlatform == TargetPlatform.android) {
       locationSettings = AndroidSettings(
           accuracy: LocationAccuracy.high,
@@ -137,18 +142,26 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => SnappingSheet(
+    return Obx(() => SizedBox(
+      height: MediaQuery.of(context).size.height, // Constrained height
+      child: Column(
+        children: [
+        Expanded(
+            flex: controllerGirisCixis.searcAktive.isTrue?10:2,
+            child: SnappingSheet(
           onSheetMoved: (positionData) {
             if (positionData.relativeToSnappingPositions > 0.6) {
               setState(() {
                 expandMenuVisible = true;
                 userHesabatlarMustVisible = true;
               });
-            } else if (positionData.relativeToSnappingPositions >= 0.3) {
+            }
+            else if (positionData.relativeToSnappingPositions >= 0.35) {
               setState(() {
                 scrrolOpened=true;
               });
-            } else {
+            }
+            else {
               setState(() {
                 scrrolOpened=false;
                 expandMenuVisible = false;
@@ -159,46 +172,55 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
           controller: controllerGirisCixis.snappingSheetController.value,
           lockOverflowDrag: true,
           snappingPositions: controllerGirisCixis.userMarkerSelected.isTrue ? [
-                  const SnappingPosition.factor(
-                    positionFactor: 0.0,
-                    snappingCurve: Curves.easeOutExpo,
-                    snappingDuration: Duration(milliseconds: 1000),
-                    grabbingContentOffset: GrabbingContentOffset.top,
-                  ),
-                  const SnappingPosition.factor(
-                    grabbingContentOffset: GrabbingContentOffset.bottom,
-                    snappingCurve: Curves.easeOutExpo,
-                    snappingDuration: Duration(milliseconds: 1000),
-                    positionFactor: 0.75,
-                  )
-                ] : [
-                  const SnappingPosition.factor(
-                    positionFactor: 0.0,
-                    snappingCurve: Curves.easeOutExpo,
-                    snappingDuration: Duration(milliseconds: 1000),
-                    grabbingContentOffset: GrabbingContentOffset.top,
-                  ),
-                  const SnappingPosition.factor(
-                    snappingCurve: Curves.easeOutExpo,
-                    snappingDuration: Duration(milliseconds: 1000),
-                    positionFactor: 0.3,
-                  ),
-                ],
+            const SnappingPosition.factor(
+              positionFactor: 0.00,
+              snappingCurve: Curves.easeOutExpo,
+              snappingDuration: Duration(milliseconds: 1000),
+              grabbingContentOffset: GrabbingContentOffset.top,
+            ),
+            const SnappingPosition.factor(
+              grabbingContentOffset: GrabbingContentOffset.bottom,
+              snappingCurve: Curves.easeOutExpo,
+              snappingDuration: Duration(milliseconds: 1000),
+              positionFactor: 0.75,
+            )
+          ] : [
+            const SnappingPosition.factor(
+              positionFactor: 0.0,
+              snappingCurve: Curves.easeOutExpo,
+              snappingDuration: Duration(milliseconds: 1000),
+              grabbingContentOffset: GrabbingContentOffset.top,
+            ),
+            const SnappingPosition.factor(
+              snappingCurve: Curves.easeOutExpo,
+              snappingDuration: Duration(milliseconds: 1000),
+              positionFactor: 0.35,
+            ),
+          ],
           grabbing: Obx(() {
-            return controllerGirisCixis.selectedModel.value.lastInoutAction!= null ? grappengContainer(context) : SizedBox();
+            return controllerGirisCixis.selectedModel.value.lastInoutAction!= null ? grappengContainer(context) : const SizedBox();
           }),
           grabbingHeight: controllerGirisCixis.userMarkerSelected.isFalse
-              ? MediaQuery.of(context).size.height / 5 : userHesabatlarMustVisible?MediaQuery.of(context).size.height / 8.2:MediaQuery.of(context).size.height / 4,
+              ? MediaQuery.of(context).size.height / 5
+              : userHesabatlarMustVisible?MediaQuery.of(context).size.height
+              / 6.2:MediaQuery.of(context).size.height / 2.5,
           sheetAbove: null,
           sheetBelow: SnappingSheetContent(
             draggable: true,
             childScrollController: listViewController,
-            child: controllerGirisCixis.selectedModel.value.userCode!=null?controllerGirisCixis.userMarkerSelected.isTrue
+            child:controllerGirisCixis.selectedModel.value.userCode!=null?controllerGirisCixis.userMarkerSelected.isTrue
                 ? _hesabatHisseUser(context)
-                : _hesabatHisseMartker(context):SizedBox(),
+                : _hesabatHisseMartker(context):const SizedBox(),
           ),
           child: widgetGoogleMap(),
-        ));
+        )),
+          if (controllerGirisCixis.searcAktive.isTrue&&controllerGirisCixis.listTrackdata.isNotEmpty)
+            Expanded(
+              flex: 20,
+              child: searchUsers(context),
+            ),
+      ],),
+    ));
   }
 
   Widget grappengContainer(BuildContext context) {
@@ -249,7 +271,33 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                     icon: const Icon(Icons.expand_more),
                   ))
               : const SizedBox(),
-
+          Positioned(
+            top: 10,
+            right: userHesabatlarMustVisible?40:0,
+            child: Expanded(
+                flex: 2,
+                child: Container(
+                  margin: const EdgeInsets.only(right: 5),
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                      color: controllerGirisCixis
+                          .selectedModel.value.currentLocation!.isOnline!
+                          ? Colors.green
+                          : Colors.red,
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      border: Border.all(color: Colors.black)),
+                  child: Center(
+                      child: CustomText(
+                        labeltext: controllerGirisCixis
+                            .selectedModel.value.currentLocation!.isOnline!
+                            ? "Online"
+                            : "Offline",
+                        fontsize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      )),
+                ),
+              ),),
                 Positioned(
                   top: 5,
                   left: 5,
@@ -264,7 +312,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
   }
 
   Widget widgetGoogleMap() {
-    return Stack(
+    return Obx(()=>Stack(
       children: [
         map.GoogleMap(
           initialCameraPosition: map.CameraPosition(target: _initialPosition),
@@ -273,11 +321,11 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               controllerGirisCixis.selectedModel.value = ModelLiveTrack();
               controllerGirisCixis.userMarkerSelected.isFalse
                   ? controllerGirisCixis.snappingSheetController.value
-                      .snapToPosition(
-                          const SnappingPosition.pixels(positionPixels: 80))
+                  .snapToPosition(
+                  const SnappingPosition.pixels(positionPixels: 80))
                   : controllerGirisCixis.snappingSheetController.value
-                      .snapToPosition(
-                          const SnappingPosition.pixels(positionPixels: 80));
+                  .snapToPosition(
+                  const SnappingPosition.pixels(positionPixels: 80));
             });
           },
           polylines: controllerGirisCixis.polylines.toSet(),
@@ -297,17 +345,17 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
           gestureRecognizers: Set()
             ..add(Factory<PanGestureRecognizer>(() => PanGestureRecognizer()))
             ..add(Factory<VerticalDragGestureRecognizer>(
-                () => VerticalDragGestureRecognizer()))
+                    () => VerticalDragGestureRecognizer()))
             ..add(Factory<HorizontalDragGestureRecognizer>(
-                () => HorizontalDragGestureRecognizer()))
+                    () => HorizontalDragGestureRecognizer()))
             ..add(Factory<ScaleGestureRecognizer>(
-                () => ScaleGestureRecognizer())),
+                    () => ScaleGestureRecognizer())),
           onCameraIdle: () {
           },
           onMapCreated: _onMapCreated,
         ),
-        Positioned(
-          right: controllerGirisCixis.dataLoading.isFalse? 60:10,
+        controllerGirisCixis.searcAktive.isTrue?const SizedBox():Positioned(
+            right: controllerGirisCixis.dataLoading.isFalse? 60:10,
             top: 15,
             child: CircleAvatar(
               radius: 20,
@@ -315,40 +363,46 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               child: IconButton(
                 icon: const Icon(Icons.search_outlined),
                 onPressed: (){
-                  openSearchScreen();
+                  setState(() {
+                    controllerGirisCixis.selectedModel.value = ModelLiveTrack();
+                    controllerGirisCixis.userMarkerSelected.value=true;
+                    controllerGirisCixis.searcAktive.value=true;
+                    scrrolOpened=false;
+                  });
+                  //openSearchScreen();
                 },
               ),
             )),
         controllerGirisCixis.dataLoading.isFalse?Positioned(
-          right: 10,
+            right: 10,
             top: 15,
             child: CircleAvatar(
               radius: 20,
               backgroundColor: Colors.grey.withOpacity(0.5),
               child: IconButton(
                 icon: const Icon(Icons.refresh_outlined),
-                onPressed: (){
-                  controllerGirisCixis.getAllDatFromServer();
+                onPressed: () async {
+                  await controllerGirisCixis.getAllDatFromServer();
                 },
               ),
             )):const SizedBox(),
         controllerGirisCixis.dataLoading.isFalse?Positioned(
-          left: 18,
+            left: 18,
             top: 45,
             child: Row(
               children: [
-                controllerGirisCixis.sonYenilenme.isEmpty?SizedBox(): CustomText(labeltext:"Son yenilenme : ${controllerGirisCixis.sonYenilenme.value.substring(11,19)}"??"",color: Colors.black,fontsize: 8),
+                controllerGirisCixis.sonYenilenme.isEmpty?const SizedBox(): CustomText(labeltext:"Son yenilenme : ${controllerGirisCixis.sonYenilenme.value.substring(11,19)}",color: Colors.black,fontsize: 8),
               ],
             )):const SizedBox(),
         controllerGirisCixis.dataLoading.isTrue?Positioned(
-          left: MediaQuery.of(context).size.width*0.3,
+            left: MediaQuery.of(context).size.width*0.3,
             top: 50,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white)
-                
+                  color: Colors.black.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white)
+
               ),
               padding: const EdgeInsets.all(10),
               child: Row(
@@ -361,7 +415,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                   CustomText(labeltext: "mDeyisdirilir".tr+"...",color: Colors.white,),
                 ],
               ),
-            )):SizedBox(),
+            )):const SizedBox(),
         controllerGirisCixis.dataLoading.isFalse?Positioned(
             left: 5,
             top: 70,
@@ -396,7 +450,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                               child: Center(child: CustomText(labeltext: controllerGirisCixis.modelMuyConnectUsers.value.notInWorkUserCount.toString(),color: Colors.white,fontWeight: FontWeight.bold,fontsize: 12,)))))
                 ],
               ),
-            )):SizedBox(),
+            )):const SizedBox(),
         controllerGirisCixis.dataLoading.isFalse?Positioned(
             left: 5,
             top: 130,
@@ -412,9 +466,9 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                     width: 50,
                     margin: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black26)
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black26)
 
                     ),
                     child: const Center(child: Icon(Icons.crisis_alert_outlined,color: Colors.red,)),
@@ -433,7 +487,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                               child: Center(child: CustomText(labeltext: controllerGirisCixis.modelMuyConnectUsers.value.errorCount.toString(),color: Colors.white,fontWeight: FontWeight.bold,fontsize: 12,)))))
                 ],
               ),
-            )):SizedBox(),
+            )):const SizedBox(),
 
         Positioned(
             top: 20,
@@ -443,9 +497,18 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                   widget.drawerMenuController.keyScaff.currentState!
                       .openDrawer();
                 },
-                child: Icon(Icons.menu)))
+                child: const Icon(Icons.menu))),
+        controllerGirisCixis.searcAktive.isTrue?Positioned(
+            bottom: 10,
+            right: 10,
+            child: InkWell(
+                onTap: () {
+                  controllerGirisCixis.searcAktive.value=false;
+                  setState(() {});
+                },
+                child: const Icon(Icons.zoom_out_map))):const SizedBox()
       ],
-    );
+    ));
   }
 
   void _onMapCreated(map.GoogleMapController controller) {
@@ -456,7 +519,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
 
   _widgetMarketInfo(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 30, left: 10),
+      padding: const EdgeInsets.only(top: 30, left: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,7 +541,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                 child: CustomText(
                   overflow: TextOverflow.ellipsis,
                   labeltext: controllerGirisCixis
-                      .selectedModel.value.lastInoutAction!.inDate!,
+                      .selectedModel.value.lastInoutAction!.inDate!.toString().substring(0,10),
                   fontsize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -525,7 +588,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                     fontWeight: FontWeight.w600),
                 CustomText(
                     labeltext:
-                        " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate!}"),
+                        " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate.toString().substring(0,10)}"),
               ],
             ),
             const SizedBox(
@@ -557,17 +620,17 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                     labeltext: "${"cixisVaxt".tr} : ",
                     fontsize: 14,
                     fontWeight: FontWeight.w600),
-                controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!=null
+                controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5
                     ? CustomText(
                         labeltext:
-                            " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!}")
+                            " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate.toString().substring(0,10)}")
                     : CustomText(labeltext: "cixisedilmeyib".tr),
               ],
             ),
             const SizedBox(
               width: 20,
             ),
-            controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!=null
+            controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5
                 ? Row(
                     children: [
                       const Icon(
@@ -579,7 +642,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                               " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDistance??""}"),
                     ],
                   )
-                : SizedBox()
+                : const SizedBox()
           ],
         ),
         const SizedBox(
@@ -613,103 +676,130 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 8,
-                child: CustomText(
-                  overflow: TextOverflow.ellipsis,
-                  labeltext:
-                      "${controllerGirisCixis.selectedModel.value.userCode!}-${controllerGirisCixis.selectedModel.value.currentLocation!.userFullName!}",
-                  fontsize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  margin: EdgeInsets.only(right: 10),
-                  padding: EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                      color: controllerGirisCixis
-                              .selectedModel.value.currentLocation!.isOnline!
-                          ? Colors.green
-                          : Colors.red,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      border: Border.all(color: Colors.black)),
-                  child: Center(
-                      child: CustomText(
-                    labeltext: controllerGirisCixis
-                            .selectedModel.value.currentLocation!.isOnline!
-                        ? "Online"
-                        : "Offline",
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  )),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomText(
-                  labeltext: "${"sonYenilenme".tr} : ",
-                  fontsize: 15,
-                  fontWeight: FontWeight.w600),
-              CustomText(
-                  labeltext: controllerGirisCixis
-                      .selectedModel.value.currentLocation!.locationDate!),
-            ],
-          ),
-          Row(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                      labeltext: "${"surret".tr} : ",
-                      fontsize: 15,
-                      fontWeight: FontWeight.w600),
-                  CustomText(
-                      labeltext: "${controllerGirisCixis
-                              .selectedModel.value.currentLocation!.speed} km"),
-                ],
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              controllerGirisCixis
-                          .selectedModel.value.currentLocation!.speed ==
-                      "0"
-                  ? SizedBox()
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomText(
-                            labeltext: "${"hereket".tr} : ",
-                            fontsize: 15,
-                            fontWeight: FontWeight.w600),
-                        CustomText(
-                            labeltext: controllerGirisCixis.selectedModel.value
-                                        .currentLocation!.speed ==
-                                    "0"
-                                ? ""
-                                : "hereketdedir".tr),
-                      ],
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: CircleAvatar(
+                    child: ClipOval(
+                      child: Image.network(
+                        "https://st2.depositphotos.com/1570716/8433/i/950/depositphotos_84330370-stock-photo-portrait-of-a-smart-young.jpg",
+                        fit: BoxFit.cover, // Ensures the image fills the circular avatar
+                        width: double.infinity, // Ensures the image fits inside the CircleAvatar
+                        height: double.infinity,
+                      ),
                     ),
-            ],
+                  ),
+                ),
+                const SizedBox(width: 5,),
+                Expanded(
+                  flex: 8,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomText(
+                        overflow: TextOverflow.ellipsis,
+                        labeltext:
+                        "${controllerGirisCixis.selectedModel.value.userCode!}-${controllerGirisCixis.selectedModel.value.currentLocation!.userFullName!}",
+                        fontsize: 16,
+                        maxline: 1,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(children: [
+                              CustomText(
+                                  labeltext: "${"sonYenilenme".tr} : ",
+                                  fontsize: 12,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600),
+                              CustomText(
+                                  fontsize: 12,
+                                  color: Colors.black87,
+                                  labeltext: controllerGirisCixis
+                                      .selectedModel.value.currentLocation!.locationDate.toString().substring(10,16)),
+                            ],),
+                            const SizedBox(width: 10,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomText(
+                                    color: Colors.black87,
+                                    labeltext: "${"surret".tr} : ",
+                                    fontsize: 12,
+                                    fontWeight: FontWeight.w600),
+                                CustomText(
+                                    fontsize: 12,
+                                    color: Colors.black87,
+                                    labeltext: "${controllerGirisCixis
+                                        .selectedModel.value.currentLocation!.speed} km"),
+                              ],
+                            ),
+                            const Spacer()
+                          ],
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
+           Padding(
+             padding: const EdgeInsets.only(right: 10),
+             child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  onTap:(){
+                    openWhatsAppChat(phone: controllerGirisCixis.selectedModel.value.phoneNumber!.toString());
+                  },
+
+                  child: SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: Image.asset("images/whatsapp.png"),
+                  ),
+                ),
+                const SizedBox(width: 10,),
+                InkWell(
+                  onTap: (){
+                    launchPhoneDialer(phone: controllerGirisCixis.selectedModel.value.phoneNumber!.toString());
+                  },
+                  child: SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: Image.asset("images/mobilecall.png"),
+                  ),
+                ) ,
+                const SizedBox(width: 10,),
+                InkWell(
+                  onTap: (){
+                    createRoutBetweenTwoPoints(controllerGirisCixis
+                        .selectedModel.value.currentLocation!);
+                  },
+                  child: SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: Image.asset("images/directionmap.png"),
+                  ),
+                )
+              ],
+                       ),
+           ),
           const SizedBox(
             height: 5,
           ),
-          userHesabatlarMustVisible||controllerGirisCixis.selectedModel.value.lastInoutAction==null?SizedBox():Column(
+          userHesabatlarMustVisible||controllerGirisCixis.selectedModel.value.lastInoutAction==null?const SizedBox():Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -726,12 +816,12 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                 color: Colors.grey,
               ),
               const SizedBox(
-                height: 2,
+                height: 5,
               ),
               Row(
                 children: [
                   Expanded(
-                    flex: 8,
+                    flex: 7,
                     child: CustomText(
                       overflow: TextOverflow.ellipsis,
                       labeltext:
@@ -741,12 +831,13 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                     ),
                   ),
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: CustomText(
                       overflow: TextOverflow.ellipsis,
                       labeltext: controllerGirisCixis
-                          .selectedModel.value.lastInoutAction!.inDate!,
-                      fontsize: 14,
+                          .selectedModel.value.lastInoutAction!.customerCode!,
+                      fontsize: 12,
+                      color: Colors.deepPurpleAccent,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -754,10 +845,55 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               ),
             ],
           ),
-          userHesabatlarMustVisible||controllerGirisCixis.selectedModel.value.lastInoutAction==null?SizedBox():_widgetInfoZiyaret(),
+          userHesabatlarMustVisible||controllerGirisCixis.selectedModel.value.lastInoutAction==null?const SizedBox():_widgetInfoZiyaret(),
         ],
       ),
     );
+  }
+
+  Future<void> createRoutBetweenTwoPoints(CurrentLocation modelCariler) async {
+    Coords cordEnd = Coords(double.parse(modelCariler.latitude.toString()),
+        double.parse(modelCariler.longitude.toString()));
+    try {
+      await MapLauncher.showMarker(mapType: controllerGirisCixis.availableMap.value.mapType,
+          coords: cordEnd,
+          title: modelCariler.userFullName!);
+    } catch (exp) {
+      Get.dialog(ShowInfoDialog(
+        messaje: "Secmis oldugunuz ${controllerGirisCixis.availableMap.value.mapType.name} hal hazirda cavab vermir.Basqa programla evez edin!",
+        icon: Icons.info_outlined,
+        callback: (va) {
+          if (va) {
+            openMapSettingScreen();
+          }
+        },
+      ));
+    }
+  }
+
+  Future<void> openMapSettingScreen() async {
+    controllerGirisCixis.availableMap = await Get.toNamed(RouteHelper.mobileMapSettingMobile);
+    setState(() {});
+  }
+
+  Future<void> openWhatsAppChat({required String phone}) async {
+    final Uri whatsappUrl = Uri.parse("whatsapp://send?phone=$phone");
+
+    if (await canLaunchUrl(whatsappUrl)) {
+      await launchUrl(whatsappUrl);
+    } else {
+      throw 'Could not launch WhatsApp chat';
+    }
+  }
+
+  Future<void> launchPhoneDialer({required String phone}) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phone);
+
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      throw 'Could not launch phone dialer';
+    }
   }
 
   _hesabatHisseMartker(BuildContext context) {
@@ -776,7 +912,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               ),
             ),
           )
-        : SizedBox();
+        : const SizedBox();
   }
 
   _hesabatHisseUser(BuildContext context) {
@@ -785,8 +921,9 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            //WidgetRuthesabatlar(roleId: controllerGirisCixis.selectedModel.value.currentLocation!.userPosition.!,height: 100,temsilciKodu: controllerGirisCixis.selectedModel.value.userCode!),
-            WidgetRuthesabatlar(roleId: controllerGirisCixis.selectedModel.value.userPosition.toString(),height: 100,temsilciKodu: controllerGirisCixis.selectedModel.value.userCode!, onClick: (){
+            WidgetRuthesabatlar(
+              listP: controllerGirisCixis.localUserServices.getLoggedUser().userModel!.permissions!.where((e)=>e.category==3).toList(),
+              roleId: controllerGirisCixis.selectedModel.value.userPosition.toString(),height: 100,temsilciKodu: controllerGirisCixis.selectedModel.value.userCode!, onClick: (){
               controllerGirisCixis.timer!.cancel();
             },),
           ],
@@ -795,24 +932,26 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
     );
   }
 
-  Future<void> openSearchScreen() async {
-    ModelLiveTrack model=await Get.toNamed(RouteHelper.searchLiveUsers,arguments: controllerGirisCixis.listTrackdata);
-    if(model.userCode!=null){
-      controllerGirisCixis.selectedModel.value=model;
-      controllerGirisCixis.userMarkerSelected.value=true;
-      map.CameraPosition cameraPosition = map.CameraPosition(target: map.LatLng(double.parse(model.currentLocation!.latitude!),double.parse(model.currentLocation!.longitude!)), zoom: 12,
-      );
-      if( controllerGirisCixis.selectedModel.value.lastInoutAction==null){
-        controllerGirisCixis.snappingSheetController.value.snapToPosition(
-            const SnappingPosition.pixels(positionPixels: 40));
-      }else {
-        controllerGirisCixis.snappingSheetController.value.snapToPosition(
-            const SnappingPosition.pixels(positionPixels: 110));
-      }
-      Future.delayed(const Duration(milliseconds: 200)).whenComplete(() =>
-          newgooglemapxontroller!.animateCamera(
-              map.CameraUpdate.newCameraPosition(cameraPosition)));
-    }
-  }
 
+  Widget searchUsers(BuildContext context){
+   return  SearchLiveUsers(listUsers: controllerGirisCixis.listTrackdata,callBack: (element){
+     if(element.userCode!=null){
+       controllerGirisCixis.searcAktive.value=false;
+       controllerGirisCixis.selectedModel.value=element;
+       controllerGirisCixis.userMarkerSelected.value=true;
+       map.CameraPosition cameraPosition = map.CameraPosition(target: map.LatLng(double.parse(element.currentLocation!.latitude!),double.parse(element.currentLocation!.longitude!)), zoom: 18,
+       );
+       if( controllerGirisCixis.selectedModel.value.lastInoutAction==null){
+         controllerGirisCixis.snappingSheetController.value.snapToPosition(
+             const SnappingPosition.pixels(positionPixels: 40));
+       }else {
+         controllerGirisCixis.snappingSheetController.value.snapToPosition(
+             const SnappingPosition.pixels(positionPixels: 110));
+       }
+       Future.delayed(const Duration(milliseconds: 200)).whenComplete(() =>
+           newgooglemapxontroller!.animateCamera(
+               map.CameraUpdate.newCameraPosition(cameraPosition)));
+     }
+   }, selectedUser: controllerGirisCixis.selectedModel.value,);
+  }
 }

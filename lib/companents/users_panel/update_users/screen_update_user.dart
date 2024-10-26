@@ -946,6 +946,7 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
                   height: 50,
                   width: 200,
                   child: CustomTextField(
+                    readOnly: true,
                       align: TextAlign.center,
                       suffixIcon: Icons.date_range,
                       obscureText: false,

@@ -8,6 +8,7 @@ class SelectionButtonData {
   final bool? statickField;
   final bool? isSelected;
   final String? codename;
+  List<SelectionButtonData>? listSubmenues;
 
   SelectionButtonData({
     this.activeIcon,
@@ -17,5 +18,6 @@ class SelectionButtonData {
     this.statickField,
     this.isSelected,
     this.codename,
+    this.listSubmenues
   });
 }

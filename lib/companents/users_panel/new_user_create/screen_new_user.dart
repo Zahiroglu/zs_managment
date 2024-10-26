@@ -85,7 +85,6 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
-
                           children: [
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5),
@@ -133,8 +132,7 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 10),
-                        child:
-                            Obx(() => widgetScreenIlkinSecimler(context)),
+                        child: Obx(() => widgetScreenIlkinSecimler(context)),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 10),
@@ -222,19 +220,20 @@ class _ScreenNewUserState extends State<ScreenNewUser>
       currentStep: 0,
       progressColor: Colors.blueAccent.withOpacity(0.5),
       color: Colors.red.withOpacity(0.5),
-      width:  MediaQuery.of(context).size.width,
+      width: MediaQuery.of(context).size.width,
       height: 35,
       stepCount: userController.listStepper.length,
       builder: (int index) {
         return Obx(() => index <= userController.selectedIndex.value
             ? Obx(() => ProgressStepWithArrow(
-                  width:  MediaQuery.of(context).size.width*0.2,
+                  width: MediaQuery.of(context).size.width * 0.2,
                   defaultColor: Colors.red.withOpacity(0.5),
                   progressColor: Colors.green.withOpacity(0.5),
                   wasCompleted: userController.selectedIndex.value >= index - 1,
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(0.0).copyWith(left: 10,right: 5),
+                      padding: const EdgeInsets.all(0.0)
+                          .copyWith(left: 10, right: 5),
                       child: CustomText(
                         maxline: 2,
                         labeltext: userController.listStepper
@@ -246,15 +245,16 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                   ),
                 ))
             : Obx(() => ProgressStepWithChevron(
-                  width: MediaQuery.of(context).size.width*0.2,
+                  width: MediaQuery.of(context).size.width * 0.2,
                   defaultColor: Colors.red.withOpacity(0.5),
                   progressColor: Colors.green.withOpacity(0.5),
                   wasCompleted: userController.selectedIndex.value >= index - 1,
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(0.0).copyWith(left: 10,right: 5),
+                      padding: const EdgeInsets.all(0.0)
+                          .copyWith(left: 10, right: 5),
                       child: CustomText(
-                        maxline: 2,
+                          maxline: 2,
                           labeltext: userController.listStepper
                               .elementAt(index - 1)
                               .toString()
@@ -345,7 +345,7 @@ class _ScreenNewUserState extends State<ScreenNewUser>
         ),
         SizedBox(
             height: 30,
-            width: MediaQuery.of(context).size.width*0.5,
+            width: MediaQuery.of(context).size.width * 0.5,
             child: DecoratedBox(
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -386,10 +386,12 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                                       color: Colors.transparent,
                                       border: Border.all(color: Colors.black26),
                                       //background color of dropdown button
-                                      borderRadius: BorderRadius.circular(5), //border raiuds of dropdown button
+                                      borderRadius: BorderRadius.circular(
+                                          5), //border raiuds of dropdown button
                                     ),
                                     height: 40,
-                                    width: MediaQuery.of(context).size.width*0.4,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.4,
                                     child: Center(
                                         child: CustomText(
                                             labeltext: lang.name.toString())))),
@@ -422,7 +424,7 @@ class _ScreenNewUserState extends State<ScreenNewUser>
         ),
         SizedBox(
             height: 30,
-            width: MediaQuery.of(context).size.width*0.5,
+            width: MediaQuery.of(context).size.width * 0.5,
             child: DecoratedBox(
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -460,10 +462,11 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                                   color: Colors.transparent,
                                   border: Border.all(color: Colors.black26),
                                   //background color of dropdown button
-                                  borderRadius: BorderRadius.circular(5), //border raiuds of dropdown button
+                                  borderRadius: BorderRadius.circular(
+                                      5), //border raiuds of dropdown button
                                 ),
                                 height: 40,
-                                width: MediaQuery.of(context).size.width*0.4,
+                                width: MediaQuery.of(context).size.width * 0.4,
                                 child: Center(
                                     child: CustomText(labeltext: lang.name!)))),
                       )
@@ -494,7 +497,7 @@ class _ScreenNewUserState extends State<ScreenNewUser>
         ),
         Obx(() => SizedBox(
             height: 30,
-            width: MediaQuery.of(context).size.width*0.5,
+            width: MediaQuery.of(context).size.width * 0.5,
             child: DecoratedBox(
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -528,15 +531,16 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                         (lang) => DropdownMenuItem(
                             alignment: Alignment.center,
                             value: lang,
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    border: Border.all(color: Colors.black26),
-                                    //background color of dropdown button
-                                    borderRadius: BorderRadius.circular(5), //border raiuds of dropdown button
-                                  ),
-                                  height: 40,
-                                  width: MediaQuery.of(context).size.width*0.4,
+                            child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  border: Border.all(color: Colors.black26),
+                                  //background color of dropdown button
+                                  borderRadius: BorderRadius.circular(
+                                      5), //border raiuds of dropdown button
+                                ),
+                                height: 40,
+                                width: MediaQuery.of(context).size.width * 0.4,
                                 child: Center(
                                     child: CustomText(
                                         labeltext: lang.name.toString())))),
@@ -562,23 +566,25 @@ class _ScreenNewUserState extends State<ScreenNewUser>
         userController.canUserMobilePermitions.value
             ? Column(
                 children: [
-                Row(
-                  children: [
-                    Checkbox(
-                        value: userController.canUseMobile.value,
-                        onChanged: (val) {
-                          setState(() {
-                            userController.changeCnUseMobile(val!);
-                          });
-                        }),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-
-                        child: CustomText(labeltext: "mcihazicaze".tr,maxline: 2,)),
-                  ],
-                ),
+                  Row(
+                    children: [
+                      Checkbox(
+                          value: userController.canUseMobile.value,
+                          onChanged: (val) {
+                            setState(() {
+                              userController.changeCnUseMobile(val!);
+                            });
+                          }),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                          child: CustomText(
+                        labeltext: "mcihazicaze".tr,
+                        maxline: 2,
+                      )),
+                    ],
+                  ),
                   userController.canUseMobile.value
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -587,9 +593,9 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                             CustomTextField(
                               containerHeight: 35,
                               borderColor:
-                              userController.cttextDviceIdError.value
-                                  ? Colors.red
-                                  : Colors.grey,
+                                  userController.cttextDviceIdError.value
+                                      ? Colors.red
+                                      : Colors.grey,
                               isImportant: true,
                               icon: Icons.mobile_friendly,
                               obscureText: false,
@@ -621,33 +627,35 @@ class _ScreenNewUserState extends State<ScreenNewUser>
             )),
         userController.canUserWindowsPermitions.value
             ? Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                 Row(
-                   children: [
-                     Checkbox(
-                         value: userController.canUseWindows.value,
-                         onChanged: (val) {
-                           setState(() {
-                             userController.changeCnUseWindows(val!);
-                           });
-                         }),
-                     const SizedBox(
-                       width: 10,
-                     ),
-                    Expanded(child: CustomText(maxline:2,labeltext: "wicazesi".tr)),
-                   ],
-                 ),
+                  Row(
+                    children: [
+                      Checkbox(
+                          value: userController.canUseWindows.value,
+                          onChanged: (val) {
+                            setState(() {
+                              userController.changeCnUseWindows(val!);
+                            });
+                          }),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                          child:
+                              CustomText(maxline: 2, labeltext: "wicazesi".tr)),
+                    ],
+                  ),
                   userController.canUseWindows.value
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomTextField(
-                              containerHeight: 35,
+                                containerHeight: 35,
                                 borderColor:
-                                userController.cttextUsernameError.value
-                                    ? Colors.red
-                                    : Colors.grey,
+                                    userController.cttextUsernameError.value
+                                        ? Colors.red
+                                        : Colors.grey,
                                 isImportant: true,
                                 obscureText: false,
                                 updizayn: false,
@@ -667,11 +675,11 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                                   : const SizedBox(),
                             ),
                             CustomTextField(
-                              containerHeight: 35,
+                                containerHeight: 35,
                                 borderColor:
-                                userController.cttextPasswordError.value
-                                    ? Colors.red
-                                    : Colors.grey,
+                                    userController.cttextPasswordError.value
+                                        ? Colors.red
+                                        : Colors.grey,
                                 isImportant: true,
                                 obscureText: _isObscure,
                                 onTopVisible: () {
@@ -715,284 +723,273 @@ class _ScreenNewUserState extends State<ScreenNewUser>
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          supHeaderMainScreens("personalInfoWindowsDes", "personalInfoWindowsDes"),
+          supHeaderMainScreens(
+              "personalInfoWindowsDes", "personalInfoWindowsDes"),
           const SizedBox(
             height: 10,
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                  flex: 2,
-                  child:  CustomText(labeltext: "${"userCode".tr} : ")),
-              Expanded(
-                flex: 8,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ConstrainedBox(
-                      constraints:  BoxConstraints(
-                          minWidth: 100, maxHeight: 40, maxWidth: MediaQuery.of(context).size.width*0.6),
-                      child: CustomTextField(
-                        borderColor: userController.cttextCodeError.value
-                            ? Colors.red
-                            : Colors.grey,
-                        isImportant: true,
-                        icon: Icons.perm_identity,
-                        obscureText: false,
-                        controller: userController.cttextCode,
-                        fontsize: 14,
-                        hindtext: "userCode".tr,
-                        inputType: TextInputType.text,
-                      ),
-                    ),
-                    userController.cttextCodeError.value
-                        ? Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: userController.cttextCodeError.value
-                                ? CustomText(
-                                    labeltext: "userCode".tr,
-                                    color: Colors.red,
-                                    fontsize: 8,
-                                  )
-                                : const SizedBox(),
-                          )
-                        : SizedBox()
-                  ],
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                    minWidth: 100,
+                    minHeight: 40),
+                child: CustomTextField(
+                  borderColor: userController.cttextCodeError.value
+                      ? Colors.red
+                      : Colors.grey,
+                  isImportant: true,
+                  icon: Icons.perm_identity,
+                  obscureText: false,
+                  containerHeight: 50,
+                  controller: userController.cttextCode,
+                  fontsize: 14,
+                  hindtext: "userCode".tr,
+                  inputType: TextInputType.text,
                 ),
+              ),
+              userController.cttextCodeError.value
+                  ? Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: userController.cttextCodeError.value
+                    ? CustomText(
+                  labeltext: "userCode".tr,
+                  color: Colors.red,
+                  fontsize: 8,
+                )
+                    : const SizedBox(),
               )
+                  : SizedBox()
             ],
           ),
-          Row(
+          const SizedBox(height: 5,),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-             Expanded(
-                 flex: 2,
-                 child: CustomText(labeltext: "${"userName".tr} : ")),
-      
-              Expanded(
-                  flex: 8,
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                        minWidth: 100, maxHeight: 40, maxWidth: MediaQuery.of(context).size.width*0.6),
-                    child: CustomTextField(
-                      borderColor: userController.cttextAdError.value
-                          ? Colors.red
-                          : Colors.grey,
-                      isImportant: true,
-                      icon: Icons.perm_identity,
-                      obscureText: false,
-                      controller: userController.cttextAd,
-                      fontsize: 14,
-                      hindtext: "userName".tr,
-                      inputType: TextInputType.text,
-                    ),
-                  ),
-                  userController.cttextAdError.value
-                      ? Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: userController.cttextAdError.value
-                        ? CustomText(
-                      labeltext: "adsoyaderrorText".tr,
-                      color: Colors.red,
-                      fontsize: 8,
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                    minWidth: 150,
+                    minHeight: 40,),
+                child: CustomTextField(
+                  borderColor: userController.cttextAdError.value
+                      ? Colors.red
+                      : Colors.grey,
+                  isImportant: true,
+                  icon: Icons.perm_identity,
+                  obscureText: false,
+                  controller: userController.cttextAd,
+                  fontsize: 14,
+                  containerHeight: 50,
+                  hindtext: "userName".tr,
+                  inputType: TextInputType.text,
+                ),
+              ),
+              userController.cttextAdError.value
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: userController.cttextAdError.value
+                          ? CustomText(
+                              labeltext: "adsoyaderrorText".tr,
+                              color: Colors.red,
+                              fontsize: 8,
+                            )
+                          : const SizedBox(),
                     )
-                        : const SizedBox(),
-                  )
-                      : SizedBox()
-                ],
-              ))
+                  : SizedBox()
             ],
           ),
-          Row(
+          const SizedBox(height: 5,),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  flex: 2,
-                  child: CustomText(labeltext: '${"usersurname".tr} : ')),
-             Expanded(
-                 flex: 8,
-                 child:  Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 ConstrainedBox(
-                   constraints: BoxConstraints(minWidth: 100, maxHeight: 40, maxWidth: MediaQuery.of(context).size.width*0.6),
-                   child: CustomTextField(
-                     borderColor: userController.cttextSoyadError.value
-                         ? Colors.red
-                         : Colors.grey,
-                     isImportant: true,
-                     icon: Icons.perm_identity,
-                     obscureText: false,
-                     controller: userController.cttextSoyad,
-                     fontsize: 14,
-                     hindtext: "usersurname".tr,
-                     inputType: TextInputType.text,
-                   ),
-                 ),
-                 userController.cttextSoyadError.value
-                     ? Padding(
-                   padding: const EdgeInsets.only(left: 10),
-                   child: userController.cttextSoyadError.value
-                       ? CustomText(
-                     labeltext: "adsoyaderrorText".tr,
-                     color: Colors.red,
-                     fontsize: 8,
-                   )
-                       : const SizedBox(),
-                 )
-                     : SizedBox()
-               ],
-             ))
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                    minWidth: 100,
+                    minHeight: 40,),
+                child: CustomTextField(
+                  borderColor: userController.cttextSoyadError.value
+                      ? Colors.red
+                      : Colors.grey,
+                  isImportant: true,
+                  icon: Icons.perm_identity,
+                  obscureText: false,
+                  controller: userController.cttextSoyad,
+                  fontsize: 14,
+                  containerHeight: 50,
+                  hindtext: "usersurname".tr,
+                  inputType: TextInputType.text,
+                ),
+              ),
+              userController.cttextSoyadError.value
+                  ? Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: userController.cttextSoyadError.value
+                    ? CustomText(
+                  labeltext: "adsoyaderrorText".tr,
+                  color: Colors.red,
+                  fontsize: 8,
+                )
+                    : const SizedBox(),
+              )
+                  : SizedBox()
             ],
           ),
-          Row(
+          const SizedBox(height: 5,),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  flex: 2,
-                  child: CustomText(labeltext: "${"userPhone".tr} : ")),
-             Expanded(
-                 flex: 8,
-                 child:  Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 ConstrainedBox(
-                   constraints: BoxConstraints(minWidth: 100, maxHeight: 40, maxWidth: MediaQuery.of(context).size.width*0.6),
-                   child: CustomTextField(
-                     borderColor: userController.cttextTelefonError.value
-                         ? Colors.red
-                         : Colors.grey,
-                     isImportant: true,
-                     icon: Icons.phone_android_outlined,
-                     obscureText: false,
-                     controller: userController.cttextTelefon,
-                     fontsize: 14,
-                     hindtext: "userPhone".tr,
-                     inputType: TextInputType.phone,
-                   ),
-                 ),
-                 userController.cttextTelefonError.value
-                     ? Padding(
-                   padding: const EdgeInsets.only(left: 10),
-                   child: userController.cttextTelefonError.value
-                       ? CustomText(
-                     labeltext: "telefonErrorText".tr,
-                     color: Colors.red,
-                     fontsize: 8,
-                   )
-                       : const SizedBox(),
-                 )
-                     : SizedBox()
-               ],
-             ))
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: 100,
+                  minHeight: 40,),
+                child: CustomTextField(
+                  borderColor: userController.cttextTelefonError.value
+                      ? Colors.red
+                      : Colors.grey,
+                  isImportant: true,
+                  containerHeight: 50,
+                  icon: Icons.phone_android_outlined,
+                  obscureText: false,
+                  controller: userController.cttextTelefon,
+                  fontsize: 14,
+                  hindtext: "userPhone".tr,
+                  inputType: TextInputType.phone,
+                ),
+              ),
+              userController.cttextTelefonError.value
+                  ? Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: userController.cttextTelefonError.value
+                    ? CustomText(
+                  labeltext: "telefonErrorText".tr,
+                  color: Colors.red,
+                  fontsize: 8,
+                )
+                    : const SizedBox(),
+              )
+                  : SizedBox()
             ],
           ),
-          Row(
+          const SizedBox(height: 5,),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  flex: 2,
-                  child: CustomText(labeltext: "${"email".tr} : ")),
-              Expanded(
-                  flex: 8,
-                  child: CustomTextField(
-                    containerHeight: 40,
-                icon: Icons.email_outlined,
-                obscureText: false,
-                controller: userController.cttextEmail,
-                fontsize: 14,
-                hindtext: "email".tr,
-                inputType: TextInputType.emailAddress,
-              ))
-            ],
-          ),
-          Row(
-            children: [
-             Expanded(
-                 flex: 2,
-                 child: CustomText(maxline:2,labeltext: "${"birthDay".tr} : ")),
-             Expanded(
-               flex: 8,
-               child:  CustomTextField(
-                 align: TextAlign.center,
-                 suffixIcon: Icons.date_range,
-                 obscureText: false,
-                 updizayn: true,
-                 onTopVisible: () {
-                   userController.callDatePicker();
-                 },
-                 // suffixIcon: Icons.date_range,
-                 hasBourder: true,
-                 borderColor: Colors.black,
-                 containerHeight: 40,
-                 controller: userController.cttextDogumTarix,
-                 inputType: TextInputType.datetime,
-                 hindtext: "",
-                 fontsize: 14),)
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: 100,
+                  minHeight: 40,),
+                child:CustomTextField(
+                  containerHeight: 40,
+                  icon: Icons.email_outlined,
+                  obscureText: false,
+                  controller: userController.cttextEmail,
+                  fontsize: 14,
+                  hindtext: "email".tr,
+                  inputType: TextInputType.emailAddress,
+                ),
+              ),
+
             ],
           ),
           const SizedBox(height: 10,),
+          Row(
+            children: [
+              ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: 30),
+                  child: CustomText(labeltext: "birthDay".tr)),
+              SizedBox(
+                width: 5,
+              ),
+              SizedBox(
+                height: 50,
+                width: 200,
+                child: CustomTextField(
+                    readOnly: true,
+                    align: TextAlign.center,
+                    suffixIcon: Icons.date_range,
+                    obscureText: false,
+                    updizayn: true,
+                    onTopVisible: () {
+                      userController.callDatePicker();
+                    },
+                    // suffixIcon: Icons.date_range,
+                    hasBourder: true,
+                    borderColor: Colors.black,
+                    containerHeight: 50,
+                    controller: userController.cttextDogumTarix,
+                    inputType: TextInputType.datetime,
+                    hindtext: "",
+                    fontsize: 14),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
           Obx(() => Row(
                 children: [
-                 Expanded(
-                     flex: 2,
-                     child: CustomText(labeltext: "userGender".tr)),
-                 Expanded(
-                     flex: 8,
-                     child:  Row(
-                   children: [
-                     AnimatedToggleSwitch<bool>.dual(
-                       current: userController.genderSelect.value,
-                       first: true,
-                       second: false,
-                       dif: 50.0,
-                       borderColor: Colors.transparent,
-                       borderWidth: 0.5,
-                       height: 30,
-                       fittingMode: FittingMode.preventHorizontalOverlapping,
-                       boxShadow: [
-                         BoxShadow(
-                           color: userController.genderSelect.value
-                               ? Colors.blueAccent
-                               : Colors.red,
-                           spreadRadius: 1,
-                           blurRadius: 2,
-                           offset: const Offset(0, 1.5),
-                         ),
-                       ],
-                       onChanged: (val) {
-                         userController.changeSelectedGender(val);
-                         return Future.delayed(const Duration(seconds: 0));
-                       },
-                       colorBuilder: (b) =>
-                       b ? Colors.transparent : Colors.transparent,
-                       iconBuilder: (value) => value
-                           ? Icon(Icons.man_2_outlined,
-                           color: Colors.blueAccent.withOpacity(0.8))
-                           : Icon(
-                         Icons.woman_2_outlined,
-                         color: Colors.red.withOpacity(0.8),
-                       ),
-                       textBuilder: (value) => value
-                           ? Center(
-                           child: CustomText(
-                             labeltext: 'Kisi',
-                             fontsize: 16,
-                             fontWeight: FontWeight.w800,
-                           ))
-                           : Center(
-                           child: CustomText(
-                             labeltext: "Qadin",
-                             fontsize: 16,
-                             fontWeight: FontWeight.w800,
-                           )),
-                     ),
-                   ],
-                 ))
+                  Expanded(
+                      flex: 2, child: CustomText(labeltext: "userGender".tr)),
+                  Expanded(
+                      flex: 8,
+                      child: Row(
+                        children: [
+                          AnimatedToggleSwitch<bool>.dual(
+                            current: userController.genderSelect.value,
+                            first: true,
+                            second: false,
+                            dif: 50.0,
+                            borderColor: Colors.transparent,
+                            borderWidth: 0.5,
+                            height: 30,
+                            fittingMode:
+                                FittingMode.preventHorizontalOverlapping,
+                            boxShadow: [
+                              BoxShadow(
+                                color: userController.genderSelect.value
+                                    ? Colors.blueAccent
+                                    : Colors.red,
+                                spreadRadius: 1,
+                                blurRadius: 2,
+                                offset: const Offset(0, 1.5),
+                              ),
+                            ],
+                            onChanged: (val) {
+                              userController.changeSelectedGender(val);
+                              return Future.delayed(const Duration(seconds: 0));
+                            },
+                            colorBuilder: (b) =>
+                                b ? Colors.transparent : Colors.transparent,
+                            iconBuilder: (value) => value
+                                ? Icon(Icons.man_2_outlined,
+                                    color: Colors.blueAccent.withOpacity(0.8))
+                                : Icon(
+                                    Icons.woman_2_outlined,
+                                    color: Colors.red.withOpacity(0.8),
+                                  ),
+                            textBuilder: (value) => value
+                                ? Center(
+                                    child: CustomText(
+                                    labeltext: 'Kisi',
+                                    fontsize: 16,
+                                    fontWeight: FontWeight.w800,
+                                  ))
+                                : Center(
+                                    child: CustomText(
+                                    labeltext: "Qadin",
+                                    fontsize: 16,
+                                    fontWeight: FontWeight.w800,
+                                  )),
+                          ),
+                        ],
+                      ))
                 ],
               )),
-          const SizedBox(height: 20,)
+          const SizedBox(
+            height: 20,
+          )
         ],
       ),
     );
@@ -1120,8 +1117,7 @@ class _ScreenNewUserState extends State<ScreenNewUser>
     return InkWell(
       onTap: () {
         userController.changeSelectedModelSelectUserPermitions(e);
-        setState(() {
-        });
+        setState(() {});
       },
       child: Container(
         margin: const EdgeInsets.all(10),
@@ -1182,7 +1178,8 @@ class _ScreenNewUserState extends State<ScreenNewUser>
     );
   }
 
-  Widget widgetBaglantiModulItems(ModelConnectionsTest element, BuildContext context) {
+  Widget widgetBaglantiModulItems(
+      ModelConnectionsTest element, BuildContext context) {
     return InkWell(
       onTap: () {
         userController.changeSelectedGroupConnected(element);
@@ -1257,7 +1254,7 @@ class _ScreenNewUserState extends State<ScreenNewUser>
         margin: const EdgeInsets.all(5),
         decoration: BoxDecoration(border: Border.all(color: Colors.black12)),
         child: Padding(
-          padding: const EdgeInsets.all(5.0).copyWith(left: 5,right: 10),
+          padding: const EdgeInsets.all(5.0).copyWith(left: 5, right: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -1266,7 +1263,9 @@ class _ScreenNewUserState extends State<ScreenNewUser>
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomText(labeltext: element.connectionRoleName.toString(),),
+                  CustomText(
+                    labeltext: element.connectionRoleName.toString(),
+                  ),
                   SizedBox(
                     width: 1,
                   ),
@@ -1278,12 +1277,12 @@ class _ScreenNewUserState extends State<ScreenNewUser>
               ),
               Expanded(
                   child: Wrap(
-                    children: userController.selectedListUserConnections
+                children: userController.selectedListUserConnections
                         .where((p) => p.roleId == element.connectionRoleId)
                         .map((e) => widgetSelectedUsers(e))
                         .toList() ??
-                        [],
-                  )),
+                    [],
+              )),
               IconButton(
                   onPressed: () {
                     userController.getConnectionMustSelect(element);
@@ -1324,30 +1323,42 @@ class _ScreenNewUserState extends State<ScreenNewUser>
   }
 
   Widget widgetItemsPermitions(ModelUserPermissions data) {
-    return  Container(
+    return Container(
       decoration: const BoxDecoration(
-          border: Border.symmetric(horizontal: BorderSide(color: Colors.black,width: 0.1))
-      ),
+          border: Border.symmetric(
+              horizontal: BorderSide(color: Colors.black, width: 0.1))),
       padding: const EdgeInsets.all(5),
-      margin: const EdgeInsets.all(5).copyWith(bottom: 0,top: 0),
+      margin: const EdgeInsets.all(5).copyWith(bottom: 0, top: 0),
       child: Row(
         children: [
-          Expanded(child: CustomText(labeltext: data.name!, fontsize: 16,maxline: 2,)),
+          Expanded(
+              child: CustomText(
+            labeltext: data.name!,
+            fontsize: 16,
+            maxline: 2,
+          )),
           SizedBox(
             width: 5,
           ),
           Checkbox(
               splashRadius: 5,
-              value: userController.listModelSelectUserPermitions.where((a) => a.id==userController.selectedModulPermitions.value.id)
-                  .first.permissions!.where((p) => p.id == data.id)
-                  .first
-                  .val ==
+              value: userController.listModelSelectUserPermitions
+                      .where((a) =>
+                          a.id ==
+                          userController.selectedModulPermitions.value.id)
+                      .first
+                      .permissions!
+                      .where((p) => p.id == data.id)
+                      .first
+                      .val ==
                   1,
               onChanged: (val) {
                 if (val!) {
-                  userController.channgePermitionType(data, true,userController.selectedModulPermitions.value);
+                  userController.channgePermitionType(
+                      data, true, userController.selectedModulPermitions.value);
                 } else {
-                  userController.channgePermitionType(data, false,userController.selectedModulPermitions.value);
+                  userController.channgePermitionType(data, false,
+                      userController.selectedModulPermitions.value);
                 }
                 setState(() {});
               })

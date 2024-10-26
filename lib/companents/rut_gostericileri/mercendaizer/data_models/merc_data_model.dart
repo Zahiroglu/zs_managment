@@ -23,9 +23,9 @@ class MercDataModel {
   String toRawJson() => json.encode(toJson());
 
   factory MercDataModel.fromJson(Map<String, dynamic> json) => MercDataModel(
-    user: UserMerc.fromJson(json["user"]),
-    mercCustomersDatail: List<MercCustomersDatail>.from(json["customers"].map((x) => MercCustomersDatail.fromJson(x))),
-    motivationData: json["motivationData"]!=null? MotivationData.fromJson(json["motivationData"]):MotivationData(),
+    user: UserMerc.fromJson(json["User"]),
+    mercCustomersDatail: List<MercCustomersDatail>.from(json["MercCustomersDatail"].map((x) => MercCustomersDatail.fromJson(x))),
+    motivationData: json["MotivationData"]!=null? MotivationData.fromJson(json["MotivationData"]):MotivationData(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -86,7 +86,9 @@ class MercCustomersDatail {
   double? totalSelling;
   @HiveField(22)
   double? totalRefund;
+  @HiveField(23)
   int? ziyaretSayi;
+  @HiveField(24)
   String? sndeQalmaVaxti;
 
 
@@ -122,28 +124,33 @@ class MercCustomersDatail {
   String toRawJson() => json.encode(toJson());
 
   factory MercCustomersDatail.fromJson(Map<String, dynamic> json) => MercCustomersDatail(
-    code: json["code"],
-    name: json["name"],
-    fullAddress: json["fullAddress"],
-    ownerPerson: json["ownerPerson"],
-    phone: json["phone"],
-    postalCode: json["postalCode"],
-    area: json["area"],
-    category: json["category"],
-    regionalDirectorCode: json["regionalDirectorCode"],
-    salesDirectorCode: json["salesDirectorCode"],
-    latitude: json["longitude"],
-    longitude: json["latitude"],
-    district: json["district"],
-    tin: json["tin"],
-    mainCustomer: json["mainCustomer"],
-    debt: json["debt"],
-    action: json["action"],
-    days: List<Day>.from(json["days"].map((x) => Day.fromJson(x))),
-    sellingDatas: List<SellingData>.from(json["sellingDatas"].map((x) => SellingData.fromJson(x))),
-    totalPlan: json["totalPlan"],
-    totalSelling: json["totalSelling"],
-    totalRefund: json["totalRefund"],
+    code: json["Code"],
+    name: json["Name"],
+    fullAddress: json["FullAddress"],
+    ownerPerson: json["OwnerPerson"],
+    phone: json["Phone"],
+    postalCode: json["PostalCode"],
+    area: json["Area"],
+    category: json["Category"],
+    regionalDirectorCode: json["RegionalDirectorCode"],
+    salesDirectorCode: json["SalesDirectorCode"],
+    latitude: json["Longitude"],
+    longitude: json["Latitude"],
+    district: json["District"],
+    tin: json["Tin"],
+    mainCustomer: json["MainCustomer"],
+    debt: json["Debt"],
+    action: json["Action"],
+    days:json["Days"] != null
+        ? List<Day>.from(json["Days"].map((x) => Day.fromJson(x)))
+        : [],
+    sellingDatas:json["SellingDatas"]!=null?
+    List<SellingData>.from(json["SellingDatas"].map((x) => SellingData.fromJson(x))):[],
+    totalPlan: json["TotalPlan"],
+    totalSelling: json["TotalSelling"],
+    totalRefund: json["TotalRefund"],
+    ziyaretSayi: json["ZiyaretSayi"],
+    sndeQalmaVaxti: json["SndeQalmaVaxti"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -204,11 +211,11 @@ class SellingData {
   String toRawJson() => json.encode(toJson());
 
   factory SellingData.fromJson(Map<String, dynamic> json) => SellingData(
-    forwarderCode: json["forwarderCode"],
-    plans: json["plans"],
-    selling: json["selling"],
-    remainder: json["remainder"],
-    refund: json["refund"],
+    forwarderCode: json["ForwarderCode"],
+    plans: json["Plans"],
+    selling: json["Selling"],
+    remainder: json["Remainder"],
+    refund: json["Refund"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -237,6 +244,10 @@ class UserMerc {
   double totalSelling;
   @HiveField(5)
   double totalRefund;
+  @HiveField(6)
+  int? roleId;
+  @HiveField(7)
+  String? roleName;
 
   UserMerc({
     required this.code,
@@ -244,6 +255,8 @@ class UserMerc {
     required this.totalPlan,
     required this.totalSelling,
     required this.totalRefund,
+     this.roleId,
+     this.roleName,
   });
 
   factory UserMerc.fromRawJson(String str) => UserMerc.fromJson(json.decode(str));
@@ -251,11 +264,13 @@ class UserMerc {
   String toRawJson() => json.encode(toJson());
 
   factory UserMerc.fromJson(Map<String, dynamic> json) => UserMerc(
-    code: json["code"],
-    name: json["name"],
-    totalPlan: json["totalPlan"],
-    totalSelling: json["totalSelling"],
-    totalRefund: json["totalRefund"],
+    code: json["Code"],
+    name: json["Name"],
+    totalPlan: json["TotalPlan"],
+    totalSelling: json["TotalSelling"],
+    totalRefund: json["TotalRefund"],
+    roleId: json["RoleId"],
+    roleName: json["RoleName"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -264,6 +279,8 @@ class UserMerc {
     "totalPlan": totalPlan,
     "totalSelling": totalSelling,
     "totalRefund": totalRefund,
+    "roleId": roleId,
+    "roleName": roleName,
   };
 
   @override
@@ -298,11 +315,11 @@ class MotivationData {
   String toRawJson() => json.encode(toJson());
 
   factory MotivationData.fromJson(Map<String, dynamic> json) => MotivationData(
-    byNetSales: json["byNetSales"],
-    byPlan: json["byPlan"],
-    byWasteProduct: json["byWasteProduct"],
-    planPercent: json["planPercent"],
-    wasteProductPercent: json["wasteProductPercent"],
+    byNetSales: json["ByNetSales"],
+    byPlan: json["ByPlan"],
+    byWasteProduct: json["ByWasteProduct"],
+    planPercent: double.tryParse(json["PlanPercent"]?.toString() ?? '0'),
+    wasteProductPercent: double.tryParse(json["WasteProductPercent"]?.toString() ?? '0'),
   );
 
   Map<String, dynamic> toJson() => {

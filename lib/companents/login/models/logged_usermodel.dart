@@ -51,6 +51,7 @@ class LoggedUserModel {
 
   factory LoggedUserModel.fromJson(Map<String, dynamic> json) => LoggedUserModel(
     tokenModel: TokenModel.fromJson(json["token"]),
+    baseUrl: json["compUrl"],
     userModel: UserModel.fromJson(json["user"]),
   );
 
