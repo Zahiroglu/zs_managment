@@ -1377,4 +1377,323 @@ class _ScreenUpdateUserState extends State<ScreenUpdateUser>
           ),
         ));
   }
+
+  widgetTenzimlemeler(BuildContext context) {
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          supHeaderMainScreens("confWindows", "confWindowsDes"),
+          const SizedBox(
+            height: 10,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  userController.userPermitionsHelper
+                      .getUserWorkTime(userController.listUserConfigration)
+                      .isNotEmpty
+                      ? _isgunuVaxti(context)
+                      : const SizedBox(),
+                  const Divider(
+                    height: 1,
+                    color: Colors.black38,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  userController.listUserConfigration
+                      .where((e) => e.configId == 2)
+                      .isNotEmpty
+                      ? _canliIzlemeSistemi(context)
+                      : const SizedBox(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Colors.black38,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  //userController.userPermitionsHelper.getOnlyByGirisCixis(userController.listUserConfigration)?_girisCixisSistem(context):const SizedBox(),
+                  userController.listUserConfigration
+                      .where((e) => e.configId == 4)
+                      .isNotEmpty
+                      ? _girisCixisSistem(context)
+                      : SizedBox(),
+                ],
+              ),
+            ),
+          )
+        ]);
+  }
+
+  _isgunuVaxti(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+            fontWeight: FontWeight.w700,
+            fontsize: 16,
+            labeltext: userController.listUserConfigration
+                .where((e) => e.configId == 1)
+                .first
+                .confVal
+                .toUpperCase()),
+        const SizedBox(
+          height: 5,
+        ),
+        Row(
+          children: [
+            Row(
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 150),
+                  child: CustomTextField(
+                      hasLabel: true,
+                      align: TextAlign.center,
+                      controller: userController.cttextIsBaslama,
+                      inputType: TextInputType.text,
+                      hindtext: "Ise baslama vaxti",
+                      fontsize: 14),
+                ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 150),
+                  child: CustomTextField(
+                      hasLabel: true,
+                      align: TextAlign.center,
+                      controller: userController.cttextIsBitirme,
+                      inputType: TextInputType.text,
+                      hindtext: "Is bitirme vaxti",
+                      fontsize: 14),
+                )
+              ],
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            userController.userPermitionsHelper
+                .daySalary(userController.listUserConfigration) !=
+                -1
+                ? ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 250),
+              child: CustomTextField(
+                  isImportant: true,
+                  hasLabel: true,
+                  align: TextAlign.center,
+                  controller: userController.ctTextGunlukMaas,
+                  inputType: TextInputType.text,
+                  hindtext: "Gunluk ortalama maas (AZN)",
+                  fontsize: 14),
+            )
+                : const SizedBox(),
+          ],
+        )
+      ],
+    );
+  }
+
+  _canliIzlemeSistemi(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+            fontWeight: FontWeight.w700,
+            fontsize: 16,
+            labeltext: userController.listUserConfigration
+                .where((e) => e.configId == 2)
+                .first
+                .confVal
+                .toUpperCase()),
+        const SizedBox(
+          height: 5,
+        ),
+        Row(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CustomText(
+                        labeltext:
+                        "Ancaq markete giris cixis eden zaman izlensin?"),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Checkbox(
+                        value: userController.userPermitionsHelper.liveTrack(
+                            userController.listUserConfigration) ==
+                            "full",
+                        onChanged: (c) {
+                          if (c!) {
+                            userController.listUserConfigration
+                                .where((e) => e.configId == 2)
+                                .first
+                                .data1 = "full";
+                          } else {
+                            userController.listUserConfigration
+                                .where((e) => e.configId == 2)
+                                .first
+                                .data1 = "false";
+                          }
+                          setState(() {});
+                        }),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(
+                        labeltext: "Ise basladiqdan bitirene kimi izlensin?"),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Checkbox(
+                        value: userController.userPermitionsHelper.liveTrack(
+                            userController.listUserConfigration) ==
+                            "true",
+                        onChanged: (c) {
+                          if (c!) {
+                            userController.listUserConfigration
+                                .where((e) => e.configId == 2)
+                                .first
+                                .data1 = "true";
+                          } else {
+                            userController.listUserConfigration
+                                .where((e) => e.configId == 2)
+                                .first
+                                .data1 = "false";
+                          }
+                          setState(() {});
+                        }),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  _girisCixisSistem(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+            fontWeight: FontWeight.w700,
+            fontsize: 16,
+            labeltext: userController.listUserConfigration
+                .where((e) => e.configId == 4)
+                .first
+                .confVal
+                .toUpperCase()),
+        const SizedBox(
+          height: 5,
+        ),
+        Row(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        CustomText(
+                            labeltext: "Giris-cixis sistemi ile islemek"),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Checkbox(
+                            value: userController.userPermitionsHelper
+                                .getOnlyByGirisCixis(
+                                userController.listUserConfigration),
+                            onChanged: (c) {
+                              userController.listUserConfigration
+                                  .where((e) => e.configId == 4)
+                                  .first
+                                  .data1 = c.toString();
+                              setState(() {});
+                            }),
+                      ],
+                    ),
+                    const SizedBox(width: 20,),
+                    userController.userPermitionsHelper
+                        .getOnlyByGirisCixis(
+                        userController.listUserConfigration)?ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 250,maxHeight: 50),
+                      child: CustomTextField(
+                          hasLabel: true,
+                          align: TextAlign.center,
+                          controller: userController.ctTextGirisMesafesi,
+                          inputType: TextInputType.text,
+                          hindtext: "Giris mesafesi (m-le)",
+                          fontsize: 14),
+                    ):const SizedBox()
+                  ],
+                ),
+                userController.listUserConfigration
+                    .where((e) => e.configId == 5)
+                    .isNotEmpty
+                    ? Row(
+                  children: [
+                    CustomText(labeltext: "Ancaq rut gunu ile islesin"),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Checkbox(
+                        value: userController.userPermitionsHelper
+                            .getOnlyByRutDay(
+                            userController.listUserConfigration),
+                        onChanged: (c) {
+                          userController.listUserConfigration
+                              .where((e) => e.configId == 5)
+                              .first
+                              .data1 = c.toString();
+                          setState(() {});
+                        }),
+                  ],
+                )
+                    : const SizedBox(),
+                userController.listUserConfigration
+                    .where((e) => e.configId == 6)
+                    .isNotEmpty
+                    ? Row(
+                  children: [
+                    CustomText(
+                        labeltext: "Ancaq rut gun ve sirasi ile islesin"),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Checkbox(
+                        value: userController.userPermitionsHelper
+                            .onlyByRutOrderNumber(
+                            userController.listUserConfigration),
+                        onChanged: (c) {
+                          userController.listUserConfigration
+                              .where((e) => e.configId == 6)
+                              .first
+                              .data1 = c.toString();
+                          setState(() {});
+                        }),
+                  ],
+                )
+                    : const SizedBox(),
+              ],
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
 }

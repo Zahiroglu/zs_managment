@@ -333,7 +333,6 @@ class ControllerLiveTrack extends GetxController {
         if (response.statusCode == 200) {
           var dataModel = json.encode(response.data['Result']);
           modelMuyConnectUsers.value =MyConnectedUsersCurrentLocation.fromJson(jsonDecode(dataModel));
-          print("Model : "+modelMuyConnectUsers.toString());
           sonYenilenme.value = DateTime.now().toIso8601String();
           for (var element in modelMuyConnectUsers.value.userLocation!) {
             listTrackdata.removeWhere((e) => e.userCode == element.userCode);

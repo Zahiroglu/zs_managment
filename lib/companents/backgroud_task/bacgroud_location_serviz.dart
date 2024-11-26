@@ -77,6 +77,15 @@ class BackgroudLocationServiz extends GetxController {
       }
     });
     bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent provider) async {
+      if (provider.gps == false) {
+        await NotyBackgroundTrack.showBigTextNotificationUpdate(
+          id: 2,
+          title: "Xeberdarliq",
+          body: "GPS xidmetine baglamisiniz.Tecili acin eks halda sistem oz-ozunu bloklayacaq.Tarix:${DateTime
+              .now()}",
+          fln: flutterLocalNotificationsPlugin,
+        );
+      }
       switch (provider.status) {
         case bg.ProviderChangeEvent.AUTHORIZATION_STATUS_DENIED:
           await NotyBackgroundTrack.showBigTextNotificationUpdate(
@@ -112,66 +121,100 @@ class BackgroudLocationServiz extends GetxController {
         await flutterLocalNotificationsPlugin.cancel(1);
       }
     });
-    bg.BackgroundGeolocation.onAuthorization((c){
-      print("print c : "+c.toString());
+
+    bg.BackgroundGeolocation.onAuthorization((c) {
+      if (c == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_DENIED) {
+        print("GPS icazəsi rədd edildi.");
+      } else if (c == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
+        print("GPS həmişə icazəsi verildi.");
+      }
     });
     bg.BackgroundGeolocation.onGeofencesChange((geo){
       print("pring g : "+geo.toString());
     });
-    bg.BackgroundGeolocation.onActivityChange((a){
-      print("print a : "+a.activity.toString());
+    bg.BackgroundGeolocation.onActivityChange((a) {
+      print("Cari fəaliyyət: ${a.activity}");
     });
     bg.BackgroundGeolocation.onSchedule((s){
       print("print : sc"+s.allowIdenticalLocations.toString());
 
     });
 
-    bg.BackgroundGeolocation.ready(bg.Config(
-        notification: bg.Notification(
-          sticky: true,
-          channelId: "zs001",
-          channelName: "zsNotall",
-          title: 'ZS-CONTROL-Sistem aktivdir',
-          text: "${modela.customerName} adli markete giris edilib.",
-          color: '#FEDD1E',
-        ),
-        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-        // stopOnStationary: false,
-        isMoving: true,
-        enableHeadless: true,
-        stopOnTerminate: false,
-        forceReloadOnBoot: true,
-        foregroundService: true,
-        startOnBoot: true,
-        debug: false,
-        showsBackgroundLocationIndicator: false,
-        forceReloadOnSchedule: true,
-        distanceFilter: 0,
-        //locationUpdateInterval: 50000,//50 saniye
-        locationUpdateInterval: 20000,
-        //20 saniye
-        maxRecordsToPersist: 1,
-        forceReloadOnLocationChange: true,
+    // bg.BackgroundGeolocation.ready(bg.Config(
+    //     notification: bg.Notification(
+    //       sticky: true,
+    //       channelId: "zs001",
+    //       channelName: "zsNotall",
+    //       title: 'ZS-CONTROL-Sistem aktivdir',
+    //       text: "${modela.customerName} adli markete giris edilib.",
+    //       color: '#FEDD1E',
+    //     ),
+    //     desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+    //     // stopOnStationary: false,
+    //     isMoving: true,
+    //     enableHeadless: true,
+    //     stopOnTerminate: false,
+    //     forceReloadOnBoot: true,
+    //     foregroundService: true,
+    //     startOnBoot: true,
+    //     debug: false,
+    //     showsBackgroundLocationIndicator: false,
+    //     forceReloadOnSchedule: true,
+    //     distanceFilter: 0,
+    //     //locationUpdateInterval: 50000,//50 saniye
+    //     locationUpdateInterval: 20000,
+    //     //20 saniye
+    //     maxRecordsToPersist: 1,
+    //     forceReloadOnLocationChange: true,
+    //
+    //     backgroundPermissionRationale: PermissionRationale(
+    //         title: "Allow {applicationName} to access to this device's location in the background?",
+    //         message: "This app collects location data to enable tracking even when the app is closed or not in use. Please enable {backgroundPermissionOptionLabel} location permission",
+    //         positiveAction: "Change to {backgroundPermissionOptionLabel}",
+    //         negativeAction: "Cancel"),
+    //     locationAuthorizationAlert: {
+    //       'titleWhenNotEnabled': 'Yo, location-services not enabled',
+    //       'titleWhenOff': 'Yo, location-services OFF',
+    //       'instructions': 'You must enable "Always" in location-services, buddy',
+    //       'cancelButton': 'Cancel',
+    //       'settingsButton': 'Settings'
+    //     },
+    //     logLevel: bg.Config.LOG_LEVEL_VERBOSE))
+    //     .then((bg.State state) {
+    //   if (!state.enabled) {
+    //     NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
+    //     bg.BackgroundGeolocation.start();
+    //   }
+    // });
 
-        backgroundPermissionRationale: PermissionRationale(
-            title: "Allow {applicationName} to access to this device's location in the background?",
-            message: "This app collects location data to enable tracking even when the app is closed or not in use. Please enable {backgroundPermissionOptionLabel} location permission",
-            positiveAction: "Change to {backgroundPermissionOptionLabel}",
-            negativeAction: "Cancel"),
-        locationAuthorizationAlert: {
-          'titleWhenNotEnabled': 'Yo, location-services not enabled',
-          'titleWhenOff': 'Yo, location-services OFF',
-          'instructions': 'You must enable "Always" in location-services, buddy',
-          'cancelButton': 'Cancel',
-          'settingsButton': 'Settings'
-        },
-        logLevel: bg.Config.LOG_LEVEL_VERBOSE))
-        .then((bg.State state) {
+    bg.BackgroundGeolocation.ready(bg.Config(
+      notification: bg.Notification(
+        sticky: true,
+        channelId: "zs001",
+        channelName: "zsNotall",
+        title: 'ZS-CONTROL-Sistem aktivdir',
+        text: "${modela.customerName} adli markete giris edilib.",
+        color: '#FEDD1E',
+      ),
+      desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+      distanceFilter: 0, // Hərəkət etməsə belə, yeniləmələr olacaq.
+      locationUpdateInterval: 120000, // 2 dəqiqə.
+      stopOnTerminate: false, // Tətbiq bağlansa belə işləməyə davam edəcək.
+      startOnBoot: true, // Cihaz yenidən başladıldıqda avtomatik başlayacaq.
+      foregroundService: true, // Xidmət ön planda işləyəcək.
+      enableHeadless: true, // Tətbiq açıq olmasa belə işləyəcək.
+      debug: false,
+      forceReloadOnLocationChange: true,
+      showsBackgroundLocationIndicator: false,
+      maxRecordsToPersist: 1, // Minimum qeyd yaddaşı.
+      logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+    )).then((bg.State state) {
       if (!state.enabled) {
         NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
         bg.BackgroundGeolocation.start();
       }
     });
+
   }
 
   stopBackGroundFetch() async {

@@ -769,6 +769,7 @@ class WidgetInfoWindowForLocation extends StatelessWidget {
   }
 
 }
+
 class ArrowPaint extends CustomPainter {
   final Color color;
 

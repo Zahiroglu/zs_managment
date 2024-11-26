@@ -6,10 +6,43 @@ class UserPermitionsHelper {
   static String canEnterOtherMerchCustomers="canEnterOtherMerchCustomers";
 
 
-  bool hasUserPermition(String perCode,List<ModelUserPermissions> listPermitions)  {
-   return  listPermitions.any((element)=>element.code==perCode);
+  // bool hasUserPermition(String perCode,List<ModelUserPermissions> listPermitions)  {
+  //  return  listPermitions.any((element)=>element.code==perCode);
+  // }
+
+  bool canEditMercCustomersRutDay (List<ModelUserPermissions> listPermitions){
+    bool hasAccess=false;
+    if(listPermitions.isNotEmpty) {
+      hasAccess= listPermitions.any((e) => e.code=="canEditMercCustomersRutDay");
+    }
+    return hasAccess;
+  }
+  bool canEditMercCustomersPlan (List<ModelUserPermissions> listPermitions){
+    bool hasAccess=false;
+    if(listPermitions.isNotEmpty) {
+      hasAccess= listPermitions.any((e) => e.code=="canEditMercCustomersPlan");
+    }
+    return hasAccess;
+  }
+  bool canEditMercCustomers (List<ModelUserPermissions> listPermitions){
+    bool hasAccess=false;
+    if(listPermitions.isNotEmpty) {
+      hasAccess= listPermitions.any((e) => e.code=="canEditMercCustomers");
+    }
+    return hasAccess;
+  }
+  bool canSellProducts(List<ModelUserPermissions> listPermitions) {
+    bool hasAccess=false;
+    if(listPermitions.isNotEmpty) {
+      hasAccess= listPermitions.any((e) => e.code=="canCell");
+    }
+    return hasAccess;
   }
 
+
+
+
+  //Configrations
   List<String> getUserWorkTime(List<ModelConfigrations> confirm) {
     String girisvaxti = confirm.where((c) => c.configId == 1).first.data1.toString();
     String cixisvaxt = confirm.where((c) => c.configId == 1).first.data2.toString();
@@ -86,5 +119,6 @@ class UserPermitionsHelper {
       return false;
     }
   }
+
 
 }

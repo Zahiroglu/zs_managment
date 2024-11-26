@@ -683,7 +683,7 @@ class DrawerMenuController extends getx.GetxController {
       case "dashboard":
         pageView = DashborudScreenMobile(drawerMenuController: this);
         break;
-      case "warehouse":
+      case "anbarScreen":
         if(localBaseDownloads.getIfAnbarBaseDownloaded()){
           pageView =  AnbarRaporEsas(drawerMenuController: this,);
         }else{

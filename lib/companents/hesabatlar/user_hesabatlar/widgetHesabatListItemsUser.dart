@@ -577,7 +577,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     String songun = intl.DateFormat('yyyy-MM-dd').format(now);
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     ModelRequestInOut model = ModelRequestInOut(
-        userRole: [UserRole(code: loggedUserModel.userModel!.code!, role: loggedUserModel.userModel!.roleId.toString())],
+        userRole: [UserRole(code: temsilcikodu, role:roleId)],
         endDate: songun+" 23:59",
         startDate: ilkGun+" 00:01");
     int dviceType = checkDviceType.getDviceType();

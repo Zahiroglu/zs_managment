@@ -364,28 +364,25 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
         updateElementDownloading(model,false);
-        if (listUser.isNotEmpty) {
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           await localBaseDownloads.addConnectedUsers(listUser);
           listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-        }
+
         break;
-      case "anbarScreen":
+      case "downanbar":
         await localGirisCixisServiz.init();
         updateElementDownloading(model,true);
         loggedUserModel = localUserServices.getLoggedUser();
         List<ModelAnbarRapor> data = await getDataAnbar();
         await localBaseDownloads.addAnbarBaza(data);
         updateElementDownloading(model,false);
-        if (data.isNotEmpty) {
-          //listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-        }
+
         break;
       case "enterScreen":
         loggedUserModel = localUserServices.getLoggedUser();
@@ -402,7 +399,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           });
         }
         updateElementDownloading(model,false);
-        if (data.isNotEmpty) {
           // listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
@@ -410,7 +406,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           localBaseDownloads.addAllToMercBase(data);
           listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
           // listDonwloads.add(model);
-        }
+
       case "myRut":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
@@ -420,26 +416,24 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         updateElementDownloading(model,true);
         List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
         updateElementDownloading(model,false);
-        if (data.isNotEmpty) {
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
           listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-        }
+
         break;
       case "donwSingleMercBaza":
         await localGirisCixisServiz.init();
         updateElementDownloading(model,true);
         List<MercDataModel> data = await getSingleMercCariBazaMotivasiya();
         updateElementDownloading(model,false);
-        if (data.isNotEmpty) {
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
           listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-        }
+
         break;
     }
     intentScreen();
@@ -736,13 +730,13 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
       ));
     } else {
       final response = await ApiClient().dio(false).post(
-            "${loggedUserModel.baseUrl}/api/v1/Report/warehouse-remainder",
+        "${loggedUserModel.baseUrl}/Anbar/GetAnbarBaze",
             data: data,
             options: Options(
               headers: {
                 'Lang': languageIndex,
                 'Device': dviceType,
-                'abs': '123456',
+                'smr': '12345',
                 "Authorization": "Bearer $accesToken"
               },
               validateStatus: (_) => true,
@@ -752,7 +746,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           );
 
       if (response.statusCode == 200) {
-        var dataModel = json.encode(response.data['result']);
+        var dataModel = json.encode(response.data['Result']);
         List listuser = jsonDecode(dataModel);
         for (var i in listuser) {
           listProducts.add(ModelAnbarRapor.fromJson(i));
@@ -761,6 +755,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
     }
     return listProducts;
   }
+
 
   void syncAllInfo() async {
     await localUserServices.init();

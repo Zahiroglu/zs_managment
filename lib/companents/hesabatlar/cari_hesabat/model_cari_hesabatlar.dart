@@ -76,6 +76,7 @@ class ModelCariHesabatlar {
 
     return cariHesabatlar;
   }
+
   List<ModelCariHesabatlar> getAllUserHesabatlarListy(List<ModelUserPermissions> list) {
     List<ModelCariHesabatlar> cariHesabatlar = [];
     List<ModelCariHesabatlar> gonderilen = [];
@@ -95,6 +96,14 @@ class ModelCariHesabatlar {
         //routName: RouteHelper.getCariSatilanCesidRaporu(),
         needDate: true,
         key: "tzhesab"));
+    cariHesabatlar.add(ModelCariHesabatlar(
+        label: "Temsilci izleme hesabati",
+        icon: Icons.spatial_tracking_outlined,
+        color: Colors.grey,
+        needTime: true,
+        //routName: RouteHelper.getCariSatilanCesidRaporu(),
+        needDate: true,
+        key: "tizlemehesab"));
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Temsilci xetalar raporu",
         icon: Icons.error,

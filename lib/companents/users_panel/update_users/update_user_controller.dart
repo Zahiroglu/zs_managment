@@ -17,9 +17,11 @@ import 'package:zs_managment/constands/app_constands.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/helpers/exeption_handler.dart';
+import 'package:zs_managment/helpers/user_permitions_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:intl/intl.dart';
+import '../../login/models/model_configrations.dart';
 import '../../login/models/model_userconnnection.dart';
 import '../models_user/model_requet_allusers.dart';
 
@@ -32,6 +34,7 @@ class UpdateUserController extends GetxController {
     'ilkinsecim'.tr,
     "Baglantilar".tr,
     "Icazeler".tr,
+    "Tenzimlemeler".tr,
   ];
   TextEditingController cttextDviceId = TextEditingController();
   RxBool cttextDviceIdError = false.obs;
@@ -88,6 +91,12 @@ class UpdateUserController extends GetxController {
   RxBool canUserWindowsPermitions = false.obs;
   RxBool canUserMobilePermitions = false.obs;
   ExeptionHandler exeptionHandler=ExeptionHandler();
+  UserPermitionsHelper userPermitionsHelper=UserPermitionsHelper();
+  RxList<ModelConfigrations> listUserConfigration = List<ModelConfigrations>.empty(growable: true).obs;
+  TextEditingController cttextIsBaslama = TextEditingController();
+  TextEditingController cttextIsBitirme = TextEditingController();
+  TextEditingController ctTextGunlukMaas = TextEditingController();
+  TextEditingController ctTextGirisMesafesi = TextEditingController();
 
   @override
   void onInit() {
@@ -265,10 +274,14 @@ class UpdateUserController extends GetxController {
   }
 
   void incrementCustomStepper(PageController controller) {
+    if(!canUseMobile.value && !canUseWindows.value){
+      canUseNextButton.value=false;
+    }
     if (selectedIndex.value != listStepper.length) {
       selectedIndex.value++;
       controller.jumpToPage(selectedIndex.value);
     }
+    print("incrementCustomStepper :" + selectedIndex.toString());
     update();
   }
 
@@ -277,7 +290,11 @@ class UpdateUserController extends GetxController {
       checkUserInfo(controller);
     } else if (selectedIndex.value == 1) {
       getConnectionsFromApiService(controller);
-    } else if (selectedIndex.value == 2) {
+    }
+    else if (selectedIndex.value == 2) {
+      incrementCustomStepper(controller);
+
+    } else if (selectedIndex.value == 3) {
       canRegisterNewUser.value = true;
       incrementCustomStepper(controller);
     }
@@ -409,7 +426,6 @@ class UpdateUserController extends GetxController {
       }
     }
   }
-
 
   getConnectionsFromApiService(PageController controller) async {
     listGroupNameConnection.clear();
@@ -575,29 +591,72 @@ class UpdateUserController extends GetxController {
             selectedModulPermitions.value = listModelSelectUserPermitions.first;
           }}
 
+      }
+    }
+    getUsersConfigrationsFromApi(controller);
 
-        // DialogHelper.hideLoading();
-        // incrementCustomStepper(controller);
-        // var permitions = json.encode(response.data['Result']);
-        // print("Gelen permitionslar :"+permitions);
-        //
-        // List list = jsonDecode(permitions);
-        // for (int i = 0; i < list.length; i++) {
-        //   //var s = jsonEncode(list.elementAt(i));
-        //   ModelSelectUserPermitions model = ModelSelectUserPermitions.fromJson(list.elementAt(i));
-        //   for (var element in model.permissions!) {
-        //     listPermisions.add(element);
-        //   }
-        //   listModelSelectUserPermitions.add(model);
-        // }
-        // if (listModelSelectUserPermitions.isNotEmpty) {
-        //   changeSelectedModelSelectUserPermitions(listModelSelectUserPermitions.first);
-        // }
+  }
+
+  Future<void> getUsersConfigrationsFromApi(PageController controller) async {
+    listUserConfigration.clear();
+    DialogHelper.showLoading("Tnezimleme melumatlari endirilir".tr);
+    String languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      DialogHelper.hideLoading();
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {
+          Get.back();
+        },
+      ));
+    } else {
+      final response = await ApiClient().dio(false).post(
+        "${AppConstands.baseUrlsMain}/Admin/getUserConfig?compId=${loggedUserModel.userModel!.companyId}&roleId=${selectedVezife.value!.id}&userCode=''",
+        options: Options(
+          receiveTimeout: const Duration(seconds: 60),
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        DialogHelper.hideLoading();
+        //incrementCustomStepper(controller);
+        var permitions = json.encode(response.data['Result']);
+        print("Gelen configler :"+permitions);
+        List list = jsonDecode(permitions);
+        for (int i = 0; i < list.length; i++) {
+          ModelConfigrations model = ModelConfigrations.fromJson(list.elementAt(i));
+          listUserConfigration.add(model);
+        }
+        if(userPermitionsHelper.getUserWorkTime(listUserConfigration).isNotEmpty){
+          cttextIsBaslama.text=userPermitionsHelper.getUserWorkTime(listUserConfigration)[0];
+          cttextIsBitirme.text=userPermitionsHelper.getUserWorkTime(listUserConfigration)[1];
+
+        }
+        if(userPermitionsHelper.daySalary(listUserConfigration)!=-1){
+          ctTextGunlukMaas.text=userPermitionsHelper.daySalary(listUserConfigration).toString();
+        }
+        if(userPermitionsHelper.getEnterDistance(listUserConfigration)!=-1){
+          ctTextGirisMesafesi.text=userPermitionsHelper.getEnterDistance(listUserConfigration).toString();
+        }
+
       }
     }
     canUseNextButton.value = true;
 
   }
+
 
   void changeSelectedSobe(ModelUserRolesTest val) {
     selectedSobe.value = val;

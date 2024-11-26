@@ -175,7 +175,7 @@ class LocalBaseDownloads {
       await getAllMercCustomersByUserCode(temKod).then((list){
         listCariler=list;
         listRutGUNU = list.where((element) => element.rutGunu=="Duz").toList();
-        listGirisCixis= localGirisCixisServiz.getAllGirisCixisTodayByCode(temKod);
+        listGirisCixis= localGirisCixisServiz.getAllGirisCixisTodayByCode(loggedUser);
         sayDuzgunZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==true).toList()).length;
         saySefZiyaret=dublicatesRemuvedList(listGirisCixis.where((e) => e.isRutDay==false).toList()).length;
       });
@@ -328,7 +328,7 @@ class LocalBaseDownloads {
   ///Anbar bazasi////
   Future<void> addAnbarBaza(List<ModelAnbarRapor> mallar) async {
     await boxAnbarBaza.clear();
-    for (ModelAnbarRapor model in mallar) {await boxAnbarBaza.put(model.stokkod!, model);}
+    for (ModelAnbarRapor model in mallar) {await boxAnbarBaza.put(model.stokkod.toString(), model);}
   }
 
   List<ModelAnbarRapor> getAllMehsullar() {

@@ -46,7 +46,7 @@ import '../../../tapsiriqlar/model_task_responce.dart';
 import '../../models/model_customers_visit.dart';
 import 'package:intl/intl.dart';
 
-class ControllerGirisCixisReklam extends GetxController {
+class ControllerCixisReklam extends GetxController {
   RxList<ModelCariler> listCariler = List<ModelCariler>.empty(growable: true).obs;
   LocalUserServices userService = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
@@ -2248,7 +2248,6 @@ class ControllerGirisCixisReklam extends GetxController {
           customerCode: selectedModel.code,
           inLatitude: currentLocation.latitude.toString(),
           inLongitude: currentLocation.longitude.toString(),
-          userPositionName: loggedUserModel.userModel!.roleName.toString(),
           inDistance: uzaqliq.toString(),
           inDate: DateTime.now(),
           gonderilme: "0",
@@ -2261,12 +2260,12 @@ class ControllerGirisCixisReklam extends GetxController {
           inDt: DateTime.now(),
           userFullName: userService.getLoggedUser().userModel!.name.toString(),
           userCode: userService.getLoggedUser().userModel!.code.toString(),
-          userPosition: userService.getLoggedUser().userModel!.roleId.toString(),
+          userPosition:
+              userService.getLoggedUser().userModel!.roleId.toString(),
           customerLatitude: selectedModel.latitude.toString(),
           customerLongitude: selectedModel.longitude.toString());
     } else {
       modela = ModelCustuomerVisit(
-          userPositionName: loggedUserModel.userModel!.roleName.toString(),
           operationType: "out",
           customerName: modelgirisEdilmis.value.customerName,
           customerCode: modelgirisEdilmis.value.customerCode,
@@ -2317,7 +2316,6 @@ class ControllerGirisCixisReklam extends GetxController {
         isRutDay: modelvisit.isRutDay,
           userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
           userPosition: modelvisit.userPosition.toString(),
-          userPositionName: loggedUserModel.userModel!.roleName.toString(),
           customerCode: modelvisit.customerCode.toString(),
           note: "",
           operationLatitude: modelvisit.inLatitude.toString(),
@@ -2332,7 +2330,6 @@ class ControllerGirisCixisReklam extends GetxController {
           isRutDay: modelvisit.isRutDay,
           userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
           inDt: formattedDate,
-          userPositionName: loggedUserModel.userModel!.roleName.toString(),
           userPosition: modelvisit.userPosition.toString(),
           customerCode: modelvisit.customerCode.toString(),
           note: modelvisit.outNote.toString(),
@@ -2440,7 +2437,6 @@ class ControllerGirisCixisReklam extends GetxController {
         userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
         inDt: formattedDate,
         userPosition: loggedUserModel.userModel!.roleId.toString(),
-        userPositionName: loggedUserModel.userModel!.roleName.toString(),
         userCode: loggedUserModel.userModel!.code.toString(),
         customerCode: selectedModel.code.toString(),
         note: "",
@@ -2455,7 +2451,6 @@ class ControllerGirisCixisReklam extends GetxController {
           userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
           inDt: formattedDate,
           userPosition: loggedUserModel.userModel!.roleId.toString(),
-          userPositionName: loggedUserModel.userModel!.roleName.toString(),
           userCode: loggedUserModel.userModel!.code.toString(),
           customerCode: modelgirisEdilmis.value.customerCode.toString(),
           note: ctCixisQeyd.text,
@@ -2583,9 +2578,9 @@ class ControllerGirisCixisReklam extends GetxController {
 
       model = ModelRequestGirisCixis(
           isRutDay: modelvisit.isRutDay,
+
           userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
           userPosition: modelvisit.userPosition.toString(),
-          userPositionName: loggedUserModel.userModel!.roleName.toString(),
           customerCode: modelvisit.customerCode.toString(),
           note: "",
           operationLatitude: modelvisit.inLatitude.toString(),
@@ -2597,7 +2592,6 @@ class ControllerGirisCixisReklam extends GetxController {
     } else {
       final String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(modelgirisEdilmis.value.inDate!);
       model = ModelRequestGirisCixis(
-          userPositionName: loggedUserModel.userModel!.roleName.toString(),
           userName: loggedUserModel.userModel!.name!.toUpperCase()+" "+loggedUserModel.userModel!.surname!.toUpperCase(),
           userPosition: modelvisit.userPosition.toString(),
           customerCode: modelvisit.customerCode.toString(),

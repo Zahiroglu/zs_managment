@@ -108,7 +108,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
         children: [
           _infoMerc(context),
           _infoPlan(context),
-          userPermitionsHelper.hasUserPermition("canEditMercCustomersRutDay", userService.getLoggedUser().userModel!.permissions!)?widgetRutGunleri(context):const SizedBox(),
+          userPermitionsHelper.canEditMercCustomersRutDay(userService.getLoggedUser().userModel!.permissions!)?widgetRutGunleri(context):const SizedBox(),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
@@ -423,7 +423,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                 )
               ],
             ),
-            userPermitionsHelper.hasUserPermition("canEditMercCustomersPlan", userService.getLoggedUser().userModel!.permissions!)? Positioned(
+            userPermitionsHelper.canEditMercCustomersPlan(userService.getLoggedUser().userModel!.permissions!)? Positioned(
                 top: 0,
                 right: 0,
                 height: 80,
@@ -625,7 +625,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
                   const SizedBox(
                     height: 15,
                   ),
-                  userPermitionsHelper.hasUserPermition("canEditMercCustomersPlan", userService.getLoggedUser().userModel!.permissions!)?Align(
+                  userPermitionsHelper.canEditMercCustomersPlan(userService.getLoggedUser().userModel!.permissions!)?Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 15),

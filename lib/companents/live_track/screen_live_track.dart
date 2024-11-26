@@ -421,7 +421,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             top: 70,
             child: InkWell(
               onTap: (){
-                Get.toNamed(RouteHelper.screenNotInWorkUsers,arguments: [controllerGirisCixis.modelMuyConnectUsers.value.notInWorkUsers]);
+                Get.toNamed(RouteHelper.screenNotInWorkUsers,arguments: [controllerGirisCixis.modelMuyConnectUsers.value.notInWorkUsers,controllerGirisCixis.localUserServices.getLoggedUser()]);
               },
               child: Stack(
                 children: [

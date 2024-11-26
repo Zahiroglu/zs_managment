@@ -285,7 +285,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
               ],
             ),
           ),
-          userPermitionsHelper.hasUserPermition("canEditMercCustomers", widget.controllerMercPref.loggedUserModel.userModel!.permissions!)?Positioned(
+          userPermitionsHelper.canEditMercCustomers( widget.controllerMercPref.loggedUserModel.userModel!.permissions!)?Positioned(
               top: -8,
               right: -5,
               child: IconButton.filled(
@@ -636,7 +636,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    model.outNote!=null?Expanded(
+                    if (model.outNote!=null) Expanded(
                       flex: 8,
                       child: Padding(
                         padding: const EdgeInsets.all(3.0),
@@ -645,7 +645,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                             fontsize: 12,
                             labeltext: "${"qeyd".tr} : " + model.outNote),
                       ),
-                    ):const SizedBox(),
+                    ) else const SizedBox(),
                     Expanded(
                       flex: 2,
                       child: CustomText(
@@ -695,7 +695,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
   }
 
   Future<void> _editMercCari() async {
-    String dey=await Get.toNamed(RouteHelper.getScreenEditMercMusteri(), arguments: [widget.controllerMercPref]);
+    await Get.toNamed(RouteHelper.getScreenEditMercMusteri(), arguments: [widget.controllerMercPref]);
     setState(() {
     });
   }

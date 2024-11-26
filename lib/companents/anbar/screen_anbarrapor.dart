@@ -94,6 +94,7 @@ class _ScreanAnbarRaporState extends State<ScreanAnbarRapor> {
   }
 
   Widget _customItems(ModelAnbarRapor element) {
+    print("element.satisqiymeti :"+element.satisqiymeti.toString());
     bool stockOut = double.parse(element.qaliq.toString()) <= 0 ? true : false;
     return Card(
         elevation: 10,
@@ -174,7 +175,7 @@ class _ScreanAnbarRaporState extends State<ScreanAnbarRapor> {
                           CustomText(
                               color: Colors.blue,
                               labeltext:
-                                  "${prettify(double.parse(element.satisqiymeti ?? "0"))} ₼",
+                                  "${prettify(double.parse(element.satisqiymeti!.isNotEmpty?element.satisqiymeti.toString() :"0"))} ₼",
                               fontWeight: FontWeight.bold,
                               fontsize: 16),
                         ],

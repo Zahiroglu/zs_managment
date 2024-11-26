@@ -139,7 +139,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenNotInWorkUsers, page: () {
-      return   ScreenNotInWorkUsers(listModel:Get.arguments[0]);
+      return   ScreenNotInWorkUsers(listModel:Get.arguments[0],loggedUserModel: Get.arguments[1],);
     }),
     GetPage(
         transition: Transition.rightToLeft,

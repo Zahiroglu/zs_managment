@@ -368,7 +368,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           });
         }
       },
-      child: Container(
+      child:Obx(()=> Container(
         decoration: BoxDecoration(
             boxShadow: element.keyText==controllerGirisCixis.selectedTabItem.value.keyText
                 ?  [
@@ -469,7 +469,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
             )
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -490,7 +490,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-              controllerGirisCixis.marketeGirisEdilib.isFalse && (controllerGirisCixis.listSifarisler.isNotEmpty || controllerGirisCixis.listIadeler.isNotEmpty) ? controllerGirisCixis.cardTotalSifarisler(context, false) : const SizedBox(),//sifarisleri gosteren hisse
               if (controllerGirisCixis.selectedTabItem.value.keyText!="z"&&controllerGirisCixis.selectedTabItem.value.keyText!="gz")
           Padding(padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
           child: CustomText(
@@ -500,8 +499,9 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               fontWeight: FontWeight.bold,
               textAlign: TextAlign.start),
         ) else const SizedBox(),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.70,
+        controllerGirisCixis.marketeGirisEdilib.isFalse && (controllerGirisCixis.listSifarisler.isNotEmpty || controllerGirisCixis.listIadeler.isNotEmpty) ? controllerGirisCixis.cardTotalSifarisler(context, false) : const SizedBox(),//sifarisleri gosteren hisse
+        SizedBox(
+            height:controllerGirisCixis.marketeGirisEdilib.isFalse && (controllerGirisCixis.listSifarisler.isNotEmpty || controllerGirisCixis.listIadeler.isNotEmpty)? MediaQuery.of(context).size.height * 0.62: MediaQuery.of(context).size.height * 0.7,
             child:  controllerGirisCixis.selectedTabItem.value.keyText!="z"&&controllerGirisCixis.selectedTabItem.value.keyText!="gz"
                 ? ListView(
               controller: scrollController,
@@ -605,7 +605,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           ),
         ),
         Expanded(
-            flex: 12,
+            flex:controllerGirisCixis.marketeGirisEdilib.isFalse && (controllerGirisCixis.listSifarisler.isNotEmpty || controllerGirisCixis.listIadeler.isNotEmpty)?  11:12,
             child: ListView(
               padding: const EdgeInsets.all(0),
               children:
@@ -1352,19 +1352,22 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
           height: MediaQuery.of(context).size.height*0.6,
           child: SingleChildScrollView(
             child: Column(children: [
-              // Card(
-              //   elevation: 5,
-              //   margin: const EdgeInsets.all(15).copyWith(bottom: 5,top: 0),
-              //   child: controllerGirisCixis.cardSifarisler(context),
-              // ), //satis ucun
               Card(
+                shadowColor: Colors.black,
                 elevation: 5,
-                margin: const EdgeInsets.all(15).copyWith(bottom: 5),
+                margin: const EdgeInsets.all(10).copyWith(bottom: 5,top: 0),
+                child: controllerGirisCixis.cardSifarisler(context),
+              ), //satis ucun
+              Card(
+                shadowColor: Colors.black,
+                elevation: 5,
+                margin: const EdgeInsets.all(10).copyWith(bottom: 5),
                 child: controllerGirisCixis.cardTapsiriqlar(context),
               ), //tapsiriqlar ucun olan hisse
               Card(
+                shadowColor: Colors.black,
                 elevation: 5,
-                margin: const EdgeInsets.all(15).copyWith(bottom: 5),
+                margin: const EdgeInsets.all(10).copyWith(bottom: 5),
                 child: controllerGirisCixis.cardSekilElavesi(context),
               ), //sekil elave etmek ucun
               Card(

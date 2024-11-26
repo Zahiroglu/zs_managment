@@ -17,6 +17,7 @@ class CustomElevetedButton extends StatelessWidget {
       this.elevation = 2,
       this.clicble = true,
       this.iconLeft = true,
+      this.textVisible = true,
       this.width = 100,
       this.height = 60,
       this.textsize = 14,
@@ -42,6 +43,7 @@ class CustomElevetedButton extends StatelessWidget {
   FontWeight fontWeight;
   bool clicble;
   bool iconLeft;
+  bool textVisible;
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -103,7 +105,7 @@ class CustomElevetedButton extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Expanded(
+              textVisible? Expanded(
                   child: CustomText(
                     color: textColor ?? (Get.isDarkMode ? Colors.white : Colors.black),
                     textAlign: TextAlign.center,
@@ -111,7 +113,7 @@ class CustomElevetedButton extends StatelessWidget {
                     fontWeight: fontWeight,
                     overflow: TextOverflow.ellipsis,
                     maxline: 2,
-                  )),
+                  )):SizedBox(),
               isSvcFile
                   ? ClipRRect(
                 clipBehavior: Clip.antiAlias,

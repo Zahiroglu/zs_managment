@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:hive/hive.dart';
+import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
@@ -8,6 +9,8 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:intl/intl.dart';
 import 'package:zs_managment/widgets/widget_notdata_found.dart';
 import '../../widgets/custom_text_field.dart';
+import '../hesabatlar/user_hesabatlar/useruzre_hesabatlar.dart';
+import '../hesabatlar/user_hesabatlar/widgetHesabatListItemsUser.dart';
 import 'model/model_live_track.dart';
 
 class SearchLiveUsers extends StatelessWidget {
@@ -73,26 +76,39 @@ class SearchLiveUsers extends StatelessWidget {
   }
 }
 
-class WidgetWorkerItemNotWorkedToday extends StatelessWidget {
+class WidgetWorkerItemNotWorkedToday extends StatefulWidget {
   WidgetWorkerItemNotWorkedToday({
     super.key,
     required this.context,
     required this.element,
     required this.callBack,
+    required this.loggedUserModel,
   });
 
   final BuildContext context;
   final ModelLiveTrack element;
+  final LoggedUserModel loggedUserModel;
   Function(ModelLiveTrack) callBack;
 
+  @override
+  State<WidgetWorkerItemNotWorkedToday> createState() => _WidgetWorkerItemNotWorkedTodayState();
+}
+
+class _WidgetWorkerItemNotWorkedTodayState extends State<WidgetWorkerItemNotWorkedToday> {
+  bool expandMore=false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        if (element.currentLocation != null) {
-          callBack(element).call;
-          Get.back();
-        }
+        setState(() {
+          expandMore=!expandMore;
+        });
       },
       child: Container(
         padding: const EdgeInsets.all(5),
@@ -100,19 +116,19 @@ class WidgetWorkerItemNotWorkedToday extends StatelessWidget {
             border: Border.all(color: Colors.grey),
             borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
-        child: element.lastInoutAction != null
-            ? Column(
+        child:
+            Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Expanded(
-                        flex: 8,
+                        flex: 12,
                         child: CustomText(
                           overflow: TextOverflow.ellipsis,
                           labeltext:
-                              "${element.userCode!}-${element.userFullName}",
+                              "${widget.element.userCode!}-${widget.element.userFullName}",
                           fontsize: 16,
                           fontWeight: FontWeight.w700,
                         ),
@@ -130,49 +146,25 @@ class WidgetWorkerItemNotWorkedToday extends StatelessWidget {
                                   Border.all(color: Colors.grey, width: 0.5)),
                           child: Center(
                               child: CustomText(
+                                fontsize: 10,
                             labeltext: false ? "Online" : "Offline",
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           )),
                         ),
                       ),
+                      widget.element.lastInoutAction != null? !expandMore?Expanded(
+                        flex: 1,
+                        child: Icon(Icons.info_rounded,color: Colors.blue.withOpacity(0.9),),
+                      ):const SizedBox():const SizedBox(),
                     ],
                   ),
-                  CustomText(
-                    labeltext: "sonuncuZiyaret",
-                    fontWeight: FontWeight.w800,
-                    color: Colors.blue,
-                  ),
-                  const SizedBox(
-                    height: 2,
-                  ),
-                  const Divider(
-                    height: 1,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(
-                    height: 2,
-                  ),
-                  _widgetMarketInfo(context, element.lastInoutAction!)
-                ],
+                  widget.element.lastInoutAction != null? expandMore?_widgetMarketInfo(context, widget.element.lastInoutAction!):const SizedBox():const SizedBox(),
+                  widget.element.lastInoutAction != null?expandMore?WidgetRuthesabatlar(temsilciKodu: widget.element.userCode!,roleId: widget.element.userPosition!,
+                    onClick: (){},height: 100,listP: widget.loggedUserModel.userModel!.permissions!,):const SizedBox():const SizedBox()
+                 ],
               )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CustomText(
-                        overflow: TextOverflow.ellipsis,
-                        labeltext:
-                            "${element.userCode??""}-${element.userFullName??""}",
-                        fontsize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+         ,
       ),
     );
   }
@@ -186,6 +178,21 @@ class WidgetWorkerItemNotWorkedToday extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          CustomText(
+            labeltext: "sonuncuZiyaret",
+            fontWeight: FontWeight.w800,
+            color: Colors.blue,
+          ),
+          const SizedBox(
+            height: 2,
+          ),
+          const Divider(
+            height: 1,
+            color: Colors.grey,
+          ),
+          const SizedBox(
+            height: 2,
+          ),
           Row(
             children: [
               Expanded(
@@ -211,7 +218,7 @@ class WidgetWorkerItemNotWorkedToday extends StatelessWidget {
           const SizedBox(
             height: 0,
           ),
-          _widgetInfoZiyaret(selectedModel)
+          _widgetInfoZiyaret(selectedModel),
         ],
       ),
     );

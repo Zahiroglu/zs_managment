@@ -326,7 +326,7 @@ class ControllerBaseDownloads extends GetxController {
           listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
         }
         break;
-      case "anbarScreen":
+      case "downanbar":
         await localGirisCixisServiz.init();
         updateElementDownloading(model,true);
         loggedUserModel = localUserServices.getLoggedUser();
@@ -694,13 +694,13 @@ class ControllerBaseDownloads extends GetxController {
       ));
     } else {
       final response = await ApiClient().dio(false).post(
-        "${loggedUserModel.baseUrl}/api/v1/Report/warehouse-remainder",
+        "${loggedUserModel.baseUrl}/Anbar/GetAnbarBaze",
         data: data,
         options: Options(
           headers: {
             'Lang': languageIndex,
             'Device': dviceType,
-            'abs': '123456',
+            'smr': '12345',
             "Authorization": "Bearer $accesToken"
           },
           validateStatus: (_) => true,
@@ -710,7 +710,7 @@ class ControllerBaseDownloads extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        var dataModel = json.encode(response.data['result']);
+        var dataModel = json.encode(response.data['Result']);
         List listuser = jsonDecode(dataModel);
         for (var i in listuser) {
           listProducts.add(ModelAnbarRapor.fromJson(i));

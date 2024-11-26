@@ -365,7 +365,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                                 children: [
                                   CustomText(
                                     maxline: 2,
-                                      labeltext: "${"marketdeISvaxti".tr} : ", fontsize: 12),
+                                      labeltext: "${"iSvaxti".tr} : ", fontsize: 12),
                                   CustomText(
                                       labeltext: element.sndeQalmaVaxti!,
                                       fontsize: 12),

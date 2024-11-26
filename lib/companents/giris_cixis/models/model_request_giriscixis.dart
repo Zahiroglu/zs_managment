@@ -4,6 +4,7 @@ class ModelRequestGirisCixis {
   String? userCode;
   String? userName;
   String? userPosition;
+  String? userPositionName;
   String? customerCode;
   String? operationType;
   String? operationLatitude;
@@ -17,6 +18,7 @@ class ModelRequestGirisCixis {
     this.userCode,
     this.userName,
     this.userPosition,
+    this.userPositionName,
     this.customerCode,
     this.operationType,
     this.operationLatitude,
@@ -35,6 +37,7 @@ class ModelRequestGirisCixis {
     userCode: json["userCode"],
     userName: json["userName"],
     userPosition: json["userPosition"],
+    userPositionName: json["userPositionName"],
     customerCode: json["customerCode"],
     operationType: json["operationType"],
     operationLatitude: json["operationLatitude"],
@@ -49,6 +52,7 @@ class ModelRequestGirisCixis {
     "userCode": userCode,
     "userName": userName,
     "userPosition": userPosition,
+    "userPositionName": userPositionName,
     "customerCode": customerCode,
     "operationType": operationType,
     "operationLatitude": operationLatitude,
