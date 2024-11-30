@@ -333,5 +333,9 @@
     "pages": "Səhifələr",
     "downloads": "Endirmələr",
     "otherPer": "Diger yetkiler",
-    "myVizits": "Ziyaretlerim"
+    "myVizits": "Ziyaretlerim",
+    "titleBackPermit":"Gps izleme icazesi",
+    "desBackPermit":"Hormetli istifadeci, program is vaxti canli izlemeni temin etmek ucun gps icazesine ehtiyac duyur. Programin duzgun islemesi ucun arxa panel gpz izleme icazesini vermeyiniz lazimdir. Eks halda program islemeyecekdir. Program ayarlarindan 'Hemise icaze ver'-i secin",
+    "titleNotyPermit":"Bildirişler icazesi",
+    "desNotyPermit":"Hormetli istifadeci, sirket daxili bildirislerin size vaxtinda gonderilmesi ucun icazeye ehtoyac var. Zehmet olmasa icaze verin"
 }

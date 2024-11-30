@@ -2360,7 +2360,6 @@ class ControllerCixisReklam extends GetxController {
             ),
           );
       // 404
-      print("responce giris et :"+response.statusCode.toString()+" result :"+response.data.toString());
       if (response.statusCode == 200) {
         DialogHelper.hideLoading();
         modelvisit.gonderilme = "1";

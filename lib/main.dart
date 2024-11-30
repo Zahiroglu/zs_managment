@@ -1,12 +1,20 @@
+import 'dart:math';
+
+import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
+import 'package:zs_managment/companents/backgroud_task/backgroud_errors/local_backgroud_events.dart';
+import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
+import 'package:zs_managment/companents/notifications/noty_background_track.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
+import 'package:zs_managment/dio_config/api_client.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
 import 'package:zs_managment/global_models/model_maptypeapp.dart';
@@ -14,6 +22,7 @@ import 'package:zs_managment/language/utils/dep.dart' as dep;
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/thema/thema_controller.dart';
 import 'package:zs_managment/thema/theme_constants.dart';
+import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'companents/backgroud_task/backgroud_errors/model_back_error.dart';
 import 'companents/backgroud_task/backgroud_errors/model_user_current_location_reqeust.dart';
 import 'companents/base_downloads/models/model_cariler.dart';
@@ -32,10 +41,13 @@ import 'companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.da
 import 'language/lang_constants.dart';
 import 'language/localization_controller.dart';
 import 'language/utils/messages.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+as bg;
 
 
 Future<void>  main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
   // await Firebase.initializeApp(options: const FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w',
   //     appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',
   //     projectId: 'zscontrollsystem'));
@@ -71,22 +83,144 @@ Future<void>  main() async{
   Hive.registerAdapter(MercCustomersDatailAdapter());
   Hive.registerAdapter(SellingDataAdapter());
   Hive.registerAdapter(UserMercAdapter());
+  bg.BackgroundGeolocation.registerHeadlessTask(headlessTask);
   runApp(MyApp(languages: languages));
 
+}
+
+void headlessTask(bg.HeadlessEvent event) async {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  print("[HeadlessTask] - Event: ${event.name}");
+  try {
+    // Fetch the current state of BackgroundGeolocation
+    bg.State state = await bg.BackgroundGeolocation.state;
+    // Log or handle the state information
+    print("BackgroundGeolocation State:");
+    print("Enabled: ${state.enabled}");
+    print("Tracking: ${state.trackingMode}");
+    print("Is Moving: ${state.isMoving}");
+    print("Desired Accuracy: ${state.desiredAccuracy}");
+    print("Heartbeat Interval: ${state.heartbeatInterval}");
+    print("Foreground Service: ${state.foregroundService}");
+    print("Start on Boot: ${state.startOnBoot}");
+    if(state.didLaunchInBackground){
+      print("BackgroundGeolocation bacgroundda isleyir");
+
+    }
+     state.forceReloadOnLocationChange=true;
+    // Perform actions based on state
+    if (!state.enabled) {
+      print("BackgroundGeolocation is not enabled. Starting service...");
+      await bg.BackgroundGeolocation.start();
+    }
+
+    if (event.name == bg.Event.LOCATION) {
+      bg.Location location = event.event;
+      print("[HeadlessTask] - Location: ${location.coords.latitude}, ${location.coords.longitude}");
+      await sendInfoLocationsToDatabase(location);
+      // Handle location logic (e.g., send to server)
+    }
+
+
+    if (event.name == bg.Event.HEARTBEAT) {
+      bg.HeartbeatEvent heartbeatEvent = event.event;
+      print("[HeadlessTask] - Heartbeat at: ${heartbeatEvent.location!.coords.latitude}, ${heartbeatEvent.location!.coords.longitude}");
+    }
+  } catch (e) {
+    print("[HeadlessTask] - Error: $e");
+  }
+}
+
+Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
+  LocalUserServices userService = LocalUserServices();
+  LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
+  LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();  await userService.init();
+  late CheckDviceType checkDviceType = CheckDviceType();
+
+  await localBackgroundEvents.init();
+  await localGirisCixisServiz.init();
+  ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
+  double uzaqliq=0;
+  if(modela.customerCode!=null){
+    uzaqliq = calculateDistance(
+      location.coords.latitude,
+      location.coords.longitude,
+      double.parse(modela.customerLatitude!),
+      double.parse(modela.customerLongitude!),
+    );
+  }
+  LoggedUserModel loggedUserModel = userService.getLoggedUser();
+  String languageIndex = await getLanguageIndex();
+  int dviceType = checkDviceType.getDviceType();
+  String accesToken = loggedUserModel.tokenModel!.accessToken!;
+  ModelUsercCurrentLocationReqeust model = ModelUsercCurrentLocationReqeust(
+    sendingStatus: "0",
+    batteryLevel: location.battery.level * 100,
+    inputCustomerDistance: uzaqliq.round(),
+    isOnline: true,
+    latitude:  location.coords.latitude,
+    longitude: location.coords.longitude,
+    locationDate: DateTime.now().toString().substring(0, 18),
+    pastInputCustomerCode: modela.customerCode??"0",
+    pastInputCustomerName: modela.customerName??"0",
+    locationHeading: location.coords.heading,
+    speed: location.coords.speed,
+    userFullName:"${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!.surname!}",
+    userCode: loggedUserModel.userModel!.code!,
+    userPosition: loggedUserModel.userModel!.roleId.toString(),
+  );
+    try{
+      final response = await ApiClient().dio(false).post(
+        "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
+        data: model.toJson(),
+        options: Options(
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode != 200) {
+        await localBackgroundEvents.addBackLocationToBase(model);
+      }
+    } on DioException catch (e) {
+      await  localBackgroundEvents.addBackLocationToBase(model);
+    }
+
+}
+Future<String> getLanguageIndex() async {
+  return await Hive.box("myLanguage").get("langCode") ?? "az";
+}
+
+double calculateDistance(lat1, lon1, lat2, lon2) {
+  var p = 0.017453292519943295;
+  var c = cos;
+  var a = 0.5 -
+      c((lat2 - lat1) * p) / 2 +
+      c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+  double uzaqliq = 12742 * asin(sqrt(a));
+  return uzaqliq;
 }
 
 
 class MyApp extends StatefulWidget {
   final Map<String, Map<String, String>> languages;
   const MyApp({super.key,required this.languages});
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
-  BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
+  final BackgroudLocationServiz backgroudLocationServiz = Get.put(BackgroudLocationServiz());
 
   @override
   void dispose() {
@@ -100,20 +234,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
     WidgetsBinding.instance.addObserver(this);
   }
 
+
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-
-    bool isUpDestroyed=state==AppLifecycleState.detached;
-    if(isUpDestroyed){
-      await localGirisCixisServiz.init();
-      ModelCustuomerVisit model=await localGirisCixisServiz.getGirisEdilmisMarket();
-      if(model.inDate!=null) {
-       // await backgroudLocationServiz.stopBackGroundFetch();
-        //await backgroudLocationServiz.startBackgorundFetck(model);
-      }}
-
-    // TODO: implement didChangeAppLifecycleState
-    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.detached) {
+      print("Tətbiq bağlanır. Xidmət yenidən başlatılır...");
+      // await bg.BackgroundGeolocation.reset(); // Eğer çalışıyorsa, durdur
+      // await bg.BackgroundGeolocation.start(); // Sonra yeniden başlat
+    }
   }
 
   @override

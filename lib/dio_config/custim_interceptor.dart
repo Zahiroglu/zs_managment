@@ -38,8 +38,8 @@ class CustomInterceptor extends Interceptor {
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     await localUserServices.init();
     String token = await localUserServices.getLoggedToken();
-    print('Time :' + DateTime.now().toString() + ' Request[=> PATH:${options.path}] data :${options.data} token :'+token.toString());
-    print('Time :' + DateTime.now().toString() + options.headers.toString());
+    print('Time :' + DateTime.now().toString() + ' Request[=> PATH:${options.path}] data :${options.data}');
+   print('Time :' + DateTime.now().toString() + options.headers.toString());
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     } else {
@@ -51,7 +51,7 @@ class CustomInterceptor extends Interceptor {
 
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
-    print('Time :' + DateTime.now().toString() + ' Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " result :" + response.data.toString());
+   // print('Time :' + DateTime.now().toString() + ' Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " result :" + response.data.toString());
     if (response.statusCode == 404) {
       Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
     }

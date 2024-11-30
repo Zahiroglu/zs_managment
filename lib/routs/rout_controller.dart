@@ -8,6 +8,7 @@ import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_cesid_hesa
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_cari_hereket.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_faktura.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
+import 'package:zs_managment/companents/login/app_permition_setting.dart';
 import 'package:zs_managment/companents/login/splashandwelcome/welcome_screen.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/main_screen/window/base_screen_windows.dart';
@@ -224,7 +225,8 @@ class RouteHelper {
       return  ScreenRequestCheckMobile();
     }),
     GetPage(name: mobileLoginFistScreen, page: () {
-      return const LoginMobileFirstScreen();
+      //return const LoginMobileFirstScreen();
+      return const ScreenAppPermitionSetting();
     }),
     GetPage(
         transition: Transition.downToUp,
