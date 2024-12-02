@@ -328,32 +328,39 @@ class BackgroudLocationServiz extends GetxController {
       // BackgroundGeolocation konfiqurasiyası
       await bg.BackgroundGeolocation.ready(bg.Config(
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqlik
-        distanceFilter: 0, // Hər dəyişiklikdə məlumat topla
-        locationUpdateInterval: 30000, // 30 saniyədə bir yeniləmə
-        fastestLocationUpdateInterval: 30000, // Ən sürətli yeniləmə
-        heartbeatInterval: 30, // Hər 30 saniyədə bir heartbeat
+        distanceFilter: 0, // Dəyişiklikdən asılı olmayaraq məlumat topla
+        locationUpdateInterval: 10000, // 30 saniyədə bir yeniləmə
+        fastestLocationUpdateInterval: 10000, // Ən sürətli yeniləmə
+        heartbeatInterval: 10, // 30 saniyədə bir heartbeat
         stopOnTerminate: false, // Proqram bağlansa belə dayanmasın
         startOnBoot: true, // Cihaz yenidən başladıqda aktiv olsun
+        preventSuspend: true, // Cihaz yuxuya getməsin
         foregroundService: true, // Xidmət arxa planda işləyərkən aktiv olsun
-        enableHeadless: true, // Headless rejimi aktiv edin
-        preventSuspend: true, // Cihazın yuxuya getməsinin qarşısını alın
         debug: true, // Debug logları aktiv edin
+        enableHeadless: true,
         logLevel: bg.Config.LOG_LEVEL_VERBOSE, // Təfərrüatlı loglar
         notification: bg.Notification(
           title: "ZS-CONTROL Aktivdir",
           text: "Fon rejimində izlənir.",
+          sticky: true, // Bildiriş bağlanmasın
           channelId: "zs0001", // Unikal kanal ID
           channelName: "zs-controll", // Kanal adı
           priority: bg.Config.NOTIFICATION_PRIORITY_MAX, // Yüksək prioritet
-          //sticky: true, // Bildirişin bağlanmasının qarşısını alır
         ),
       )).then((bg.State state) async {
         if (!state.enabled) {
           await bg.BackgroundGeolocation.start();
-          print("BackgroundGeolocation başladı.");
         }
       });
-    } catch (e) {
+      // Başlanğıc yer məlumatını dərhal götür
+      final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
+          persist: true,
+          samples: 1,
+      );
+      if (initialLocation != null) {
+        print("Başlanğıc yer məlumatı: ${initialLocation.coords .latitude}, ${initialLocation.coords.longitude}");
+        await sendInfoLocationsToDatabase(initialLocation);
+      } } catch (e) {
       print("startBackgroundFetch xətası: $e");
     }
   }
@@ -377,6 +384,8 @@ class BackgroudLocationServiz extends GetxController {
     await userService.init();
     await localBackgroundEvents.init();
     await localGirisCixisServiz.init();
+    await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
+
     ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
     double uzaqliq=0;
     if(modela.customerCode!=null){
@@ -447,6 +456,7 @@ class BackgroudLocationServiz extends GetxController {
   Future<void> sendInfoUnsendedLocationsToDatabase(ModelUsercCurrentLocationReqeust model) async {
     await userService.init();
     await localBackgroundEvents.init();
+
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();

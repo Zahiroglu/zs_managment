@@ -89,8 +89,6 @@ Future<void>  main() async{
 }
 
 void headlessTask(bg.HeadlessEvent event) async {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
   print("[HeadlessTask] - Event: ${event.name}");
   try {
     // Fetch the current state of BackgroundGeolocation
@@ -115,13 +113,15 @@ void headlessTask(bg.HeadlessEvent event) async {
       await bg.BackgroundGeolocation.start();
     }
 
-    if (event.name == bg.Event.LOCATION) {
-      bg.Location location = event.event;
-      print("[HeadlessTask] - Location: ${location.coords.latitude}, ${location.coords.longitude}");
-      await sendInfoLocationsToDatabase(location);
-      // Handle location logic (e.g., send to server)
-    }
-
+    // if (event.name == bg.Event.LOCATION) {
+    //   bg.Location location = event.event;
+    //   print("[HeadlessTask] - Location: ${location.coords.latitude}, ${location.coords.longitude}");
+    //   await sendInfoLocationsToDatabase(location);
+    //   // Handle location logic (e.g., send to server)
+    // }
+    bg.Location location = event.event;
+    print("[HeadlessTask] - Location: ${location.coords.latitude}, ${location.coords.longitude}");
+    await sendInfoLocationsToDatabase(location);
 
     if (event.name == bg.Event.HEARTBEAT) {
       bg.HeartbeatEvent heartbeatEvent = event.event;
@@ -133,11 +133,14 @@ void headlessTask(bg.HeadlessEvent event) async {
 }
 
 Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   LocalUserServices userService = LocalUserServices();
   LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();  await userService.init();
   late CheckDviceType checkDviceType = CheckDviceType();
+  await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
 
+  await userService.init();
   await localBackgroundEvents.init();
   await localGirisCixisServiz.init();
   ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
@@ -194,6 +197,7 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
     }
 
 }
+
 Future<String> getLanguageIndex() async {
   return await Hive.box("myLanguage").get("langCode") ?? "az";
 }
@@ -239,8 +243,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.detached) {
       print("Tətbiq bağlanır. Xidmət yenidən başlatılır...");
-      // await bg.BackgroundGeolocation.reset(); // Eğer çalışıyorsa, durdur
-      // await bg.BackgroundGeolocation.start(); // Sonra yeniden başlat
+      await bg.BackgroundGeolocation.reset(); // Eğer çalışıyorsa, durdur
+       await bg.BackgroundGeolocation.start(); // Sonra yeniden başlat
     }
   }
 

@@ -57,6 +57,12 @@
         <service android:name="com.transistorsoft.flutter.backgroundgeolocation.HeadlessTask"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true"/>
+        <service
+            android:name="com.transistorsoft.locationmanager.BackgroundGeolocationService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location"
+            />
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

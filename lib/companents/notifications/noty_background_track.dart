@@ -46,6 +46,7 @@ class NotyBackgroundTrack {
       'channel_name',
       ongoing: true,
       autoCancel: false,
+      icon: '@mipmap/ic_launcher', // Burada düzgün ikon təyin edin
       playSound: true,
       importance: Importance.max,
       priority: Priority.high,

@@ -42,7 +42,6 @@ class LocalBackgroundEvents {
    return listErrors;
   }
 
-
   bool convertDayByLastday(ModelBackErrors element) {
     print("Error zaman :"+element.errDate.toString());
     DateTime? lastDay = DateTime.tryParse(element.errDate.toString());
