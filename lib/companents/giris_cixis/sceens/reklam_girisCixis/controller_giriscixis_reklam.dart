@@ -45,6 +45,7 @@ import '../../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart
 import '../../../tapsiriqlar/model_task_responce.dart';
 import '../../models/model_customers_visit.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 
 class ControllerGirisCixisReklam extends GetxController {
   RxList<ModelCariler> listCariler = List<ModelCariler>.empty(growable: true).obs;
@@ -577,11 +578,11 @@ class ControllerGirisCixisReklam extends GetxController {
     };
   }
 
-  void addMarkersAndPlygane(String latitude, String longitude, Position currentLocation) {
+  void addMarkersAndPlygane(String latitude, String longitude, bg.Location currentLocation) {
     polygon.clear();
     pointsPoly.clear();
     pointsPoly
-        .add(map.LatLng(currentLocation.latitude, currentLocation.longitude));
+        .add(map.LatLng(currentLocation.coords.latitude, currentLocation.coords.longitude));
     pointsPoly.add(map.LatLng(double.parse(latitude), double.parse(longitude)));
     polygon.add(map.Polygon(
       polygonId: const map.PolygonId('1'),
@@ -2058,7 +2059,7 @@ class ControllerGirisCixisReklam extends GetxController {
   /////checkAllUnsendedVisits
 
   ///giris ucun hazirliq
-  Future<void> pripareForEnter(String uzaqliqDtring,Position currentLocation, ModelCariler selectedModel, double uzaqliq) async {
+  Future<void> pripareForEnter(String uzaqliqDtring,bg.Location currentLocation, ModelCariler selectedModel, double uzaqliq) async {
     snDenGirisUzaqligi.value=uzaqliqDtring;
     DialogHelper.hideLoading();
     if (await permitionController.checkBackgroundLocationPermission()) {
@@ -2088,7 +2089,7 @@ class ControllerGirisCixisReklam extends GetxController {
                   }),
             );
           } else {
-            if (currentLocation.isMocked) {
+            if (currentLocation.mock) {
               ShowInfoDialog(
                   messaje: "phoneFikeLocationError".tr,
                   icon: Icons.phonelink_erase_rounded,
@@ -2162,7 +2163,7 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   ///cixis ucun hazirliq
-  Future<void> pripareForExit(Position currentLocation, double uzaqliq, ModelCariler selectedModel) async {
+  Future<void> pripareForExit(bg.Location currentLocation, double uzaqliq, ModelCariler selectedModel) async {
     if (await permitionController.checkBackgroundLocationPermission()) {
       if (await permitionController.checkNotyPermission()) {
         await localDbGirisCixis.init();
@@ -2191,7 +2192,7 @@ class ControllerGirisCixisReklam extends GetxController {
                   }),
             );
           } else {
-            if (currentLocation.isMocked) {
+            if (currentLocation.mock) {
               Get.dialog(
                 ShowInfoDialog(
                     messaje: "phoneFikeLocationError".tr,
@@ -2239,15 +2240,15 @@ class ControllerGirisCixisReklam extends GetxController {
     }
   }
 
-  Future<void> checkAllVisits(Position currentLocation, ModelCariler selectedModel, double uzaqliq, bool isEnter) async {
+  Future<void> checkAllVisits(bg.Location currentLocation, ModelCariler selectedModel, double uzaqliq, bool isEnter) async {
     ModelCustuomerVisit modela = ModelCustuomerVisit();
     if (isEnter) {
       modela = ModelCustuomerVisit(
           operationType: "in",
           customerName: selectedModel.name,
           customerCode: selectedModel.code,
-          inLatitude: currentLocation.latitude.toString(),
-          inLongitude: currentLocation.longitude.toString(),
+          inLatitude: currentLocation.coords.latitude.toString(),
+          inLongitude: currentLocation.coords.longitude.toString(),
           userPositionName: loggedUserModel.userModel!.roleName.toString(),
           inDistance: uzaqliq.toString(),
           inDate: DateTime.now(),
@@ -2277,8 +2278,8 @@ class ControllerGirisCixisReklam extends GetxController {
               modelgirisEdilmis.value.inDate!.add(const Duration(seconds: 2)),
           gonderilme: "0",
           outNote: ctCixisQeyd.text,
-          outLatitude: currentLocation.latitude.toString(),
-          outLongitude: currentLocation.longitude.toString(),
+          outLatitude: currentLocation.coords.latitude.toString(),
+          outLongitude: currentLocation.coords.longitude.toString(),
           outDistance: uzaqliq.toString(),
           outDate: DateTime.now(),
           isRutDay: modelgirisEdilmis.value.isRutDay,
@@ -2303,7 +2304,7 @@ class ControllerGirisCixisReklam extends GetxController {
   }
 
   Future<void> _callApiForSendUnsededs(
-      ModelCustuomerVisit modelvisit, Position currentLocation,
+      ModelCustuomerVisit modelvisit, bg.Location currentLocation,
       double uzaqliq, ModelCariler selectedModel, bool isEnter,
       ModelCustuomerVisit mainVisitModel) async {
     DialogHelper.showLoading("Kohne melumatlar gonderilir");
@@ -2426,7 +2427,7 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  Future<void> _callApiForVisits(Position currentLocation,
+  Future<void> _callApiForVisits(bg.Location currentLocation,
       double uzaqliq, ModelCariler selectedModel, bool isEnter,
       ModelCustuomerVisit modelVisit) async {
     DialogHelper.showLoading("Kohne melumatlar gonderilir");
@@ -2444,8 +2445,8 @@ class ControllerGirisCixisReklam extends GetxController {
         userCode: loggedUserModel.userModel!.code.toString(),
         customerCode: selectedModel.code.toString(),
         note: "",
-        operationLatitude: currentLocation.latitude.toString(),
-        operationLongitude: currentLocation.longitude.toString(),
+        operationLatitude: currentLocation.coords.latitude.toString(),
+        operationLongitude: currentLocation.coords.longitude.toString(),
         operationDate: formattedDate,
         operationType: "In",
       );
@@ -2459,8 +2460,8 @@ class ControllerGirisCixisReklam extends GetxController {
           userCode: loggedUserModel.userModel!.code.toString(),
           customerCode: modelgirisEdilmis.value.customerCode.toString(),
           note: ctCixisQeyd.text,
-          operationLatitude: currentLocation.latitude.toString(),
-          operationLongitude: currentLocation.longitude.toString(),
+          operationLatitude: currentLocation.coords.latitude.toString(),
+          operationLongitude: currentLocation.coords.longitude.toString(),
           operationDate: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
           operationType: "Out");
     }
@@ -2499,7 +2500,7 @@ class ControllerGirisCixisReklam extends GetxController {
     update();
   }
 
-  Future<void> cixisiLocaldaTesdiqleLast(Position? currentLocation,double uzaqliq, String qeyd, ModelCustuomerVisit? modela) async {
+  Future<void> cixisiLocaldaTesdiqleLast(bg.Location? currentLocation,double uzaqliq, String qeyd, ModelCustuomerVisit? modela) async {
     if (listCariler.any((a) => a.code == modelgirisEdilmis.value.customerCode)) {
       ModelCariler modelCari = listCariler.where((a) => a.code == modelgirisEdilmis.value.customerCode).first;
       modelCari.ziyaret = "2";
@@ -2533,11 +2534,11 @@ class ControllerGirisCixisReklam extends GetxController {
     controller.addPermisionsInDrawerMenu(loggedUserModel);
     backgroudLocationServiz.stopBackGroundFetch();
     listTapsiriqlar.clear();
-    await getGirisEdilmisCari(map.LatLng(currentLocation!.latitude, currentLocation.longitude,));
+    await getGirisEdilmisCari(map.LatLng(currentLocation!.coords.latitude, currentLocation.coords.longitude,));
     update();
   }
 
-  Future<void> girisiLocaldaTesdiqleLast(Position? currentLocation, double uzaqliq, ModelCustuomerVisit? modela, ModelCariler? selectedModel) async {
+  Future<void> girisiLocaldaTesdiqleLast(bg.Location currentLocation, double uzaqliq, ModelCustuomerVisit? modela, ModelCariler? selectedModel) async {
     createCircles(selectedModel!.longitude!, selectedModel.latitude!, selectedModel.code!);
     ModelCariler modelCari = listCariler.where((a) => a.code == modela!.customerCode).first;
     modelCari.ziyaret = "1";

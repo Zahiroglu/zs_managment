@@ -83,7 +83,7 @@ Future<void>  main() async{
   Hive.registerAdapter(MercCustomersDatailAdapter());
   Hive.registerAdapter(SellingDataAdapter());
   Hive.registerAdapter(UserMercAdapter());
-  bg.BackgroundGeolocation.registerHeadlessTask(headlessTask);
+  bg.BackgroundGeolocation.registerHeadlessTask(backgroundTaskHandler);
   runApp(MyApp(languages: languages));
 
 }
@@ -91,9 +91,7 @@ Future<void>  main() async{
 void headlessTask(bg.HeadlessEvent event) async {
   print("[HeadlessTask] - Event: ${event.name}");
   try {
-    // Fetch the current state of BackgroundGeolocation
     bg.State state = await bg.BackgroundGeolocation.state;
-    // Log or handle the state information
     print("BackgroundGeolocation State:");
     print("Enabled: ${state.enabled}");
     print("Tracking: ${state.trackingMode}");
@@ -106,8 +104,6 @@ void headlessTask(bg.HeadlessEvent event) async {
       print("BackgroundGeolocation bacgroundda isleyir");
 
     }
-     state.forceReloadOnLocationChange=true;
-    // Perform actions based on state
     if (!state.enabled) {
       print("BackgroundGeolocation is not enabled. Starting service...");
       await bg.BackgroundGeolocation.start();
@@ -121,7 +117,7 @@ void headlessTask(bg.HeadlessEvent event) async {
     // }
     bg.Location location = event.event;
     print("[HeadlessTask] - Location: ${location.coords.latitude}, ${location.coords.longitude}");
-    await sendInfoLocationsToDatabase(location);
+  //  await sendInfoLocationsToDatabase(location);
 
     if (event.name == bg.Event.HEARTBEAT) {
       bg.HeartbeatEvent heartbeatEvent = event.event;
@@ -131,6 +127,56 @@ void headlessTask(bg.HeadlessEvent event) async {
     print("[HeadlessTask] - Error: $e");
   }
 }
+
+
+void backgroundTaskHandler(bg.HeadlessEvent event) async {
+  print("[HeadlessTask] Event received: $event");
+  if (event.event.mock) {
+    print("Mock location detected: ${event.event.coords}");
+    // Saxta yer məlumatlarını serverə göndərin
+  } else {
+    print("Real location: ${event.event.coords.latitude}, ${event.event.coords.longitude}");
+    // Doğru yer məlumatını serverə göndərin
+    await sendInfoLocationsToDatabase(event.event);
+  }
+  // if (event is bg.HeartbeatEvent) {
+  //   print("[HeadlessTask] Heartbeat event received");
+  //
+  //   try {
+  //     final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
+  //       persist: true,
+  //       samples: 1,
+  //     );
+  //
+  //     if (location.mock) {
+  //       print("Mock location detected: ${location.coords}");
+  //       // Saxta yer məlumatlarını serverə göndərin
+  //     } else {
+  //       print("Real location: ${location.coords.latitude}, ${location.coords.longitude}");
+  //       // Doğru yer məlumatını serverə göndərin
+  //       await sendInfoLocationsToDatabase(location);
+  //     }
+  //   } catch (e) {
+  //     print("[HeadlessTask] Error fetching location: $e");
+  //   }
+  // } else if (event is bg.Location) {
+  //   print("[HeadlessTask] Location event received");
+  //   print("Location: ${event.event.latitude}, ${event.event.longitude}");
+  //   if (event.event.mock) {
+  //     print("Mock location detected: ${event.event.coords}");
+  //     // Saxta yer məlumatlarını serverə göndərin
+  //   } else {
+  //     print("Real location: ${event.event.coords.latitude}, ${event.event.coords.longitude}");
+  //     // Doğru yer məlumatını serverə göndərin
+  //     await sendInfoLocationsToDatabase(event.event);
+  //   }
+  //   // Yer məlumatlarını serverə göndərin
+  // } else {
+  //   print("[HeadlessTask] Unknown event type");
+  // }
+}
+
+
 
 Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();

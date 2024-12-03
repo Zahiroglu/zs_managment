@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+//import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
@@ -21,6 +21,8 @@ import '../../../hesabatlar/cari_hesabat/cari_ziyaret_hesabati/widget_giriscixis
 import '../../../local_bazalar/local_users_services.dart';
 import '../../../login/models/logged_usermodel.dart';
 import '../../../login/services/api_services/users_controller_mobile.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
+
 
 class ScreenGirisCixisReklam extends StatefulWidget {
   DrawerMenuController drawerMenuController;
@@ -33,8 +35,8 @@ class ScreenGirisCixisReklam extends StatefulWidget {
 class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with WidgetsBindingObserver{
   ControllerGirisCixisReklam controllerGirisCixis = Get.put(ControllerGirisCixisReklam());
   PageController pageController=PageController();
-  late Position _currentLocation;
-  late LocationSettings locationSettings;
+  late bg.Location _currentLocation;
+  //late LocationSettings locationSettings;
   int defaultTargetPlatform=0;
   bool followMe = false;
   String selectedItemsLabel = "Gunluk Rut";
@@ -48,8 +50,8 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   bool marketeGirisIcazesi = false;
   bool marketeCixisIcazesi = false;
   ScrollController scrollController = ScrollController();
-  final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
-  StreamSubscription<Position>? _positionStreamSubscription;
+  //final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+  //StreamSubscription<Position>? _positionStreamSubscription;
   bool positionStreamStarted = false;
   LocalUserServices userService = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
@@ -58,19 +60,38 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   void initState() {
     initConfigrations();
     WidgetsBinding.instance.addObserver(this);
-    confiqGeolocatior();
-    _determinePosition().then((value) {
+    //confiqGeolocatior();
+    bg.BackgroundGeolocation.getCurrentPosition().then((v){
+      if(controllerGirisCixis.initialized){
+        controllerGirisCixis.getGirisEdilmisCari(LatLng(v.coords.latitude, v.coords.longitude));
+      }
       setState(() {
-        if(controllerGirisCixis.initialized){
-          controllerGirisCixis.getGirisEdilmisCari(LatLng(value.latitude, value.longitude));
-        }
-        setState(() {
-          _currentLocation=value;
-          controllerGirisCixis.dataLoading.value = false;
-        });
+        _currentLocation= bg.Location(v.coords);
+       //  _currentLocation = bg.Location({
+       //    "latitude": v.coords.latitude,
+       //    "longitude": v.coords.longitude,
+       //    "accuracy": v.coords.accuracy,
+       //    "altitude": v.coords.altitude,
+       //    "speed": v.coords.speed,
+       //    "heading": v.coords.heading,
+       //    "timestamp": v.timestamp,
+       //    "mock": v.mock, // Mock olub-olmamasını göstərir
+       //  });
+        controllerGirisCixis.dataLoading.value = false;
       });
     });
-    _toggleListening();
+    // _determinePosition().then((value) {
+    //   setState(() {
+    //     if(controllerGirisCixis.initialized){
+    //       controllerGirisCixis.getGirisEdilmisCari(LatLng(value.latitude, value.longitude));
+    //     }
+    //     setState(() {
+    //       _currentLocation=value;
+    //       controllerGirisCixis.dataLoading.value = false;
+    //     });
+    //   });
+    // });
+    //_toggleListening();
     // TODO: implement initState
     super.initState();
   }
@@ -84,110 +105,125 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
 
-  confiqGeolocatior(){
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      locationSettings = AndroidSettings(
-          accuracy: LocationAccuracy.best,
-          distanceFilter: 100,
-          forceLocationManager: true,
-          intervalDuration: const Duration(seconds: 10),
-          //(Optional) Set foreground notification config to keep the app alive
-          //when going to the background
-          foregroundNotificationConfig: const ForegroundNotificationConfig(
-            notificationText:
-            "Example app will continue to receive your location even when you aren't using it",
-            notificationTitle: "Running in Background",
-            enableWakeLock: true,
-          )
-      );
-    } else if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) {
-      locationSettings = AppleSettings(
-        accuracy: LocationAccuracy.high,
-        activityType: ActivityType.fitness,
-        distanceFilter: 100,
-        pauseLocationUpdatesAutomatically: true,
-        // Only set to true if our app will be started up in the background.
-        showBackgroundLocationIndicator: false,
-      );
-    } else {
-      locationSettings = const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 100,
-      );
-    }
-  }
-
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
-  }
+  // confiqGeolocatior(){
+  //   if (defaultTargetPlatform == TargetPlatform.android) {
+  //     locationSettings = AndroidSettings(
+  //         accuracy: LocationAccuracy.best,
+  //         distanceFilter: 100,
+  //         forceLocationManager: true,
+  //         intervalDuration: const Duration(seconds: 10),
+  //         //(Optional) Set foreground notification config to keep the app alive
+  //         //when going to the background
+  //         foregroundNotificationConfig: const ForegroundNotificationConfig(
+  //           notificationText:
+  //           "Example app will continue to receive your location even when you aren't using it",
+  //           notificationTitle: "Running in Background",
+  //           enableWakeLock: true,
+  //         )
+  //     );
+  //   } else if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) {
+  //     locationSettings = AppleSettings(
+  //       accuracy: LocationAccuracy.high,
+  //       activityType: ActivityType.fitness,
+  //       distanceFilter: 100,
+  //       pauseLocationUpdatesAutomatically: true,
+  //       // Only set to true if our app will be started up in the background.
+  //       showBackgroundLocationIndicator: false,
+  //     );
+  //   } else {
+  //     locationSettings = const LocationSettings(
+  //       accuracy: LocationAccuracy.high,
+  //       distanceFilter: 100,
+  //     );
+  //   }
+  // }
+  //
+  // Future<Position> _determinePosition() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
+  //
+  //   // Test if location services are enabled.
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     // Location services are not enabled don't continue
+  //     // accessing the position and request users of the
+  //     // App to enable the location services.
+  //     return Future.error('Location services are disabled.');
+  //   }
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       // Permissions are denied, next time you could try
+  //       // requesting permissions again (this is also where
+  //       // Android's shouldShowRequestPermissionRationale
+  //       // returned true. According to Android guidelines
+  //       // your App should show an explanatory UI now.
+  //       return Future.error('Location permissions are denied');
+  //     }
+  //   }
+  //
+  //   if (permission == LocationPermission.deniedForever) {
+  //     // Permissions are denied forever, handle appropriately.
+  //     return Future.error(
+  //         'Location permissions are permanently denied, we cannot request permissions.');
+  //   }
+  //
+  //   // When we reach here, permissions are granted and we can
+  //   // continue accessing the position of the device.
+  //   return await Geolocator.getCurrentPosition();
+  // }
 
   void _toggleListening() {
-    if (_positionStreamSubscription == null) {
-      final positionStream = _geolocatorPlatform.getPositionStream();
-      _positionStreamSubscription = positionStream.handleError((error) {
-        _positionStreamSubscription?.cancel();
-        _positionStreamSubscription = null;
-      }).listen((position) {
-        if (followMe) {
-          _currentLocation = position;
-          controllerGirisCixis.changeSelectedDistance(controllerGirisCixis.selectedTemsilci.value,LatLng(position.latitude, position.longitude));
-          setState(() {});
-          funFlutterToast(
-              "Current loc : ${_currentLocation.longitude}, ${_currentLocation.latitude}");
-        }});
-      _positionStreamSubscription?.pause();
-    }
-    setState(() {
-      if (_positionStreamSubscription == null) {
-        return;
-      }
-
-      String statusDisplayValue;
-      if (_positionStreamSubscription!.isPaused) {
-        _positionStreamSubscription!.resume();
-        statusDisplayValue = 'resumed';
-      } else {
-        _positionStreamSubscription!.pause();
-        statusDisplayValue = 'paused';
-      }
-
-      _updatePositionList(
-        PositionItemType.log,
-        'Listening for position updates $statusDisplayValue',
-      );
+    bg.BackgroundGeolocation.getCurrentPosition().then((v) {
+      _currentLocation =bg.Location(v.coords);
+      // _currentLocation = bg.Location({
+      //   "latitude": v.coords.latitude,
+      //   "longitude": v.coords.longitude,
+      //   "accuracy": v.coords.accuracy,
+      //   "altitude": v.coords.altitude,
+      //   "speed": v.coords.speed,
+      //   "heading": v.coords.heading,
+      //   "timestamp": v.timestamp,
+      //   "mock": v.mock, // Mock olub-olmamasını göstərir
+      // });
+      controllerGirisCixis.changeSelectedDistance(controllerGirisCixis.selectedTemsilci.value,LatLng(v.coords.latitude, v.coords.longitude));
     });
+
+    // if (_positionStreamSubscription == null) {
+    //   final positionStream = _geolocatorPlatform.getPositionStream();
+    //   _positionStreamSubscription = positionStream.handleError((error) {
+    //     _positionStreamSubscription?.cancel();
+    //     _positionStreamSubscription = null;
+    //   }).listen((position) {
+    //     if (followMe) {
+    //       _currentLocation = position;
+    //       controllerGirisCixis.changeSelectedDistance(controllerGirisCixis.selectedTemsilci.value,LatLng(position.latitude, position.longitude));
+    //       setState(() {});
+    //       funFlutterToast(
+    //           "Current loc : ${_currentLocation.longitude}, ${_currentLocation.latitude}");
+    //     }});
+    //   _positionStreamSubscription?.pause();
+    // }
+    // setState(() {
+    //   if (_positionStreamSubscription == null) {
+    //     return;
+    //   }
+    //
+    //   String statusDisplayValue;
+    //   if (_positionStreamSubscription!.isPaused) {
+    //     _positionStreamSubscription!.resume();
+    //     statusDisplayValue = 'resumed';
+    //   } else {
+    //     _positionStreamSubscription!.pause();
+    //     statusDisplayValue = 'paused';
+    //   }
+    //
+    //   _updatePositionList(
+    //     PositionItemType.log,
+    //     'Listening for position updates $statusDisplayValue',
+    //   );
+    // });
   }
 
   void _updatePositionList(PositionItemType type, String displayValue) {
@@ -197,8 +233,8 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    if(_positionStreamSubscription!=null){
-    _positionStreamSubscription!.cancel();}
+    // if(_positionStreamSubscription!=null){
+    // _positionStreamSubscription!.cancel();}
     scrollController.dispose();
     if(controllerGirisCixis.marketeGirisEdilib.isFalse){
     Get.delete<ControllerGirisCixisReklam>();}
@@ -209,10 +245,10 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     setState(() {
-      if(state==AppLifecycleState.inactive){
-        if(_positionStreamSubscription!=null){
-        _positionStreamSubscription!.cancel();}
-      }
+      // if(state==AppLifecycleState.inactive){
+      //   if(_positionStreamSubscription!=null){
+      //   _positionStreamSubscription!.cancel();}
+    //  }
     });
   }
 
@@ -243,7 +279,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               controllerGirisCixis.marketeGirisEdilib.isFalse?Padding(
                 padding: const EdgeInsets.only(right: 0),
                 child: IconButton(icon: const Icon(Icons.supervised_user_circle_outlined,color: Colors.black,),onPressed: (){
-               controllerGirisCixis.getExpListDialog(LatLng(_currentLocation.latitude, _currentLocation.longitude));
+               controllerGirisCixis.getExpListDialog(LatLng(_currentLocation.coords.latitude, _currentLocation.coords.longitude));
                 }),
               ):const SizedBox(),
               Padding(
@@ -275,11 +311,11 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
               setState(() {
                 if (followMe) {
                   followMe = false;
-                  _positionStreamSubscription!.cancel();
-                  _positionStreamSubscription=null;
+                 // _positionStreamSubscription!.cancel();
+                  //_positionStreamSubscription=null;
                   funFlutterToast("Meni izle dayandirildi");
                 } else {
-                    confiqGeolocatior();
+                    //confiqGeolocatior();
                    _toggleListening();
                     followMe = true;
                     funFlutterToast("Meni izle baslatildi");
@@ -361,7 +397,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
       onTap: () {
         if (controllerGirisCixis.marketeGirisEdilib.isFalse) {
           setState(() {
-            controllerGirisCixis.changeTabItemsValue(element, LatLng(_currentLocation.latitude, _currentLocation.longitude));
+            controllerGirisCixis.changeTabItemsValue(element, LatLng(_currentLocation.coords.latitude, _currentLocation.coords.latitude));
             selectedItemsLabel = element.label!;
             element.selected=true;
             controllerGirisCixis.selectedTabItem.value=element;
@@ -1014,7 +1050,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
     setState(() {
       selectedCariModel = model;
       secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model);
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(_currentLocation.latitude, _currentLocation.longitude,
+      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(_currentLocation.coords.latitude, _currentLocation.coords.longitude,
           double.parse(model.latitude.toString()),
           double.parse(model.longitude.toString()));
       if (secilenMarketdenUzaqliq > 1) {
@@ -1049,159 +1085,302 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
   }
 
   void girisUcunDialogAc(ModelCariler selectedModel, String uzaqliq) async {
-    if(_positionStreamSubscription!=null){
-      _positionStreamSubscription!.cancel();
-      _positionStreamSubscription=null;
-    }
+    // if(_positionStreamSubscription!=null){
+    //   _positionStreamSubscription!.cancel();
+    //   _positionStreamSubscription=null;
+    // }
       showGirisDialog(selectedModel);
   }
 
   Future<void> showGirisDialog(ModelCariler model) async {
     DialogHelper.showLoading("mesHesablanir".tr);
-    _determinePosition().then((value) =>
-    {
-      selectedCariModel = model,
-      secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model),
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, model.latitude!,model.longitude!),
+    bg.BackgroundGeolocation.getCurrentPosition().then((e){
+      selectedCariModel = model;
+      secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model);
+      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(e.coords.latitude, e.coords.longitude, model.latitude!,model.longitude!);
       if (secilenMarketdenUzaqliq > 1) {
-        secilenMarketdenUzaqliqString = "${(secilenMarketdenUzaqliq).toStringAsFixed(2)} km",
+      secilenMarketdenUzaqliqString = "${(secilenMarketdenUzaqliq).toStringAsFixed(2)} km";
       } else {
-        secilenMarketdenUzaqliqString =
-        "${(secilenMarketdenUzaqliq * 1000).toStringAsFixed(2)} m",
-      },
+      secilenMarketdenUzaqliqString =
+      "${(secilenMarketdenUzaqliq * 1000).toStringAsFixed(2)} m";
+      }
       if (secilenMarketdenUzaqliq < marketeGirisIcazeMesafesi / 1000) {
-        if (istifadeciRutdanKenarGirisEdebiler) {
-          marketeGirisIcazesi = true,
-        } else {
-          if (secilenMusterininRutGunuDuzluyu) {
-            marketeGirisIcazesi = true,
-          } else {
-            marketeGirisIcazesi = false,
-            girisErrorQeyd ="rutGunuError".tr,
-          }
-        }
+      if (istifadeciRutdanKenarGirisEdebiler) {
+      marketeGirisIcazesi = true;
       } else {
-        marketeCixisIcazesi = false,
-        marketeGirisIcazesi = false,
-        girisErrorQeyd = "girisErrorQeyd".tr,
-      },
-      DialogHelper.hideLoading(),
+      if (secilenMusterininRutGunuDuzluyu) {
+      marketeGirisIcazesi = true;
+      } else {
+      marketeGirisIcazesi = false;
+      girisErrorQeyd ="rutGunuError".tr;
+      }
+      }
+      } else {
+      marketeCixisIcazesi = false;
+      marketeGirisIcazesi = false;
+      girisErrorQeyd = "girisErrorQeyd".tr;
+      }
+      DialogHelper.hideLoading();
       Get.dialog(
-          Material(
-            color: Colors.transparent,
-            elevation: 10,
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                margin: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.32,
-                    horizontal: MediaQuery.of(context).size.width * 0.1),
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: CustomText(
-                                    labeltext: "dgiris".tr,
-                                    fontsize: 24,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 5,),
-                        Expanded(
-                          flex:marketeGirisIcazesi ? 4 : 7,
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0)
-                                .copyWith(left: 20, right: 20),
-                            child: marketeGirisIcazesi
-                                ? Column(
-                              children: [
-                                Expanded(
-                                  child: CustomText(
-                                    labeltext: model.name!+"girisXeber".tr,
-                                    fontsize: 18,
-                                    maxline: 3,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(height: 5,),
-                              ],
-                            )
-                                : Column(
-                              children: [
-                                const Icon(Icons.info,
-                                    color: Colors.red, size: 40),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                CustomText(
-                                  labeltext:
-                                  girisErrorQeyd,
-                                  fontsize: 14,
-                                  maxline: 4,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: marketeGirisIcazesi ? 3 : 0,
-                          child: marketeGirisIcazesi
-                              ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              CustomElevetedButton(
-                                  borderColor: Colors.black,
-                                  width: MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width *
-                                      0.4,
-                                  height:40,
-                                  textColor: Colors.red,
-                                  icon: Icons.exit_to_app_rounded,
-                                  elevation: 5,
-                                  cllback: () async {
-                                    girisEt(secilenMarketdenUzaqliqString,secilenMarketdenUzaqliq,value,model);
-                                    //Get.back();
-                                  },
-                                  label: "giris".tr)
-                            ],
-                          )
-                              : const SizedBox(),
-                        ),
-                      ],
-                    ),
-                    Positioned(
-                        top: -5,
-                        right: -5,
-                        child: IconButton.outlined(
-                            onPressed: () {
-                              Get.back();
-                            },
-                            icon: const Icon(
-                              Icons.highlight_remove,
-                              color: Colors.red,
-                            )))
-                  ],
-                )),
-          ),
-          barrierDismissible: false,
-          transitionCurve: Curves.easeOut,
-          transitionDuration: const Duration(milliseconds: 400))
+      Material(
+      color: Colors.transparent,
+      elevation: 10,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+      decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      ),
+      margin: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.32,
+      horizontal: MediaQuery.of(context).size.width * 0.1),
+      child: Stack(
+      children: [
+      Column(
+      children: [
+      Expanded(
+      flex: 3,
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+      Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: CustomText(
+      labeltext: "dgiris".tr,
+      fontsize: 24,
+      fontWeight: FontWeight.bold),
+      ),
+      ],
+      ),
+      ),
+      const SizedBox(height: 5,),
+      Expanded(
+      flex:marketeGirisIcazesi ? 4 : 7,
+      child: Padding(
+      padding: const EdgeInsets.all(5.0)
+          .copyWith(left: 20, right: 20),
+      child: marketeGirisIcazesi
+      ? Column(
+      children: [
+      Expanded(
+      child: CustomText(
+      labeltext: model.name!+"girisXeber".tr,
+      fontsize: 18,
+      maxline: 3,
+      textAlign: TextAlign.center,
+      ),
+      ),
+      const SizedBox(height: 5,),
+      ],
+      )
+          : Column(
+      children: [
+      const Icon(Icons.info,
+      color: Colors.red, size: 40),
+      const SizedBox(
+      height: 5,
+      ),
+      CustomText(
+      labeltext:
+      girisErrorQeyd,
+      fontsize: 14,
+      maxline: 4,
+      textAlign: TextAlign.center,
+      ),
+      ],
+      ),
+      ),
+      ),
+      Expanded(
+      flex: marketeGirisIcazesi ? 3 : 0,
+      child: marketeGirisIcazesi
+      ? Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+      CustomElevetedButton(
+      borderColor: Colors.black,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width *
+      0.4,
+      height:40,
+      textColor: Colors.red,
+      icon: Icons.exit_to_app_rounded,
+      elevation: 5,
+      cllback: () async {
+      girisEt(secilenMarketdenUzaqliqString,secilenMarketdenUzaqliq,e,model);
+      //Get.back();
+      },
+      label: "giris".tr)
+      ],
+      )
+          : const SizedBox(),
+      ),
+      ],
+      ),
+      Positioned(
+      top: -5,
+      right: -5,
+      child: IconButton.outlined(
+      onPressed: () {
+      Get.back();
+      },
+      icon: const Icon(
+      Icons.highlight_remove,
+      color: Colors.red,
+      )))
+      ],
+      )),
+      ),
+      barrierDismissible: false,
+      transitionCurve: Curves.easeOut,
+      transitionDuration: const Duration(milliseconds: 400));
     });
+    // _determinePosition().then((value) =>
+    // {
+    //   selectedCariModel = model,
+    //   secilenMusterininRutGunuDuzluyu = controllerGirisCixis.rutGununuYoxla(model),
+    //   secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, model.latitude!,model.longitude!),
+    //   if (secilenMarketdenUzaqliq > 1) {
+    //     secilenMarketdenUzaqliqString = "${(secilenMarketdenUzaqliq).toStringAsFixed(2)} km",
+    //   } else {
+    //     secilenMarketdenUzaqliqString =
+    //     "${(secilenMarketdenUzaqliq * 1000).toStringAsFixed(2)} m",
+    //   },
+    //   if (secilenMarketdenUzaqliq < marketeGirisIcazeMesafesi / 1000) {
+    //     if (istifadeciRutdanKenarGirisEdebiler) {
+    //       marketeGirisIcazesi = true,
+    //     } else {
+    //       if (secilenMusterininRutGunuDuzluyu) {
+    //         marketeGirisIcazesi = true,
+    //       } else {
+    //         marketeGirisIcazesi = false,
+    //         girisErrorQeyd ="rutGunuError".tr,
+    //       }
+    //     }
+    //   } else {
+    //     marketeCixisIcazesi = false,
+    //     marketeGirisIcazesi = false,
+    //     girisErrorQeyd = "girisErrorQeyd".tr,
+    //   },
+    //   DialogHelper.hideLoading(),
+    //   Get.dialog(
+    //       Material(
+    //         color: Colors.transparent,
+    //         elevation: 10,
+    //         borderRadius: BorderRadius.circular(20),
+    //         child: Container(
+    //             decoration: BoxDecoration(
+    //               color: Colors.white,
+    //               borderRadius: BorderRadius.circular(20),
+    //             ),
+    //             margin: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.32,
+    //                 horizontal: MediaQuery.of(context).size.width * 0.1),
+    //             child: Stack(
+    //               children: [
+    //                 Column(
+    //                   children: [
+    //                     Expanded(
+    //                       flex: 3,
+    //                       child: Row(
+    //                         mainAxisAlignment: MainAxisAlignment.center,
+    //                         children: [
+    //                           Padding(
+    //                             padding: const EdgeInsets.all(8.0),
+    //                             child: CustomText(
+    //                                 labeltext: "dgiris".tr,
+    //                                 fontsize: 24,
+    //                                 fontWeight: FontWeight.bold),
+    //                           ),
+    //                         ],
+    //                       ),
+    //                     ),
+    //                     const SizedBox(height: 5,),
+    //                     Expanded(
+    //                       flex:marketeGirisIcazesi ? 4 : 7,
+    //                       child: Padding(
+    //                         padding: const EdgeInsets.all(5.0)
+    //                             .copyWith(left: 20, right: 20),
+    //                         child: marketeGirisIcazesi
+    //                             ? Column(
+    //                           children: [
+    //                             Expanded(
+    //                               child: CustomText(
+    //                                 labeltext: model.name!+"girisXeber".tr,
+    //                                 fontsize: 18,
+    //                                 maxline: 3,
+    //                                 textAlign: TextAlign.center,
+    //                               ),
+    //                             ),
+    //                             const SizedBox(height: 5,),
+    //                           ],
+    //                         )
+    //                             : Column(
+    //                           children: [
+    //                             const Icon(Icons.info,
+    //                                 color: Colors.red, size: 40),
+    //                             const SizedBox(
+    //                               height: 5,
+    //                             ),
+    //                             CustomText(
+    //                               labeltext:
+    //                               girisErrorQeyd,
+    //                               fontsize: 14,
+    //                               maxline: 4,
+    //                               textAlign: TextAlign.center,
+    //                             ),
+    //                           ],
+    //                         ),
+    //                       ),
+    //                     ),
+    //                     Expanded(
+    //                       flex: marketeGirisIcazesi ? 3 : 0,
+    //                       child: marketeGirisIcazesi
+    //                           ? Row(
+    //                         mainAxisAlignment: MainAxisAlignment.center,
+    //                         crossAxisAlignment: CrossAxisAlignment.center,
+    //                         children: [
+    //                           CustomElevetedButton(
+    //                               borderColor: Colors.black,
+    //                               width: MediaQuery
+    //                                   .of(context)
+    //                                   .size
+    //                                   .width *
+    //                                   0.4,
+    //                               height:40,
+    //                               textColor: Colors.red,
+    //                               icon: Icons.exit_to_app_rounded,
+    //                               elevation: 5,
+    //                               cllback: () async {
+    //                                 girisEt(secilenMarketdenUzaqliqString,secilenMarketdenUzaqliq,value,model);
+    //                                 //Get.back();
+    //                               },
+    //                               label: "giris".tr)
+    //                         ],
+    //                       )
+    //                           : const SizedBox(),
+    //                     ),
+    //                   ],
+    //                 ),
+    //                 Positioned(
+    //                     top: -5,
+    //                     right: -5,
+    //                     child: IconButton.outlined(
+    //                         onPressed: () {
+    //                           Get.back();
+    //                         },
+    //                         icon: const Icon(
+    //                           Icons.highlight_remove,
+    //                           color: Colors.red,
+    //                         )))
+    //               ],
+    //             )),
+    //       ),
+    //       barrierDismissible: false,
+    //       transitionCurve: Curves.easeOut,
+    //       transitionDuration: const Duration(milliseconds: 400))
+    // });
   }
 
   Widget widgetCixisUcun(BuildContext context) {
@@ -1396,178 +1575,340 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam> with Wi
 
   Future<void> showCixisDialog() async {
     DialogHelper.showLoading("mesafeHesablanir".tr);
-    _determinePosition().then((value) =>
-    {
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!), double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!)),
-      if (secilenMarketdenUzaqliq > 1)
-        {
-          secilenMarketdenUzaqliqString =
-          "${(secilenMarketdenUzaqliq).round()} km",
-        }
-      else
-        {
-          secilenMarketdenUzaqliqString =
-          "${(secilenMarketdenUzaqliq * 1000).round()} m",
-        },
-      if (secilenMarketdenUzaqliq < marketeGirisIcazeMesafesi / 1000)
-        {
-          marketeCixisIcazesi = true,
-        }
-      else
-        {
-          marketeCixisIcazesi = false,
-        },
-      DialogHelper.hideLoading(),
-      Get.dialog(
-          Material(
-            color: Colors.transparent,
-            elevation: 10,
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                margin: EdgeInsets.symmetric(
-                    vertical: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.28,
-                    horizontal: MediaQuery
-                        .of(context)
-                        .size
-                        .width * 0.1),
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: CustomText(
-                                    labeltext: "dcixis".tr,
-                                    fontsize: 24,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 5,),
-                        Expanded(
-                          flex: marketeCixisIcazesi ? 6 : 8,
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0)
-                                .copyWith(left: 20, right: 20),
-                            child: marketeCixisIcazesi
-                                ? Column(
-                              children: [
-                                Expanded(
-                                  child: CustomText(
-                                    labeltext:
-                                    "${controllerGirisCixis.modelgirisEdilmis
-                                        .value
-                                        .customerName!} ${"cixiEtmekIsteyi".tr}",
-                                    fontsize: 18,
-                                    maxline: 3,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(height: 5,),
-                                TextField(
-                                  controller: controllerGirisCixis.ctCixisQeyd,
-                                  keyboardType: TextInputType.multiline,
-                                  maxLines: 3,
-                                  decoration: InputDecoration(
-                                      hintText: "cxQeyd".tr,
-                                      focusedBorder: const OutlineInputBorder(
-                                          borderSide: BorderSide(width: 1, color: Colors.redAccent)
-                                      )
-                                  ),
 
-                                ),
-                              ],
-                            )
-                                : Column(
+    bg.BackgroundGeolocation.getCurrentPosition().then((v){
+        secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(v.coords.latitude, v.coords.longitude, double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!), double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!));
+        if (secilenMarketdenUzaqliq > 1)
+          {
+            secilenMarketdenUzaqliqString =
+            "${(secilenMarketdenUzaqliq).round()} km";
+          }
+        else
+          {
+            secilenMarketdenUzaqliqString =
+            "${(secilenMarketdenUzaqliq * 1000).round()} m";
+          }
+        if (secilenMarketdenUzaqliq < marketeGirisIcazeMesafesi / 1000)
+          {
+            marketeCixisIcazesi = true;
+          }
+        else
+          {
+            marketeCixisIcazesi = false;
+          }
+        DialogHelper.hideLoading();
+        Get.dialog(
+            Material(
+              color: Colors.transparent,
+              elevation: 10,
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  margin: EdgeInsets.symmetric(
+                      vertical: MediaQuery
+                          .of(context)
+                          .size
+                          .height * 0.28,
+                      horizontal: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.1),
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.info,
-                                    color: Colors.red, size: 40),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                CustomText(
-                                  labeltext:
-                                  "${"merketdenUzaqCixisXeta".tr}$marketeGirisIcazeMesafesi m-dir",
-                                  fontsize: 14,
-                                  maxline: 4,
-                                  textAlign: TextAlign.center,
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: CustomText(
+                                      labeltext: "dcixis".tr,
+                                      fontsize: 24,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                        Expanded(
-                          flex: marketeCixisIcazesi ? 3 : 0,
-                          child: marketeCixisIcazesi
-                              ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              CustomElevetedButton(
-                                  borderColor: Colors.black,
-                                  width: MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width *
-                                      0.4,
-                                  height:40,
-                                  textColor: Colors.red,
-                                  icon: Icons.exit_to_app_rounded,
-                                  elevation: 5,
-                                  cllback: () {
-                                    cixisEt(secilenMarketdenUzaqliq,value);
-                                    Get.back();
-                                  },
-                                  label: "cixiset".tr)
-                            ],
-                          )
-                              : const SizedBox(),
-                        ),
-                      ],
-                    ),
-                    Positioned(
-                        top: -5,
-                        right: -5,
-                        child: IconButton.outlined(
-                            onPressed: () {
-                              Get.back();
-                            },
-                            icon: const Icon(
-                              Icons.highlight_remove,
-                              color: Colors.red,
-                            )))
-                  ],
-                )),
-          ),
-          barrierDismissible: false,
-          transitionCurve: Curves.easeOut,
-          transitionDuration: const Duration(milliseconds: 400))
+                          const SizedBox(height: 5,),
+                          Expanded(
+                            flex: marketeCixisIcazesi ? 6 : 8,
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0)
+                                  .copyWith(left: 20, right: 20),
+                              child: marketeCixisIcazesi
+                                  ? Column(
+                                children: [
+                                  Expanded(
+                                    child: CustomText(
+                                      labeltext:
+                                      "${controllerGirisCixis.modelgirisEdilmis
+                                          .value
+                                          .customerName!} ${"cixiEtmekIsteyi".tr}",
+                                      fontsize: 18,
+                                      maxline: 3,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5,),
+                                  TextField(
+                                    controller: controllerGirisCixis.ctCixisQeyd,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: InputDecoration(
+                                        hintText: "cxQeyd".tr,
+                                        focusedBorder: const OutlineInputBorder(
+                                            borderSide: BorderSide(width: 1, color: Colors.redAccent)
+                                        )
+                                    ),
+
+                                  ),
+                                ],
+                              )
+                                  : Column(
+                                children: [
+                                  const Icon(Icons.info,
+                                      color: Colors.red, size: 40),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  CustomText(
+                                    labeltext:
+                                    "${"merketdenUzaqCixisXeta".tr}$marketeGirisIcazeMesafesi m-dir",
+                                    fontsize: 14,
+                                    maxline: 4,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: marketeCixisIcazesi ? 3 : 0,
+                            child: marketeCixisIcazesi
+                                ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CustomElevetedButton(
+                                    borderColor: Colors.black,
+                                    width: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width *
+                                        0.4,
+                                    height:40,
+                                    textColor: Colors.red,
+                                    icon: Icons.exit_to_app_rounded,
+                                    elevation: 5,
+                                    cllback: () {
+                                      cixisEt(secilenMarketdenUzaqliq,v);
+                                      Get.back();
+                                    },
+                                    label: "cixiset".tr)
+                              ],
+                            )
+                                : const SizedBox(),
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                          top: -5,
+                          right: -5,
+                          child: IconButton.outlined(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              icon: const Icon(
+                                Icons.highlight_remove,
+                                color: Colors.red,
+                              )))
+                    ],
+                  )),
+            ),
+            barrierDismissible: false,
+            transitionCurve: Curves.easeOut,
+            transitionDuration: const Duration(milliseconds: 400));
     });
+
+
+    // _determinePosition().then((value) =>
+    // {
+    //   secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(value.latitude, value.longitude, double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!), double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!)),
+    //   if (secilenMarketdenUzaqliq > 1)
+    //     {
+    //       secilenMarketdenUzaqliqString =
+    //       "${(secilenMarketdenUzaqliq).round()} km",
+    //     }
+    //   else
+    //     {
+    //       secilenMarketdenUzaqliqString =
+    //       "${(secilenMarketdenUzaqliq * 1000).round()} m",
+    //     },
+    //   if (secilenMarketdenUzaqliq < marketeGirisIcazeMesafesi / 1000)
+    //     {
+    //       marketeCixisIcazesi = true,
+    //     }
+    //   else
+    //     {
+    //       marketeCixisIcazesi = false,
+    //     },
+    //   DialogHelper.hideLoading(),
+    //   Get.dialog(
+    //       Material(
+    //         color: Colors.transparent,
+    //         elevation: 10,
+    //         borderRadius: BorderRadius.circular(20),
+    //         child: Container(
+    //             decoration: BoxDecoration(
+    //               color: Colors.white,
+    //               borderRadius: BorderRadius.circular(20),
+    //             ),
+    //             margin: EdgeInsets.symmetric(
+    //                 vertical: MediaQuery
+    //                     .of(context)
+    //                     .size
+    //                     .height * 0.28,
+    //                 horizontal: MediaQuery
+    //                     .of(context)
+    //                     .size
+    //                     .width * 0.1),
+    //             child: Stack(
+    //               children: [
+    //                 Column(
+    //                   children: [
+    //                     Expanded(
+    //                       flex: 2,
+    //                       child: Row(
+    //                         mainAxisAlignment: MainAxisAlignment.center,
+    //                         children: [
+    //                           Padding(
+    //                             padding: const EdgeInsets.all(8.0),
+    //                             child: CustomText(
+    //                                 labeltext: "dcixis".tr,
+    //                                 fontsize: 24,
+    //                                 fontWeight: FontWeight.bold),
+    //                           ),
+    //                         ],
+    //                       ),
+    //                     ),
+    //                     const SizedBox(height: 5,),
+    //                     Expanded(
+    //                       flex: marketeCixisIcazesi ? 6 : 8,
+    //                       child: Padding(
+    //                         padding: const EdgeInsets.all(5.0)
+    //                             .copyWith(left: 20, right: 20),
+    //                         child: marketeCixisIcazesi
+    //                             ? Column(
+    //                           children: [
+    //                             Expanded(
+    //                               child: CustomText(
+    //                                 labeltext:
+    //                                 "${controllerGirisCixis.modelgirisEdilmis
+    //                                     .value
+    //                                     .customerName!} ${"cixiEtmekIsteyi".tr}",
+    //                                 fontsize: 18,
+    //                                 maxline: 3,
+    //                                 textAlign: TextAlign.center,
+    //                               ),
+    //                             ),
+    //                             const SizedBox(height: 5,),
+    //                             TextField(
+    //                               controller: controllerGirisCixis.ctCixisQeyd,
+    //                               keyboardType: TextInputType.multiline,
+    //                               maxLines: 3,
+    //                               decoration: InputDecoration(
+    //                                   hintText: "cxQeyd".tr,
+    //                                   focusedBorder: const OutlineInputBorder(
+    //                                       borderSide: BorderSide(width: 1, color: Colors.redAccent)
+    //                                   )
+    //                               ),
+    //
+    //                             ),
+    //                           ],
+    //                         )
+    //                             : Column(
+    //                           children: [
+    //                             const Icon(Icons.info,
+    //                                 color: Colors.red, size: 40),
+    //                             const SizedBox(
+    //                               height: 5,
+    //                             ),
+    //                             CustomText(
+    //                               labeltext:
+    //                               "${"merketdenUzaqCixisXeta".tr}$marketeGirisIcazeMesafesi m-dir",
+    //                               fontsize: 14,
+    //                               maxline: 4,
+    //                               textAlign: TextAlign.center,
+    //                             ),
+    //                           ],
+    //                         ),
+    //                       ),
+    //                     ),
+    //                     Expanded(
+    //                       flex: marketeCixisIcazesi ? 3 : 0,
+    //                       child: marketeCixisIcazesi
+    //                           ? Row(
+    //                         mainAxisAlignment: MainAxisAlignment.center,
+    //                         crossAxisAlignment: CrossAxisAlignment.center,
+    //                         children: [
+    //                           CustomElevetedButton(
+    //                               borderColor: Colors.black,
+    //                               width: MediaQuery
+    //                                   .of(context)
+    //                                   .size
+    //                                   .width *
+    //                                   0.4,
+    //                               height:40,
+    //                               textColor: Colors.red,
+    //                               icon: Icons.exit_to_app_rounded,
+    //                               elevation: 5,
+    //                               cllback: () {
+    //                                 cixisEt(secilenMarketdenUzaqliq,value);
+    //                                 Get.back();
+    //                               },
+    //                               label: "cixiset".tr)
+    //                         ],
+    //                       )
+    //                           : const SizedBox(),
+    //                     ),
+    //                   ],
+    //                 ),
+    //                 Positioned(
+    //                     top: -5,
+    //                     right: -5,
+    //                     child: IconButton.outlined(
+    //                         onPressed: () {
+    //                           Get.back();
+    //                         },
+    //                         icon: const Icon(
+    //                           Icons.highlight_remove,
+    //                           color: Colors.red,
+    //                         )))
+    //               ],
+    //             )),
+    //       ),
+    //       barrierDismissible: false,
+    //       transitionCurve: Curves.easeOut,
+    //       transitionDuration: const Duration(milliseconds: 400))
+    // });
   }
 
-  Future<void> cixisEt(double uzaqliq, Position value) async {
+  Future<void> cixisEt(double uzaqliq, bg.Location value) async {
     await controllerGirisCixis.pripareForExit(value, uzaqliq,selectedCariModel).then((e){
-      confiqGeolocatior();
+     //confiqGeolocatior();
       _toggleListening();
       setState(() {});
     });
 
   }
 
-  Future<void> girisEt(String uzaqliqString,double uzaqliq, Position value, ModelCariler model) async {
+  Future<void> girisEt(String uzaqliqString,double uzaqliq, bg.Location value, ModelCariler model) async {
     await controllerGirisCixis.pripareForEnter(uzaqliqString,value, model, secilenMarketdenUzaqliq).then((e){
       setState(() {
         selectedCariModel = ModelCariler();

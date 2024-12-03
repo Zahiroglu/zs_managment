@@ -329,8 +329,8 @@ class BackgroudLocationServiz extends GetxController {
       await bg.BackgroundGeolocation.ready(bg.Config(
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqlik
         distanceFilter: 0, // Dəyişiklikdən asılı olmayaraq məlumat topla
-        locationUpdateInterval: 10000, // 30 saniyədə bir yeniləmə
-        fastestLocationUpdateInterval: 10000, // Ən sürətli yeniləmə
+        //locationUpdateInterval: 10000, // 30 saniyədə bir yeniləmə
+       // fastestLocationUpdateInterval: 10000, // Ən sürətli yeniləmə
         heartbeatInterval: 10, // 30 saniyədə bir heartbeat
         stopOnTerminate: false, // Proqram bağlansa belə dayanmasın
         startOnBoot: true, // Cihaz yenidən başladıqda aktiv olsun
@@ -342,10 +342,10 @@ class BackgroudLocationServiz extends GetxController {
         notification: bg.Notification(
           title: "ZS-CONTROL Aktivdir",
           text: "Fon rejimində izlənir.",
-          sticky: true, // Bildiriş bağlanmasın
+        //  sticky: true, // Bildiriş bağlanmasın
           channelId: "zs0001", // Unikal kanal ID
           channelName: "zs-controll", // Kanal adı
-          priority: bg.Config.NOTIFICATION_PRIORITY_MAX, // Yüksək prioritet
+         // priority: bg.Config.NOTIFICATION_PRIORITY_MAX, // Yüksək prioritet
         ),
       )).then((bg.State state) async {
         if (!state.enabled) {
