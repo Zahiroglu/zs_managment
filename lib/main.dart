@@ -1,11 +1,10 @@
 import 'dart:math';
-
 import 'package:dio/dio.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
 import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/backgroud_task/backgroud_errors/local_backgroud_events.dart';
@@ -47,20 +46,25 @@ as bg;
 
 Future<void>  main() async{
   WidgetsFlutterBinding.ensureInitialized();
-
   // await Firebase.initializeApp(options: const FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w',
   //     appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',
   //     projectId: 'zscontrollsystem'));
   await Hive.initFlutter();
   Map<String, Map<String, String>> languages = await dep.init();
-  //sonuncu HiveType 37-di
-  Hive.registerAdapter(MotivationDataAdapter());//id-37
-  Hive.registerAdapter(ModelInOutAdapter());//id-36
-  Hive.registerAdapter(ModelInOutDayAdapter());//id-35
-  Hive.registerAdapter(ModelMainInOutAdapter());//id-34
-  Hive.registerAdapter(ModelConfigrationsAdapter());//id-33
-  Hive.registerAdapter(ModelBackErrorsAdapter());//id-31
-  Hive.registerAdapter(ModelUsercCurrentLocationReqeustAdapter());//id-32
+  registerAdapters();
+  bg.BackgroundGeolocation.registerHeadlessTask(backgroundTaskHandler);
+  runApp(MyApp(languages: languages));
+
+}
+
+void registerAdapters() {
+  Hive.registerAdapter(MotivationDataAdapter()); // id-37
+  Hive.registerAdapter(ModelInOutAdapter()); // id-36
+  Hive.registerAdapter(ModelInOutDayAdapter()); // id-35
+  Hive.registerAdapter(ModelMainInOutAdapter()); // id-34
+  Hive.registerAdapter(ModelConfigrationsAdapter()); // id-33
+  Hive.registerAdapter(ModelBackErrorsAdapter()); // id-31
+  Hive.registerAdapter(ModelUsercCurrentLocationReqeustAdapter()); // id-32
   Hive.registerAdapter(ModelAnbarRaporAdapter());
   Hive.registerAdapter(LoggedUserModelAdapter());
   Hive.registerAdapter(ModelAppSettingAdapter());
@@ -83,71 +87,53 @@ Future<void>  main() async{
   Hive.registerAdapter(MercCustomersDatailAdapter());
   Hive.registerAdapter(SellingDataAdapter());
   Hive.registerAdapter(UserMercAdapter());
-  bg.BackgroundGeolocation.registerHeadlessTask(backgroundTaskHandler);
-  runApp(MyApp(languages: languages));
-
 }
-
-void headlessTask(bg.HeadlessEvent event) async {
-  print("[HeadlessTask] - Event: ${event.name}");
-  try {
-    bg.State state = await bg.BackgroundGeolocation.state;
-    print("BackgroundGeolocation State:");
-    print("Enabled: ${state.enabled}");
-    print("Tracking: ${state.trackingMode}");
-    print("Is Moving: ${state.isMoving}");
-    print("Desired Accuracy: ${state.desiredAccuracy}");
-    print("Heartbeat Interval: ${state.heartbeatInterval}");
-    print("Foreground Service: ${state.foregroundService}");
-    print("Start on Boot: ${state.startOnBoot}");
-    if(state.didLaunchInBackground){
-      print("BackgroundGeolocation bacgroundda isleyir");
-
-    }
-    if (!state.enabled) {
-      print("BackgroundGeolocation is not enabled. Starting service...");
-      await bg.BackgroundGeolocation.start();
-    }
-
-    // if (event.name == bg.Event.LOCATION) {
-    //   bg.Location location = event.event;
-    //   print("[HeadlessTask] - Location: ${location.coords.latitude}, ${location.coords.longitude}");
-    //   await sendInfoLocationsToDatabase(location);
-    //   // Handle location logic (e.g., send to server)
-    // }
-    bg.Location location = event.event;
-    print("[HeadlessTask] - Location: ${location.coords.latitude}, ${location.coords.longitude}");
-  //  await sendInfoLocationsToDatabase(location);
-
-    if (event.name == bg.Event.HEARTBEAT) {
-      bg.HeartbeatEvent heartbeatEvent = event.event;
-      print("[HeadlessTask] - Heartbeat at: ${heartbeatEvent.location!.coords.latitude}, ${heartbeatEvent.location!.coords.longitude}");
-    }
-  } catch (e) {
-    print("[HeadlessTask] - Error: $e");
-  }
-}
-
 
 void backgroundTaskHandler(bg.HeadlessEvent event) async {
-  print("[HeadlessTask] Event received: $event");
-  if (event.event.mock) {
-    print("Mock location detected: ${event.event.coords}");
+  WidgetsFlutterBinding.ensureInitialized();
+  Hive.registerAdapter(ModelMainInOutAdapter()); // id-34
+
+  final directory = await getApplicationDocumentsDirectory();
+  Hive.init(directory.path); // Yolu avtomatik olaraq təyin edir
+  await Hive.openBox("LoggedUsers");
+  await Hive.openBox("firstTimeOpen");
+  await Hive.openBox("canGetBaseUrl");
+  final bg.Location location = await bg.BackgroundGeolocation
+      .getCurrentPosition(
+    persist: true,
+    samples: 1,
+  );
+  if (location.mock) {
+    print("Mock location detected: ${location.coords}");
     // Saxta yer məlumatlarını serverə göndərin
   } else {
-    print("Real location: ${event.event.coords.latitude}, ${event.event.coords.longitude}");
+    print("Real location: ${location.coords.latitude}, ${location.coords
+        .longitude}");
     // Doğru yer məlumatını serverə göndərin
-    await sendInfoLocationsToDatabase(event.event);
+    await sendInfoLocationsToDatabase(location);
   }
-  // if (event is bg.HeartbeatEvent) {
+}
+  // Yer Hadisəsi
+  // if (event.event is bg.Location) {
+  //   final bg.Location location = event.event as bg.Location;
+  //   if (location.mock) {
+  //     print("Mock location detected: ${location.coords}");
+  //     // Saxta yer məlumatlarını serverə göndərin
+  //   } else {
+  //     print("Real location: ${location.coords.latitude}, ${location.coords.longitude}");
+  //     // Doğru yer məlumatını serverə göndərin
+  //     await sendInfoLocationsToDatabase(location);
+  //   }
+  // }
+
+  // // Heartbeat Hadisəsi
+  // else if (event.event is bg.HeartbeatEvent) {
   //   print("[HeadlessTask] Heartbeat event received");
-  //
   //   try {
   //     final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
   //       persist: true,
   //       samples: 1,
   //     );
-  //
   //     if (location.mock) {
   //       print("Mock location detected: ${location.coords}");
   //       // Saxta yer məlumatlarını serverə göndərin
@@ -159,22 +145,13 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
   //   } catch (e) {
   //     print("[HeadlessTask] Error fetching location: $e");
   //   }
-  // } else if (event is bg.Location) {
-  //   print("[HeadlessTask] Location event received");
-  //   print("Location: ${event.event.latitude}, ${event.event.longitude}");
-  //   if (event.event.mock) {
-  //     print("Mock location detected: ${event.event.coords}");
-  //     // Saxta yer məlumatlarını serverə göndərin
-  //   } else {
-  //     print("Real location: ${event.event.coords.latitude}, ${event.event.coords.longitude}");
-  //     // Doğru yer məlumatını serverə göndərin
-  //     await sendInfoLocationsToDatabase(event.event);
-  //   }
-  //   // Yer məlumatlarını serverə göndərin
-  // } else {
-  //   print("[HeadlessTask] Unknown event type");
   // }
-}
+  //
+  // // Naməlum Hadisə
+  // else {
+  //   print("[HeadlessTask] Unknown event type received: ${event.name}");
+  // }
+
 
 
 
@@ -186,9 +163,9 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
   late CheckDviceType checkDviceType = CheckDviceType();
   await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
 
-  await userService.init();
-  await localBackgroundEvents.init();
-  await localGirisCixisServiz.init();
+  // await userService.init();
+  // await localBackgroundEvents.init();
+  // await localGirisCixisServiz.init();
   ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
   double uzaqliq=0;
   if(modela.customerCode!=null){
@@ -288,11 +265,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.detached) {
-      print("Tətbiq bağlanır. Xidmət yenidən başlatılır...");
-      await bg.BackgroundGeolocation.reset(); // Eğer çalışıyorsa, durdur
-       await bg.BackgroundGeolocation.start(); // Sonra yeniden başlat
+      print("Program arxa panele kecdi");
+      // Burada background location servisini başlatmaq
+      await localGirisCixisServiz.init();
+      ModelCustuomerVisit model=await localGirisCixisServiz.getGirisEdilmisMarket();
+      if(model.userCode== null){
+      await bg.BackgroundGeolocation.stop();
+      await bg.BackgroundGeolocation.start();
+      print("serviz yeniden basladildi");
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

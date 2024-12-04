@@ -3,9 +3,8 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 as bg;
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/backgroud_task/backgroud_errors/model_back_error.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
@@ -134,7 +133,7 @@ class BackgroudLocationServiz extends GetxController {
       showsBackgroundLocationIndicator: true, // Arxa planda mövqe izləmə göstəricisi.
       preventSuspend: true, // Cihazın yuxuya keçməsinin qarşısını al.
       debug: false,
-      logLevel: Config. LOG_LEVEL_VERBOSE,
+      logLevel: bg.Config. LOG_LEVEL_VERBOSE,
       heartbeatInterval: 60, // 60 saniyədə bir heartbeat hadisəsi.
     )).then((bg.State state) {
       // Xidmət aktiv deyilsə, onu başlat.
@@ -254,7 +253,7 @@ class BackgroudLocationServiz extends GetxController {
       }
     });
     await bg.BackgroundGeolocation.ready(bg.Config(
-      notification: Notification(
+      notification: bg.Notification(
           title: "Tracking",
           text: "Background location is being tracked."
       ),
@@ -279,7 +278,7 @@ class BackgroudLocationServiz extends GetxController {
       distanceFilter: 0,
       disableStopDetection: true,
       pausesLocationUpdatesAutomatically: false,
-      logLevel: Config. LOG_LEVEL_VERBOSE,
+      logLevel: bg.Config. LOG_LEVEL_VERBOSE,
       allowIdenticalLocations: false, // Eyni koordinatları qəbul et
       heartbeatInterval: 30, // 30 saniyədə bir heartbeat hadisəsi.
      // activityRecognitionInterval: 1
@@ -305,20 +304,30 @@ class BackgroudLocationServiz extends GetxController {
       await userService.init();
       await localBackgroundEvents.init();
       await localGirisCixisServiz.init();
-
+      bg.BackgroundGeolocation.onEnabledChange((bool enabled) {
+        if (!enabled) {
+          print("BackgroundGeolocation stopped. Re-adding listeners.");
+          startBackgorundFetck(); // Listener'ları tekrar ekle
+        }
+      });
       // BackgroundGeolocation üçün dinləyicilər
       bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
         try {
-          final bg.Location location = event.location!;
-          if (location.mock) {
+          final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
+            persist: true,
+            samples: 1,
+            maximumAge: 0,
+            timeout: 30,
+          );
+          if (initialLocation!.mock) {
             await sendErrorsToServers(
-                blok, "Saxta GPS məlumatı aşkarlandı: ${location.coords}");
+                blok, "Saxta GPS məlumatı aşkarlandı: ${initialLocation.coords}");
           } else {
-            print("Yer məlumatı yeniləndi: ${location.coords.latitude}, ${location.coords.longitude}");
+            print("Yer məlumatı yeniləndi: ${initialLocation.coords.latitude}, ${initialLocation.coords.longitude}");
             cureentTime.value = DateTime.now();
-            currentLatitude.value = location.coords.latitude;
-            currentLongitude.value = location.coords.longitude;
-            await sendInfoLocationsToDatabase(location);
+            currentLatitude.value = initialLocation.coords.latitude;
+            currentLongitude.value = initialLocation.coords.longitude;
+            await sendInfoLocationsToDatabase(initialLocation);
           }
         } catch (e) {
           print("Heartbeat xətası: $e");
@@ -342,7 +351,7 @@ class BackgroudLocationServiz extends GetxController {
         notification: bg.Notification(
           title: "ZS-CONTROL Aktivdir",
           text: "Fon rejimində izlənir.",
-        //  sticky: true, // Bildiriş bağlanmasın
+          sticky: true, // Bildiriş bağlanmasın
           channelId: "zs0001", // Unikal kanal ID
           channelName: "zs-controll", // Kanal adı
          // priority: bg.Config.NOTIFICATION_PRIORITY_MAX, // Yüksək prioritet
@@ -354,8 +363,10 @@ class BackgroudLocationServiz extends GetxController {
       });
       // Başlanğıc yer məlumatını dərhal götür
       final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
-          persist: true,
-          samples: 1,
+        persist: true,
+        samples: 1,
+        maximumAge: 0,
+        timeout: 30,
       );
       if (initialLocation != null) {
         print("Başlanğıc yer məlumatı: ${initialLocation.coords .latitude}, ${initialLocation.coords.longitude}");

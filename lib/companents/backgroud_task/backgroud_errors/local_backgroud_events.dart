@@ -5,8 +5,8 @@ import 'model_back_error.dart';
 import 'model_user_current_location_reqeust.dart';
 
 class LocalBackgroundEvents {
-  late Box backErrors = Hive.box<ModelBackErrors>("backErrors");
-  late Box backLocations = Hive.box<ModelUsercCurrentLocationReqeust>("backLocations");
+  late Box backErrors;
+  late Box backLocations;
 
   Future<void> init() async {
     backErrors = await Hive.openBox<ModelBackErrors>("backErrors");

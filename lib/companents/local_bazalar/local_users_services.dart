@@ -2,15 +2,16 @@ import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 
 class LocalUserServices {
-  late Box loggedUserBox = Hive.box("LoggedUsers");
-  late Box appFirstTimeOpen=Hive.box("firstTimeOpen");
-  late Box canGetBaseUrl=Hive.box("canGetBaseUrl");
+  late Box loggedUserBox;
+  late Box appFirstTimeOpen;
+  late Box canGetBaseUrl;
 
   Future<void> init() async {
     loggedUserBox = await Hive.openBox("LoggedUsers");
     appFirstTimeOpen = await Hive.openBox("firstTimeOpen");
     canGetBaseUrl = await Hive.openBox("canGetBaseUrl");
   }
+
 
   Future<void> addUserToLocalDB(LoggedUserModel loggedUserModel) async {
     await loggedUserBox.clear();
