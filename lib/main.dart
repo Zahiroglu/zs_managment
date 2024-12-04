@@ -39,6 +39,7 @@ import 'companents/login/models/user_model.dart';
 import 'companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'language/lang_constants.dart';
 import 'language/localization_controller.dart';
+import 'language/model_language.dart';
 import 'language/utils/messages.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 as bg;
@@ -50,54 +51,110 @@ Future<void>  main() async{
   //     appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',
   //     projectId: 'zscontrollsystem'));
   await Hive.initFlutter();
-  Map<String, Map<String, String>> languages = await dep.init();
   registerAdapters();
-  bg.BackgroundGeolocation.registerHeadlessTask(backgroundTaskHandler);
+  Map<String, Map<String, String>> languages = await dep.init();
+  await bg.BackgroundGeolocation.registerHeadlessTask(backgroundTaskHandler);
   runApp(MyApp(languages: languages));
 
 }
 
 void registerAdapters() {
-  Hive.registerAdapter(MotivationDataAdapter()); // id-37
-  Hive.registerAdapter(ModelInOutAdapter()); // id-36
-  Hive.registerAdapter(ModelInOutDayAdapter()); // id-35
-  Hive.registerAdapter(ModelMainInOutAdapter()); // id-34
-  Hive.registerAdapter(ModelConfigrationsAdapter()); // id-33
-  Hive.registerAdapter(ModelBackErrorsAdapter()); // id-31
-  Hive.registerAdapter(ModelUsercCurrentLocationReqeustAdapter()); // id-32
-  Hive.registerAdapter(ModelAnbarRaporAdapter());
-  Hive.registerAdapter(LoggedUserModelAdapter());
-  Hive.registerAdapter(ModelAppSettingAdapter());
-  Hive.registerAdapter(ModelMapAppAdapter());
-  Hive.registerAdapter(CustomMapTypeAdapter());
-  Hive.registerAdapter(ModelCustuomerVisitAdapter());
-  Hive.registerAdapter(CompanyModelAdapter());
-  Hive.registerAdapter(ModelRegionsAdapter());
-  Hive.registerAdapter(TokenModelAdapter());
-  Hive.registerAdapter(ModelUserConnectionAdapter());
-  Hive.registerAdapter(ModelUserPermissionsAdapter());
-  Hive.registerAdapter(UserModelAdapter());
-  Hive.registerAdapter(ModelModuleAdapter());
-  Hive.registerAdapter(ModelCarilerAdapter());
-  Hive.registerAdapter(ModelDownloadsAdapter());
-  Hive.registerAdapter(ModelCariHereketAdapter());
-  Hive.registerAdapter(ModelCariKassaAdapter());
-  Hive.registerAdapter(DayAdapter());
-  Hive.registerAdapter(MercDataModelAdapter());
-  Hive.registerAdapter(MercCustomersDatailAdapter());
-  Hive.registerAdapter(SellingDataAdapter());
-  Hive.registerAdapter(UserMercAdapter());
+  if (!Hive.isAdapterRegistered(1)) {
+    Hive.registerAdapter(LanguageModelAdapter()); // id-2
+  }if (!Hive.isAdapterRegistered(2)) {
+    Hive.registerAdapter(LoggedUserModelAdapter()); // id-2
+  }
+  if (!Hive.isAdapterRegistered(3)) {
+    Hive.registerAdapter(TokenModelAdapter()); // id-3
+  }
+  if (!Hive.isAdapterRegistered(4)) {
+    Hive.registerAdapter(CompanyModelAdapter()); // id-4
+  }
+  if (!Hive.isAdapterRegistered(5)) {
+    Hive.registerAdapter(UserModelAdapter()); // id-5
+  }
+  if (!Hive.isAdapterRegistered(6)) {
+    Hive.registerAdapter(ModelUserConnectionAdapter()); // id-6
+  }
+  if (!Hive.isAdapterRegistered(7)) {
+    Hive.registerAdapter(ModelUserPermissionsAdapter()); // id-7
+  }
+  if (!Hive.isAdapterRegistered(8)) {
+    Hive.registerAdapter(ModelModuleAdapter()); // id-8
+  }
+  if (!Hive.isAdapterRegistered(9)) {
+    Hive.registerAdapter(ModelRegionsAdapter()); // id-9
+  }
+  if (!Hive.isAdapterRegistered(10)) {
+    Hive.registerAdapter(ModelAppSettingAdapter()); // id-10
+  }
+  if (!Hive.isAdapterRegistered(11)) {
+    Hive.registerAdapter(ModelMapAppAdapter()); // id-11
+  }
+  if (!Hive.isAdapterRegistered(12)) {
+    Hive.registerAdapter(CustomMapTypeAdapter()); // id-12
+  }
+  if (!Hive.isAdapterRegistered(13)) {
+    Hive.registerAdapter(ModelCustuomerVisitAdapter()); // id-13
+  }
+  if (!Hive.isAdapterRegistered(22)) {
+    Hive.registerAdapter(ModelAnbarRaporAdapter()); // id-22
+  }
+  if (!Hive.isAdapterRegistered(21)) {
+    Hive.registerAdapter(ModelCarilerAdapter()); // id-22
+  }
+  if (!Hive.isAdapterRegistered(23)) {
+    Hive.registerAdapter(ModelDownloadsAdapter()); // id-23
+  }
+  if (!Hive.isAdapterRegistered(24)) {
+    Hive.registerAdapter(ModelCariHereketAdapter()); // id-24
+  }
+  if (!Hive.isAdapterRegistered(25)) {
+    Hive.registerAdapter(ModelCariKassaAdapter()); // id-25
+  }
+  if (!Hive.isAdapterRegistered(26)) {
+    Hive.registerAdapter(DayAdapter()); // id-26
+  }
+  if (!Hive.isAdapterRegistered(27)) {
+    Hive.registerAdapter(MercDataModelAdapter()); // id-27
+  }
+  if (!Hive.isAdapterRegistered(28)) {
+    Hive.registerAdapter(MercCustomersDatailAdapter()); // id-28
+  }
+  if (!Hive.isAdapterRegistered(29)) {
+    Hive.registerAdapter(SellingDataAdapter()); // id-29
+  }
+  if (!Hive.isAdapterRegistered(30)) {
+    Hive.registerAdapter(UserMercAdapter()); // id-30
+  }
+  if (!Hive.isAdapterRegistered(31)) {
+    Hive.registerAdapter(ModelBackErrorsAdapter()); // id-31
+  }
+  if (!Hive.isAdapterRegistered(32)) {
+    Hive.registerAdapter(ModelUsercCurrentLocationReqeustAdapter()); // id-32
+  }
+  if (!Hive.isAdapterRegistered(33)) {
+    Hive.registerAdapter(ModelConfigrationsAdapter()); // id-33
+  }
+  if (!Hive.isAdapterRegistered(34)) {
+    Hive.registerAdapter(ModelMainInOutAdapter()); // id-34
+  }
+  if (!Hive.isAdapterRegistered(35)) {
+    Hive.registerAdapter(ModelInOutDayAdapter()); // id-35
+  }
+  if (!Hive.isAdapterRegistered(36)) {
+    Hive.registerAdapter(ModelInOutAdapter()); // id-36
+  }
+  if (!Hive.isAdapterRegistered(37)) {
+    Hive.registerAdapter(MotivationDataAdapter()); // id-37
+  }
 }
 
 void backgroundTaskHandler(bg.HeadlessEvent event) async {
   WidgetsFlutterBinding.ensureInitialized();
-  Hive.registerAdapter(ModelMainInOutAdapter()); // id-34
-
   final directory = await getApplicationDocumentsDirectory();
+  registerAdapters();
   Hive.init(directory.path); // Yolu avtomatik olaraq təyin edir
-  await Hive.openBox("LoggedUsers");
-  await Hive.openBox("firstTimeOpen");
-  await Hive.openBox("canGetBaseUrl");
   final bg.Location location = await bg.BackgroundGeolocation
       .getCurrentPosition(
     persist: true,
@@ -162,10 +219,9 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();  await userService.init();
   late CheckDviceType checkDviceType = CheckDviceType();
   await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
-
-  // await userService.init();
-  // await localBackgroundEvents.init();
-  // await localGirisCixisServiz.init();
+  await userService.init();
+  await localBackgroundEvents.init();
+  await localGirisCixisServiz.init();
   ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
   double uzaqliq=0;
   if(modela.customerCode!=null){
@@ -177,7 +233,7 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
     );
   }
   LoggedUserModel loggedUserModel = userService.getLoggedUser();
-  String languageIndex = await getLanguageIndex();
+  //LanguageModel languageIndex = await getLanguageIndex();
   int dviceType = checkDviceType.getDviceType();
   String accesToken = loggedUserModel.tokenModel!.accessToken!;
   ModelUsercCurrentLocationReqeust model = ModelUsercCurrentLocationReqeust(
@@ -202,7 +258,7 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
         data: model.toJson(),
         options: Options(
           headers: {
-            'Lang': languageIndex,
+            'Lang': "az",
             'Device': dviceType,
             'smr': '12345',
             "Authorization": "Bearer $accesToken"
@@ -221,8 +277,11 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
 
 }
 
-Future<String> getLanguageIndex() async {
-  return await Hive.box("myLanguage").get("langCode") ?? "az";
+Future<LanguageModel> getLanguageIndex() async {
+
+  final LocalizationController localizationController = Get.put(LocalizationController(Hive.box('myLanguage')));
+
+  return await localizationController.getlastLanguage();
 }
 
 double calculateDistance(lat1, lon1, lat2, lon2) {

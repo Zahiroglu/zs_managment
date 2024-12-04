@@ -4,8 +4,8 @@ import '../giris_cixis/models/model_customers_visit.dart';
 import '../rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 
 class LocalGirisCixisServiz {
-  late Box girisCixis;
-  late Box girisCixisServer;
+  Box<ModelCustuomerVisit>? girisCixis;
+  Box<ModelMainInOut>? girisCixisServer;
 
   Future<void> init() async {
     girisCixis = await Hive.openBox<ModelCustuomerVisit>("girisCixis");
@@ -13,19 +13,19 @@ class LocalGirisCixisServiz {
   }
 
   Future<void> addSelectedGirisCixisDB(ModelCustuomerVisit model) async {
-    await girisCixis.put("${model.customerCode!}|${model.inDate!}|${model.operationType!}", model);
+    await girisCixis!.put("${model.customerCode!}|${model.inDate!}|${model.operationType!}", model);
   }
 
   Future<void> addSelectedGirisCixisDBServer(ModelMainInOut model) async {
     await clearAllGirisServer();
-    await girisCixisServer.put("${model.userCode}", model);
+    await girisCixisServer!.put("${model.userCode}", model);
   }
   Future<void> clearAllGirisServer() async {
-    await girisCixisServer.clear();
+    await girisCixisServer!.clear();
   }
   List<ModelMainInOut> getAllGirisCixisServer() {
     List<ModelMainInOut> listGirisler=[];
-    girisCixisServer.toMap().forEach((key, value) {
+    girisCixisServer!.toMap().forEach((key, value) {
         listGirisler.add(value);
     });
     return listGirisler;
@@ -33,14 +33,14 @@ class LocalGirisCixisServiz {
 
   Future<void> updateSelectedValue(ModelCustuomerVisit model) async {
     await deleteItem(model);
-    await girisCixis.put("${model.customerCode!}|${model.inDate.toString()}|${model.operationType!}", model);
+    await girisCixis!.put("${model.customerCode!}|${model.inDate.toString()}|${model.operationType!}", model);
     getAllGirisCixisToday();
   }
 
   Future<ModelCustuomerVisit> getGirisEdilmisMarket() async {
     List<ModelCustuomerVisit> listGirisler=[];
     ModelCustuomerVisit model = ModelCustuomerVisit();
-    girisCixis.toMap().forEach((key, value) {
+    girisCixis!.toMap().forEach((key, value) {
         listGirisler.add(value);
     });
     listGirisler.sort((a, b) => a.inDate!.compareTo(b.inDate!));
@@ -59,7 +59,7 @@ class LocalGirisCixisServiz {
  List<ModelCustuomerVisit> getAllGirisCixis() {
    deleteItemOld();
     List<ModelCustuomerVisit> listGirisler=[];
-    girisCixis.toMap().forEach((key, value) {
+    girisCixis!.toMap().forEach((key, value) {
       if (value.outDistance != "0") {
         listGirisler.add(value);
       }
@@ -69,9 +69,9 @@ class LocalGirisCixisServiz {
 
  List<ModelCustuomerVisit> getAllUnSendedGirisCixis() {
    List<ModelCustuomerVisit> listGirisler=[];
-   girisCixis.toMap().forEach((key, value) {
+   girisCixis!.toMap().forEach((key, value) {
      if (convertDayByLastday(value)&&value.gonderilme=="0") {
-       int count =girisCixis.toMap().entries.where((element) => element.value.customerCode==value.customerCode).toList().length;
+       int count =girisCixis!.toMap().entries.where((element) => element.value.customerCode==value.customerCode).toList().length;
        value.enterCount==count;
        listGirisler.add(value);
      }});
@@ -81,9 +81,9 @@ class LocalGirisCixisServiz {
 
  List<ModelCustuomerVisit> getAllGirisCixisToday() {
     List<ModelCustuomerVisit> listGirisler=[];
-    girisCixis.toMap().forEach((key, value) {
+    girisCixis!.toMap().forEach((key, value) {
       if (value.outDistance != "0"&&convertDayByLastday(value)) {
-          int count =girisCixis.toMap().entries.where((element) => element.value.customerCode==value.customerCode).toList().length;
+          int count =girisCixis!.toMap().entries.where((element) => element.value.customerCode==value.customerCode).toList().length;
           value.enterCount==count;
         listGirisler.add(value);
       }});
@@ -93,9 +93,9 @@ class LocalGirisCixisServiz {
   }
  List<ModelCustuomerVisit> getAllGirisCixisTodayByCode(String userCode) {
     List<ModelCustuomerVisit> listGirisler=[];
-    girisCixis.toMap().forEach((key, value) {
+    girisCixis!.toMap().forEach((key, value) {
       if (value.outDistance != "0"&&convertDayByLastday(value)&&value.userCode==userCode) {
-          int count =girisCixis.toMap().entries.where((element) => element.value.customerCode==value.customerCode).toList().length;
+          int count =girisCixis!.toMap().entries.where((element) => element.value.customerCode==value.customerCode).toList().length;
           value.enterCount==count;
         listGirisler.add(value);
       }});
@@ -132,6 +132,6 @@ class LocalGirisCixisServiz {
   }
 
   Future<void> clearAllGiris() async {
-    await girisCixis.clear();
+    await girisCixis!.clear();
   }
 }
