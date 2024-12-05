@@ -210,15 +210,12 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
   // }
 
 
-
-
 Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+ // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   LocalUserServices userService = LocalUserServices();
   LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();  await userService.init();
-  late CheckDviceType checkDviceType = CheckDviceType();
-  await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
+ // await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
   await userService.init();
   await localBackgroundEvents.init();
   await localGirisCixisServiz.init();
@@ -234,7 +231,6 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
   }
   LoggedUserModel loggedUserModel = userService.getLoggedUser();
   //LanguageModel languageIndex = await getLanguageIndex();
-  int dviceType = checkDviceType.getDviceType();
   String accesToken = loggedUserModel.tokenModel!.accessToken!;
   ModelUsercCurrentLocationReqeust model = ModelUsercCurrentLocationReqeust(
     sendingStatus: "0",
@@ -259,7 +255,7 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
         options: Options(
           headers: {
             'Lang': "az",
-            'Device': dviceType,
+            'Device': 1,
             'smr': '12345',
             "Authorization": "Bearer $accesToken"
           },
@@ -328,7 +324,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       // Burada background location servisini başlatmaq
       await localGirisCixisServiz.init();
       ModelCustuomerVisit model=await localGirisCixisServiz.getGirisEdilmisMarket();
-      if(model.userCode== null){
+      if(model.userCode!= null){
       await bg.BackgroundGeolocation.stop();
       await bg.BackgroundGeolocation.start();
       print("serviz yeniden basladildi");

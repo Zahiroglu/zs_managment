@@ -336,6 +336,7 @@ class BackgroudLocationServiz extends GetxController {
 
       // BackgroundGeolocation konfiqurasiyası
       await bg.BackgroundGeolocation.ready(bg.Config(
+        persistMode: bg.Config.PERSIST_MODE_NONE, // SQLite-yə yazılmanı deaktiv edir
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqlik
         distanceFilter: 0, // Dəyişiklikdən asılı olmayaraq məlumat topla
         //locationUpdateInterval: 10000, // 30 saniyədə bir yeniləmə
