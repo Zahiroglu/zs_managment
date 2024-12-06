@@ -72,6 +72,7 @@ class ControllerMyMerchSystem extends GetxController {
     listUsers.clear();
     listMercBaza.clear();
     dataLoading.value=true;
+    await userService.init();
     listMercler.value=await localBaseDownloads.getAllMercDatail();
     listFilteredMerc.value=await localBaseDownloads.getAllMercDatail();
     sonYenilenme.value=localBaseDownloads.getLastUpdatedFieldDate("donwEnterMerc");

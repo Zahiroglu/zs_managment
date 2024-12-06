@@ -14,6 +14,7 @@ import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/connected
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carihereket.dart';
 import 'package:zs_managment/companents/satis_emeliyyatlari/models/model_carikassa.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
+import 'package:zs_managment/dio_config/api_client_back.dart';
 import 'package:zs_managment/global_models/custom_enummaptype.dart';
 import 'package:zs_managment/global_models/model_appsetting.dart';
 import 'package:zs_managment/global_models/model_maptypeapp.dart';
@@ -150,64 +151,41 @@ void registerAdapters() {
   }
 }
 
+bool isTaskRunning = false;
+
 void backgroundTaskHandler(bg.HeadlessEvent event) async {
+  if (isTaskRunning) {
+    print("Task already running. Skipping...");
+    return; // Əvvəlki task bitmədən yenisini başlatmayın.
+  }
+
+  isTaskRunning = true;
   WidgetsFlutterBinding.ensureInitialized();
-  final directory = await getApplicationDocumentsDirectory();
-  registerAdapters();
-  Hive.init(directory.path); // Yolu avtomatik olaraq təyin edir
-  final bg.Location location = await bg.BackgroundGeolocation
-      .getCurrentPosition(
-    persist: true,
-    samples: 1,
-  );
-  if (location.mock) {
-    print("Mock location detected: ${location.coords}");
-    // Saxta yer məlumatlarını serverə göndərin
-  } else {
-    print("Real location: ${location.coords.latitude}, ${location.coords
-        .longitude}");
-    // Doğru yer məlumatını serverə göndərin
-    await sendInfoLocationsToDatabase(location);
+
+  try {
+    final directory = await getApplicationDocumentsDirectory();
+    registerAdapters();
+    Hive.init(directory.path);
+
+    final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
+      persist: true,
+      samples: 1,
+    );
+
+    if (location.mock) {
+      print("Mock location detected: ${location.coords}");
+    } else {
+      print("Real location: ${location.coords.latitude}, ${location.coords.longitude}");
+      await sendInfoLocationsToDatabase(location);
+    }
+  } catch (e) {
+    print("Error in background task: $e");
+    isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
+
+  } finally {
+    isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
   }
 }
-  // Yer Hadisəsi
-  // if (event.event is bg.Location) {
-  //   final bg.Location location = event.event as bg.Location;
-  //   if (location.mock) {
-  //     print("Mock location detected: ${location.coords}");
-  //     // Saxta yer məlumatlarını serverə göndərin
-  //   } else {
-  //     print("Real location: ${location.coords.latitude}, ${location.coords.longitude}");
-  //     // Doğru yer məlumatını serverə göndərin
-  //     await sendInfoLocationsToDatabase(location);
-  //   }
-  // }
-
-  // // Heartbeat Hadisəsi
-  // else if (event.event is bg.HeartbeatEvent) {
-  //   print("[HeadlessTask] Heartbeat event received");
-  //   try {
-  //     final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
-  //       persist: true,
-  //       samples: 1,
-  //     );
-  //     if (location.mock) {
-  //       print("Mock location detected: ${location.coords}");
-  //       // Saxta yer məlumatlarını serverə göndərin
-  //     } else {
-  //       print("Real location: ${location.coords.latitude}, ${location.coords.longitude}");
-  //       // Doğru yer məlumatını serverə göndərin
-  //       await sendInfoLocationsToDatabase(location);
-  //     }
-  //   } catch (e) {
-  //     print("[HeadlessTask] Error fetching location: $e");
-  //   }
-  // }
-  //
-  // // Naməlum Hadisə
-  // else {
-  //   print("[HeadlessTask] Unknown event type received: ${event.name}");
-  // }
 
 
 Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
@@ -230,7 +208,6 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
     );
   }
   LoggedUserModel loggedUserModel = userService.getLoggedUser();
-  //LanguageModel languageIndex = await getLanguageIndex();
   String accesToken = loggedUserModel.tokenModel!.accessToken!;
   ModelUsercCurrentLocationReqeust model = ModelUsercCurrentLocationReqeust(
     sendingStatus: "0",
@@ -249,7 +226,7 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
     userPosition: loggedUserModel.userModel!.roleId.toString(),
   );
     try{
-      final response = await ApiClient().dio(false).post(
+      final response = await ApiClientBack().dio(false).post(
         "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
         data: model.toJson(),
         options: Options(
@@ -270,15 +247,10 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
     } on DioException catch (e) {
       await  localBackgroundEvents.addBackLocationToBase(model);
     }
+  await Future.delayed(Duration(seconds: 2)); // Sorğu cavabını gözləyin
 
 }
 
-Future<LanguageModel> getLanguageIndex() async {
-
-  final LocalizationController localizationController = Get.put(LocalizationController(Hive.box('myLanguage')));
-
-  return await localizationController.getlastLanguage();
-}
 
 double calculateDistance(lat1, lon1, lat2, lon2) {
   var p = 0.017453292519943295;
@@ -319,14 +291,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.detached) {
+    if (state == AppLifecycleState.resumed) {
       print("Program arxa panele kecdi");
       // Burada background location servisini başlatmaq
       await localGirisCixisServiz.init();
       ModelCustuomerVisit model=await localGirisCixisServiz.getGirisEdilmisMarket();
       if(model.userCode!= null){
-      await bg.BackgroundGeolocation.stop();
-      await bg.BackgroundGeolocation.start();
+      // await bg.BackgroundGeolocation.stop().then((a) async {
+      //   await bg.BackgroundGeolocation.start();
+      //
+      // });
       print("serviz yeniden basladildi");
       }
     }

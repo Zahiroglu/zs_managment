@@ -22,7 +22,7 @@ import '../constands/app_constands.dart';
 import '../widgets/simple_info_dialog.dart';
 import 'package:get/get.dart' as getxt;
 
-class CustomInterceptor extends Interceptor {
+class CustomInterceptorBack extends Interceptor {
   late CheckDviceType checkDviceType = CheckDviceType();
   LocalUserServices localUserServices = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
@@ -30,7 +30,7 @@ class CustomInterceptor extends Interceptor {
   LocalBazalar localBazalar = LocalBazalar();
   bool mustShowResult;
 
-  CustomInterceptor({required this.dio, required this.mustShowResult});
+  CustomInterceptorBack({required this.dio, required this.mustShowResult});
 
   Future<String> getLanguageIndex() async {
     const boxName = "myLanguage";
@@ -226,41 +226,6 @@ class CustomInterceptor extends Interceptor {
         options: options);
   }
 
-  int getDviceType() {
-    int dviceType = 0;
-    if (kIsWeb) {
-      dviceType = 2;
-      print("Dvice is Web");
-    } else {
-      if (Platform.isAndroid) {
-        dviceType = getAndroidDeviceType();
-        print("Dvice is android");
-
-      } else if (Platform.isIOS) {
-        dviceType = getIosDeviceType();
-        print("Dvice is ios");
-
-      } else if (Platform.isWindows) {
-        dviceType = 3;
-        print("Dvice is windows");
-
-      }
-    }
-
-    return dviceType;
-  }
-
-  int getAndroidDeviceType() {
-    //0= android phone and 1= android tablet
-    final data = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
-    return data.shortestSide < 600 ? 0 : 1;
-  }
-
-  int getIosDeviceType() {
-    final data = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
-    //4= ios phone and 5= ios tablet
-    return data.shortestSide < 600 ? 4 : 5;
-  }
 
   Future<int> refreshAccessToken() async {
     int succes = 0;
@@ -288,7 +253,7 @@ class CustomInterceptor extends Interceptor {
             receiveTimeout: const Duration(seconds: 60),
             headers: {
               'Lang': languageIndex,
-              'Device': getDviceType(),
+              'Device': 1,
               'smr': '12345',
               "Authorization": "Bearer $accesToken"
             },

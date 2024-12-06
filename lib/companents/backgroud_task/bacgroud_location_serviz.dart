@@ -336,19 +336,18 @@ class BackgroudLocationServiz extends GetxController {
 
       // BackgroundGeolocation konfiqurasiyası
       await bg.BackgroundGeolocation.ready(bg.Config(
-        persistMode: bg.Config.PERSIST_MODE_NONE, // SQLite-yə yazılmanı deaktiv edir
-        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqlik
-        distanceFilter: 0, // Dəyişiklikdən asılı olmayaraq məlumat topla
-        //locationUpdateInterval: 10000, // 30 saniyədə bir yeniləmə
-       // fastestLocationUpdateInterval: 10000, // Ən sürətli yeniləmə
-        heartbeatInterval: 10, // 30 saniyədə bir heartbeat
-        stopOnTerminate: false, // Proqram bağlansa belə dayanmasın
-        startOnBoot: true, // Cihaz yenidən başladıqda aktiv olsun
-        preventSuspend: true, // Cihaz yuxuya getməsin
-        foregroundService: true, // Xidmət arxa planda işləyərkən aktiv olsun
-        debug: true, // Debug logları aktiv edin
+        persistMode: bg.Config.PERSIST_MODE_NONE,
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+        distanceFilter: 0,
+        locationUpdateInterval: 30000, // Yer məlumatlarını hər 30 saniyədən bir yenilə
+        fastestLocationUpdateInterval: 30000, // Ən sürətli yeniləmə 30 saniyə
+        heartbeatInterval: 30, // 30 saniyədə bir heartbeat
+        stopOnTerminate: false,
+        startOnBoot: true,
+        preventSuspend: true,
+        foregroundService: true,
+        debug: true,
         enableHeadless: true,
-        logLevel: bg.Config.LOG_LEVEL_VERBOSE, // Təfərrüatlı loglar
         notification: bg.Notification(
           title: "ZS-CONTROL Aktivdir",
           text: "Fon rejimində izlənir.",

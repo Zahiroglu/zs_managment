@@ -86,6 +86,7 @@ class ControllerLiveTrack extends GetxController {
     listAllConnectedUsers.value =
         localBaseDownloads.getAllConnectedUserFromLocal();
     await appSetting.init();
+    await localUserServices.init();
     ModelAppSetting modelSetting = await appSetting.getAvaibleMap();
     if (modelSetting.mapsetting != null) {
       ModelMapApp modelMapApp = modelSetting.mapsetting!;
@@ -115,10 +116,10 @@ class ControllerLiveTrack extends GetxController {
     circles.clear();
     for (var element in listTrack) {
       if (element.lastInoutAction != null) {
-        if (element.lastInoutAction!.outDate == "") {
+        if (element.lastInoutAction!.outDate == ""&&element.lastInoutAction!.customerLongitude!="") {
           String marketMarkerId="${element.lastInoutAction!.customerCode}-${element.lastInoutAction!.inDate}";
            markers.removeWhere((e)=>e.markerId.value==marketMarkerId);
-          markers.add(map.Marker(
+            markers.add(map.Marker(
               markerId: map.MarkerId(marketMarkerId),
               onTap: () {
                 selectedModel.value = element;
