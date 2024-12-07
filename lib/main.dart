@@ -154,11 +154,6 @@ void registerAdapters() {
 bool isTaskRunning = false;
 
 void backgroundTaskHandler(bg.HeadlessEvent event) async {
-  if (isTaskRunning) {
-    print("Task already running. Skipping...");
-    return; // Əvvəlki task bitmədən yenisini başlatmayın.
-  }
-
   isTaskRunning = true;
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -248,6 +243,7 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
       await  localBackgroundEvents.addBackLocationToBase(model);
     }
   await Future.delayed(Duration(seconds: 2)); // Sorğu cavabını gözləyin
+  isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
 
 }
 
@@ -286,26 +282,49 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
   }
 
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      print("Program arxa panele kecdi");
-      // Burada background location servisini başlatmaq
       await localGirisCixisServiz.init();
       ModelCustuomerVisit model=await localGirisCixisServiz.getGirisEdilmisMarket();
       if(model.userCode!= null){
-      // await bg.BackgroundGeolocation.stop().then((a) async {
-      //   await bg.BackgroundGeolocation.start();
-      //
-      // });
-      print("serviz yeniden basladildi");
+        checkAndStartServices();
       }
     }
   }
+  void checkAndStartServices() async {
+    try {
+      // Xidmət statusunu yoxla
+      bg.State state = await bg.BackgroundGeolocation.state;
 
+      if (!state.enabled) {
+        // Əgər xidmət deaktivdirsə, onu aktiv edin
+        print("BackgroundGeolocation xidməti aktiv deyil. Başladılır...");
+        await bg.BackgroundGeolocation.start();
+        print("BackgroundGeolocation xidməti işə düşdü.");
+      } else {
+        print("BackgroundGeolocation xidməti artıq aktivdir.");
+      }
+
+      // Əgər foreground servisi yoxdursa, aktiv edin
+      if (!state.foregroundService!) {
+        print("Foreground Service aktiv deyil. Aktivləşdirilir...");
+        restartServices();
+        print("Foreground Service aktivdir.");
+      }
+    } catch (e) {
+      print("Xidmətlərin yoxlanması və işə salınması zamanı xəta baş verdi: $e");
+    }
+  }
+  Future<void> restartServices() async {
+    await bg.BackgroundGeolocation.stop();
+    await bg.BackgroundGeolocation.start();
+    print("Xidmətlər yenidən başlatıldı.");
+  }
 
   @override
   Widget build(BuildContext context) {

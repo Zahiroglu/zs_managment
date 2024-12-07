@@ -306,11 +306,90 @@ class BackgroudLocationServiz extends GetxController {
       await localGirisCixisServiz.init();
       bg.BackgroundGeolocation.onEnabledChange((bool enabled) {
         if (!enabled) {
-          print("BackgroundGeolocation stopped. Re-adding listeners.");
-          startBackgorundFetck(); // Listener'ları tekrar ekle
+          print("onEnabledChange aktivdi");
+          //startBackgorundFetck(); // Listener'ları tekrar ekle
+        }else{
+          print("onEnabledChange passivdir");
+
         }
       });
-      // BackgroundGeolocation üçün dinləyicilər
+      bg.BackgroundGeolocation.onLocation((bg.Location location) async {
+        print("Konum deyisdi : "+location.toString());
+
+        // if (location.mock) {
+        //   sendErrorsToServers(blok, modela.customerCode.toString() + "adlimarkerBlockMock".tr);
+        // } else {
+        //   if (isFistTime.isTrue) {
+        //     isFistTime.value = false;
+        //     cureentTime.value = DateTime.now();
+        //     currentLatitude.value = location.coords.latitude;
+        //     currentLongitude.value = location.coords.longitude;
+        //     await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
+        //     // await sendInfoLocationsToDatabase(location, modela);
+        //   }
+        //   else {
+        //     if (await checkIfTimeGretherThanOneMinute(cureentTime.value, DateTime.now())) {
+        //       isFistTime.value = false;
+        //       cureentTime.value = DateTime.now();
+        //       currentLatitude.value = location.coords.latitude;
+        //       currentLongitude.value = location.coords.longitude;
+        //       await NotyBackgroundTrack.showBigTextNotification(
+        //           title: "Diqqet",
+        //           body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}",
+        //           fln: flutterLocalNotificationsPlugin);
+        //       // await sendInfoLocationsToDatabase(location, modela);
+        //       await checkUnsendedErrors();
+        //     }
+        //   }
+        // }
+        update();
+      });
+      bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
+        if (location.isMoving) {
+        } else {
+        }
+      });
+      bg.BackgroundGeolocation.onConnectivityChange((connection) async {
+        hasConnection.value=connection.connected;
+        if (!connection.connected) {
+          await localGirisCixisServiz.init();
+          ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
+          await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
+          // await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
+        } else {
+          //await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
+          await flutterLocalNotificationsPlugin.cancel(1);
+        }
+      });
+      bg.BackgroundGeolocation.onAuthorization((c) {
+        // if (c != bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
+        //   sendErrorsToServers(blok, "${modela.customerCode}marketde girisde iken Gps melumatlar sistemini deyisdiyi ucun blok edildi. Gps service - $c");
+        // }
+      });
+      bg.BackgroundGeolocation.onGeofencesChange((geo){
+        print("geo deyisdi : "+geo.toString());
+
+      });
+      bg.BackgroundGeolocation.onActivityChange((a) {
+        print("onActivityChange deyisdi : "+a.toString());
+
+      });
+      bg.BackgroundGeolocation.onSchedule((s){
+        print("onActivityChange deyisdi : "+s.toString());
+
+      });
+      bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) {
+        print("onProviderChange deyisdi : "+event.toString());
+        // if (!event.gps) {
+        //   NotyBackgroundTrack.showBigTextNotification(
+        //     title: "GPS Bağlandı",
+        //     body: "GPS əl ilə bağlanıb. Zəhmət olmasa yenidən aktiv edin.",
+        //     fln: flutterLocalNotificationsPlugin,
+        //   );
+        // } else {
+        //   // GPS aktivdir.
+        // }
+      });
       bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
         try {
           final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
@@ -334,7 +413,6 @@ class BackgroudLocationServiz extends GetxController {
         }
       });
 
-      // BackgroundGeolocation konfiqurasiyası
       await bg.BackgroundGeolocation.ready(bg.Config(
         persistMode: bg.Config.PERSIST_MODE_NONE,
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
