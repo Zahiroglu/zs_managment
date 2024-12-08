@@ -154,9 +154,9 @@ void registerAdapters() {
 bool isTaskRunning = false;
 
 void backgroundTaskHandler(bg.HeadlessEvent event) async {
+  if (isTaskRunning) return;
   isTaskRunning = true;
   WidgetsFlutterBinding.ensureInitialized();
-
   try {
     final directory = await getApplicationDocumentsDirectory();
     registerAdapters();
@@ -165,16 +165,18 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
     final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
       persist: true,
       samples: 1,
+      maximumAge: 0, // Həmişə yeni məlumat əldə et
+      timeout: 30, // Məlumat üçün maksimum gözləmə müddəti
     );
 
     if (location.mock) {
-      print("Mock location detected: ${location.coords}");
+      print("Samir : Mock location detected: ${location.coords}");
     } else {
-      print("Real location: ${location.coords.latitude}, ${location.coords.longitude}");
+      print("Samir : Real location: ${location.coords.latitude}, ${location.coords.longitude}");
       await sendInfoLocationsToDatabase(location);
     }
   } catch (e) {
-    print("Error in background task: $e");
+    print("Samir : Error in background task: $e");
     isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
 
   } finally {
@@ -280,50 +282,76 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
 
   @override
   void initState() {
-    super.initState();
     WidgetsBinding.instance.addObserver(this);
+    checkIfFirstTimeOpened();
+    super.initState();
 
   }
 
+  Future<void> checkIfFirstTimeOpened() async {
+    print("Samir : program yeniden acildi");
+    await localGirisCixisServiz.init();
+    ModelCustuomerVisit model = await localGirisCixisServiz.getGirisEdilmisMarket();
+
+    if (model.userCode != null) {
+      print("Samir : istifadeci girisdedir");
+
+      checkAndStartServices();
+    }else{
+      print("Samir : istifadeci girisde deyil");
+
+    }
+  }
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.resumed) {
-      await localGirisCixisServiz.init();
-      ModelCustuomerVisit model=await localGirisCixisServiz.getGirisEdilmisMarket();
-      if(model.userCode!= null){
-        checkAndStartServices();
-      }
-    }
+    super.didChangeAppLifecycleState(state);
+    // if (state == AppLifecycleState.resumed) {
+    //   // Tətbiq yenidən açıldıqda background xidmətini aktiv et
+    //   print("Tətbiq yenidən açıldı");
+    //    checkAndStartServices();
+    // }
   }
+
+
   void checkAndStartServices() async {
     try {
-      // Xidmət statusunu yoxla
+      // Xidmətin statusunu yoxla
       bg.State state = await bg.BackgroundGeolocation.state;
+      await restartServices();
 
-      if (!state.enabled) {
-        // Əgər xidmət deaktivdirsə, onu aktiv edin
-        print("BackgroundGeolocation xidməti aktiv deyil. Başladılır...");
-        await bg.BackgroundGeolocation.start();
-        print("BackgroundGeolocation xidməti işə düşdü.");
-      } else {
-        print("BackgroundGeolocation xidməti artıq aktivdir.");
-      }
-
-      // Əgər foreground servisi yoxdursa, aktiv edin
-      if (!state.foregroundService!) {
-        print("Foreground Service aktiv deyil. Aktivləşdirilir...");
-        restartServices();
-        print("Foreground Service aktivdir.");
-      }
+      //
+      // if (!state.enabled) {
+      //   // Əgər xidmət deaktivdirsə, onu aktiv et
+      //   print("Samir : BackgroundGeolocation xidməti aktiv deyil. Başladılır...");
+      //   await restartServices();
+      // } else {
+      //   print("Samir : BackgroundGeolocation xidməti artıq aktivdir.");
+      // }
+      //
+      // // Foreground Service yoxla
+      // if (state.foregroundService == false) {
+      //   print("Samir : Foreground Service aktiv deyil. Aktivləşdirilir...");
+      //   await restartServices();
+      // } else {
+      //   print("Samir : Foreground Service aktivdir.");
+      // }
     } catch (e) {
-      print("Xidmətlərin yoxlanması və işə salınması zamanı xəta baş verdi: $e");
+      print("Samir : Xidmətlərin yoxlanması və işə salınması zamanı xəta baş verdi: $e");
     }
   }
+
   Future<void> restartServices() async {
-    await bg.BackgroundGeolocation.stop();
-    await bg.BackgroundGeolocation.start();
-    print("Xidmətlər yenidən başlatıldı.");
+    try {
+      BackgroudLocationServiz backgroudLocationServiz=Get.put(BackgroudLocationServiz());
+      // Xidmətləri dayandır və yenidən başlat
+      await backgroudLocationServiz.stopBackGroundFetch();
+      print("Samir : BackgroundGeolocation xidməti dayandırıldı.");
+      await backgroudLocationServiz.startBackgorundFetck();
+      print("Samir : BackgroundGeolocation xidməti işə düşdü.");
+    } catch (e) {
+      print("Samir : Xidmətlər yenidən başlatıla bilmədi: $e");
+    }
   }
 
   @override

@@ -783,6 +783,7 @@ class DrawerMenuController extends getx.GetxController {
         pageView= WrongEntriesRepors(drawerMenuController: this,);
         break;
       case "myVizits":
+        await localGirisCixisServiz.init();
         List<ModelMainInOut> listGirisCixis= localGirisCixisServiz.getAllGirisCixisServer();
         pageView= ScreenMyVisitHistory(listGirisCixis: listGirisCixis,drawerMenuController: this,);
         break;
