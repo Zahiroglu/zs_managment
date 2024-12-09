@@ -70,7 +70,7 @@ class BackGroudTask{
    await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Markete giris etdiniz.Telefonu sondurmeyin", fln: flutterLocalNotificationsPlugin);
   }
   Future showNotificationUpdate(LocationData locationData) async {
-    await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet", body: "Location yenilendi "+DateTime.now().toString()+"Gps :"+locationData.latitude.toString()+","+locationData.longitude.toString(), fln: flutterLocalNotificationsPlugin);
+    await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Location yenilendi "+DateTime.now().toString()+"Gps :"+locationData.latitude.toString()+","+locationData.longitude.toString(), fln: flutterLocalNotificationsPlugin);
   }
 
   void _onBackgroundFetchTimeout(String taskId) {

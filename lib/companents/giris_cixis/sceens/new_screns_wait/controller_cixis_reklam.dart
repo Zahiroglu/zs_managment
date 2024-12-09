@@ -2494,62 +2494,67 @@ class ControllerCixisReklam extends GetxController {
   }
 
   Future<void> cixisiLocaldaTesdiqleLast(Position? currentLocation,double uzaqliq, String qeyd, ModelCustuomerVisit? modela) async {
-    if (listCariler.any((a) => a.code == modelgirisEdilmis.value.customerCode)) {
-      ModelCariler modelCari = listCariler.where((a) => a.code == modelgirisEdilmis.value.customerCode).first;
-      modelCari.ziyaret = "2";
-      modela!.girisEdilenRutCodu =selectedTemsilci.value.code;
-      if(selectedTemsilci.value.code=="m"){
-        modela.girisEdilenRutCodu =loggedUserModel.userModel!.code!;
+    await backgroudLocationServiz.stopBackGroundFetch().then((v) async {
+      if (listCariler.any((a) => a.code == modelgirisEdilmis.value.customerCode)) {
+        ModelCariler modelCari = listCariler.where((a) => a.code == modelgirisEdilmis.value.customerCode).first;
+        modelCari.ziyaret = "2";
+        modela!.girisEdilenRutCodu =selectedTemsilci.value.code;
+        if(selectedTemsilci.value.code=="m"){
+          modela.girisEdilenRutCodu =loggedUserModel.userModel!.code!;
+        }
+        await localDbGirisCixis.addSelectedGirisCixisDB(modela);
+        await localBase.updateModelCari(modelCari);
+      }else{
+        modela!.girisEdilenRutCodu =selectedTemsilci.value.code;
+        if(selectedTemsilci.value.code=="m"){
+          modela.girisEdilenRutCodu =loggedUserModel.userModel!.code!;
+        }
+        await localDbGirisCixis.addSelectedGirisCixisDB(modela);
       }
-      await localDbGirisCixis.addSelectedGirisCixisDB(modela);
-      await localBase.updateModelCari(modelCari);
-    }else{
-      modela!.girisEdilenRutCodu =selectedTemsilci.value.code;
-      if(selectedTemsilci.value.code=="m"){
-        modela.girisEdilenRutCodu =loggedUserModel.userModel!.code!;
+      marketeGirisEdilib.value = false;
+      slidePanelVisible.value = false;
+      modelgirisEdilmis.value = ModelCustuomerVisit();
+      if(_timer!=null){
+        _timer!.cancel();
       }
-      await localDbGirisCixis.addSelectedGirisCixisDB(modela);
-    }
-    marketeGirisEdilib.value = false;
-    slidePanelVisible.value = false;
-    modelgirisEdilmis.value = ModelCustuomerVisit();
-    if(_timer!=null){
-      _timer!.cancel();
-    }
-    pointsPoly.clear();
-    ctKassaDialog.text = "";
-    ctCixisQeyd.text = "";
-    if (selectedlistKassa.isNotEmpty) {
-      addKassaTobase(selectedlistKassa.first);
-    }
-    DrawerMenuController controller = Get.put(DrawerMenuController());
-    controller.onInit();
-    controller.addPermisionsInDrawerMenu(loggedUserModel);
-    backgroudLocationServiz.stopBackGroundFetch();
-    listTapsiriqlar.clear();
-    await getGirisEdilmisCari(map.LatLng(currentLocation!.latitude, currentLocation.longitude,));
+      pointsPoly.clear();
+      ctKassaDialog.text = "";
+      ctCixisQeyd.text = "";
+      if (selectedlistKassa.isNotEmpty) {
+        addKassaTobase(selectedlistKassa.first);
+      }
+      DrawerMenuController controller = Get.put(DrawerMenuController());
+      controller.onInit();
+      controller.addPermisionsInDrawerMenu(loggedUserModel);
+
+      listTapsiriqlar.clear();
+      await getGirisEdilmisCari(map.LatLng(currentLocation!.latitude, currentLocation.longitude,));
+    });
+
     update();
   }
 
   Future<void> girisiLocaldaTesdiqleLast(Position? currentLocation, double uzaqliq, ModelCustuomerVisit? modela, ModelCariler? selectedModel) async {
-    createCircles(selectedModel!.longitude!, selectedModel.latitude!, selectedModel.code!);
-    ModelCariler modelCari = listCariler.where((a) => a.code == modela!.customerCode).first;
-    modelCari.ziyaret = "1";
-    await localBase.updateModelCari(modelCari);
-    modela!.girisEdilenRutCodu =selectedTemsilci.value.code;
-    if(selectedTemsilci.value.code=="m"){
-      modela.girisEdilenRutCodu =loggedUserModel.userModel!.code!;
-    }
-    await localDbGirisCixis.addSelectedGirisCixisDB(modela);
-    addMarkersAndPlygane(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), currentLocation!);
-    slidePanelVisible.value = false;
-    leftSideMenuVisible.value = true;
-    rightSideMenuVisible.value = true;
     //listTapsiriqlar.value = ModelResponceTask().getListOfTask();
-    await backgroudLocationServiz.startBackgorundFetck();
-    marketeGirisEdilib.value = true;
-    modelgirisEdilmis.value = modela;
-    sndeQalmaVaxtiniHesabla();
+    await backgroudLocationServiz.startBackgorundFetck().then((v) async {
+      createCircles(selectedModel!.longitude!, selectedModel.latitude!, selectedModel.code!);
+      ModelCariler modelCari = listCariler.where((a) => a.code == modela!.customerCode).first;
+      modelCari.ziyaret = "1";
+      await localBase.updateModelCari(modelCari);
+      modela!.girisEdilenRutCodu =selectedTemsilci.value.code;
+      if(selectedTemsilci.value.code=="m"){
+        modela.girisEdilenRutCodu =loggedUserModel.userModel!.code!;
+      }
+      await localDbGirisCixis.addSelectedGirisCixisDB(modela);
+      addMarkersAndPlygane(selectedModel.longitude!.toString(), selectedModel.latitude!.toString(), currentLocation!);
+      slidePanelVisible.value = false;
+      leftSideMenuVisible.value = true;
+      rightSideMenuVisible.value = true;
+      marketeGirisEdilib.value = true;
+      modelgirisEdilmis.value = modela;
+      sndeQalmaVaxtiniHesabla();
+    });
+
     update();
   }
 

@@ -74,26 +74,7 @@ class CustomInterceptorBack extends Interceptor {
           return handler.resolve(await _retry(response.requestOptions));
         }
       } else if (model.code == "007") {
-        if (Get.isDialogOpen ?? false) {
-          Get.back();
-        }
-        Get.dialog(ShowInfoDialog(
-          color: Colors.red,
-          icon: Icons.perm_identity,
-          messaje: model.message!,
-          callback: () {
-            Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
-          },
-        ));
-      } else {
-        Get.dialog(ShowInfoDialog(
-          color: Colors.red,
-          icon: Icons.perm_identity,
-          messaje: model.message!,
-          callback: () {
-            Get.back();
-          },
-        ));
+        //Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
       }
     }
     else {
@@ -126,94 +107,7 @@ class CustomInterceptorBack extends Interceptor {
     super.onResponse(response, handler);
   }
 
-  @override
-  Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (Get.isDialogOpen ?? false) {
-      Get.back();
-    }
-    print("error : " + err.toString());
 
-    switch (err.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.receiveTimeout:
-      case DioExceptionType.sendTimeout:
-        Get.dialog(ShowInfoDialog(
-          color: Colors.red,
-          icon: Icons.error,
-          messaje: "serverTimeOutXetasi".tr,
-          callback: () {
-            Get.back();
-          },
-        ));
-        break;
-      case DioExceptionType.badCertificate:
-      case DioExceptionType.badResponse:
-        if (err.response != null) {
-          ModelExceptions model = ModelExceptions.fromJson(err.response!.data['Exception']);
-          Get.dialog(ShowInfoDialog(
-            color: Colors.red,
-            icon: Icons.error,
-            messaje: model.message!,
-            callback: () {
-              Get.back();
-            },
-          ));
-        } else {
-          Get.dialog(ShowInfoDialog(
-            color: Colors.red,
-            icon: Icons.error,
-            messaje: "serverBaglantiXetasi".tr,
-            callback: () {
-              Get.back();
-            },
-          ));
-        }
-        break;
-      case DioExceptionType.cancel:
-        Get.dialog(ShowInfoDialog(
-          color: Colors.blue,
-          icon: Icons.verified,
-          messaje: "serverConnectionCanceled".tr,
-          callback: () {
-            Get.back();
-          },
-        ));
-        break;
-      case DioExceptionType.connectionError:
-        Get.dialog(ShowInfoDialog(
-          color: Colors.blue,
-          icon: Icons.verified,
-          messaje: "serverConnectionError".tr,
-          callback: () {
-            Get.back();
-          },
-        ));
-        break;
-      case DioExceptionType.unknown:
-        if (err.response != null) {
-          ModelExceptions model = ModelExceptions.fromJson(err.response!.data['Exception']);
-          Get.dialog(ShowInfoDialog(
-            color: Colors.red,
-            icon: Icons.error,
-            messaje: model.message!,
-            callback: () {
-              Get.back();
-            },
-          ));
-        } else {
-          Get.dialog(ShowInfoDialog(
-            color: Colors.blue,
-            icon: Icons.verified,
-            messaje: "serverUnknownError".tr,
-            callback: () {
-              Get.back();
-            },
-          ));
-        }
-        break;
-    }
-    super.onError(err, handler);
-  }
 
   Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {
     final options = Options(

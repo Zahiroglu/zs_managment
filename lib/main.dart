@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
@@ -154,6 +156,10 @@ void registerAdapters() {
 bool isTaskRunning = false;
 
 void backgroundTaskHandler(bg.HeadlessEvent event) async {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  await NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
+
+
   if (isTaskRunning) return;
   isTaskRunning = true;
   WidgetsFlutterBinding.ensureInitialized();
@@ -168,12 +174,33 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
       maximumAge: 0, // Həmişə yeni məlumat əldə et
       timeout: 30, // Məlumat üçün maksimum gözləmə müddəti
     );
+    //sebekeni yoxla
+    bool hasInternet=await checkMobileDataStatus();
+    if(!hasInternet){
+      print("Samir: Mobil data deaktivdir. Zəhmət olmasa aktivləşdirin.");
+      await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
 
+      isTaskRunning = false; // Taskı bitir
+      return;
+    }
+    // GPS statusunu yoxla
+    bool isGPSEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!isGPSEnabled) {
+      print("Samir: GPS deaktivdir. Zəhmət olmasa aktivləşdirin.");
+      await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil GPS aktivlesdirin.Eks halda girisiniz silinecel.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
+
+      isTaskRunning = false; // Taskı bitir
+      return;
+    }
+    // konum bilgilerini yoxla
     if (location.mock) {
       print("Samir : Mock location detected: ${location.coords}");
     } else {
       print("Samir : Real location: ${location.coords.latitude}, ${location.coords.longitude}");
-      await sendInfoLocationsToDatabase(location);
+      await sendInfoLocationsToDatabase(location).whenComplete(() async {
+        await Future.delayed(const Duration(seconds: 2)); // Sorğu cavabını gözləyin
+        isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
+      });
     }
   } catch (e) {
     print("Samir : Error in background task: $e");
@@ -184,6 +211,20 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
   }
 }
 
+
+Future<bool> checkMobileDataStatus() async {
+  final connectivityResult = await Connectivity().checkConnectivity();
+  if (connectivityResult == ConnectivityResult.mobile) {
+    print("Mobil data aktivdir.");
+    return true;
+  } else if (connectivityResult == ConnectivityResult.wifi) {
+    print("Wi-Fi bağlıdır, mobil data istifadə edilmir.");
+    return true;
+  } else {
+    print("Heç bir şəbəkə bağlantısı yoxdur.");
+    return false;
+  }
+}
 
 Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -244,8 +285,6 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
     } on DioException catch (e) {
       await  localBackgroundEvents.addBackLocationToBase(model);
     }
-  await Future.delayed(Duration(seconds: 2)); // Sorğu cavabını gözləyin
-  isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
 
 }
 

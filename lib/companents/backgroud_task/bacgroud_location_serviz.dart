@@ -39,271 +39,16 @@ class BackgroudLocationServiz extends GetxController {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   RxBool hasConnection=true.obs;
 
-  startBackgorundFetckoLD() async {
-    await localGirisCixisServiz.init();
-    ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
-    bg.BackgroundGeolocation.onLocation((bg.Location location) async {
-      if (location.mock) {
-        sendErrorsToServers(blok, modela.customerCode.toString() + "adlimarkerBlockMock".tr);
-      } else {
-        if (isFistTime.isTrue) {
-          isFistTime.value = false;
-          cureentTime.value = DateTime.now();
-          currentLatitude.value = location.coords.latitude;
-          currentLongitude.value = location.coords.longitude;
-          await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
-         // await sendInfoLocationsToDatabase(location, modela);
-        }
-        else {
-          if (await checkIfTimeGretherThanOneMinute(cureentTime.value, DateTime.now())) {
-            isFistTime.value = false;
-            cureentTime.value = DateTime.now();
-            currentLatitude.value = location.coords.latitude;
-            currentLongitude.value = location.coords.longitude;
-            await NotyBackgroundTrack.showBigTextNotification(
-                title: "Diqqet",
-                body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}",
-                fln: flutterLocalNotificationsPlugin);
-           // await sendInfoLocationsToDatabase(location, modela);
-            await checkUnsendedErrors();
-          }
-        }
-      }
-      update();
-    });
-    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
-      if (location.isMoving) {
-      } else {
-      }
-    });
-    bg.BackgroundGeolocation.onConnectivityChange((connection) async {
-      hasConnection.value=connection.connected;
-      if (!connection.connected) {
-        await localGirisCixisServiz.init();
-        ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
-        await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-       // await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
-      } else {
-        //await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
-        await flutterLocalNotificationsPlugin.cancel(1);
-      }
-    });
-    bg.BackgroundGeolocation.onAuthorization((c) {
-      // if (c == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_DENIED) {
-      //   print("GPS icazəsi rədd edildi.");
-      // } else
-      if (c != bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
-        sendErrorsToServers(blok, "${modela.customerCode}marketde girisde iken Gps melumatlar sistemini deyisdiyi ucun blok edildi. Gps service - $c");
-      }
-    });
-    bg.BackgroundGeolocation.onGeofencesChange((geo){
-    });
-    bg.BackgroundGeolocation.onActivityChange((a) {
-    });
-    bg.BackgroundGeolocation.onSchedule((s){
-
-    });
-    bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) {
-      if (!event.gps) {
-        NotyBackgroundTrack.showBigTextNotification(
-          title: "GPS Bağlandı",
-          body: "GPS əl ilə bağlanıb. Zəhmət olmasa yenidən aktiv edin.",
-          fln: flutterLocalNotificationsPlugin,
-        );
-      } else {
-        // GPS aktivdir.
-      }
-    });
-    bg.BackgroundGeolocation.ready(bg.Config(
-      notification: bg.Notification(
-        sticky: true,
-        channelId: "zs001",
-        channelName: "zsNotall",
-        title: 'ZS-CONTROL - Sistem aktivdir',
-        text: "Adli markete giris edilib.",
-        color: '#FEDD1E',
-      ),
-      desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqliklə mövqeyi izləyir.
-      distanceFilter: 0, // Hərəkət etməsə də yeniləmə olacaq.
-      locationUpdateInterval: 60000, // Hər 1 dəqiqədən bir mövqe göndər.
-      stopOnTerminate: false, // Tətbiq tam bağlansa belə xidməti dayandırma.
-      startOnBoot: true, // Cihaz yenidən başladıldıqda avtomatik başlat.
-      foregroundService: true, // Xidmət ön planda işləyəcək.
-      enableHeadless: true, // Proqram arxa planda belə işləsin.
-      showsBackgroundLocationIndicator: true, // Arxa planda mövqe izləmə göstəricisi.
-      preventSuspend: true, // Cihazın yuxuya keçməsinin qarşısını al.
-      debug: false,
-      logLevel: bg.Config. LOG_LEVEL_VERBOSE,
-      heartbeatInterval: 60, // 60 saniyədə bir heartbeat hadisəsi.
-    )).then((bg.State state) {
-      // Xidmət aktiv deyilsə, onu başlat.
-      if (!state.enabled) {
-        NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin); // Bildiriş xidməti.
-        bg.BackgroundGeolocation.start(); // Xidməti başlat.
-      }
-    });
 
 
-  }
-
-  startBackgorundFetck2() async {
-    await userService.init();
-    await localBackgroundEvents.init();
-    await localGirisCixisServiz.init();
-    ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
-    // bg.BackgroundGeolocation.onLocation((bg.Location location) async {
-    //
-    //   if (location.mock) {
-    //     sendErrorsToServers(blok, modela.customerCode.toString() + "adlimarkerBlockMock".tr);
-    //   } else {
-    //       isFistTime.value = false;
-    //       cureentTime.value = DateTime.now();
-    //       currentLatitude.value = location.coords.latitude;
-    //       currentLongitude.value = location.coords.longitude;
-    //       await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
-    //       await sendInfoLocationsToDatabase(location);
-    //
-    //   }
-    //   update();
-    // });
-
-    // Handle location heartbeat events
-    bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
-      try {
-        print("Heartbeat event triggered: ${event.location}");
-
-        final bg.Location location = event.location!;
-        if (location.mock) {
-          // Send error to the server if mock location is detected
-          await sendErrorsToServers(
-            blok,
-            "${modela.customerCode} - Mock location detected during heartbeat.",
-          );
-        } else {
-          // Update values for the current location
-          isFistTime.value = false;
-          cureentTime.value = DateTime.now();
-          currentLatitude.value = location.coords.latitude;
-          currentLongitude.value = location.coords.longitude;
-
-          // Show a notification for the location change
-          await NotyBackgroundTrack.showBigTextNotification(
-            title: "Diqqət",
-            body: "GPS məlumat dəyişdi: Latitude ${location.coords.latitude}, Longitude ${location.coords.longitude}",
-            fln: flutterLocalNotificationsPlugin,
-          );
-
-          // Send updated location info to the database
-          await sendInfoLocationsToDatabase(location);
-        }
-
-        update(); // Notify listeners about the state change
-      } catch (e) {
-        print("Error handling onHeartbeat event: $e");
-      }
-    });
-    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
-      if (location.isMoving) {
-      } else {
-      }
-    });
-    bg.BackgroundGeolocation.onConnectivityChange((connection) async {
-      hasConnection.value=connection.connected;
-      if (!connection.connected) {
-        await localGirisCixisServiz.init();
-        ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
-        await NotyBackgroundTrack.showBigTextNotificationUpdate(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-       // await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
-      } else {
-        //await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
-        await flutterLocalNotificationsPlugin.cancel(1);
-      }
-    });
-    bg.BackgroundGeolocation.onAuthorization((c) {
-      // if (c == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_DENIED) {
-      //   print("GPS icazəsi rədd edildi.");
-      // } else
-      if (c != bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
-        sendErrorsToServers(blok, "Gps melumatlar sistemini deyisdiyi ucun blok edildi. Gps service - $c");
-      }
-    });
-    bg.BackgroundGeolocation.onGeofencesChange((geo){
-    });
-    bg.BackgroundGeolocation.onActivityChange((a) {
-    });
-    bg.BackgroundGeolocation.onSchedule((s){
-
-    });
-    bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) {
-      if (!event.gps) {
-        NotyBackgroundTrack.showBigTextNotification(
-          title: "GPS Bağlandı",
-          body: "GPS əl ilə bağlanıb. Zəhmət olmasa yenidən aktiv edin.",
-          fln: flutterLocalNotificationsPlugin,
-        );
-      } else {
-        // GPS aktivdir.
-      }
-    });
-    bg.BackgroundGeolocation.onNotificationAction((String action) {
-      if (action == 'dismiss') {
-        print("Bildiriş bağlandı və ya istifadəçi tərəfindən silindi.");
-        // Xidməti yenidən başladın və ya bildirişi bərpa edin.
-        bg.BackgroundGeolocation.start();
-      }
-    });
-    await bg.BackgroundGeolocation.ready(bg.Config(
-      notification: bg.Notification(
-          title: "Tracking",
-          text: "Background location is being tracked."
-      ),
-      // notification: bg.Notification(
-      //   sticky: true,
-      //   channelId: "zs001",
-      //   channelName: "zsNotall",
-      //   title: 'ZS-CONTROL - Sistem aktivdir',
-      //   text: modela.customerName.toString()+"Adli markete giris edilib.",
-      //   color: '#FEDD1E',
-      //   priority: bg.Config.NOTIFICATION_PRIORITY_HIGH, // Bildiriş prioriteti
-      //   actions: ['Silmə Bloklanıb'], // Əlavə hərəkət düymələri
-      // ),
-      desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqliklə mövqeyi izləyir.
-      stopOnTerminate: false, // Tətbiq tam bağlansa belə xidməti dayandırma.
-      startOnBoot: true, // Cihaz yenidən başladıldıqda avtomatik başlat.
-      foregroundService: true, // Xidmət ön planda işləyəcək.
-      enableHeadless: true, // Proqram arxa planda belə işləsin.
-
-      preventSuspend: true, // Cihazın yuxuya keçməsinin qarşısını al.
-      debug: true,
-      distanceFilter: 0,
-      disableStopDetection: true,
-      pausesLocationUpdatesAutomatically: false,
-      logLevel: bg.Config. LOG_LEVEL_VERBOSE,
-      allowIdenticalLocations: false, // Eyni koordinatları qəbul et
-      heartbeatInterval: 30, // 30 saniyədə bir heartbeat hadisəsi.
-     // activityRecognitionInterval: 1
-    )).then((bg.State state) async {
-      if (!state.enabled) {
-        bg.BackgroundGeolocation.start(); // Xidməti başlat.
-        NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin); // Bildiriş xidməti.
-        await NotyBackgroundTrack.showUncleanbleNotification(
-          id: 1,
-          title: "ZS-CONTROL",
-          body: modela.customerName.toString() + "adli markete giris etdiniz.Sistemi baglamayin!",
-          fln: flutterLocalNotificationsPlugin,
-        );
-      }
-    });
-
-
-  }
-
-  startBackgorundFetck() async {
+  Future<void> startBackgorundFetck() async {
     try {
       // Servisləri başlat
       await userService.init();
       await localBackgroundEvents.init();
       await localGirisCixisServiz.init();
+      await localGirisCixisServiz.init();
+      ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
         try {
           final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
@@ -313,8 +58,7 @@ class BackgroudLocationServiz extends GetxController {
             timeout: 30,
           );
           if (initialLocation!.mock) {
-            await sendErrorsToServers(
-                blok, "Samir :Saxta GPS məlumatı aşkarlandı: ${initialLocation.coords}");
+            await sendErrorsToServers( blok, "Samir :Saxta GPS məlumatı aşkarlandı: ${initialLocation.coords}");
           } else {
             print("Yer məlumatı yeniləndi: ${initialLocation.coords.latitude}, ${initialLocation.coords.longitude}");
             cureentTime.value = DateTime.now();
@@ -329,10 +73,36 @@ class BackgroudLocationServiz extends GetxController {
       bg.BackgroundGeolocation.onActivityChange((a) {
         print("Samir activity deyisdi" +a.toString());
       });
-
-      bg.BackgroundGeolocation.onLocation((bg.Location location) {
-        print("Yeni yer məlumatı: ${location.coords.latitude}, ${location.coords.longitude}");
+      bg.BackgroundGeolocation.onAuthorization((c) {
+        // if (c == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_DENIED) {
+        //   print("GPS icazəsi rədd edildi.");
+        // } else
+        if (c != bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
+          sendErrorsToServers(blok, "${modela.customerCode}marketde girisde iken Gps melumatlar sistemini deyisdiyi ucun blok edildi. Gps service - $c");
+        }
       });
+      bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) async {
+        if (!event.gps) {
+          NotyBackgroundTrack.showBigTextNotificationAlarm(
+            title: "GPS Bağlandı",
+            body: "GPS əl ilə bağlanıb. Zəhmət olmasa yenidən aktiv edin.",
+            fln: flutterLocalNotificationsPlugin,
+          );
+        } else {
+          await flutterLocalNotificationsPlugin.cancel(1);
+        }
+      });
+      bg.BackgroundGeolocation.onConnectivityChange((connection) async {
+        hasConnection.value=connection.connected;
+        if (!connection.connected) {
+          await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
+          // await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
+        } else {
+          //await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
+          await flutterLocalNotificationsPlugin.cancel(1);
+        }
+      });
+
       await bg.BackgroundGeolocation.ready(bg.Config(
         persistMode: bg.Config.PERSIST_MODE_NONE,
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
@@ -352,7 +122,7 @@ class BackgroudLocationServiz extends GetxController {
           sticky: true, // Bildiriş bağlanmasın
           channelId: "zs0001", // Unikal kanal ID
           channelName: "zs-controll", // Kanal adı
-         // priority: bg.Config.NOTIFICATION_PRIORITY_MAX, // Yüksək prioritet
+          priority: bg.Config.NOTIFICATION_PRIORITY_MAX, // Yüksək prioritet
         ),
       )).then((bg.State state) async {
         if (!state.enabled) {

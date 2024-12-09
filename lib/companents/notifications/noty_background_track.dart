@@ -47,7 +47,7 @@ class NotyBackgroundTrack {
       ongoing: true,
       autoCancel: false,
       icon: '@mipmap/ic_launcher', // Burada düzgün ikon təyin edin
-      playSound: true,
+      playSound: false,
       importance: Importance.max,
       priority: Priority.high,
     );
@@ -60,21 +60,22 @@ class NotyBackgroundTrack {
     await fln.show(id, title, body, notificationDetails, payload: payload);
   }
 
-  static Future<void> showBigTextNotificationUpdate({
+  static Future<void> showBigTextNotificationAlarm({
     int id = 1,
     required String title,
     required String body,
     required FlutterLocalNotificationsPlugin fln,
   }) async {
     const androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'you_can_name_it_whatever1',
-      'channel_namenew',
-      ongoing: false,
-      autoCancel: true,
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound('alarmsoundlocation'),
-      importance: Importance.high,
-      priority: Priority.high,
+      'you_can_name_it_whatever1', // Kanal ID
+      'channel_namenew', // Kanal adı
+      ongoing: true, // Bildiriş davamlıdır, istifadəçi tərəfindən bağlanmaz
+      autoCancel: false, // Bildiriş avtomatik silinməz
+      playSound: true, // Səs çalınsın
+      sound: RawResourceAndroidNotificationSound('alarmsoundlocation'), // Səs faylı
+      importance: Importance.high, // Yüksək əhəmiyyət
+      priority: Priority.high, // Yüksək prioritet
+      icon: '@mipmap/ic_launcher', // Kiçik ikon
     );
 
     const notificationDetails = NotificationDetails(
@@ -82,8 +83,10 @@ class NotyBackgroundTrack {
       iOS: DarwinNotificationDetails(),
     );
 
+    // Bildirişi göstərmək
     await fln.show(id, title, body, notificationDetails);
   }
+
 
   static Future<void> showFireBaseNoty({
     int id = 2,
