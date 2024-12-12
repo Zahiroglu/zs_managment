@@ -69,9 +69,9 @@ class LocalPermissionsController {
   Future<bool> permissionLocationAlways() async {
     bool hasPermission = false;
     int status = await BackgroundGeolocation.requestPermission();
-    if (status == ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
+    if (status == 3) {
       hasPermission=true;
-    } else if (status == ProviderChangeEvent.AUTHORIZATION_STATUS_WHEN_IN_USE) {
+    }else{
       hasPermission=false;
     }
     return Future<bool>.value(hasPermission);
