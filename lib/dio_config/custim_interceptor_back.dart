@@ -24,7 +24,6 @@ import 'package:get/get.dart' as getxt;
 
 class CustomInterceptorBack extends Interceptor {
   late CheckDviceType checkDviceType = CheckDviceType();
-  LocalUserServices localUserServices = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   Dio dio;
   LocalBazalar localBazalar = LocalBazalar();
@@ -46,10 +45,13 @@ class CustomInterceptorBack extends Interceptor {
 
   @override
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    await localUserServices.init();
-    String token = await localUserServices.getLoggedToken();
+    LocalUserServices localUserServicesa = LocalUserServices();
+    await localUserServicesa.init();
+    String token = await localUserServicesa.getLoggedToken();
+    String refreshToken = await localUserServicesa.getRefreshToken();
     print('Time :' + DateTime.now().toString() + ' Request[=> PATH:${options.path}] data :${options.data}');
-   print('Time :' + DateTime.now().toString() + options.headers.toString());
+  // print('Time :' + DateTime.now().toString() + options.headers.toString());
+   print('Time :' + DateTime.now().toString() + "Refresh token : "+refreshToken.toString());
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     } else {
@@ -73,8 +75,6 @@ class CustomInterceptorBack extends Interceptor {
         if (statusrefresh == 200) {
           return handler.resolve(await _retry(response.requestOptions));
         }
-      } else if (model.code == "007") {
-        //Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
       }
     }
     else {
@@ -93,17 +93,7 @@ class CustomInterceptorBack extends Interceptor {
           Get.back();
         }
       }
-    }}else{
-      Get.dialog(ShowInfoDialog(
-        color: Colors.red,
-        icon: Icons.error,
-        messaje: "serverBaglantiXetasi".tr,
-        callback: () {
-          Get.back();
-        },
-      ));
-
-    }
+    }}
     super.onResponse(response, handler);
   }
 
@@ -123,12 +113,12 @@ class CustomInterceptorBack extends Interceptor {
 
   Future<int> refreshAccessToken() async {
     int succes = 0;
+    LocalUserServices localUserServices = LocalUserServices();
     await localUserServices.init();
     loggedUserModel = localUserServices.getLoggedUser();
     String refreshToken = await localUserServices.getRefreshToken();
     String accesToken = await localUserServices.getLoggedToken();
     String languageIndex = await getLanguageIndex();
-    int dviceType = checkDviceType.getDviceType();
     final connectivityResult = await (Connectivity().checkConnectivity());
 
     if (connectivityResult == ConnectivityResult.none) {

@@ -119,9 +119,12 @@ class BackgroudLocationServiz extends GetxController {
         notification: bg.Notification(
           title: "ZS-CONTROL Aktivdir",
           text: "Fon rejimində izlənir.",
-          sticky: true, // Bildiriş bağlanmasın
-          channelId: "zs0001", // Unikal kanal ID
-          channelName: "zs-controll", // Kanal adı
+          sticky: true, // Bildiriş sabitdir
+          channelId: "zs0001",
+          channelName: "zs-controll",
+          strings: {
+            "myCustomElement": "My Custom Element Text"
+          },
           priority: bg.Config.NOTIFICATION_PRIORITY_MAX, // Yüksək prioritet
         ),
       )).then((bg.State state) async {

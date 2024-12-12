@@ -2,12 +2,31 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotyBackgroundTrack {
   static Future<void> initialize(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-    const androidInitialize = AndroidInitializationSettings('mipmap/ic_launcher');
-    const iOSInitialize = DarwinInitializationSettings();
-    const initializationSettings = InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
+    const androidInitialize = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iOSInitialize = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    const initializationSettings = InitializationSettings(
+      android: androidInitialize,
+      iOS: iOSInitialize,
+    );
+
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
+  static NotificationDetails _buildNotificationDetails({
+    required AndroidNotificationDetails androidDetails,
+  }) {
+    return NotificationDetails(
+      android: androidDetails,
+      iOS: const DarwinNotificationDetails(
+        presentAlert: true,
+        presentSound: true,
+      ),
+    );
+  }
 
   static Future<void> showUncleanbleNotification({
     int id = 0,
@@ -16,9 +35,9 @@ class NotyBackgroundTrack {
     String? payload,
     required FlutterLocalNotificationsPlugin fln,
   }) async {
-    const androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'you_can_name_it_whatever1',
-      'channel_name',
+    const androidDetails = AndroidNotificationDetails(
+      'uncleanable_channel',
+      'Uncleanable Notifications',
       ongoing: true,
       autoCancel: false,
       playSound: true,
@@ -26,11 +45,7 @@ class NotyBackgroundTrack {
       priority: Priority.high,
     );
 
-    const notificationDetails = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: DarwinNotificationDetails(),
-    );
-
+    final notificationDetails = _buildNotificationDetails(androidDetails: androidDetails);
     await fln.show(id, title, body, notificationDetails, payload: payload);
   }
 
@@ -41,22 +56,18 @@ class NotyBackgroundTrack {
     String? payload,
     required FlutterLocalNotificationsPlugin fln,
   }) async {
-    const androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'you_can_name_it_whatever1',
-      'channel_name',
+    const androidDetails = AndroidNotificationDetails(
+      'bigtext_channel',
+      'Big Text Notifications',
       ongoing: true,
       autoCancel: false,
-      icon: '@mipmap/ic_launcher', // Burada düzgün ikon təyin edin
+      icon: '@mipmap/ic_launcher',
       playSound: false,
       importance: Importance.max,
       priority: Priority.high,
     );
 
-    const notificationDetails = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: DarwinNotificationDetails(),
-    );
-
+    final notificationDetails = _buildNotificationDetails(androidDetails: androidDetails);
     await fln.show(id, title, body, notificationDetails, payload: payload);
   }
 
@@ -66,27 +77,21 @@ class NotyBackgroundTrack {
     required String body,
     required FlutterLocalNotificationsPlugin fln,
   }) async {
-    const androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'you_can_name_it_whatever1', // Kanal ID
-      'channel_namenew', // Kanal adı
-      ongoing: true, // Bildiriş davamlıdır, istifadəçi tərəfindən bağlanmaz
-      autoCancel: false, // Bildiriş avtomatik silinməz
-      playSound: true, // Səs çalınsın
-      sound: RawResourceAndroidNotificationSound('alarmsoundlocation'), // Səs faylı
-      importance: Importance.high, // Yüksək əhəmiyyət
-      priority: Priority.high, // Yüksək prioritet
-      icon: '@mipmap/ic_launcher', // Kiçik ikon
+    const androidDetails = AndroidNotificationDetails(
+      'alarm_channel',
+      'Alarm Notifications',
+      ongoing: true,
+      autoCancel: false,
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('alarmsoundlocation'),
+      icon: '@mipmap/ic_launcher',
     );
 
-    const notificationDetails = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: DarwinNotificationDetails(),
-    );
-
-    // Bildirişi göstərmək
+    final notificationDetails = _buildNotificationDetails(androidDetails: androidDetails);
     await fln.show(id, title, body, notificationDetails);
   }
-
 
   static Future<void> showFireBaseNoty({
     int id = 2,
@@ -94,22 +99,18 @@ class NotyBackgroundTrack {
     required String body,
     required FlutterLocalNotificationsPlugin fln,
   }) async {
-    const androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'you_can_name_it_whatever1',
-      'channel_namenew',
+    const androidDetails = AndroidNotificationDetails(
+      'firebase_channel',
+      'Firebase Notifications',
       ongoing: false,
-      autoCancel: false,
+      autoCancel: true,
       playSound: true,
       sound: RawResourceAndroidNotificationSound('navsound'),
       importance: Importance.high,
       priority: Priority.high,
     );
 
-    const notificationDetails = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: DarwinNotificationDetails(),
-    );
-
+    final notificationDetails = _buildNotificationDetails(androidDetails: androidDetails);
     await fln.show(id, title, body, notificationDetails);
   }
 }

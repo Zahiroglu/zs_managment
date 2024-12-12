@@ -48,7 +48,7 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 as bg;
 
 
-Future<void>  main() async{
+Future<void>  main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp(options: const FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w',
   //     appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',
@@ -179,9 +179,10 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
     if(!hasInternet){
       print("Samir: Mobil data deaktivdir. Zəhmət olmasa aktivləşdirin.");
       await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-
       isTaskRunning = false; // Taskı bitir
       return;
+    }else{
+      await flutterLocalNotificationsPlugin.cancel(1);
     }
     // GPS statusunu yoxla
     bool isGPSEnabled = await Geolocator.isLocationServiceEnabled();
@@ -191,6 +192,8 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
 
       isTaskRunning = false; // Taskı bitir
       return;
+    }else{
+      await flutterLocalNotificationsPlugin.cancel(1);
     }
     // konum bilgilerini yoxla
     if (location.mock) {
@@ -217,9 +220,6 @@ Future<bool> checkMobileDataStatus() async {
   if (connectivityResult == ConnectivityResult.mobile) {
     print("Mobil data aktivdir.");
     return true;
-  } else if (connectivityResult == ConnectivityResult.wifi) {
-    print("Wi-Fi bağlıdır, mobil data istifadə edilmir.");
-    return true;
   } else {
     print("Heç bir şəbəkə bağlantısı yoxdur.");
     return false;
@@ -230,7 +230,7 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   LocalUserServices userService = LocalUserServices();
   LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
-  LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();  await userService.init();
+  LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
  // await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
   await userService.init();
   await localBackgroundEvents.init();
