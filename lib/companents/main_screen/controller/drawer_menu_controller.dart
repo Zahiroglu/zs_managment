@@ -708,25 +708,29 @@ class DrawerMenuController extends getx.GetxController {
         );
         break;
       case "userscontrol":
-        if (desktop) {
-          pageView = const UserPanelScreen();
-        } else {
-          pageView =  UsersPanelScreenMobile(drawerMenuController: this,);
-        }
+        pageView =  UsersPanelScreenMobile(drawerMenuController: this,);
         break;
       case "setting":
         pageView =  SettingScreenMobile(drawerMenuController: this,);
       case "enterScreen":
+         print("enterScreen basildi");
        await localAppSetting.init();
        modelAppSetting = await localAppSetting.getAvaibleMap();
        if(modelAppSetting.userStartWork==true) {
+         print("modelAppSetting.userStartWork==true");
          if (localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!)) {
+           print("localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!) : "+localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!).toString());
            if (modelAppSetting.girisCixisType == "map") {
+             print("xerite sehfesi secildi");
              pageView = const YeniGirisCixisMap();
+             update();
            } else {
+             print("ScreenGirisCixisReklam secildi");
              pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
+             update();
            }
          } else {
+           print("cari baza bosdu");
            Get.dialog(ShowInfoDialog(
                messaje: "baseEmptyCari".tr,
                icon: Icons.mobiledata_off,
@@ -736,6 +740,7 @@ class DrawerMenuController extends getx.GetxController {
                }));
          }
        }else{
+         print("modelAppSetting.userStartWork==false");
          Get.dialog(ShowInfoDialog(
              messaje: "infoErrorStartWork".tr,
              icon: Icons.work_history,
@@ -744,7 +749,9 @@ class DrawerMenuController extends getx.GetxController {
                Get.back();
                update();
              }));
-       }break;
+       }
+        update();
+        break;
       case "sellDetal":
         pageView= ScreenSifarislereBax(drawerMenuController: this,);
         break;
@@ -769,7 +776,9 @@ class DrawerMenuController extends getx.GetxController {
                   Get.back();
                   update();
                 }));
-          } break;
+          }
+          update();
+          break;
       case "logout":
       //  logOut();
         break;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/unsended_errors.dart';
@@ -34,10 +35,10 @@ class ScreenGirisCixisReklam extends StatefulWidget {
 
 class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
     with WidgetsBindingObserver {
-  ControllerGirisCixisReklam controllerGirisCixis =
-      Get.put(ControllerGirisCixisReklam());
+  ControllerGirisCixisReklam controllerGirisCixis = Get.put(ControllerGirisCixisReklam());
   PageController pageController = PageController();
   late bg.Location _currentLocation;
+
 
   //late LocationSettings locationSettings;
   int defaultTargetPlatform = 0;
@@ -54,37 +55,16 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   bool marketeCixisIcazesi = false;
   ScrollController scrollController = ScrollController();
 
-  //final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
-  //StreamSubscription<Position>? _positionStreamSubscription;
   bool positionStreamStarted = false;
   LocalUserServices userService = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   UserPermitionsHelper permitionsHelper = UserPermitionsHelper();
+  BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
 
   @override
   void initState() {
     initConfigrations();
     WidgetsBinding.instance.addObserver(this);
-    //confiqGeolocatior();
-    // bg.BackgroundGeolocation.onLocation((bg.Location location) {
-    //   if(controllerGirisCixis.initialized){
-    //     controllerGirisCixis.getGirisEdilmisCari(LatLng(v.coords.latitude, v.coords.longitude));
-    //   }
-    //   setState(() {
-    //     _currentLocation= bg.Location(v.coords);
-    //     //  _currentLocation = bg.Location({
-    //     //    "latitude": v.coords.latitude,
-    //     //    "longitude": v.coords.longitude,
-    //     //    "accuracy": v.coords.accuracy,
-    //     //    "altitude": v.coords.altitude,
-    //     //    "speed": v.coords.speed,
-    //     //    "heading": v.coords.heading,
-    //     //    "timestamp": v.timestamp,
-    //     //    "mock": v.mock, // Mock olub-olmamasını göstərir
-    //     //  });
-    //     controllerGirisCixis.dataLoading.value = false;
-    //   });
-    // });
     bg.BackgroundGeolocation.getCurrentPosition().then((v) {
       if (controllerGirisCixis.initialized) {
         controllerGirisCixis
@@ -95,19 +75,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
         controllerGirisCixis.dataLoading.value = false;
       });
     });
-    // _determinePosition().then((value) {
-    //   setState(() {
-    //     if(controllerGirisCixis.initialized){
-    //       controllerGirisCixis.getGirisEdilmisCari(LatLng(value.latitude, value.longitude));
-    //     }
-    //     setState(() {
-    //       _currentLocation=value;
-    //       controllerGirisCixis.dataLoading.value = false;
-    //     });
-    //   });
-    // });
-    //_toggleListening();
-    // TODO: implement initState
     super.initState();
   }
 
@@ -1320,6 +1287,28 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                       const SizedBox(
                                         height: 5,
                                       ),
+                                      Expanded(
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            CustomText(
+                                              labeltext:"mesafe".tr+" : ",
+                                              fontsize: 14,
+                                              maxline: 1,
+                                              textAlign: TextAlign.start,
+                                            ),
+                                            CustomText(
+                                              labeltext:secilenMarketdenUzaqliqString,
+                                              fontsize: 14,
+                                              maxline: 1,
+                                              fontWeight: FontWeight.bold,
+                                              textAlign: TextAlign.start,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
                                     ],
                                   )
                                 : Column(
@@ -1361,7 +1350,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                               secilenMarketdenUzaqliq,
                                               e,
                                               model);
-                                          //Get.back();
                                         },
                                         label: "giris".tr)
                                   ],
@@ -1741,10 +1729,8 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
       secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(
           v.coords.latitude,
           v.coords.longitude,
-          double.parse(
-              controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!),
-          double.parse(
-              controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!));
+          double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!),
+          double.parse(controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!));
       if (secilenMarketdenUzaqliq > 1) {
         secilenMarketdenUzaqliqString =
             "${(secilenMarketdenUzaqliq).round()} km";
@@ -1790,6 +1776,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                             ],
                           ),
                         ),
+
                         const SizedBox(
                           height: 5,
                         ),
@@ -1848,6 +1835,29 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                           ),
                         ),
                         Expanded(
+                          flex: 2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: CustomText(
+                                    labeltext: "mesafe".tr,
+                                    fontsize: 14,
+                                    fontWeight: FontWeight.normal),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: CustomText(
+                                    labeltext: secilenMarketdenUzaqliqString,
+                                    fontsize: 14,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Expanded(
                           flex: marketeCixisIcazesi ? 3 : 0,
                           child: marketeCixisIcazesi
                               ? Row(
@@ -1863,9 +1873,11 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                         textColor: Colors.red,
                                         icon: Icons.exit_to_app_rounded,
                                         elevation: 5,
-                                        cllback: () {
-                                          cixisEt(secilenMarketdenUzaqliq, v);
-                                          Get.back();
+                                        cllback: () async {
+                                        await  backgroudLocationServiz.stopBackGroundFetch().whenComplete((){
+                                             cixisEt(secilenMarketdenUzaqliq, v);
+                                            Get.back();
+                                          });
                                         },
                                         label: "cixiset".tr)
                                   ],

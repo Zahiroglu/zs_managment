@@ -136,7 +136,7 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
               height: 10,
             ),
             CustomText(
-              labeltext: "${settingPanelController.modelModule.value.username??""!} ${settingPanelController.modelModule.value.surname}",
+              labeltext: "${settingPanelController.modelModule.value.username!.toUpperCase()} ${settingPanelController.modelModule.value.surname}",
               fontWeight: FontWeight.w600,
               fontsize: 14,
               textAlign: TextAlign.center,

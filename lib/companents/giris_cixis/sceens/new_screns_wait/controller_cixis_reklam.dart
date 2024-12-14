@@ -2536,8 +2536,7 @@ class ControllerCixisReklam extends GetxController {
 
   Future<void> girisiLocaldaTesdiqleLast(Position? currentLocation, double uzaqliq, ModelCustuomerVisit? modela, ModelCariler? selectedModel) async {
     //listTapsiriqlar.value = ModelResponceTask().getListOfTask();
-    await backgroudLocationServiz.startBackgorundFetck().then((v) async {
-      createCircles(selectedModel!.longitude!, selectedModel.latitude!, selectedModel.code!);
+    createCircles(selectedModel!.longitude!, selectedModel.latitude!, selectedModel.code!);
       ModelCariler modelCari = listCariler.where((a) => a.code == modela!.customerCode).first;
       modelCari.ziyaret = "1";
       await localBase.updateModelCari(modelCari);
@@ -2553,8 +2552,6 @@ class ControllerCixisReklam extends GetxController {
       marketeGirisEdilib.value = true;
       modelgirisEdilmis.value = modela;
       sndeQalmaVaxtiniHesabla();
-    });
-
     update();
   }
 

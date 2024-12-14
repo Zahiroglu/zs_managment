@@ -84,13 +84,13 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-                color: Colors.white,
+                color:Get.isDarkMode?Colors.black: Colors.white,
                 boxShadow: [
                   BoxShadow(
                       color: widget.modelCariHesabatlar.color!,
-                      offset: const Offset(2, 2),
-                      spreadRadius: 0.1,
-                      blurRadius: 2)
+                      offset: const Offset(3, 3),
+                      spreadRadius: 0.5,
+                      blurRadius: 5)
                 ],
                 border: Border.all(
                     color: widget.modelCariHesabatlar.color!.withOpacity(0.5)),

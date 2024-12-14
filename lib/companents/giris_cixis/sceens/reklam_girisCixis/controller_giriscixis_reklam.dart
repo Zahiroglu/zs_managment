@@ -85,7 +85,6 @@ class ControllerGirisCixisReklam extends GetxController {
   RxList<ModelCariKassa> selectedlistKassa = List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
   Rx<UserModel> selectedTemsilci = UserModel(code: "h", name: "hamisi".tr).obs;
-  BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
   //BackGroudTask backgroudLocationServiz = BackGroudTask();
   late CheckDviceType checkDviceType = CheckDviceType();
   ExeptionHandler exeptionHandler = ExeptionHandler();
@@ -95,6 +94,7 @@ class ControllerGirisCixisReklam extends GetxController {
   RxDouble currentLat=0.0.obs;
   RxDouble currentLong=0.0.obs;
   Rx<ModelTamItemsGiris> selectedTabItem=ModelTamItemsGiris().obs;
+  BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
 
   ///list tapsiriqlar
   RxList<ModelResponceTask> listTapsiriqlar = List<ModelResponceTask>.empty(growable: true).obs;
@@ -2155,7 +2155,6 @@ class ControllerGirisCixisReklam extends GetxController {
             ctKassaDialog.text = "";
             ctCixisQeyd.text = "";
             update();
-            backgroudLocationServiz.stopBackGroundFetch();
           }
           Get.back();
         }));
@@ -2238,6 +2237,7 @@ class ControllerGirisCixisReklam extends GetxController {
           }));
     }
   }
+
 
   Future<void> checkAllVisits(bg.Location currentLocation, ModelCariler selectedModel, double uzaqliq, bool isEnter) async {
     ModelCustuomerVisit modela = ModelCustuomerVisit();
@@ -2488,8 +2488,11 @@ class ControllerGirisCixisReklam extends GetxController {
       DialogHelper.hideLoading();
       modelVisit.gonderilme = "1";
       if (isEnter) {
-        funFlutterToast("ugurluApiGiris", true);
-        girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+        await backgroudLocationServiz.startBackgorundFetck(modelVisit).then((v){
+          funFlutterToast("ugurluApiGiris", true);
+          girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+        });
+
       } else {
         funFlutterToast("ugurluApiCixis", true);
         cixisiLocaldaTesdiqleLast(
@@ -2531,7 +2534,6 @@ class ControllerGirisCixisReklam extends GetxController {
     DrawerMenuController controller = Get.put(DrawerMenuController());
     controller.onInit();
     controller.addPermisionsInDrawerMenu(loggedUserModel);
-    backgroudLocationServiz.stopBackGroundFetch();
     listTapsiriqlar.clear();
     await getGirisEdilmisCari(map.LatLng(currentLocation!.coords.latitude, currentLocation.coords.longitude,));
     update();
@@ -2552,7 +2554,6 @@ class ControllerGirisCixisReklam extends GetxController {
     leftSideMenuVisible.value = true;
     rightSideMenuVisible.value = true;
     //listTapsiriqlar.value = ModelResponceTask().getListOfTask();
-    await backgroudLocationServiz.startBackgorundFetck();
     marketeGirisEdilib.value = true;
     modelgirisEdilmis.value = modela;
     sndeQalmaVaxtiniHesabla();

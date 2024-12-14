@@ -77,44 +77,10 @@ class ControllerMercPref extends GetxController {
     modelInOut.clear();
     listZiyeretEdilmeyenler.clear();
     listMercBaza.clear();
-    listTabItems.clear();
     listGunlukGirisCixislar.clear();
     listGirisCixislar.clear();
-
-    // Model dəyərlərini yenidən təyin edirik
-    selectedMercBaza.value = model;
-
-    // Giriş-çıxış siyahısı boş deyilsə
-    if (listGirisCixis.isNotEmpty) {
-      modelInOut.value = listGirisCixis;
-      // Giriş-çıxış günlərini əlavə edirik
-      listGunlukGirisCixislar.addAll(modelInOut.first.modelInOutDays);
-      // Günlük giriş-çıxış siyahısını doldururuq
-      for (var element in listGunlukGirisCixislar) {
-        listGirisCixislar.addAll(element.modelInOut);
-      }
-    }
-    // İstifadəçilərin siyahısını təyin edirik
-   // listUsers.value = listUser;
-    // Müştərilərin ziyarət məlumatlarını yeniləyirik
-    for (MercCustomersDatail model in model.mercCustomersDatail!) {
-      model.ziyaretSayi = listGirisCixislar
-          .where((a) => a.customerCode == model.code)
-          .length;
-      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixislar
-          .where((e) => e.customerCode == model.code)
-          .toList());
-      listMercBaza.add(model);
-    }
-    // Rut günlərini təyin edirik
-    listRutGunleri.value = listMercBaza
-        .where((p0) => p0.days!.any((element) => element.day == 1))
-        .toList();
-
-    // Ziyarət edilməyən müştəriləri təyin edirik
-    listZiyeretEdilmeyenler.value =listMercBaza.where((p0) => p0.ziyaretSayi == 0).toList();
-
-    // Tab elementlərini təyin edirik
+// Tab elementlərini təyin edirik
+    listTabItems.clear();
     listTabItems.value = [
       ModelTamItemsGiris(
         icon: Icons.list_alt,
@@ -146,6 +112,39 @@ class ControllerMercPref extends GetxController {
       ),
 
     ];
+    // Model dəyərlərini yenidən təyin edirik
+    selectedMercBaza.value = model;
+    // Giriş-çıxış siyahısı boş deyilsə
+    if (listGirisCixis.isNotEmpty) {
+      modelInOut.value = listGirisCixis;
+      // Giriş-çıxış günlərini əlavə edirik
+      listGunlukGirisCixislar.addAll(modelInOut.first.modelInOutDays);
+      // Günlük giriş-çıxış siyahısını doldururuq
+      for (var element in listGunlukGirisCixislar) {
+        listGirisCixislar.addAll(element.modelInOut);
+      }
+    }
+    // İstifadəçilərin siyahısını təyin edirik
+   // listUsers.value = listUser;
+    // Müştərilərin ziyarət məlumatlarını yeniləyirik
+    for (MercCustomersDatail model in model.mercCustomersDatail!) {
+      model.ziyaretSayi = listGirisCixislar
+          .where((a) => a.customerCode == model.code)
+          .length;
+      model.sndeQalmaVaxti = curculateTimeDistanceForVisit(listGirisCixislar
+          .where((e) => e.customerCode == model.code)
+          .toList());
+      listMercBaza.add(model);
+    }
+    // Rut günlərini təyin edirik
+    listRutGunleri.value = listMercBaza
+        .where((p0) => p0.days!.any((element) => element.day == 1))
+        .toList();
+
+    // Ziyarət edilməyən müştəriləri təyin edirik
+    listZiyeretEdilmeyenler.value =listMercBaza.where((p0) => p0.ziyaretSayi == 0).toList();
+
+
     // Əgər giriş-çıxışlar varsa, ziyarət edilməyənlər üçün əlavə tab yaradırıq
     // if (listGirisCixis.isNotEmpty) {
     //   if (listZiyeretEdilmeyenler.isNotEmpty) {
@@ -172,7 +171,6 @@ class ControllerMercPref extends GetxController {
 
     // Günə görə məlumatları doldururuq
     melumatlariGuneGoreDoldur();
-
     // UI yenilənməsi üçün çağırış
     dataLoading.value=false;
     update();
@@ -238,7 +236,8 @@ class ControllerMercPref extends GetxController {
     return d.substring(0).replaceFirst(RegExp(r'\.?0*$'), '');
   }
 
-  void changeRutGunu(int tr) {
+  Future<void> changeRutGunu(int tr) async {
+    await userLocalService.init();
     loggedUserModel=userLocalService.getLoggedUser();
     listRutGunleri.clear();
     switch (tr) {

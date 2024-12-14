@@ -215,7 +215,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
                                 elevation: 10,
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Expanded(
@@ -355,7 +355,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   }
 
   Future<void> melumatlariEndir(ModelDownloads model, bool guncelle) async {
-    print("element code :"+model.toString());
     switch (model.code) {
       case "myConnectedUsers":
         await localGirisCixisServiz.init();
@@ -363,12 +362,11 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         updateElementDownloading(model,true);
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
-        updateElementDownloading(model,false);
-          model.lastDownDay = DateTime.now().toIso8601String();
-          model.musteDonwload = false;
-          localBaseDownloads.addDownloadedBaseInfo(model);
+        model.lastDownDay = DateTime.now().toIso8601String();
+        model.musteDonwload = false;
+        localBaseDownloads.addDownloadedBaseInfo(model);
           await localBaseDownloads.addConnectedUsers(listUser);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+          updateElementDownloading(model,false);
 
         break;
       case "downanbar":
@@ -377,11 +375,10 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         loggedUserModel = localUserServices.getLoggedUser();
         List<ModelAnbarRapor> data = await getDataAnbar();
         await localBaseDownloads.addAnbarBaza(data);
-        updateElementDownloading(model,false);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+        updateElementDownloading(model,false);
 
         break;
       case "enterScreen":
@@ -398,13 +395,12 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
             data = await getAllMercCariBazaMotivasiya();
           });
         }
-        updateElementDownloading(model,false);
           // listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+        updateElementDownloading(model,false);
           // listDonwloads.add(model);
 
       case "myRut":
@@ -415,24 +411,22 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         await localGirisCixisServiz.init();
         updateElementDownloading(model,true);
         List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
-        updateElementDownloading(model,false);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+        updateElementDownloading(model,false);
 
         break;
       case "donwSingleMercBaza":
         await localGirisCixisServiz.init();
         updateElementDownloading(model,true);
         List<MercDataModel> data = await getSingleMercCariBazaMotivasiya();
-        updateElementDownloading(model,false);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+        updateElementDownloading(model,false);
 
         break;
     }
@@ -455,39 +449,41 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         callback: () {},
       ));
     } else {
+      try{
+        final response = await ApiClient().dio(false).get(
+          AppConstands.baseUrlsMain+"/UserControl/GetUsersWithConnectedMe",
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'smr': '12345',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
 
-      final response = await ApiClient().dio(false).get(
-        AppConstands.baseUrlsMain+"/UserControl/GetUsersWithConnectedMe",
-        options: Options(
-          receiveTimeout: const Duration(seconds: 60),
-          headers: {
-            'Lang': languageIndex,
-            'Device': dviceType,
-            'smr': '12345',
-            "Authorization": "Bearer $accesToken"
-          },
-          validateStatus: (_) => true,
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.json,
-        ),
-      );
+        if (response.statusCode == 200) {
+          var userlist = json.encode(response.data['Result']);
+          List listuser = jsonDecode(userlist);
+          for (var i in listuser) {
+            listUsers.add(UserModel(
+              id: i['Id'],
+              roleName: i['RoleName'],
+              roleId: i['RoleId'],
+              code: i['Code'],
+              name: i['Name'],
+              gender: 0,
+            ));
+          }
 
-      if (response.statusCode == 200) {
-        var userlist = json.encode(response.data['Result']);
-        List listuser = jsonDecode(userlist);
-        for (var i in listuser) {
-          listUsers.add(UserModel(
-            id: i['Id'],
-            roleName: i['RoleName'],
-            roleId: i['RoleId'],
-            code: i['Code'],
-            name: i['Name'],
-            gender: 0,
-          ));
         }
-
-      }}
-
+      }catch(Exeption){
+      }
+      }
     return listUsers;
   }
 
@@ -600,7 +596,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           responseType: ResponseType.json,
         ),
       );
-      print("respince : "+response.toString());
       if (response.statusCode == 200) {
         List<UserModel> listConnectedMercs =[];
         var dataModel = json.encode(response.data['Result']);
@@ -616,7 +611,8 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
 
         }
         await localBaseDownloads.addConnectedUsers(listConnectedMercs);
-      }    }
+      }
+    }
     return listUsers;
   }
 
@@ -661,7 +657,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           responseType: ResponseType.json,
         ),
       );
-      print("respince : "+response.toString());
       if (response.statusCode == 200) {
         var dataModel = json.encode(response.data['Result']);
         List listuser = jsonDecode(dataModel);
@@ -850,6 +845,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
   void updateElementDownloading(ModelDownloads model, bool isdownloading) {
     model.donloading=isdownloading;
     listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-
+   update;
   }
 }

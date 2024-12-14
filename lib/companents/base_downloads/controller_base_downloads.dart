@@ -317,14 +317,11 @@ class ControllerBaseDownloads extends GetxController {
         updateElementDownloading(model,true);
         loggedUserModel = localUserServices.getLoggedUser();
         List<UserModel> listUser = await getAllConnectedUsers();
-        updateElementDownloading(model,false);
-        if (listUser.isNotEmpty) {
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           await localBaseDownloads.addConnectedUsers(listUser);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-        }
+          updateElementDownloading(model,false);
         break;
       case "downanbar":
         await localGirisCixisServiz.init();
@@ -332,14 +329,12 @@ class ControllerBaseDownloads extends GetxController {
         loggedUserModel = localUserServices.getLoggedUser();
         List<ModelAnbarRapor> data = await getDataAnbar();
         await localBaseDownloads.addAnbarBaza(data);
-        updateElementDownloading(model,false);
-        if (data.isNotEmpty) {
           //listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-        }
+        updateElementDownloading(model,false);
+
         break;
       case "enterScreen":
         loggedUserModel = localUserServices.getLoggedUser();
@@ -353,16 +348,14 @@ class ControllerBaseDownloads extends GetxController {
               data = await getAllMercCariBazaMotivasiya();
           });
         }
-        updateElementDownloading(model,false);
-        if (data.isNotEmpty) {
           // listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
+        updateElementDownloading(model,false);
           // listDonwloads.add(model);
-        }
+
       case "myRut":
         await localGirisCixisServiz.init();
         loggedUserModel = localUserServices.getLoggedUser();
@@ -372,29 +365,23 @@ class ControllerBaseDownloads extends GetxController {
         updateElementDownloading(model,true);
         List<MercDataModel> data = await getAllMercCariBazaMotivasiya();
         updateElementDownloading(model,false);
-        if (data.isNotEmpty) {
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
-          listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-        }
+        updateElementDownloading(model,false);
         break;
       case "donwSingleMercBaza":
         await localGirisCixisServiz.init();
         updateElementDownloading(model,true);
-        await getAllGirisCixis(loggedUserModel.userModel!.code!,
-            loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
+        await getAllGirisCixis(loggedUserModel.userModel!.code!, loggedUserModel.userModel!.roleId.toString());
           List<MercDataModel> data = await getSingleMercCariBazaMotivasiya();
           updateElementDownloading(model,false);
-          if (data.isNotEmpty) {
             model.lastDownDay = DateTime.now().toIso8601String();
             model.musteDonwload = false;
             localBaseDownloads.addDownloadedBaseInfo(model);
             localBaseDownloads.addAllToMercBase(data);
-            listDonwloads[listDonwloads.indexWhere((e) => e.code == model.code)] = model;
-          }
-        });
+          updateElementDownloading(model,false);
 
         break;
     }
@@ -417,6 +404,7 @@ class ControllerBaseDownloads extends GetxController {
         callback: () {},
       ));
     } else {
+      try{
 
         final response = await ApiClient().dio(false).get(
           AppConstands.baseUrlsMain+"/UserControl/GetUsersWithConnectedMe",
@@ -438,17 +426,22 @@ class ControllerBaseDownloads extends GetxController {
           var userlist = json.encode(response.data['Result']);
           List listuser = jsonDecode(userlist);
           for (var i in listuser) {
-              listUsers.add(UserModel(
-                id: i['Id'],
-                roleName: i['RoleName'],
-                roleId: i['RoleId'],
-                code: i['Code'],
-                name: i['Name'],
-                gender: 0,
-              ));
-            }
+            listUsers.add(UserModel(
+              id: i['Id'],
+              roleName: i['RoleName'],
+              roleId: i['RoleId'],
+              code: i['Code'],
+              name: i['Name'],
+              gender: 0,
+            ));
+          }
 
-        }}
+        }
+      }catch(e){
+        print(e);
+      }
+      }
+
 
     return listUsers;
   }
@@ -547,6 +540,7 @@ class ControllerBaseDownloads extends GetxController {
         callback: () {},
       ));
     } else {
+      try{
        var response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/MercSystem/getAllMercRout",
           data: data,
@@ -562,23 +556,26 @@ class ControllerBaseDownloads extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-       print("respince : "+response.toString());
-      if (response.statusCode == 200) {
-        List<UserModel> listConnectedMercs =[];
-        var dataModel = json.encode(response.data['Result']);
-        List listuser = jsonDecode(dataModel);
-        for (var i in listuser) {
-          listUsers.add(MercDataModel.fromJson(i));
-          listConnectedMercs.add(UserModel(
-              roleName: MercDataModel.fromJson(i).user!.roleName,
-              roleId: MercDataModel.fromJson(i).user!.roleId,
-              name: MercDataModel.fromJson(i).user!.name,
-              code: MercDataModel.fromJson(i).user!.code,
-              gender: 0));
 
-        }
-        await localBaseDownloads.addConnectedUsers(listConnectedMercs);
-      }
+       if (response.statusCode == 200) {
+         List<UserModel> listConnectedMercs =[];
+         var dataModel = json.encode(response.data['Result']);
+         List listuser = jsonDecode(dataModel);
+         for (var i in listuser) {
+           listUsers.add(MercDataModel.fromJson(i));
+           listConnectedMercs.add(UserModel(
+               roleName: MercDataModel.fromJson(i).user!.roleName,
+               roleId: MercDataModel.fromJson(i).user!.roleId,
+               name: MercDataModel.fromJson(i).user!.name,
+               code: MercDataModel.fromJson(i).user!.code,
+               gender: 0));
+
+         }
+         await localBaseDownloads.addConnectedUsers(listConnectedMercs);
+       }
+     }catch(ex){
+       return [];
+     }
     }
     return listUsers;
   }
@@ -609,29 +606,32 @@ class ControllerBaseDownloads extends GetxController {
         callback: () {},
       ));
     } else {
-      var response = await ApiClient().dio(false).post(
-        "${loggedUserModel.baseUrl}/MercSystem/getAllMercRout",
-        data: data,
-        options: Options(
-          headers: {
-            'Lang': languageIndex,
-            'Device': dviceType,
-            'smr': '12345',
-            "Authorization": "Bearer $accesToken"
-          },
-          validateStatus: (_) => true,
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.json,
-        ),
-      );
-      print("respince : "+response.toString());
-      if (response.statusCode == 200) {
-        var dataModel = json.encode(response.data['Result']);
-        List listuser = jsonDecode(dataModel);
-        for (var i in listuser) {
-          listUsers.add(MercDataModel.fromJson(i));
-        }
-      }
+     try{
+       var response = await ApiClient().dio(false).post(
+         "${loggedUserModel.baseUrl}/MercSystem/getAllMercRout",
+         data: data,
+         options: Options(
+           headers: {
+             'Lang': languageIndex,
+             'Device': dviceType,
+             'smr': '12345',
+             "Authorization": "Bearer $accesToken"
+           },
+           validateStatus: (_) => true,
+           contentType: Headers.jsonContentType,
+           responseType: ResponseType.json,
+         ),
+       );
+       if (response.statusCode == 200) {
+         var dataModel = json.encode(response.data['Result']);
+         List listuser = jsonDecode(dataModel);
+         for (var i in listuser) {
+           listUsers.add(MercDataModel.fromJson(i));
+         }
+       }
+     }catch(e){
+       print(e);
+     }
     }
     return listUsers;
   }
@@ -693,29 +693,33 @@ class ControllerBaseDownloads extends GetxController {
         callback: () {},
       ));
     } else {
-      final response = await ApiClient().dio(false).post(
-        "${loggedUserModel.baseUrl}/Anbar/GetAnbarBaze",
-        data: data,
-        options: Options(
-          headers: {
-            'Lang': languageIndex,
-            'Device': dviceType,
-            'smr': '12345',
-            "Authorization": "Bearer $accesToken"
-          },
-          validateStatus: (_) => true,
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.json,
-        ),
-      );
+     try{
+       final response = await ApiClient().dio(false).post(
+         "${loggedUserModel.baseUrl}/Anbar/GetAnbarBaze",
+         data: data,
+         options: Options(
+           headers: {
+             'Lang': languageIndex,
+             'Device': dviceType,
+             'smr': '12345',
+             "Authorization": "Bearer $accesToken"
+           },
+           validateStatus: (_) => true,
+           contentType: Headers.jsonContentType,
+           responseType: ResponseType.json,
+         ),
+       );
 
-      if (response.statusCode == 200) {
-        var dataModel = json.encode(response.data['Result']);
-        List listuser = jsonDecode(dataModel);
-        for (var i in listuser) {
-          listProducts.add(ModelAnbarRapor.fromJson(i));
-        }
-      }
+       if (response.statusCode == 200) {
+         var dataModel = json.encode(response.data['Result']);
+         List listuser = jsonDecode(dataModel);
+         for (var i in listuser) {
+           listProducts.add(ModelAnbarRapor.fromJson(i));
+         }
+       }
+     }catch(e){
+       print(e);
+     }
     }
     return listProducts;
   }

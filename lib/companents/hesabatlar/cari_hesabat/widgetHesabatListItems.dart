@@ -53,7 +53,7 @@ class _WidgetHesabatListItemsCariState extends State<WidgetHesabatListItemsCari>
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-                color: Colors.white,
+                color: Get.isDarkMode?Colors.black:Colors.white,
                 boxShadow: [
                   BoxShadow(
                       color: widget.modelCariHesabatlar.color!,
