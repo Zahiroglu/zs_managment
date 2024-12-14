@@ -54,8 +54,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   bool marketeCixisIcazesi = false;
   ScrollController scrollController = ScrollController();
 
-  //final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
-  //StreamSubscription<Position>? _positionStreamSubscription;
   bool positionStreamStarted = false;
   LocalUserServices userService = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
@@ -65,26 +63,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   void initState() {
     initConfigrations();
     WidgetsBinding.instance.addObserver(this);
-    //confiqGeolocatior();
-    // bg.BackgroundGeolocation.onLocation((bg.Location location) {
-    //   if(controllerGirisCixis.initialized){
-    //     controllerGirisCixis.getGirisEdilmisCari(LatLng(v.coords.latitude, v.coords.longitude));
-    //   }
-    //   setState(() {
-    //     _currentLocation= bg.Location(v.coords);
-    //     //  _currentLocation = bg.Location({
-    //     //    "latitude": v.coords.latitude,
-    //     //    "longitude": v.coords.longitude,
-    //     //    "accuracy": v.coords.accuracy,
-    //     //    "altitude": v.coords.altitude,
-    //     //    "speed": v.coords.speed,
-    //     //    "heading": v.coords.heading,
-    //     //    "timestamp": v.timestamp,
-    //     //    "mock": v.mock, // Mock olub-olmamasını göstərir
-    //     //  });
-    //     controllerGirisCixis.dataLoading.value = false;
-    //   });
-    // });
     bg.BackgroundGeolocation.getCurrentPosition().then((v) {
       if (controllerGirisCixis.initialized) {
         controllerGirisCixis
@@ -95,19 +73,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
         controllerGirisCixis.dataLoading.value = false;
       });
     });
-    // _determinePosition().then((value) {
-    //   setState(() {
-    //     if(controllerGirisCixis.initialized){
-    //       controllerGirisCixis.getGirisEdilmisCari(LatLng(value.latitude, value.longitude));
-    //     }
-    //     setState(() {
-    //       _currentLocation=value;
-    //       controllerGirisCixis.dataLoading.value = false;
-    //     });
-    //   });
-    // });
-    //_toggleListening();
-    // TODO: implement initState
     super.initState();
   }
 

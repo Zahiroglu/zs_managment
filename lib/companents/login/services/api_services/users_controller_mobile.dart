@@ -222,45 +222,42 @@ class UserApiControllerMobile extends GetxController {
       return false;
     } else {
       try {
-        final response = await ApiClient().dio(false).get(
-              "${loggedUserModel.baseUrl}/api/v1/User/myinfo",
-              data: {
-                "deviceId": dviceId.value,
-                "macAddress": "123-123-123-123"
-              },
-              options: Options(
-                headers: {
-                  'Lang': languageCode,
-                  'Device': dviceType,
-                  'abs': '123456',
-                  "Authorization": "Bearer ${loggedUserModel.tokenModel!.accessToken}"
-                },
-                validateStatus: (_) => true,
-                contentType: Headers.jsonContentType,
-                responseType: ResponseType.json,
-              ),
-            );
+        final response = await ApiClient().dio(true).post(
+          AppConstands.baseUrlsMain+"/v1/LoginController/LoginWithDeviceId",
+          data: {
+            "deviceId":  loggedUserModel.userModel!.deviceId!,
+            "firebaseId": "string",
+            "macAddress": "string"
+
+          },
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': checkDviceType.getDviceType(),
+              'smr': '12345'
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
         if (response.statusCode == 200) {
-          BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-          UserModel modelUser = UserModel.fromJson(baseResponce.result['user']);
-          CompanyModel modelCompany = CompanyModel.fromJson(baseResponce.result['company']);
-          LoggedUserModel modelLogged = LoggedUserModel(
-              isLogged: true,
-              companyModel: modelCompany,
-              tokenModel:  loggedUserModel.tokenModel,
-              baseUrl: loggedUserModel.baseUrl,
-              userModel: modelUser);
+          LoggedUserModel modelLogged = LoggedUserModel.fromJson(response.data['Result']);
+          await localUserServices.init();
           await localUserServices.addUserToLocalDB(modelLogged);
-          //await Get.delete<DrawerMenuController>();
-          //await Get.delete<SettingPanelController>();
           DrawerMenuController drawerMenuController = Get.put(DrawerMenuController());
           SettingPanelController settingcontroller = Get.put(SettingPanelController());
-          await settingcontroller.getCurrentLoggedUserFromLocale(modelUser);
+          await settingcontroller.getCurrentLoggedUserFromLocale(modelLogged.userModel);
           await drawerMenuController.addPermisionsInDrawerMenu(modelLogged);
           isSucces = true;
           DialogHelper.hideLoading();
+        }else{
+          isSucces = false;
+          DialogHelper.hideLoading();
         }
       } on DioException catch (e) {
+        DialogHelper.hideLoading();
       }
     }
     return isSucces;

@@ -47,12 +47,11 @@ class BackgroudLocationServiz extends GetxController {
       await userService.init();
       await localBackgroundEvents.init();
       await localGirisCixisServiz.init();
-      await localGirisCixisServiz.init();
       ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
         try {
           final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
-            persist: true,
+            persist: false,
             samples: 1,
             maximumAge: 0,
             timeout: 30,
@@ -102,7 +101,22 @@ class BackgroudLocationServiz extends GetxController {
           await flutterLocalNotificationsPlugin.cancel(1);
         }
       });
-
+        bg.BackgroundGeolocation.addGeofence(bg.Geofence(
+            identifier: modela.customerName!,   // Geofence üçün unikal ad
+            radius: 500,            // Radius (metr)
+            latitude: double.parse(modela.customerLatitude!),      // Coğrafi enlik (məsələn, Bakının mərkəzi)
+            longitude:  double.parse(modela.customerLongitude!),     // Coğrafi uzunluq
+            notifyOnEntry: true,    // Daxil olduqda xəbərdar et
+            notifyOnExit: true,     // Çıxdıqda xəbərdar et
+            notifyOnDwell: false,    // Geofence daxilində müəyyən müddət qaldıqda xəbərdar et
+            ///loiteringDelay: 30000   // Dwell üçün gecikmə (milisaniyə ilə)
+        )).then((bool success) {
+          if (success) {
+            print("Geofence əlavə edildi!");
+          }
+        }).catchError((error) {
+          print("Geofence əlavə edilərkən xəta baş verdi: $error");
+        });
       await bg.BackgroundGeolocation.ready(bg.Config(
         persistMode: bg.Config.PERSIST_MODE_NONE,
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
@@ -134,7 +148,7 @@ class BackgroudLocationServiz extends GetxController {
       });
       // Başlanğıc yer məlumatını dərhal götür
       final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
-        persist: true,
+        persist: false,
         samples: 1,
         maximumAge: 0,
         timeout: 30,
@@ -149,10 +163,13 @@ class BackgroudLocationServiz extends GetxController {
 
   Future<void> stopBackGroundFetch() async {
     try {
+      ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       // Bütün bildirişləri ləğv edin
       await flutterLocalNotificationsPlugin.cancelAll();
       // Arxa plan izləmə xidmətini dayandırın
+      await localGirisCixisServiz.init();
       bg.BackgroundGeolocation.removeListeners(); // Dinləyiciləri silin
+      bg.BackgroundGeolocation.removeGeofences();
       await bg.BackgroundGeolocation.stop();
     } catch (e) {
     }

@@ -3,6 +3,7 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesabatlar.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/widgetHesabatListItems.dart';
 import 'package:zs_managment/companents/hesabatlar/user_hesabatlar/widgetHesabatListItemsUser.dart';
+import 'package:zs_managment/companents/login/services/api_services/firebase_users_controller_mobile.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 import '../../login/models/model_userspormitions.dart';
@@ -33,7 +34,7 @@ class _WidgetRuthesabatlarState extends State<WidgetRuthesabatlar> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color:Get.isDarkMode?Colors.grey :Colors.transparent,
       child: DecoratedBox(
         decoration:  BoxDecoration(
             boxShadow: [
