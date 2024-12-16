@@ -41,12 +41,13 @@ class BackgroudLocationServiz extends GetxController {
 
 
 
-  Future<void> startBackgorundFetck(ModelCustuomerVisit modela) async {
+  Future<void> startBackgorundFetck() async {
     try {
       // Servisləri başlat
       await userService.init();
       await localBackgroundEvents.init();
       await localGirisCixisServiz.init();
+      ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
         try {
           final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
@@ -162,6 +163,7 @@ class BackgroudLocationServiz extends GetxController {
 
   Future<void> stopBackGroundFetch() async {
     try {
+      ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       // Bütün bildirişləri ləğv edin
       await flutterLocalNotificationsPlugin.cancelAll();
       // Arxa plan izləmə xidmətini dayandırın
