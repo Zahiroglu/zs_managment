@@ -24,9 +24,8 @@ class SettingPanelController extends GetxController{
        modelModule.value=model;
      }else {
        await localUserServices.init();
-       modelModule.value = localUserServices
-           .getLoggedUser()
-           .userModel!;
+       modelModule.value = localUserServices.getLoggedUser().userModel!;
+       update();
      }
 
 

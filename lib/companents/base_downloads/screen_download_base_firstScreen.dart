@@ -27,7 +27,11 @@ class _FirstScreenBaseDownloadsState extends State<FirstScreenBaseDownloads> {
     // TODO: implement dispose
     super.dispose();
   }
-
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Material(

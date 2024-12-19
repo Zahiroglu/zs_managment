@@ -251,24 +251,9 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-                flex: controllerGirisCixis.marketeGirisEdilib.isFalse ? 5 : 1,
-                child: Column(
-                  children: [
-                    controllerGirisCixis.marketeGirisEdilib.isTrue
-                        ? const SizedBox()
-                        : widgetTabBar(),
-                  ],
-                )),
-            Expanded(
-                flex: controllerGirisCixis.marketeGirisEdilib.isFalse ? 25 : 40,
-                child: Column(
-                  children: [
-                    controllerGirisCixis.marketeGirisEdilib.isTrue
-                        ? widgetCixisUcun(context)
-                        : widgetListRutGunu(controller),
-                  ],
-                ))
+            controllerGirisCixis.marketeGirisEdilib.isTrue
+                ? widgetCixisUcun(context)
+                : widgetListRutGunu(controller)
           ],
         ));
   }
@@ -481,174 +466,158 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   Widget widgetListRutGunu(ControllerGirisCixisReklam controller) {
     return controllerGirisCixis.dataLoading.value
         ? SizedBox(
-            height: MediaQuery.of(context).size.height / 2,
-            child: Center(
-              child: LoagindAnimation(
-                  textData: "gpsAxtarilir".tr,
-                  icon: "lottie/locations_search.json",
-                  isDark: Get.isDarkMode),
-            ))
+      height: MediaQuery.of(context).size.height / 2,
+      child: Center(
+        child: LoagindAnimation(
+          textData: "gpsAxtarilir".tr,
+          icon: "lottie/locations_search.json",
+          isDark: Get.isDarkMode,
+        ),
+      ),
+    )
         : RefreshIndicator(
       onRefresh: getAllCustomers,
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
-                    controllerGirisCixis.selectedTabItem.value.keyText != "gz")
-                  Padding(
-                    padding:
-                        const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
-                    child: CustomText(
-                        labeltext: controllerGirisCixis
-                                    .selectedTemsilci.value.code ==
-                                "u"
-                            ? "$selectedItemsLabel (${controllerGirisCixis.listSelectedMusteriler.length})"
-                            : "${controllerGirisCixis.selectedTemsilci.value.name!} ( ${controllerGirisCixis.listSelectedMusteriler.length} )",
-                        fontsize: 18,
-                        fontWeight: FontWeight.bold,
-                        textAlign: TextAlign.start),
-                  )
-                else
-                  const SizedBox(),
-                controllerGirisCixis.marketeGirisEdilib.isFalse &&
-                        (controllerGirisCixis.listSifarisler.isNotEmpty ||
-                            controllerGirisCixis.listIadeler.isNotEmpty)
-                    ? controllerGirisCixis.cardTotalSifarisler(context, false)
-                    : const SizedBox(), //sifarisleri gosteren hisse
-                SizedBox(
-                    height: controllerGirisCixis.marketeGirisEdilib.isFalse &&
-                            (controllerGirisCixis.listSifarisler.isNotEmpty ||
-                                controllerGirisCixis.listIadeler.isNotEmpty)
-                        ? MediaQuery.of(context).size.height * 0.62
-                        : MediaQuery.of(context).size.height * 0.7,
-                    child: controllerGirisCixis.selectedTabItem.value.keyText !=
-                                "z" &&
-                            controllerGirisCixis.selectedTabItem.value.keyText !=
-                                "gz"
-                        ? ListView(
-                            controller: scrollController,
-                            padding: const EdgeInsets.all(0).copyWith(bottom: 0),
-                            children: controllerGirisCixis.listSelectedMusteriler
-                                .map((e) => widgetCustomers(e))
-                                .toList(),
-                          )
-                        : controllerGirisCixis.modelRutPerform.value
-                                    .listGirisCixislar!.isEmpty &&
-                                controllerGirisCixis.modelRutPerform.value
-                                    .listGonderilmeyenZiyaretler!.isEmpty
-                            ? const SizedBox()
-                            : ziyaretEdilenler(controllerGirisCixis
-                                    .selectedTabItem.value.keyText ==
-                                "z")),
-              ],
-            ),
-        );
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          widgetTabBar(),
+          if (controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
+              controllerGirisCixis.selectedTabItem.value.keyText != "gz")
+            Padding(
+              padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
+              child: CustomText(
+                labeltext: controllerGirisCixis.selectedTemsilci.value.code == "u"
+                    ? "$selectedItemsLabel (${controllerGirisCixis.listSelectedMusteriler.length})"
+                    : "${controllerGirisCixis.selectedTemsilci.value.name!} ( ${controllerGirisCixis.listSelectedMusteriler.length} )",
+                fontsize: 18,
+                fontWeight: FontWeight.bold,
+                textAlign: TextAlign.start,
+              ),
+            )
+          else
+            const SizedBox(),
+          controllerGirisCixis.marketeGirisEdilib.isFalse &&
+              (controllerGirisCixis.listSifarisler.isNotEmpty ||
+                  controllerGirisCixis.listIadeler.isNotEmpty)
+              ? controllerGirisCixis.cardTotalSifarisler(context, false)
+              : const SizedBox(),
+          SizedBox(
+            height: 300,
+            child: controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
+                controllerGirisCixis.selectedTabItem.value.keyText != "gz"
+                ? ListView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(0).copyWith(bottom: 0),
+              children: controllerGirisCixis.listSelectedMusteriler
+                  .map((e) => widgetCustomers(e))
+                  .toList(),
+            )
+                : controllerGirisCixis.modelRutPerform.value.listGirisCixislar!.isEmpty &&
+                controllerGirisCixis.modelRutPerform.value.listGonderilmeyenZiyaretler!.isEmpty
+                ? const SizedBox()
+                : ziyaretEdilenler(controllerGirisCixis.selectedTabItem.value.keyText == "z"),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget ziyaretEdilenler(bool showZiyaretler) {
     return showZiyaretler
         ? Column(
             children: [
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              offset: const Offset(2, 2),
-                              blurRadius: 0.2,
-                              spreadRadius: 1)
-                        ],
-                        borderRadius: BorderRadius.circular(10),
-                        border:
-                            Border.all(color: Colors.grey.withOpacity(0.1))),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0)
-                          .copyWith(right: 5, bottom: 5),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"iseBaslamaVaxti".tr} : ",
-                                  fontWeight: FontWeight.w700),
-                              CustomText(
-                                  labeltext: controllerGirisCixis
-                                      .modelRutPerform
-                                      .value
-                                      .listGirisCixislar!
-                                      .first
-                                      .inDate
-                                      .toString()
-                                      .substring(10, 19)
-                                      .toString()),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"marketdeISvaxti".tr} : ",
-                                  fontWeight: FontWeight.w700),
-                              CustomText(
-                                  labeltext: controllerGirisCixis
-                                      .modelRutPerform.value.snlerdeQalma
-                                      .toString()),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"erazideIsVaxti".tr} : ",
-                                  fontWeight: FontWeight.w700),
-                              CustomText(
-                                  labeltext: controllerGirisCixis
-                                      .modelRutPerform.value.umumiIsvaxti
-                                      .toString()),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          Row(
-                            children: [
-                              CustomText(
-                                  labeltext: "${"sonuncuCixis".tr} : ",
-                                  fontWeight: FontWeight.w700),
-                              CustomText(
-                                  labeltext: controllerGirisCixis
-                                      .modelRutPerform
-                                      .value
-                                      .listGirisCixislar!
-                                      .last
-                                      .outDate
-                                      .toString()
-                                      .substring(10, 19)),
-                            ],
-                          ),
-                        ],
-                      ),
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            offset: const Offset(2, 2),
+                            blurRadius: 0.2,
+                            spreadRadius: 1)
+                      ],
+                      borderRadius: BorderRadius.circular(10),
+                      border:
+                          Border.all(color: Colors.grey.withOpacity(0.1))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0)
+                        .copyWith(right: 5, bottom: 5),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            CustomText(
+                                labeltext: "${"iseBaslamaVaxti".tr} : ",
+                                fontWeight: FontWeight.w700),
+                            CustomText(
+                                labeltext: controllerGirisCixis
+                                    .modelRutPerform
+                                    .value
+                                    .listGirisCixislar!
+                                    .first
+                                    .inDate
+                                    .toString()
+                                    .substring(10, 19)
+                                    .toString()),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 2,
+                        ),
+                        Row(
+                          children: [
+                            CustomText(
+                                labeltext: "${"marketdeISvaxti".tr} : ",
+                                fontWeight: FontWeight.w700),
+                            CustomText(
+                                labeltext: controllerGirisCixis
+                                    .modelRutPerform.value.snlerdeQalma
+                                    .toString()),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 2,
+                        ),
+                        Row(
+                          children: [
+                            CustomText(
+                                labeltext: "${"erazideIsVaxti".tr} : ",
+                                fontWeight: FontWeight.w700),
+                            CustomText(
+                                labeltext: controllerGirisCixis
+                                    .modelRutPerform.value.umumiIsvaxti
+                                    .toString()),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 2,
+                        ),
+                        Row(
+                          children: [
+                            CustomText(
+                                labeltext: "${"sonuncuCixis".tr} : ",
+                                fontWeight: FontWeight.w700),
+                            CustomText(
+                                labeltext: controllerGirisCixis
+                                    .modelRutPerform
+                                    .value
+                                    .listGirisCixislar!
+                                    .last
+                                    .outDate
+                                    .toString()
+                                    .substring(10, 19)),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
               Expanded(
-                  flex: controllerGirisCixis.marketeGirisEdilib.isFalse &&
-                          (controllerGirisCixis.listSifarisler.isNotEmpty ||
-                              controllerGirisCixis.listIadeler.isNotEmpty)
-                      ? 11
-                      : 12,
                   child: ListView(
                     padding: const EdgeInsets.all(0),
                     children: controllerGirisCixis
