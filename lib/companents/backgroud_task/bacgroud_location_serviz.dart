@@ -41,25 +41,23 @@ class BackgroudLocationServiz extends GetxController {
 
 
 
-  Future<void> startBackgorundFetck() async {
+  Future<void> startBackgorundFetck(ModelCustuomerVisit modela) async {
     try {
       // Servisləri başlat
       await userService.init();
       await localBackgroundEvents.init();
       await localGirisCixisServiz.init();
-      ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
         try {
           final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
             persist: false,
-            samples: 1,
+            samples: 400,
             maximumAge: 0,
             timeout: 30,
           );
           if (initialLocation!.mock) {
             await sendErrorsToServers( blok, "Samir :Saxta GPS məlumatı aşkarlandı: ${initialLocation.coords}");
           } else {
-            print("Yer məlumatı yeniləndi: ${initialLocation.coords.latitude}, ${initialLocation.coords.longitude}");
             cureentTime.value = DateTime.now();
             currentLatitude.value = initialLocation.coords.latitude;
             currentLongitude.value = initialLocation.coords.longitude;
@@ -95,7 +93,7 @@ class BackgroudLocationServiz extends GetxController {
         hasConnection.value=connection.connected;
         if (!connection.connected) {
           await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-          // await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
+           await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
         } else {
           //await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
           await flutterLocalNotificationsPlugin.cancel(1);
@@ -121,14 +119,14 @@ class BackgroudLocationServiz extends GetxController {
         persistMode: bg.Config.PERSIST_MODE_NONE,
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
         distanceFilter: 0,
-        locationUpdateInterval: 30000, // Yer məlumatlarını hər 30 saniyədən bir yenilə
-        fastestLocationUpdateInterval: 30000, // Ən sürətli yeniləmə 30 saniyə
-        heartbeatInterval: 30, // 30 saniyədə bir heartbeat
+        locationUpdateInterval: 60000, // Yer məlumatlarını hər 30 saniyədən bir yenilə
+        fastestLocationUpdateInterval: 60000, // Ən sürətli yeniləmə 30 saniyə
+        heartbeatInterval: 60, // 60 saniyədə bir heartbeat
         stopOnTerminate: false,
         startOnBoot: true,
         preventSuspend: true,
         foregroundService: true,
-        debug: true,
+        debug: false,
         enableHeadless: true,
         notification: bg.Notification(
           title: "ZS-CONTROL Aktivdir",
@@ -149,29 +147,31 @@ class BackgroudLocationServiz extends GetxController {
       // Başlanğıc yer məlumatını dərhal götür
       final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
         persist: false,
-        samples: 1,
+        samples: 2,
         maximumAge: 0,
-        timeout: 30,
+        timeout: 5,
       );
       if (initialLocation != null) {
-        print("Başlanğıc yer məlumatı: ${initialLocation.coords .latitude}, ${initialLocation.coords.longitude}");
         await sendInfoLocationsToDatabase(initialLocation);
       } } catch (e) {
       print("Samir : startBackgroundFetch xətası: $e");
     }
   }
 
-  Future<void> stopBackGroundFetch() async {
+  Future<bool> stopBackGroundFetch() async {
     try {
-      ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
       // Bütün bildirişləri ləğv edin
       await flutterLocalNotificationsPlugin.cancelAll();
-      // Arxa plan izləmə xidmətini dayandırın
-      await localGirisCixisServiz.init();
-      bg.BackgroundGeolocation.removeListeners(); // Dinləyiciləri silin
-      bg.BackgroundGeolocation.removeGeofences();
+
+      // Dinləyiciləri silin
+      await bg.BackgroundGeolocation.removeListeners();
+      await bg.BackgroundGeolocation.removeGeofences();
       await bg.BackgroundGeolocation.stop();
-    } catch (e) {
+      print("stopBackGroundFetch dayandi");
+      return true;
+        } catch (e) {
+      print("stopBackGroundFetch xeta : " + e.toString());
+      return false;
     }
   }
 
@@ -333,8 +333,8 @@ class BackgroudLocationServiz extends GetxController {
     );
     if (response.statusCode == 200) {
       if (xetaBasliq == "Block") {
-        stopBackGroundFetch();
-        _sistemiYenidenBaslat();
+        await stopBackGroundFetch();
+        await sistemiYenidenBaslat();
       }
     }else{
       localBackgroundEvents.addBackErrorToBase(model);
@@ -470,7 +470,7 @@ class BackgroudLocationServiz extends GetxController {
     }
   }
 
-  Future<void> _sistemiYenidenBaslat() async {
+  Future<void> sistemiYenidenBaslat() async {
     Get.delete<DrawerMenuController>();
     Get.delete<UserApiControllerMobile>();
     // Get.delete<SettingPanelController>();

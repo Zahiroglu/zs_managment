@@ -141,6 +141,9 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
 
   callLocalBases() async {
     dataLoading = true.obs;
+    await localBaseDownloads.init();
+    await localGirisCixisServiz.init();
+    await localBaseSatis.init();
     await localBaseSatis.init();
     modelsetting = await localAppSetting.getAvaibleMap();
     loggedUserModel = localUserServices.getLoggedUser();

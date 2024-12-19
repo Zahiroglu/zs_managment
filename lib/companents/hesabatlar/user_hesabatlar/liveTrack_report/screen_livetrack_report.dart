@@ -41,6 +41,7 @@ class _ScreenLiveTrackReportState extends State<ScreenLiveTrackReport> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     if (controllerGirisCixis.initialized) {
       controllerGirisCixis.getMyConnectedUsersCurrentLocations(widget.userCode,widget.roleId.toString(),widget.startDay,widget.endDay,widget.rutDay.toString());
     }

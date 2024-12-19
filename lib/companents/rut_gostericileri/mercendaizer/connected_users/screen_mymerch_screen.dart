@@ -618,7 +618,7 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                       padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50),
-                            color: Colors.blue,
+                            color: Colors.blue.withOpacity(0.5),
                       ),
                           child: CustomText(
                               labeltext: element.user!.code,

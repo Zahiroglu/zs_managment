@@ -714,21 +714,22 @@ class DrawerMenuController extends getx.GetxController {
         pageView =  SettingScreenMobile(drawerMenuController: this,);
       case "enterScreen":
          print("enterScreen basildi");
-       await localAppSetting.init();
-       modelAppSetting = await localAppSetting.getAvaibleMap();
-       if(modelAppSetting.userStartWork==true) {
+       //await localAppSetting.init();
+       //modelAppSetting = await localAppSetting.getAvaibleMap();
+      // if(modelAppSetting.userStartWork==true) {
          print("modelAppSetting.userStartWork==true");
          if (localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!)) {
-           print("localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!) : "+localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!).toString());
-           if (modelAppSetting.girisCixisType == "map") {
-             print("xerite sehfesi secildi");
-             pageView = const YeniGirisCixisMap();
-             update();
-           } else {
-             print("ScreenGirisCixisReklam secildi");
-             pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
-             update();
-           }
+           pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
+           // print("localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!) : "+localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!).toString());
+           // if (modelAppSetting.girisCixisType == "map") {
+           //   print("xerite sehfesi secildi");
+           //   pageView = const YeniGirisCixisMap();
+           //   update();
+           // } else {
+           //   print("ScreenGirisCixisReklam secildi");
+           //   pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
+           //   update();
+           // }
          } else {
            print("cari baza bosdu");
            Get.dialog(ShowInfoDialog(
@@ -739,17 +740,17 @@ class DrawerMenuController extends getx.GetxController {
                  update();
                }));
          }
-       }else{
-         print("modelAppSetting.userStartWork==false");
-         Get.dialog(ShowInfoDialog(
-             messaje: "infoErrorStartWork".tr,
-             icon: Icons.work_history,
-             color: Colors.red,
-             callback: () {
-               Get.back();
-               update();
-             }));
-       }
+       // else{
+       //   print("modelAppSetting.userStartWork==false");
+       //   Get.dialog(ShowInfoDialog(
+       //       messaje: "infoErrorStartWork".tr,
+       //       icon: Icons.work_history,
+       //       color: Colors.red,
+       //       callback: () {
+       //         Get.back();
+       //         update();
+       //       }));
+       // }
         update();
         break;
       case "sellDetal":

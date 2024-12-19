@@ -291,12 +291,53 @@ class ControllerLiveTrack extends GetxController {
     update();
   }
 
-  void onPositionMarkerClick(
-      LastInoutAction? actionTrackIn, ModelLiveTrack model) {
+  Future<void> onPositionMarkerClick(LastInoutAction? actionTrackIn, ModelLiveTrack model) async {
     userMarkerSelected.value = true;
     searcAktive.value = false;
-    snappingSheetController.value
-        .snapToPosition(const SnappingPosition.pixels(positionPixels: 110));
+    snappingSheetController.value .snapToPosition(const SnappingPosition.pixels(positionPixels: 110));
+    print("Iconda ustune basildi");
+    if (model.lastInoutAction != null) {
+      print("model.lastInoutAction != null");
+
+      if (model.lastInoutAction!.outDate == ""||model.lastInoutAction!.customerLongitude!="") {
+        print("model.lastInoutAction!.outDate == ""&&model.lastInoutAction!.customerLongitude!=""");
+
+        String marketMarkerId="${model.lastInoutAction!.customerCode}-${model.lastInoutAction!.inDate}";
+        markers.removeWhere((e)=>e.markerId.value==marketMarkerId);
+        markers.add(map.Marker(
+            markerId: map.MarkerId(marketMarkerId),
+            onTap: () {
+              selectedModel.value = model;
+              _onMarketMarkerClick(model);
+            },
+            icon: await getClusterBitmapMarket(
+            120,
+                model.lastInoutAction!.customerName.toString(),
+                model.lastInoutAction!.outDate == null),
+            position: map.LatLng(
+                double.parse(model.lastInoutAction!.customerLongitude!),
+                double.parse(model.lastInoutAction!.customerLatitude!))));
+    createCircles(
+        model.lastInoutAction!.customerLatitude!,
+        model.lastInoutAction!.customerLongitude!,
+        model.lastInoutAction!.customerCode!,
+        model.lastInoutAction!.outDate == null);
+    String userMarkerId="${model.userCode}-${model.userPosition}";
+    markers.removeWhere((e)=>e.markerId.value==userMarkerId);
+    markers.add(map.Marker(
+    markerId: map.MarkerId(userMarkerId),
+    onTap: () {
+    onPositionMarkerClick(model.lastInoutAction, model);
+    },
+    icon: await getClusterBitmapMenimYerim( 120,
+        model.currentLocation!.isOnline!,
+        model.currentLocation!.userFullName!),
+    position: map.LatLng(
+    double.parse(model.currentLocation!.latitude!),
+    double.parse(model.currentLocation!.longitude!))));
+    update();
+    }}
+
     selectedModel.value = model;
     update();
   }

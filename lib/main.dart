@@ -56,7 +56,7 @@ Future<void>  main() async {
   await Hive.initFlutter();
   registerAdapters();
   Map<String, Map<String, String>> languages = await dep.init();
-  await bg.BackgroundGeolocation.registerHeadlessTask(backgroundGeolocationHeadlessTask);
+  await bg.BackgroundGeolocation.registerHeadlessTask(backgroundTaskHandler);
   runApp(MyApp(languages: languages));
 
 }
@@ -188,7 +188,7 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
           await sendErrorsToServers("Block", "Saxta GPS məlumatı aşkarlandı ve blok edildi",location.coords.latitude.toString(),location.coords.longitude.toString());
         } else {
           print("Samir : Real location: ${location.coords.latitude}, ${location.coords.longitude}");
-          await sendInfoLocationsToDatabase(location).whenComplete(() async {
+          await sendInfoLocationsToDatabase(location,flutterLocalNotificationsPlugin).whenComplete(() async {
             await Future.delayed(const Duration(seconds: 2)); // Sorğu cavabını gözləyin
             isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
           });
@@ -261,9 +261,9 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
     Hive.init(directory.path);
     final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
       persist: false,
-      samples: 1,
+      samples: 500,
       maximumAge: 0, // Həmişə yeni məlumat əldə et
-      timeout: 30, // Məlumat üçün maksimum gözləmə müddəti
+      timeout: 5, // Məlumat üçün maksimum gözləmə müddəti
     );
     //sebekeni yoxla
     bool hasInternet=await checkMobileDataStatus();
@@ -280,19 +280,19 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
     // GPS statusunu yoxla
     bool isGPSEnabled = await Geolocator.isLocationServiceEnabled();
     if (!isGPSEnabled) {
-      print("Samir: GPS deaktivdir. Zəhmət olmasa aktivləşdirin.");
       await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil GPS aktivlesdirin.Eks halda girisiniz silinecel.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
       isTaskRunning = false; // Taskı bitir
       return;
     }else{
+      isTaskRunning = true; // Taskı bitir
       await flutterLocalNotificationsPlugin.cancel(1);
     }
     // konum bilgilerini yoxla
     if (location.mock) {
       await sendErrorsToServers("Block", "Saxta GPS məlumatı aşkarlandı ve blok edildi",location.coords.latitude.toString(),location.coords.longitude.toString());
+      isTaskRunning = false; // Taskı bitir
     } else {
-      print("Samir : Real location: ${location.coords.latitude}, ${location.coords.longitude}");
-      await sendInfoLocationsToDatabase(location).whenComplete(() async {
+      await sendInfoLocationsToDatabase(location,flutterLocalNotificationsPlugin).whenComplete(() async {
         await Future.delayed(const Duration(seconds: 2)); // Sorğu cavabını gözləyin
         isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
       });
@@ -318,12 +318,12 @@ Future<bool> checkMobileDataStatus() async {
   }
 }
 
-Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
+Future<void> sendInfoLocationsToDatabase(bg.Location location, FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   LocalUserServices userService = LocalUserServices();
   LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
- // await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
+  //await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
   await userService.init();
   await localBackgroundEvents.init();
   await localGirisCixisServiz.init();
@@ -424,7 +424,8 @@ Future<void> sendErrorsToServers(String xetaBasliq, String xetaaciqlama,String l
       if (xetaBasliq == "Block") {
         BackgroudLocationServiz backgroudLocationServiz=Get.put(BackgroudLocationServiz());
         await userService.clearALLdata();
-        backgroudLocationServiz.startBackgorundFetck();
+        await backgroudLocationServiz.stopBackGroundFetch();
+        await backgroudLocationServiz.sistemiYenidenBaslat();
       }
     }else{
      await localBackgroundEvents.addBackErrorToBase(model);
@@ -478,7 +479,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
     if (model.userCode != null) {
       print("Samir : istifadeci girisdedir");
 
-      checkAndStartServices();
+      checkAndStartServices(model);
     }else{
       print("Samir : istifadeci girisde deyil");
 
@@ -496,23 +497,23 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
   }
 
 
-  void checkAndStartServices() async {
+  void checkAndStartServices(ModelCustuomerVisit model) async {
     try {
       // Xidmətin statusunu yoxla
       bg.State state = await bg.BackgroundGeolocation.state;
-      await restartServices();
+      await restartServices(model);
     } catch (e) {
       print("Samir : Xidmətlərin yoxlanması və işə salınması zamanı xəta baş verdi: $e");
     }
   }
 
-  Future<void> restartServices() async {
+  Future<void> restartServices(ModelCustuomerVisit model) async {
     try {
       BackgroudLocationServiz backgroudLocationServiz=Get.put(BackgroudLocationServiz());
       // Xidmətləri dayandır və yenidən başlat
       await backgroudLocationServiz.stopBackGroundFetch();
       print("Samir : BackgroundGeolocation xidməti dayandırıldı.");
-      await backgroudLocationServiz.startBackgorundFetck();
+      await backgroudLocationServiz.startBackgorundFetck(model);
       print("Samir : BackgroundGeolocation xidməti işə düşdü.");
     } catch (e) {
       print("Samir : Xidmətlər yenidən başlatıla bilmədi: $e");

@@ -54,6 +54,7 @@ class ControllerLiveTrackReport extends GetxController {
 
 
   Future<void> getMyConnectedUsersCurrentLocations(String temsilcikodu,String roleId, String startDay, String endDay, String rutDay) async {
+    await userServices.init();
     LoggedUserModel loggedUserModel = userServices.getLoggedUser();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
@@ -176,28 +177,42 @@ class ControllerLiveTrackReport extends GetxController {
     polylines.clear();
     circles.clear();
     markers.clear();
-    initialPosition.value = map.LatLng(double.parse(listTrack[0].latitude!), double.parse(listTrack[0].longitude!));
-    for (var element in listTrack) {
-      markers.add(map.Marker(markerId: map.MarkerId("${element.userCode}-${element.locationDate}-${element.latitude!}"),
-          onTap: () {
-            onPositionPointClick(element, element.type!=0);
-            if(element.type!=0) {
-              customInfoWindowController.value.addInfoWindow!(
-                  widgetCustomInfo(element.inOutCustomer!,Get.context!), map.LatLng(
-                  double.parse(element.latitude!),
-                  double.parse(element.longitude!)));
-            }//eger sade location deyilse
-            else{
-              customInfoWindowController.value.addInfoWindow!(
-                  widgetCustomInfoForLocations(element,Get.context!), map.LatLng(
-                  double.parse(element.latitude!),
-                  double.parse(element.longitude!)));
-            }
-            update();
-          },
-          icon: await getClusterBitmapPoint(40, element),
-          position: map.LatLng(double.parse(element.latitude!),
-              double.parse(element.longitude!))));
+    if (listTrack.isNotEmpty && listTrack[0].latitude != null && listTrack[0].longitude != null) {
+      if (listTrack[0].latitude!.isNotEmpty && listTrack[0].longitude!.isNotEmpty) {
+        print("Latitude izleme: " + listTrack[0].latitude!);
+        initialPosition.value = map.LatLng(
+            double.parse(listTrack[0].latitude!),
+            double.parse(listTrack[0].longitude!)
+
+        );
+        for (var element in listTrack) {
+          markers.add(map.Marker(markerId: map.MarkerId("${element.userCode}-${element.locationDate}-${element.latitude!}"),
+              onTap: () {
+                onPositionPointClick(element, element.type!=0);
+                if(element.type!=0) {
+                  customInfoWindowController.value.addInfoWindow!(
+                      widgetCustomInfo(element.inOutCustomer!,Get.context!), map.LatLng(
+                      double.parse(element.latitude!),
+                      double.parse(element.longitude!)));
+                }//eger sade location deyilse
+                else{
+                  customInfoWindowController.value.addInfoWindow!(
+                      widgetCustomInfoForLocations(element,Get.context!), map.LatLng(
+                      double.parse(element.latitude!),
+                      double.parse(element.longitude!)));
+                }
+                update();
+              },
+              icon: await getClusterBitmapPoint(40, element),
+              position: map.LatLng(double.parse(element.latitude!),
+                  double.parse(element.longitude!))));
+        }
+
+      } else {
+        print("Latitude və ya Longitude boşdur.");
+      }
+    } else {
+      print("ListTrack boşdur və ya latitude/longitude null-dur.");
     }
     update();
   }

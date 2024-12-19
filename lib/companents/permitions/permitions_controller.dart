@@ -1,5 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 import 'package:permission_handler/permission_handler.dart';
 
 class LocalPermissionsController {
@@ -24,6 +24,7 @@ class LocalPermissionsController {
     }
     await Permission.locationAlways.request();
   }
+
   Future<void> requestNotyPermission() async {
     if (!(await Permission.notification.isGranted)) {
       await Permission.notification.request();
@@ -32,7 +33,7 @@ class LocalPermissionsController {
   }
 
   //firebase notifications
-  Future<bool> checkForFirebaseNoticifations()async{
+  Future<bool> checkForFirebaseNoticifations() async {
     if (await Permission.notification.isGranted) {
       return await Permission.notification.isGranted;
     }
@@ -40,7 +41,8 @@ class LocalPermissionsController {
   }
 
   Future<bool> reguestForFirebaseNoty() async {
-    NotificationSettings settings=await FirebaseMessaging.instance.requestPermission(
+    NotificationSettings settings = await FirebaseMessaging.instance
+        .requestPermission(
         alert: true,
         badge: true,
         announcement: true,
@@ -49,9 +51,9 @@ class LocalPermissionsController {
         criticalAlert: true,
         provisional: true
     );
-    if(settings.authorizationStatus==AuthorizationStatus.authorized){
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
@@ -68,12 +70,28 @@ class LocalPermissionsController {
 
   Future<bool> permissionLocationAlways() async {
     bool hasPermission = false;
-    int status = await BackgroundGeolocation.requestPermission();
-    if (status == ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
-      hasPermission=true;
-    } else if (status == ProviderChangeEvent.AUTHORIZATION_STATUS_WHEN_IN_USE) {
-      hasPermission=false;
+    int status = await bg.BackgroundGeolocation.requestPermission();
+    if (status == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
+      hasPermission = true;
+    } else
+    if (status == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_WHEN_IN_USE) {
+      hasPermission = false;
     }
     return Future<bool>.value(hasPermission);
   }
+
+
+  Future<bool> checkGPSStatusWithPermissionHandler() async {
+    // İcazəni yoxlayır
+    var status = await Permission.location.serviceStatus;
+
+    if (status.isEnabled) {
+      return true;
+      print("GPS açıqdır");
+    } else {
+      return false;
+      print("GPS bağlıdır");
+    }
+  }
+
 }
