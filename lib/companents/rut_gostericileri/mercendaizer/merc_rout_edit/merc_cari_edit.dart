@@ -61,7 +61,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
 
   @override
   void initState() {
-    userService.init();
+    userService=widget.controllerMercPref.userLocalService;
     for (var element in widget.controllerMercPref.listUsers) {
       listUsers.add(User(
         code: element.code,
@@ -82,6 +82,11 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
     selectedMercAd =widget.controllerMercPref.selectedMercBaza.value.user!.name;
     // TODO: implement initState
     super.initState();
+  }
+
+  Future<void> initAllBase() async {
+   await userService.init();
+
   }
 
   @override

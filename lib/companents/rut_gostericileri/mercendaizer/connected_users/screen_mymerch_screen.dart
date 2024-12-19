@@ -116,7 +116,7 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                   ? _widhetSearchMode()
                   : hasEndList
                       ? const SizedBox()
-                      : _widgetUmumiInfoPanel(context, Colors.white),
+                      : _widgetUmumiInfoPanel(context,Get.isDarkMode?Colors.grey:Colors.white),
               const SizedBox(
                 height: 10,
               ),
@@ -142,7 +142,7 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                     ? _widhetSearchMode()
                     : hasEndList
                         ? const SizedBox()
-                        : _widgetUmumiInfoPanel(context, Colors.white),
+                        : _widgetUmumiInfoPanel(context, Get.isDarkMode?Colors.grey:Colors.white),
                 const SizedBox(
                   height: 10,
                 ),
@@ -591,28 +591,48 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                       fontsize: 16,
                     ),
                     itemExpended && selectedMerc == element
-                        ? Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color:
-                                    totalPrim >= 0 ? Colors.green : Colors.red),
-                            child: Center(
-                              child: CustomText(
-                                labeltext:
-                                    "${totalPrim.toStringAsFixed(2)} ${"manatSimbol".tr}",
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ))
-                        : CustomText(
-                            labeltext: element.user!.code,
-                            color: textColors,
-                          ),
+                        ? Row(
+                          children: [
+                            CustomText(
+                              labeltext: element.user!.code,
+                              color: textColors,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            const SizedBox(width: 5,),
+                            Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(50),
+                                    color:
+                                        totalPrim >= 0 ? Colors.green : Colors.red),
+                                child: Center(
+                                  child: CustomText(
+                                    labeltext:
+                                        "${totalPrim.toStringAsFixed(2)} ${"manatSimbol".tr}",
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )),
+                          ],
+                        )
+                        : Container(
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            color: Colors.blue.withOpacity(0.5),
+                      ),
+                          child: CustomText(
+                              labeltext: element.user!.code,
+                              color: textColors,
+                                                fontWeight: FontWeight.bold,
+                                                fontsize: 14,
+                            ),
+                        ),
                   ],
                 ),
                 CustomText(
                   labeltext: "usersPosition".tr+" : "+element.user!.roleName.toString(),
                   fontsize: 12,
+                  color: textColors,
                   fontWeight: FontWeight.bold,
                 ),
                 itemExpended && selectedMerc == element
@@ -986,6 +1006,7 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                                 width: 5,
                               ),
                               CustomText(
+                                color: textColors,
                                   labeltext: element
                                               .motivationData!.byNetSales !=
                                           null
@@ -1011,6 +1032,7 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                                 width: 5,
                               ),
                               CustomText(
+                                  color: textColors,
                                   labeltext: element.motivationData!.byPlan !=
                                           null
                                       ? "${element.motivationData!.byPlan!.toStringAsFixed(2)} ${"manatSimbol".tr}"
@@ -1030,6 +1052,7 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                                 width: 5,
                               ),
                               CustomText(
+                                  color: textColors,
                                   labeltext: element
                                               .motivationData!.planPercent !=
                                           null
@@ -1058,6 +1081,7 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                                 width: 5,
                               ),
                               CustomText(
+                                  color: textColors,
                                   labeltext: element
                                               .motivationData!.byWasteProduct !=
                                           null
@@ -1078,6 +1102,7 @@ class _ScreenMyMerchSystemState extends State<ScreenMyMerchSystem> with TickerPr
                                 width: 5,
                               ),
                               CustomText(
+                                  color: textColors,
                                   labeltext: element.motivationData!
                                               .wasteProductPercent !=
                                           null

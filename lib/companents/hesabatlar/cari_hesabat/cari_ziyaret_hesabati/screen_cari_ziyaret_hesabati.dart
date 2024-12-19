@@ -100,6 +100,7 @@ class _ScreenCariZiyaretHesabatState extends State<ScreenCariZiyaretHesabat> {
   }
 
   Future<List<ModelCustuomerVisit>> getAllGirisCixisByCustomers() async {
+    await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     var data = {
       "cariCode": widget.cariKod.toString(),

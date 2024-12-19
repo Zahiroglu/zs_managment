@@ -253,63 +253,155 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
           ),
           expandMenuVisible
               ? Positioned(
-                  top: -15,
-                  right: -5,
-                  child: IconButton(
-                    iconSize: 40,
-                    onPressed: () {
-                      setState(() {
-                        controllerGirisCixis.userMarkerSelected.isFalse
-                            ? controllerGirisCixis.snappingSheetController.value
-                                .snapToPosition(const SnappingPosition.pixels(
-                                    positionPixels: 80))
-                            : controllerGirisCixis.snappingSheetController.value
-                                .snapToPosition(const SnappingPosition.pixels(
-                                    positionPixels: 100));
-                      });
-                    },
-                    icon: const Icon(Icons.expand_more),
-                  ))
+            top: -15,
+            right: -5,
+            child: IconButton(
+              iconSize: 40,
+              onPressed: () {
+                setState(() {
+                  controllerGirisCixis.userMarkerSelected.isFalse
+                      ? controllerGirisCixis.snappingSheetController.value
+                      .snapToPosition(const SnappingPosition.pixels(
+                      positionPixels: 80))
+                      : controllerGirisCixis.snappingSheetController.value
+                      .snapToPosition(const SnappingPosition.pixels(
+                      positionPixels: 100));
+                });
+              },
+              icon: const Icon(Icons.expand_more),
+            ),
+          )
               : const SizedBox(),
           Positioned(
             top: 10,
-            right: userHesabatlarMustVisible?40:0,
-            child: Expanded(
-                flex: 2,
-                child: Container(
-                  margin: const EdgeInsets.only(right: 5),
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                      color: controllerGirisCixis
-                          .selectedModel.value.currentLocation!.isOnline!
-                          ? Colors.green
-                          : Colors.red,
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      border: Border.all(color: Colors.black)),
-                  child: Center(
-                      child: CustomText(
-                        labeltext: controllerGirisCixis
-                            .selectedModel.value.currentLocation!.isOnline!
-                            ? "Online"
-                            : "Offline",
-                        fontsize: 12,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      )),
+            right: userHesabatlarMustVisible ? 40 : 0,
+            child: Container(
+              margin: const EdgeInsets.only(right: 5),
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: controllerGirisCixis.selectedModel.value.currentLocation!.isOnline!
+                    ? Colors.green
+                    : Colors.red,
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                border: Border.all(color: Colors.black),
+              ),
+              child: Center(
+                child: CustomText(
+                  labeltext: controllerGirisCixis.selectedModel.value.currentLocation!.isOnline!
+                      ? "Online"
+                      : "Offline",
+                  fontsize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
-              ),),
-                Positioned(
-                  top: 5,
-                  left: 5,
-                  child: Icon(
-                    controllerGirisCixis.selectedModel.value.lastInoutAction!.outLatitude!=null? Icons.label_important:Icons.label_important_outline,
-                    color:controllerGirisCixis.selectedModel.value.lastInoutAction!.outLatitude!=null? Colors.blueAccent:Colors.yellow,
-                  ))
-
+              ),
+            ),
+          ),
+          Positioned(
+            top: 5,
+            left: 5,
+            child: Icon(
+              controllerGirisCixis.selectedModel.value.lastInoutAction!.outLatitude != null
+                  ? Icons.label_important
+                  : Icons.label_important_outline,
+              color: controllerGirisCixis.selectedModel.value.lastInoutAction!.outLatitude != null
+                  ? Colors.blueAccent
+                  : Colors.yellow,
+            ),
+          ),
         ],
       ),
     );
   }
+
+
+  // Widget grappengContainer(BuildContext context) {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+  //       boxShadow: [
+  //         BoxShadow(blurRadius: 25, color: Colors.black.withOpacity(0.5)),
+  //       ],
+  //     ),
+  //     child: Stack(
+  //       children: [
+  //         controllerGirisCixis.userMarkerSelected.isFalse
+  //             ? _widgetMarketInfo(context)
+  //             : _widgetUserInfo(context),
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             Container(
+  //               margin: const EdgeInsets.only(top: 10),
+  //               width: 35,
+  //               height: 7,
+  //               decoration: BoxDecoration(
+  //                 color: Colors.grey,
+  //                 borderRadius: BorderRadius.circular(5),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         expandMenuVisible
+  //             ? Positioned(
+  //                 top: -15,
+  //                 right: -5,
+  //                 child: IconButton(
+  //                   iconSize: 40,
+  //                   onPressed: () {
+  //                     setState(() {
+  //                       controllerGirisCixis.userMarkerSelected.isFalse
+  //                           ? controllerGirisCixis.snappingSheetController.value
+  //                               .snapToPosition(const SnappingPosition.pixels(
+  //                                   positionPixels: 80))
+  //                           : controllerGirisCixis.snappingSheetController.value
+  //                               .snapToPosition(const SnappingPosition.pixels(
+  //                                   positionPixels: 100));
+  //                     });
+  //                   },
+  //                   icon: const Icon(Icons.expand_more),
+  //                 ))
+  //             : const SizedBox(),
+  //         Positioned(
+  //           top: 10,
+  //           right: userHesabatlarMustVisible?40:0,
+  //           child: Expanded(
+  //               flex: 2,
+  //               child: Container(
+  //                 margin: const EdgeInsets.only(right: 5),
+  //                 padding: const EdgeInsets.all(2),
+  //                 decoration: BoxDecoration(
+  //                     color: controllerGirisCixis
+  //                         .selectedModel.value.currentLocation!.isOnline!
+  //                         ? Colors.green
+  //                         : Colors.red,
+  //                     borderRadius: const BorderRadius.all(Radius.circular(10)),
+  //                     border: Border.all(color: Colors.black)),
+  //                 child: Center(
+  //                     child: CustomText(
+  //                       labeltext: controllerGirisCixis
+  //                           .selectedModel.value.currentLocation!.isOnline!
+  //                           ? "Online"
+  //                           : "Offline",
+  //                       fontsize: 12,
+  //                       color: Colors.white,
+  //                       fontWeight: FontWeight.bold,
+  //                     )),
+  //               ),
+  //             ),),
+  //               Positioned(
+  //                 top: 5,
+  //                 left: 5,
+  //                 child: Icon(
+  //                   controllerGirisCixis.selectedModel.value.lastInoutAction!.outLatitude!=null? Icons.label_important:Icons.label_important_outline,
+  //                   color:controllerGirisCixis.selectedModel.value.lastInoutAction!.outLatitude!=null? Colors.blueAccent:Colors.yellow,
+  //                 ))
+  //
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget widgetGoogleMap() {
     return Obx(()=>Stack(

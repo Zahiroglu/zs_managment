@@ -85,7 +85,6 @@ class ControllerGirisCixisReklam extends GetxController {
   RxList<ModelCariKassa> selectedlistKassa = List<ModelCariKassa>.empty(growable: true).obs;
   TextEditingController ctKassaDialog = TextEditingController();
   Rx<UserModel> selectedTemsilci = UserModel(code: "h", name: "hamisi".tr).obs;
-  BackgroudLocationServiz backgroudLocationServiz = BackgroudLocationServiz();
   //BackGroudTask backgroudLocationServiz = BackGroudTask();
   late CheckDviceType checkDviceType = CheckDviceType();
   ExeptionHandler exeptionHandler = ExeptionHandler();
@@ -95,6 +94,7 @@ class ControllerGirisCixisReklam extends GetxController {
   RxDouble currentLat=0.0.obs;
   RxDouble currentLong=0.0.obs;
   Rx<ModelTamItemsGiris> selectedTabItem=ModelTamItemsGiris().obs;
+  BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
 
   ///list tapsiriqlar
   RxList<ModelResponceTask> listTapsiriqlar = List<ModelResponceTask>.empty(growable: true).obs;
@@ -136,10 +136,10 @@ class ControllerGirisCixisReklam extends GetxController {
 
   getGirisEdilmisCari(map.LatLng possition) async {
     dataLoading.value == true;
-    listCariler.clear();
     await localDbGirisCixis.init();
     modelgirisEdilmis.value = await localDbGirisCixis.getGirisEdilmisMarket();
     if (modelgirisEdilmis.value.userCode== null) {
+      listCariler.clear();
       await explistiniDoldur(possition);
       marketeGirisEdilib.value = false;
       slidePanelVisible.value = false;
@@ -158,7 +158,6 @@ class ControllerGirisCixisReklam extends GetxController {
       slidePanelVisible.value = false;
       dataLoading.value = false;
       sndeQalmaVaxtiniHesabla();
-
     }
     //getSatisMelumatlari();
     currentLat.value=possition.latitude;
@@ -2063,55 +2062,66 @@ class ControllerGirisCixisReklam extends GetxController {
     DialogHelper.hideLoading();
     if (await permitionController.checkBackgroundLocationPermission()) {
       if (await permitionController.checkNotyPermission()) {
-        DialogHelper.showLoading("girisMelumatlariYoxlanir".tr);
-        await localDbGirisCixis.init();
-        String lookupAddress = "time.google.com";
-        DateTime myTime = DateTime.now();
-        DateTime ntpTime = DateTime.now();
-        myTime = DateTime.now();
-        try {
-          final int offset = await NTP.getNtpOffset(
-              localTime: myTime,
-              lookUpAddress: lookupAddress,
-              timeout: const Duration(seconds: 10));
-          ntpTime = myTime.add(Duration(milliseconds: offset));
-          int ferq = myTime.difference(ntpTime).inMinutes;
-          if (ferq > 1 || ferq < -1) {
+        if(await permitionController.checkGPSStatusWithPermissionHandler()) {
+          DialogHelper.showLoading("girisMelumatlariYoxlanir".tr);
+          await localDbGirisCixis.init();
+          String lookupAddress = "time.google.com";
+          DateTime myTime = DateTime.now();
+          DateTime ntpTime = DateTime.now();
+          myTime = DateTime.now();
+          try {
+            final int offset = await NTP.getNtpOffset(
+                localTime: myTime,
+                lookUpAddress: lookupAddress,
+                timeout: const Duration(seconds: 10));
+            ntpTime = myTime.add(Duration(milliseconds: offset));
+            int ferq = myTime
+                .difference(ntpTime)
+                .inMinutes;
+            if (ferq > 1 || ferq < -1) {
+              Get.dialog(
+                ShowInfoDialog(
+                    messaje: "phoneTimeError".tr,
+                    icon: Icons.phonelink_erase_rounded,
+                    callback: () {
+                      DialogHelper.hideLoading();
+                      Get.back();
+                      // OpenSettings.openDateSetting();
+                    }),
+              );
+            } else {
+              if (currentLocation.mock) {
+                ShowInfoDialog(
+                    messaje: "phoneFikeLocationError".tr,
+                    icon: Icons.phonelink_erase_rounded,
+                    callback: () {
+                      DialogHelper.hideLoading();
+                      Get.back();
+                    });
+              } else {
+                checkAllVisits(currentLocation, selectedModel, uzaqliq, true);
+                DialogHelper.hideLoading();
+              }
+            }
+          } catch (ex) {
             Get.dialog(
               ShowInfoDialog(
-                  messaje: "phoneTimeError".tr,
-                  icon: Icons.phonelink_erase_rounded,
+                  messaje: "internetError".tr,
+                  icon: Icons.signal_cellular_connected_no_internet_0_bar_sharp,
                   callback: () {
-                    DialogHelper.hideLoading();
                     Get.back();
-                    // OpenSettings.openDateSetting();
                   }),
             );
-          } else {
-            if (currentLocation.mock) {
-              ShowInfoDialog(
-                  messaje: "phoneFikeLocationError".tr,
-                  icon: Icons.phonelink_erase_rounded,
-                  callback: () {
-                    DialogHelper.hideLoading();
-                    Get.back();
-                  });
-            } else {
-              checkAllVisits(currentLocation, selectedModel, uzaqliq, true);
-              DialogHelper.hideLoading();
-            }
           }
-        } catch (ex) {
-          Get.dialog(
-            ShowInfoDialog(
-                messaje: "internetError".tr,
-                icon: Icons.signal_cellular_connected_no_internet_0_bar_sharp,
-                callback: () {
-                  Get.back();
-                }),
-          );
-        }
-      } else {
+        }else{
+          Get.dialog(ShowInfoDialog(
+              messaje: "gpsError".tr,
+              icon: Icons.gps_off,
+              callback: () {
+                Get.back();
+              }));
+
+        } } else {
         Get.dialog(ShowInfoDialog(
             messaje: "requestForNoty".tr,
             icon: Icons.nearby_error_outlined,
@@ -2155,7 +2165,6 @@ class ControllerGirisCixisReklam extends GetxController {
             ctKassaDialog.text = "";
             ctCixisQeyd.text = "";
             update();
-            backgroudLocationServiz.stopBackGroundFetch();
           }
           Get.back();
         }));
@@ -2165,7 +2174,8 @@ class ControllerGirisCixisReklam extends GetxController {
   Future<void> pripareForExit(bg.Location currentLocation, double uzaqliq, ModelCariler selectedModel) async {
     if (await permitionController.checkBackgroundLocationPermission()) {
       if (await permitionController.checkNotyPermission()) {
-        await localDbGirisCixis.init();
+        if(await permitionController.checkGPSStatusWithPermissionHandler()) {
+          await localDbGirisCixis.init();
         DialogHelper.showLoading("cixisMelumatlariYoxlanir".tr);
         String lookupAddress = "time.google.com";
         DateTime myTime = DateTime.now();
@@ -2219,7 +2229,15 @@ class ControllerGirisCixisReklam extends GetxController {
                 }),
           );
         }
-      } else {
+      }else{
+          Get.dialog(ShowInfoDialog(
+              messaje: "gpsError".tr,
+              icon: Icons.gps_off,
+              callback: () {
+                Get.back();
+              }));
+
+        }} else {
         Get.dialog(ShowInfoDialog(
             messaje: "requestForNoty".tr,
             icon: Icons.nearby_error_outlined,
@@ -2238,6 +2256,7 @@ class ControllerGirisCixisReklam extends GetxController {
           }));
     }
   }
+
 
   Future<void> checkAllVisits(bg.Location currentLocation, ModelCariler selectedModel, double uzaqliq, bool isEnter) async {
     ModelCustuomerVisit modela = ModelCustuomerVisit();
@@ -2488,8 +2507,11 @@ class ControllerGirisCixisReklam extends GetxController {
       DialogHelper.hideLoading();
       modelVisit.gonderilme = "1";
       if (isEnter) {
-        funFlutterToast("ugurluApiGiris", true);
-        girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+        await backgroudLocationServiz.startBackgorundFetck(modelVisit).then((v){
+          funFlutterToast("ugurluApiGiris", true);
+          girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+        });
+
       } else {
         funFlutterToast("ugurluApiCixis", true);
         cixisiLocaldaTesdiqleLast(
@@ -2531,7 +2553,6 @@ class ControllerGirisCixisReklam extends GetxController {
     DrawerMenuController controller = Get.put(DrawerMenuController());
     controller.onInit();
     controller.addPermisionsInDrawerMenu(loggedUserModel);
-    backgroudLocationServiz.stopBackGroundFetch();
     listTapsiriqlar.clear();
     await getGirisEdilmisCari(map.LatLng(currentLocation!.coords.latitude, currentLocation.coords.longitude,));
     update();
@@ -2552,7 +2573,6 @@ class ControllerGirisCixisReklam extends GetxController {
     leftSideMenuVisible.value = true;
     rightSideMenuVisible.value = true;
     //listTapsiriqlar.value = ModelResponceTask().getListOfTask();
-    await backgroudLocationServiz.startBackgorundFetck();
     marketeGirisEdilib.value = true;
     modelgirisEdilmis.value = modela;
     sndeQalmaVaxtiniHesabla();

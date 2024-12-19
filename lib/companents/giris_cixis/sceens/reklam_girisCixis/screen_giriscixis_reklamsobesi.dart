@@ -2,16 +2,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/unsended_errors.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
+import 'package:zs_managment/companents/permitions/permitions_controller.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/loagin_animation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:zs_managment/widgets/simple_info_dialog.dart';
+import 'package:zs_managment/widgets/widget_notdata_found.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
 
 import '../../../../helpers/user_permitions_helper.dart';
@@ -34,10 +38,10 @@ class ScreenGirisCixisReklam extends StatefulWidget {
 
 class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
     with WidgetsBindingObserver {
-  ControllerGirisCixisReklam controllerGirisCixis =
-      Get.put(ControllerGirisCixisReklam());
+  ControllerGirisCixisReklam controllerGirisCixis = Get.put(ControllerGirisCixisReklam());
   PageController pageController = PageController();
   late bg.Location _currentLocation;
+
 
   //late LocationSettings locationSettings;
   int defaultTargetPlatform = 0;
@@ -53,145 +57,72 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   bool marketeGirisIcazesi = false;
   bool marketeCixisIcazesi = false;
   ScrollController scrollController = ScrollController();
-
-  //final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
-  //StreamSubscription<Position>? _positionStreamSubscription;
-  bool positionStreamStarted = false;
   LocalUserServices userService = LocalUserServices();
   LoggedUserModel loggedUserModel = LoggedUserModel();
   UserPermitionsHelper permitionsHelper = UserPermitionsHelper();
-
+  BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
+  LocalPermissionsController permitionController = LocalPermissionsController();
+  bool gpsNotFound=false;
   @override
   void initState() {
     initConfigrations();
     WidgetsBinding.instance.addObserver(this);
-    //confiqGeolocatior();
-    // bg.BackgroundGeolocation.onLocation((bg.Location location) {
-    //   if(controllerGirisCixis.initialized){
-    //     controllerGirisCixis.getGirisEdilmisCari(LatLng(v.coords.latitude, v.coords.longitude));
-    //   }
-    //   setState(() {
-    //     _currentLocation= bg.Location(v.coords);
-    //     //  _currentLocation = bg.Location({
-    //     //    "latitude": v.coords.latitude,
-    //     //    "longitude": v.coords.longitude,
-    //     //    "accuracy": v.coords.accuracy,
-    //     //    "altitude": v.coords.altitude,
-    //     //    "speed": v.coords.speed,
-    //     //    "heading": v.coords.heading,
-    //     //    "timestamp": v.timestamp,
-    //     //    "mock": v.mock, // Mock olub-olmamasını göstərir
-    //     //  });
-    //     controllerGirisCixis.dataLoading.value = false;
-    //   });
-    // });
-    bg.BackgroundGeolocation.getCurrentPosition().then((v) {
-      if (controllerGirisCixis.initialized) {
-        controllerGirisCixis
-            .getGirisEdilmisCari(LatLng(v.coords.latitude, v.coords.longitude));
-      }
-      setState(() {
-       _currentLocation=v;
-        controllerGirisCixis.dataLoading.value = false;
-      });
-    });
-    // _determinePosition().then((value) {
-    //   setState(() {
-    //     if(controllerGirisCixis.initialized){
-    //       controllerGirisCixis.getGirisEdilmisCari(LatLng(value.latitude, value.longitude));
-    //     }
-    //     setState(() {
-    //       _currentLocation=value;
-    //       controllerGirisCixis.dataLoading.value = false;
-    //     });
-    //   });
-    // });
-    //_toggleListening();
-    // TODO: implement initState
+    getAllCustomers();
     super.initState();
   }
+
+
+  Future<void> getAllCustomers() async {
+    controllerGirisCixis.dataLoading.value=true;
+    if(await permitionController.checkGPSStatusWithPermissionHandler()){
+      setState(() {
+        gpsNotFound=false;
+      });
+      bg.BackgroundGeolocation.getCurrentPosition(
+        persist: false, // Mövqeyi yadda saxlamamaq üçün
+        samples: 1,     // Yalnız bir dəfə mövqeyi götür
+        maximumAge: 0,  // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqliklə mövqe əldə etmək
+        timeout: 30     //
+    ).then((v) {
+      if (controllerGirisCixis.initialized) {
+        controllerGirisCixis.getGirisEdilmisCari(LatLng(v.coords.latitude, v.coords.longitude));
+      }
+      setState(() {
+        _currentLocation=v;
+        controllerGirisCixis.dataLoading.value = false;
+      });
+    });}else{
+      setState(() {
+        gpsNotFound=true;
+      });
+      Get.dialog(ShowInfoDialog(
+          messaje: "gpsError".tr,
+          icon: Icons.gps_off,
+          callback: () async {
+            controllerGirisCixis.dataLoading.value=false;
+            Get.back();
+          }));
+    }
+  }
+
 
   Future<void> initConfigrations() async {
     await userService.init();
     loggedUserModel = userService.getLoggedUser();
-    marketeGirisIcazeMesafesi = permitionsHelper
-        .getEnterDistance(loggedUserModel.userModel!.configrations!);
-    istifadeciRutdanKenarGirisEdebiler = !permitionsHelper
-        .getOnlyByRutDay(loggedUserModel.userModel!.configrations!);
+    marketeGirisIcazeMesafesi = permitionsHelper.getEnterDistance(loggedUserModel.userModel!.configrations!);
+    istifadeciRutdanKenarGirisEdebiler = !permitionsHelper.getOnlyByRutDay(loggedUserModel.userModel!.configrations!);
   }
-
-  // confiqGeolocatior(){
-  //   if (defaultTargetPlatform == TargetPlatform.android) {
-  //     locationSettings = AndroidSettings(
-  //         accuracy: LocationAccuracy.best,
-  //         distanceFilter: 100,
-  //         forceLocationManager: true,
-  //         intervalDuration: const Duration(seconds: 10),
-  //         //(Optional) Set foreground notification config to keep the app alive
-  //         //when going to the background
-  //         foregroundNotificationConfig: const ForegroundNotificationConfig(
-  //           notificationText:
-  //           "Example app will continue to receive your location even when you aren't using it",
-  //           notificationTitle: "Running in Background",
-  //           enableWakeLock: true,
-  //         )
-  //     );
-  //   } else if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) {
-  //     locationSettings = AppleSettings(
-  //       accuracy: LocationAccuracy.high,
-  //       activityType: ActivityType.fitness,
-  //       distanceFilter: 100,
-  //       pauseLocationUpdatesAutomatically: true,
-  //       // Only set to true if our app will be started up in the background.
-  //       showBackgroundLocationIndicator: false,
-  //     );
-  //   } else {
-  //     locationSettings = const LocationSettings(
-  //       accuracy: LocationAccuracy.high,
-  //       distanceFilter: 100,
-  //     );
-  //   }
-  // }
-  //
-  // Future<Position> _determinePosition() async {
-  //   bool serviceEnabled;
-  //   LocationPermission permission;
-  //
-  //   // Test if location services are enabled.
-  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  //   if (!serviceEnabled) {
-  //     // Location services are not enabled don't continue
-  //     // accessing the position and request users of the
-  //     // App to enable the location services.
-  //     return Future.error('Location services are disabled.');
-  //   }
-  //   permission = await Geolocator.checkPermission();
-  //   if (permission == LocationPermission.denied) {
-  //     permission = await Geolocator.requestPermission();
-  //     if (permission == LocationPermission.denied) {
-  //       // Permissions are denied, next time you could try
-  //       // requesting permissions again (this is also where
-  //       // Android's shouldShowRequestPermissionRationale
-  //       // returned true. According to Android guidelines
-  //       // your App should show an explanatory UI now.
-  //       return Future.error('Location permissions are denied');
-  //     }
-  //   }
-  //
-  //   if (permission == LocationPermission.deniedForever) {
-  //     // Permissions are denied forever, handle appropriately.
-  //     return Future.error(
-  //         'Location permissions are permanently denied, we cannot request permissions.');
-  //   }
-  //
-  //   // When we reach here, permissions are granted and we can
-  //   // continue accessing the position of the device.
-  //   return await Geolocator.getCurrentPosition();
-  // }
 
   void _toggleListening() {
 
-    bg.BackgroundGeolocation.getCurrentPosition().then((v) {
+    bg.BackgroundGeolocation.getCurrentPosition(
+        persist: false, // Mövqeyi yadda saxlamamaq üçün
+        samples: 1,     // Yalnız bir dəfə mövqeyi götür
+        maximumAge: 0,  // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqliklə mövqe əldə etmək
+        timeout: 30     //
+    ).then((v) {
       _currentLocation = v;
       controllerGirisCixis.changeSelectedDistance(
           controllerGirisCixis.selectedTemsilci.value,
@@ -200,9 +131,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
 
   }
 
-  void _updatePositionList(PositionItemType type, String displayValue) {
-    setState(() {});
-  }
 
   @override
   void dispose() {
@@ -220,28 +148,10 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     setState(() {
-      // if(state==AppLifecycleState.inactive){
-      //   if(_positionStreamSubscription!=null){
-      //   _positionStreamSubscription!.cancel();}
-      //  }
-    });
-  }
-
-  Future<bool> enableBackgroundMode() async {
-    var status = await Permission.locationAlways.status;
-    if (!status.isGranted) {
-      var status = await Permission.locationAlways.request();
-      if (status.isGranted) {
-        return true;
-        //Do some stuff
-      } else {
-        return false;
-        //Do another stuff
+      if(state==AppLifecycleState.inactive){
+        Get.back();
       }
-    } else {
-      return false;
-      //previously available, do some stuff or nothing
-    }
+    });
   }
 
   @override
@@ -326,7 +236,12 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                 ? const Center(
                     child: CircularProgressIndicator(color: Colors.green),
                   )
-                : _body(context, controller)));
+                :
+            !gpsNotFound?
+            _body(context, controller)
+                :NoDataFound(height: 200,width: 200,callBack: (){
+              getAllCustomers();
+            },mustReloud: true,)));
       }),
     );
   }
@@ -573,59 +488,62 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                   icon: "lottie/locations_search.json",
                   isDark: Get.isDarkMode),
             ))
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
-                  controllerGirisCixis.selectedTabItem.value.keyText != "gz")
-                Padding(
-                  padding:
-                      const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
-                  child: CustomText(
-                      labeltext: controllerGirisCixis
-                                  .selectedTemsilci.value.code ==
-                              "u"
-                          ? "$selectedItemsLabel (${controllerGirisCixis.listSelectedMusteriler.length})"
-                          : "${controllerGirisCixis.selectedTemsilci.value.name!} ( ${controllerGirisCixis.listSelectedMusteriler.length} )",
-                      fontsize: 18,
-                      fontWeight: FontWeight.bold,
-                      textAlign: TextAlign.start),
-                )
-              else
-                const SizedBox(),
-              controllerGirisCixis.marketeGirisEdilib.isFalse &&
-                      (controllerGirisCixis.listSifarisler.isNotEmpty ||
-                          controllerGirisCixis.listIadeler.isNotEmpty)
-                  ? controllerGirisCixis.cardTotalSifarisler(context, false)
-                  : const SizedBox(), //sifarisleri gosteren hisse
-              SizedBox(
-                  height: controllerGirisCixis.marketeGirisEdilib.isFalse &&
-                          (controllerGirisCixis.listSifarisler.isNotEmpty ||
-                              controllerGirisCixis.listIadeler.isNotEmpty)
-                      ? MediaQuery.of(context).size.height * 0.62
-                      : MediaQuery.of(context).size.height * 0.7,
-                  child: controllerGirisCixis.selectedTabItem.value.keyText !=
-                              "z" &&
-                          controllerGirisCixis.selectedTabItem.value.keyText !=
-                              "gz"
-                      ? ListView(
-                          controller: scrollController,
-                          padding: const EdgeInsets.all(0).copyWith(bottom: 0),
-                          children: controllerGirisCixis.listSelectedMusteriler
-                              .map((e) => widgetCustomers(e))
-                              .toList(),
-                        )
-                      : controllerGirisCixis.modelRutPerform.value
-                                  .listGirisCixislar!.isEmpty &&
-                              controllerGirisCixis.modelRutPerform.value
-                                  .listGonderilmeyenZiyaretler!.isEmpty
-                          ? const SizedBox()
-                          : ziyaretEdilenler(controllerGirisCixis
-                                  .selectedTabItem.value.keyText ==
-                              "z")),
-            ],
-          );
+        : RefreshIndicator(
+      onRefresh: getAllCustomers,
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
+                    controllerGirisCixis.selectedTabItem.value.keyText != "gz")
+                  Padding(
+                    padding:
+                        const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
+                    child: CustomText(
+                        labeltext: controllerGirisCixis
+                                    .selectedTemsilci.value.code ==
+                                "u"
+                            ? "$selectedItemsLabel (${controllerGirisCixis.listSelectedMusteriler.length})"
+                            : "${controllerGirisCixis.selectedTemsilci.value.name!} ( ${controllerGirisCixis.listSelectedMusteriler.length} )",
+                        fontsize: 18,
+                        fontWeight: FontWeight.bold,
+                        textAlign: TextAlign.start),
+                  )
+                else
+                  const SizedBox(),
+                controllerGirisCixis.marketeGirisEdilib.isFalse &&
+                        (controllerGirisCixis.listSifarisler.isNotEmpty ||
+                            controllerGirisCixis.listIadeler.isNotEmpty)
+                    ? controllerGirisCixis.cardTotalSifarisler(context, false)
+                    : const SizedBox(), //sifarisleri gosteren hisse
+                SizedBox(
+                    height: controllerGirisCixis.marketeGirisEdilib.isFalse &&
+                            (controllerGirisCixis.listSifarisler.isNotEmpty ||
+                                controllerGirisCixis.listIadeler.isNotEmpty)
+                        ? MediaQuery.of(context).size.height * 0.62
+                        : MediaQuery.of(context).size.height * 0.7,
+                    child: controllerGirisCixis.selectedTabItem.value.keyText !=
+                                "z" &&
+                            controllerGirisCixis.selectedTabItem.value.keyText !=
+                                "gz"
+                        ? ListView(
+                            controller: scrollController,
+                            padding: const EdgeInsets.all(0).copyWith(bottom: 0),
+                            children: controllerGirisCixis.listSelectedMusteriler
+                                .map((e) => widgetCustomers(e))
+                                .toList(),
+                          )
+                        : controllerGirisCixis.modelRutPerform.value
+                                    .listGirisCixislar!.isEmpty &&
+                                controllerGirisCixis.modelRutPerform.value
+                                    .listGonderilmeyenZiyaretler!.isEmpty
+                            ? const SizedBox()
+                            : ziyaretEdilenler(controllerGirisCixis
+                                    .selectedTabItem.value.keyText ==
+                                "z")),
+              ],
+            ),
+        );
   }
 
   Widget ziyaretEdilenler(bool showZiyaretler) {
@@ -1231,11 +1149,18 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
 
   Future<void> showGirisDialog(ModelCariler model) async {
     DialogHelper.showLoading("mesHesablanir".tr);
-    bg.BackgroundGeolocation.getCurrentPosition().then((e) {
+    secilenMarketdenUzaqliq=marketeGirisIcazeMesafesi+100;
+    if(await permitionController.checkGPSStatusWithPermissionHandler()){
+      bg.BackgroundGeolocation.getCurrentPosition(
+        persist: false, // Mövqeyi yadda saxlamamaq üçün
+        samples: 50,     // Yalnız bir dəfə mövqeyi götür
+        maximumAge: 0,  // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqliklə mövqe əldə etmək
+        timeout: 3     //
+    ).then((e) {
       selectedCariModel = model;
       _currentLocation=e;
-      secilenMusterininRutGunuDuzluyu =
-          controllerGirisCixis.rutGununuYoxla(model);
+      secilenMusterininRutGunuDuzluyu =controllerGirisCixis.rutGununuYoxla(model);
       secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(
           e.coords.latitude,
           e.coords.longitude,
@@ -1320,6 +1245,28 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                       const SizedBox(
                                         height: 5,
                                       ),
+                                      Expanded(
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            CustomText(
+                                              labeltext:"mesafe".tr+" : ",
+                                              fontsize: 14,
+                                              maxline: 1,
+                                              textAlign: TextAlign.start,
+                                            ),
+                                            CustomText(
+                                              labeltext:secilenMarketdenUzaqliqString,
+                                              fontsize: 14,
+                                              maxline: 1,
+                                              fontWeight: FontWeight.bold,
+                                              textAlign: TextAlign.start,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
                                     ],
                                   )
                                 : Column(
@@ -1348,8 +1295,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                   children: [
                                     CustomElevetedButton(
                                         borderColor: Colors.black,
-                                        width:
-                                            MediaQuery.of(context).size.width *
+                                        width: MediaQuery.of(context).size.width *
                                                 0.4,
                                         height: 40,
                                         textColor: Colors.red,
@@ -1361,7 +1307,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                               secilenMarketdenUzaqliq,
                                               e,
                                               model);
-                                          //Get.back();
                                         },
                                         label: "giris".tr)
                                   ],
@@ -1387,7 +1332,15 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
           barrierDismissible: false,
           transitionCurve: Curves.easeOut,
           transitionDuration: const Duration(milliseconds: 400));
-    });
+    });}else{
+      Get.dialog(ShowInfoDialog(
+          messaje: "gpsError".tr,
+          icon: Icons.gps_off,
+          callback: () async {
+            controllerGirisCixis.dataLoading.value=false;
+            Get.back();
+          }));
+    }
     // _determinePosition().then((value) =>
     // {
     //   selectedCariModel = model,
@@ -1733,165 +1686,236 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
         ));
   }
 
+
   Future<void> showCixisDialog() async {
     DialogHelper.showLoading("mesafeHesablanir".tr);
+    if(await permitionController.checkGPSStatusWithPermissionHandler()) {
+      bg.BackgroundGeolocation.getCurrentPosition(
+          persist: false,
+          // Mövqeyi yadda saxlamamaq üçün
+          samples: 50, // GPS sensorundan bir neçə nümunə götür
+          // Yalnız bir dəfə mövqeyi götür
+          maximumAge: 0,
+          // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
+          desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+          // Yüksək dəqiqliklə mövqe əldə etmək
+          timeout: 3 // Mövqeyi əldə etmək üçün maksimum gözləmə müddəti (3 saniyə)
+      ).then((bg.Location v) {
+        print("yeni konum : "+v.coords.toString());
+        _currentLocation = v;
+        secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(
+            v.coords.latitude,
+            v.coords.longitude,
+            double.parse(
+                controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!),
+            double.parse(controllerGirisCixis.modelgirisEdilmis.value
+                .customerLongitude!));
+        print(" yeni secilenMarketdenUzaqliq : "+secilenMarketdenUzaqliq.toString());
+        if (secilenMarketdenUzaqliq > 1) {
+          secilenMarketdenUzaqliqString =
+          "${(secilenMarketdenUzaqliq).round()} km";
+        } else {
+          secilenMarketdenUzaqliqString =
+          "${(secilenMarketdenUzaqliq * 1000).round()} m";
+        }
+        if (secilenMarketdenUzaqliq < marketeGirisIcazeMesafesi / 1000) {
+          marketeCixisIcazesi = true;
+        } else {
+          marketeCixisIcazesi = false;
+        }
+        DialogHelper.hideLoading();
+        Get.dialog(
+            Material(
+              color: Colors.transparent,
+              elevation: 10,
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  margin: EdgeInsets.symmetric(
+                      vertical: MediaQuery
+                          .of(context)
+                          .size
+                          .height * 0.28,
+                      horizontal: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.1),
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: CustomText(
+                                      labeltext: "dcixis".tr,
+                                      fontsize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
 
-    bg.BackgroundGeolocation.getCurrentPosition().then((v) {
-      _currentLocation=v;
-      secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(
-          v.coords.latitude,
-          v.coords.longitude,
-          double.parse(
-              controllerGirisCixis.modelgirisEdilmis.value.customerLatitude!),
-          double.parse(
-              controllerGirisCixis.modelgirisEdilmis.value.customerLongitude!));
-      if (secilenMarketdenUzaqliq > 1) {
-        secilenMarketdenUzaqliqString =
-            "${(secilenMarketdenUzaqliq).round()} km";
-      } else {
-        secilenMarketdenUzaqliqString =
-            "${(secilenMarketdenUzaqliq * 1000).round()} m";
-      }
-      if (secilenMarketdenUzaqliq < marketeGirisIcazeMesafesi / 1000) {
-        marketeCixisIcazesi = true;
-      } else {
-        marketeCixisIcazesi = false;
-      }
-      DialogHelper.hideLoading();
-      Get.dialog(
-          Material(
-            color: Colors.transparent,
-            elevation: 10,
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                margin: EdgeInsets.symmetric(
-                    vertical: MediaQuery.of(context).size.height * 0.28,
-                    horizontal: MediaQuery.of(context).size.width * 0.1),
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: CustomText(
-                                    labeltext: "dcixis".tr,
-                                    fontsize: 24,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                          const SizedBox(
+                            height: 5,
                           ),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Expanded(
-                          flex: marketeCixisIcazesi ? 6 : 8,
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0)
-                                .copyWith(left: 20, right: 20),
-                            child: marketeCixisIcazesi
-                                ? Column(
-                                    children: [
-                                      Expanded(
-                                        child: CustomText(
-                                          labeltext:
-                                              "${controllerGirisCixis.modelgirisEdilmis.value.customerName!} ${"cixiEtmekIsteyi".tr}",
-                                          fontsize: 18,
-                                          maxline: 3,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      TextField(
-                                        controller:
-                                            controllerGirisCixis.ctCixisQeyd,
-                                        keyboardType: TextInputType.multiline,
-                                        maxLines: 3,
-                                        decoration: InputDecoration(
-                                            hintText: "cxQeyd".tr,
-                                            focusedBorder:
-                                                const OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        width: 1,
-                                                        color:
-                                                            Colors.redAccent))),
-                                      ),
-                                    ],
-                                  )
-                                : Column(
-                                    children: [
-                                      const Icon(Icons.info,
-                                          color: Colors.red, size: 40),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      CustomText(
-                                        labeltext:
-                                            "${"merketdenUzaqCixisXeta".tr}$marketeGirisIcazeMesafesi m-dir",
-                                        fontsize: 14,
-                                        maxline: 4,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
+                          Expanded(
+                            flex: marketeCixisIcazesi ? 6 : 8,
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0)
+                                  .copyWith(left: 20, right: 20),
+                              child: marketeCixisIcazesi
+                                  ? Column(
+                                children: [
+                                  Expanded(
+                                    child: CustomText(
+                                      labeltext:
+                                      "${controllerGirisCixis.modelgirisEdilmis
+                                          .value
+                                          .customerName!} ${"cixiEtmekIsteyi"
+                                          .tr}",
+                                      fontsize: 18,
+                                      maxline: 3,
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  TextField(
+                                    controller:
+                                    controllerGirisCixis.ctCixisQeyd,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: InputDecoration(
+                                        hintText: "cxQeyd".tr,
+                                        focusedBorder:
+                                        const OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                width: 1,
+                                                color:
+                                                Colors.redAccent))),
+                                  ),
+                                ],
+                              )
+                                  : Column(
+                                children: [
+                                  const Icon(Icons.info,
+                                      color: Colors.red, size: 40),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  CustomText(
+                                    labeltext:
+                                    "${"merketdenUzaqCixisXeta"
+                                        .tr}$marketeGirisIcazeMesafesi m-dir",
+                                    fontsize: 14,
+                                    maxline: 4,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          flex: marketeCixisIcazesi ? 3 : 0,
-                          child: marketeCixisIcazesi
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    CustomElevetedButton(
-                                        borderColor: Colors.black,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.4,
-                                        height: 40,
-                                        textColor: Colors.red,
-                                        icon: Icons.exit_to_app_rounded,
-                                        elevation: 5,
-                                        cllback: () {
+                          Expanded(
+                            flex: 2,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: CustomText(
+                                      labeltext: "mesafe".tr,
+                                      fontsize: 14,
+                                      fontWeight: FontWeight.normal),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: CustomText(
+                                      labeltext: secilenMarketdenUzaqliqString,
+                                      fontsize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Expanded(
+                            flex: marketeCixisIcazesi ? 3 : 0,
+                            child: marketeCixisIcazesi
+                                ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CustomElevetedButton(
+                                    borderColor: Colors.black,
+                                    width:
+                                    MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width *
+                                        0.4,
+                                    height: 40,
+                                    textColor: Colors.red,
+                                    icon: Icons.exit_to_app_rounded,
+                                    elevation: 5,
+                                    cllback: () async {
+                                      await backgroudLocationServiz
+                                          .stopBackGroundFetch().then((a) {
+                                        if (a) {
                                           cixisEt(secilenMarketdenUzaqliq, v);
                                           Get.back();
-                                        },
-                                        label: "cixiset".tr)
-                                  ],
-                                )
-                              : const SizedBox(),
-                        ),
-                      ],
-                    ),
-                    Positioned(
-                        top: -5,
-                        right: -5,
-                        child: IconButton.outlined(
-                            onPressed: () {
-                              Get.back();
-                            },
-                            icon: const Icon(
-                              Icons.highlight_remove,
-                              color: Colors.red,
-                            )))
-                  ],
-                )),
-          ),
-          barrierDismissible: false,
-          transitionCurve: Curves.easeOut,
-          transitionDuration: const Duration(milliseconds: 400));
-    });
+                                        } else {
+                                          Get.dialog(ShowInfoDialog(
+                                              messaje: "cixisError".tr,
+                                              icon: Icons.error,
+                                              callback: () {}));
+                                        }
+                                      });
+                                    },
+                                    label: "cixiset".tr)
+                              ],
+                            )
+                                : const SizedBox(),
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                          top: -5,
+                          right: -5,
+                          child: IconButton.outlined(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              icon: const Icon(
+                                Icons.highlight_remove,
+                                color: Colors.red,
+                              )))
+                    ],
+                  )),
+            ),
+            barrierDismissible: false,
+            transitionCurve: Curves.easeOut,
+            transitionDuration: const Duration(milliseconds: 400));
+      }).catchError((error) {
+        print("Mövqe əldə edilmədi: $error");
+      });
+    }else{
+      Get.dialog(ShowInfoDialog(
+          messaje: "gpsError".tr,
+          icon: Icons.gps_off,
+          callback: () async {
+            controllerGirisCixis.dataLoading.value=false;
+            Get.back();
+          }));
+    }
 
     // _determinePosition().then((value) =>
     // {
@@ -2066,13 +2090,14 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
 
   Future<void> girisEt(String uzaqliqString, double uzaqliq, bg.Location value,
       ModelCariler model) async {
-    await controllerGirisCixis
-        .pripareForEnter(uzaqliqString, value, model, secilenMarketdenUzaqliq)
-        .then((e) {
-      setState(() {
-        selectedCariModel = ModelCariler();
-      });
-    });
+       await controllerGirisCixis
+           .pripareForEnter(uzaqliqString, value, model, secilenMarketdenUzaqliq)
+           .then((e) {
+         setState(() {
+           selectedCariModel = ModelCariler();
+         });
+       });
+
   }
 
   widgetOfisGiris(ModelCariler e) {
@@ -2171,4 +2196,5 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
       ],
     );
   }
+
 }

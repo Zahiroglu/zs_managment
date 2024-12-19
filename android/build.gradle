@@ -1,36 +1,38 @@
 plugins {
-   // id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-   // id "com.android.application" version "{agpVersion}" apply false
-   // id "org.jetbrains.kotlin.android" version "{kotlinVersion}" apply false
-    id "com.google.gms.google-services" version "4.4.1" apply false
-    id "com.google.firebase.crashlytics" version "2.9.9" apply false
+    id "com.android.application" version "7.3.0" apply false // Android Gradle Plugin
+    id "org.jetbrains.kotlin.android" version "1.9.0" apply false // Kotlin Plugin
+    id "com.google.gms.google-services" version "4.4.1" apply false // Google Services Plugin
+    id "com.google.firebase.crashlytics" version "2.9.9" apply false // Firebase Crashlytics Plugin
 }
+
 allprojects {
     repositories {
-        google()
-        mavenCentral()
-        maven { url "${project(':flutter_background_geolocation').projectDir}/libs" }
-        maven { url 'https://developer.huawei.com/repo/' }
-        // [required] background_fetch
-        maven { url "${project(':background_fetch').projectDir}/libs" }
+        google() // Google Repository
+        mavenCentral() // Maven Central Repository
+        maven { url "${project(':flutter_background_geolocation').projectDir}/libs" } // Flutter Background Geolocation
+        maven { url 'https://developer.huawei.com/repo/' } // Huawei Repository
+        maven { url "${project(':background_fetch').projectDir}/libs" } // Background Fetch
     }
 }
+
 ext {
-    compileSdkVersion   = 34                // or higher / as desired
-    targetSdkVersion    = 33                // or higher / as desired
-    minSdkVersion       = 21                // Required minimum
-    appCompatVersion    = "1.4.2"           // or higher / as desired
-    playServicesLocationVersion = "21.0.1"  // or higher / as desired
+    compileSdkVersion   = 34                // SDK Version used for compilation
+    targetSdkVersion    = 34                // Target SDK Version
+    minSdkVersion       = 21                // Minimum Supported SDK Version
+    appCompatVersion    = "1.5.1"           // AppCompat Library Version
+    playServicesLocationVersion = "21.0.1"  // Play Services Location Library Version
 }
 
 rootProject.buildDir = '../build'
+
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.buildDir = "${rootProject.buildDir}/${project.name}" // Custom Build Directory for Subprojects
 }
+
 subprojects {
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(':app') // Ensure ':app' is evaluated before others
 }
 
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete rootProject.buildDir // Clean Build Directory
 }

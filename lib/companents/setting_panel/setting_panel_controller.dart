@@ -23,7 +23,7 @@ class SettingPanelController extends GetxController{
      if(model!=null){
        modelModule.value=model;
      }else {
-       localUserServices.init();
+       await localUserServices.init();
        modelModule.value = localUserServices
            .getLoggedUser()
            .userModel!;

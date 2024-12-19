@@ -98,7 +98,7 @@ dependencies:
   cloud_firestore: ^5.1.0
   workmanager: ^0.5.2
   scrollable_positioned_list: ^0.3.8
-  flutter_background_geolocation: ^4.8.1 # və ya ən son versiyanı yoxlayın
+  flutter_background_geolocation: ^4.10.0
 
 dev_dependencies:
   flutter_test:
