@@ -115,51 +115,6 @@ class ControllerLiveTrack extends GetxController {
     polylines.clear();
     circles.clear();
     for (var element in listTrack) {
-      if (element.lastInoutAction != null) {
-        if (element.lastInoutAction!.outDate == ""&&element.lastInoutAction!.customerLongitude!="") {
-          String marketMarkerId="${element.lastInoutAction!.customerCode}-${element.lastInoutAction!.inDate}";
-           markers.removeWhere((e)=>e.markerId.value==marketMarkerId);
-            markers.add(map.Marker(
-              markerId: map.MarkerId(marketMarkerId),
-              onTap: () {
-                selectedModel.value = element;
-                _onMarketMarkerClick(element);
-              },
-              icon: await getClusterBitmapMarket(
-                  120,
-                  element.lastInoutAction!.customerName.toString(),
-                  element.lastInoutAction!.outDate == null),
-              position: map.LatLng(
-                  double.parse(element.lastInoutAction!.customerLongitude!),
-                  double.parse(element.lastInoutAction!.customerLatitude!))));
-          createCircles(
-              element.lastInoutAction!.customerLatitude!,
-              element.lastInoutAction!.customerLongitude!,
-              element.lastInoutAction!.customerCode!,
-              element.lastInoutAction!.outDate == null);
-          addPolyLineForEnter(
-              true,
-              listTrack.indexOf(element).toString(),
-              element.lastInoutAction!.customerLongitude!,
-              element.lastInoutAction!.customerLatitude!,
-              element.currentLocation!.latitude!,
-              element.currentLocation!.longitude!);
-        }
-        String userMarkerId="${element.userCode}-${element.userPosition}";
-        markers.removeWhere((e)=>e.markerId.value==userMarkerId);
-        markers.add(map.Marker(
-            markerId: map.MarkerId(userMarkerId),
-            onTap: () {
-              onPositionMarkerClick(element.lastInoutAction, element);
-            },
-            icon: await getClusterBitmapMenimYerim( 120,
-                element.currentLocation!.isOnline!,
-                element.currentLocation!.userFullName!),
-            position: map.LatLng(
-                double.parse(element.currentLocation!.latitude!),
-                double.parse(element.currentLocation!.longitude!))));
-        update();
-      }
         String userMarkerId="${element.userCode}-${element.userPosition}";
         markers.removeWhere((e)=>e.markerId.value==userMarkerId);
         markers.add(map.Marker(
@@ -294,14 +249,19 @@ class ControllerLiveTrack extends GetxController {
   Future<void> onPositionMarkerClick(LastInoutAction? actionTrackIn, ModelLiveTrack model) async {
     userMarkerSelected.value = true;
     searcAktive.value = false;
-    snappingSheetController.value .snapToPosition(const SnappingPosition.pixels(positionPixels: 110));
+    snappingSheetController.value.snapToPosition(
+        const SnappingPosition.pixels(positionPixels: 110));
     print("Iconda ustune basildi");
     if (model.lastInoutAction != null) {
       print("model.lastInoutAction != null");
-
+      createMarkerCirculeAndPolyline(model);
+      selectedModel.value = model;
+      update();
+    }
+  }
+    createMarkerCirculeAndPolyline(ModelLiveTrack model) async {
       if (model.lastInoutAction!.outDate == ""||model.lastInoutAction!.customerLongitude!="") {
         print("model.lastInoutAction!.outDate == ""&&model.lastInoutAction!.customerLongitude!=""");
-
         String marketMarkerId="${model.lastInoutAction!.customerCode}-${model.lastInoutAction!.inDate}";
         markers.removeWhere((e)=>e.markerId.value==marketMarkerId);
         markers.add(map.Marker(
@@ -312,35 +272,24 @@ class ControllerLiveTrack extends GetxController {
             },
             icon: await getClusterBitmapMarket(
             120,
-                model.lastInoutAction!.customerName.toString(),
-                model.lastInoutAction!.outDate == null),
+            model.lastInoutAction!.customerName.toString(),
+            model.lastInoutAction!.outDate == null),
             position: map.LatLng(
-                double.parse(model.lastInoutAction!.customerLongitude!),
-                double.parse(model.lastInoutAction!.customerLatitude!))));
-    createCircles(
-        model.lastInoutAction!.customerLatitude!,
-        model.lastInoutAction!.customerLongitude!,
-        model.lastInoutAction!.customerCode!,
-        model.lastInoutAction!.outDate == null);
-    String userMarkerId="${model.userCode}-${model.userPosition}";
-    markers.removeWhere((e)=>e.markerId.value==userMarkerId);
-    markers.add(map.Marker(
-    markerId: map.MarkerId(userMarkerId),
-    onTap: () {
-    onPositionMarkerClick(model.lastInoutAction, model);
-    },
-    icon: await getClusterBitmapMenimYerim( 120,
-        model.currentLocation!.isOnline!,
-        model.currentLocation!.userFullName!),
-    position: map.LatLng(
-    double.parse(model.currentLocation!.latitude!),
-    double.parse(model.currentLocation!.longitude!))));
-    update();
+                double.parse(model.lastInoutAction!.customerLatitude!),
+                double.parse(model.lastInoutAction!.customerLongitude!))));
+      createCircles(
+      model.lastInoutAction!.customerLongitude!,
+      model.lastInoutAction!.customerLatitude!,
+      model.lastInoutAction!.customerCode!,
+      model.lastInoutAction!.outDate == null);
+      addPolyLineForEnter(
+      true,
+      listTrackdata.indexOf(model).toString(),
+      model.lastInoutAction!.customerLatitude!,
+      model.lastInoutAction!.customerLongitude!,
+      model.currentLocation!.latitude!,
+      model.currentLocation!.longitude!);
     }}
-
-    selectedModel.value = model;
-    update();
-  }
 
   Future<void> getAllDataFromServer() async {
     int dviceType = checkDviceType.getDviceType();

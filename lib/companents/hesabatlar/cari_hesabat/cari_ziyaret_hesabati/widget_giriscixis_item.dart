@@ -91,7 +91,7 @@ class WidgetGirisCixisItem extends StatelessWidget {
                        height: 20,
                        color: Colors.red,
                      ),
-                     CustomText(labeltext: "cixisVaxt".tr+" : "),
+                     CustomText(labeltext: "${"cixisVaxt".tr} : "),
                      const SizedBox(
                        width: 2,
                      ),

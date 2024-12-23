@@ -306,7 +306,6 @@ void backgroundTaskHandler(bg.HeadlessEvent event) async {
   }
 }
 
-
 Future<bool> checkMobileDataStatus() async {
   final connectivityResult = await Connectivity().checkConnectivity();
   if (connectivityResult == ConnectivityResult.mobile) {
@@ -319,22 +318,20 @@ Future<bool> checkMobileDataStatus() async {
 }
 
 Future<void> sendInfoLocationsToDatabase(bg.Location location, FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
- // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   LocalUserServices userService = LocalUserServices();
   LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
-  //await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
   await userService.init();
   await localBackgroundEvents.init();
   await localGirisCixisServiz.init();
   ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
   double uzaqliq=0;
   if(modela.customerCode!=null){
-    uzaqliq = calculateDistance(
+    uzaqliq = calculateDistanceInMeters(
       location.coords.latitude,
       location.coords.longitude,
-      double.parse(modela.customerLatitude!),
       double.parse(modela.customerLongitude!),
+      double.parse(modela.customerLatitude!),
     );
   }
   LoggedUserModel loggedUserModel = userService.getLoggedUser();
@@ -434,16 +431,15 @@ Future<void> sendErrorsToServers(String xetaBasliq, String xetaaciqlama,String l
   }
 }
 
-double calculateDistance(lat1, lon1, lat2, lon2) {
-  var p = 0.017453292519943295;
+double calculateDistanceInMeters(double lat1, double lon1, double lat2, double lon2) {
+  const double p = 0.017453292519943295; // Radians conversion factor
   var c = cos;
-  var a = 0.5 -
+  final double a = 0.5 -
       c((lat2 - lat1) * p) / 2 +
       c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-  double uzaqliq = 12742 * asin(sqrt(a));
-  return uzaqliq;
+  double distanceInKm = 12742 * asin(sqrt(a)); // Earth's diameter in kilometers
+  return distanceInKm * 1000; // Convert to meters
 }
-
 
 class MyApp extends StatefulWidget {
   final Map<String, Map<String, String>> languages;
@@ -452,7 +448,6 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
-
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();

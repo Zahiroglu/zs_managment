@@ -33,11 +33,20 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
 
 
   @override
+  void initState() {
+    if(settingPanelController.initialized){
+      settingPanelController.getCurrentLoggedUserFromLocale(UserModel());
+    }
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Material(child:
         GetBuilder<LocalizationController>(builder: (localizationController) {
       return  Scaffold(
-        body: NestedScrollView(
+        body: Obx((){return NestedScrollView(
           controller: _scrollControllerNested,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
@@ -74,7 +83,7 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
                           ],
                           borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))
                       ),
-                      child:  widgetHeaderFull(localizationController),
+                      child:  settingPanelController.dataLoading.isFalse?  widgetHeaderFull(localizationController):SizedBox(),
                     ),
                     collapseMode: CollapseMode.values[0],
                     centerTitle: true,
@@ -89,17 +98,17 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
               )
             ];
           },
-          body:  widgetSettingPart(settingPanelController.modelModule.value, themaController),
-        ),
+          body: settingPanelController.dataLoading.isFalse? widgetSettingPart(settingPanelController.modelModule.value, themaController):Center(child: CircularProgressIndicator(color: Colors.green,),),
+        );}),
       );
-      return Scaffold(
-          body: Obx(() => Column(
-            children: [
-              widgetHeaderFull(localizationController),
-              widgetSettingPart(settingPanelController.modelModule.value, themaController),
-            ],
-          )));
     }));
+  }
+
+
+  @override
+  void dispose() {
+    Get.delete<SettingPanelController>();
+    super.dispose();
   }
 
   void _openDrawer() {

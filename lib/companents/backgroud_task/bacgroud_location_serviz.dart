@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 as bg;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/backgroud_task/backgroud_errors/model_back_error.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
@@ -40,20 +39,15 @@ class BackgroudLocationServiz extends GetxController {
   RxBool hasConnection=true.obs;
 
 
-
   Future<void> startBackgorundFetck(ModelCustuomerVisit modela) async {
     try {
-      // Servisləri başlat
-      await userService.init();
-      await localBackgroundEvents.init();
-      await localGirisCixisServiz.init();
       bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
         try {
           final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
             persist: false,
             samples: 400,
             maximumAge: 0,
-            timeout: 30,
+            timeout: 5,
           );
           if (initialLocation!.mock) {
             await sendErrorsToServers( blok, "Samir :Saxta GPS məlumatı aşkarlandı: ${initialLocation.coords}");
@@ -61,7 +55,7 @@ class BackgroudLocationServiz extends GetxController {
             cureentTime.value = DateTime.now();
             currentLatitude.value = initialLocation.coords.latitude;
             currentLongitude.value = initialLocation.coords.longitude;
-            await sendInfoLocationsToDatabase(initialLocation);
+            await sendInfoLocationsToDatabase(initialLocation,modela);
           }
         } catch (e) {
           print("Samir :Heartbeat xətası: $e");
@@ -147,12 +141,12 @@ class BackgroudLocationServiz extends GetxController {
       // Başlanğıc yer məlumatını dərhal götür
       final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
         persist: false,
-        samples: 2,
+        samples: 1,
         maximumAge: 0,
         timeout: 5,
       );
       if (initialLocation != null) {
-        await sendInfoLocationsToDatabase(initialLocation);
+        await sendInfoLocationsToDatabase(initialLocation,modela);
       } } catch (e) {
       print("Samir : startBackgroundFetch xətası: $e");
     }
@@ -179,20 +173,22 @@ class BackgroudLocationServiz extends GetxController {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
 
-  Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
+  Future<void> sendInfoLocationsToDatabase(bg.Location location, ModelCustuomerVisit modelBirinci) async {
     await userService.init();
     await localBackgroundEvents.init();
     await localGirisCixisServiz.init();
     await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
-
     ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
+    if(modela.customerLongitude!=null){
+      modela=modelBirinci;
+    }
     double uzaqliq=0;
     if(modela.customerCode!=null){
-      uzaqliq = calculateDistance(
+      uzaqliq = calculateDistanceInMeters(
       location.coords.latitude,
       location.coords.longitude,
-      double.parse(modela.customerLatitude!),
       double.parse(modela.customerLongitude!),
+      double.parse(modela.customerLatitude!),
     );
     }
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
@@ -283,16 +279,15 @@ class BackgroudLocationServiz extends GetxController {
     }
   }
 
-  double calculateDistance(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;
+  double calculateDistanceInMeters(double lat1, double lon1, double lat2, double lon2) {
+    const double p = 0.017453292519943295; // Radians conversion factor
     var c = cos;
-    var a = 0.5 -
+    final double a = 0.5 -
         c((lat2 - lat1) * p) / 2 +
         c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    double uzaqliq = 12742 * asin(sqrt(a));
-    return uzaqliq;
+    double distanceInKm = 12742 * asin(sqrt(a)); // Earth's diameter in kilometers
+    return distanceInKm * 1000; // Convert to meters
   }
-
   ////////// back errors
   Future<void> sendErrorsToServers(String xetaBasliq, String xetaaciqlama) async {
     await userService.init();

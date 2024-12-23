@@ -117,7 +117,8 @@ class ControllerExpPref extends GetxController {
   }
 
   ////umumi cariler hissesi
-  void getAllCariler(List<ModelCariler> listMercBaza, List<ModelMainInOut> listGirisCixis, List<UserModel> listmercendaizers) {
+  Future<void> getAllCariler(List<ModelCariler> listMercBaza, List<ModelMainInOut> listGirisCixis, List<UserModel> listmercendaizers) async {
+   await userService.init();
     listSelectedExpBaza.clear();
     listFilteredUmumiBaza.clear();
     listRutGunleri.clear();

@@ -410,6 +410,10 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
           initialCameraPosition: map.CameraPosition(target: _initialPosition),
           onTap: (v) {
             setState(() {
+              String marketMarkerId="${controllerGirisCixis.selectedModel.value.lastInoutAction!.customerCode}-${controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate}";
+              controllerGirisCixis.markers.removeWhere((e)=>e.markerId.value==marketMarkerId);
+              controllerGirisCixis.circles.clear();
+              controllerGirisCixis.polylines.clear();
               controllerGirisCixis.selectedModel.value = ModelLiveTrack();
               controllerGirisCixis.userMarkerSelected.isFalse
                   ? controllerGirisCixis.snappingSheetController.value
@@ -762,6 +766,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
   }
 
   _widgetUserInfo(BuildContext context) {
+    double cariSurret=double.parse(controllerGirisCixis.selectedModel.value.currentLocation!.speed!);
     return Container(
       padding: const EdgeInsets.only(top: 25, left: 10),
       child: Column(
@@ -833,12 +838,47 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                                     color: Colors.black87,
                                     labeltext: "${controllerGirisCixis
                                         .selectedModel.value.currentLocation!.speed} km"),
+                                const SizedBox(width: 5,),
+                                cariSurret>1?
+                                Container(
+                                  height: 15,
+                                  padding: const EdgeInsets.only(left: 5,right: 5),
+                                  decoration: const BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius:BorderRadius.all( Radius.circular(5))
+                                  ),
+                                  child: CustomText(labeltext: "${"hereketdedir".tr}"),
+                                ):Container(
+                                  height: 15,
+                                  padding: const EdgeInsets.only(left: 5,right: 5),
+                                  decoration: const BoxDecoration(
+                                      color: Colors.orange,
+                                      borderRadius:BorderRadius.all( Radius.circular(5))
+                                  ),
+                                  child: CustomText(labeltext: "${"stabildir".tr}",),)
                               ],
                             ),
                             const Spacer()
                           ],
                         ),
                       ),
+                      Padding(padding: const EdgeInsets.all(5),
+                        child: controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5?
+                        Container(
+                          padding: const EdgeInsets.only(left: 5,right: 5,top: 2,bottom: 2),
+                          decoration: const BoxDecoration(
+                              color: Colors.green,
+                              borderRadius:BorderRadius.all( Radius.circular(5))
+                          ),
+                          child: CustomText(labeltext: "${"cixisEdilib".tr} : ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate.toString().substring(11,16)}",),
+                        ):Container(
+                          padding: const EdgeInsets.only(left: 5,right: 5,top: 2,bottom: 2),
+                          decoration: const BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius:BorderRadius.all( Radius.circular(5))
+                          ),
+                          child: CustomText(labeltext: "${"marketdedir".tr} : ${controllerGirisCixis.selectedModel.value.currentLocation!.inputCustomerDistance!} m"??"0",),),
+                      )
 
                     ],
                   ),
@@ -1028,6 +1068,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
   Widget searchUsers(BuildContext context){
    return  SearchLiveUsers(listUsers: controllerGirisCixis.listTrackdata,callBack: (element){
      if(element.userCode!=null){
+       controllerGirisCixis.createMarkerCirculeAndPolyline(element);
        controllerGirisCixis.searcAktive.value=false;
        controllerGirisCixis.selectedModel.value=element;
        controllerGirisCixis.userMarkerSelected.value=true;
@@ -1044,6 +1085,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
            newgooglemapxontroller!.animateCamera(
                map.CameraUpdate.newCameraPosition(cameraPosition)));
      }
-   }, selectedUser: controllerGirisCixis.selectedModel.value,);
+   },
+     selectedUser: controllerGirisCixis.selectedModel.value,);
   }
 }

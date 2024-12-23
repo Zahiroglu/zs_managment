@@ -55,9 +55,13 @@ class _ScreenMercAdinaMusteriEalveEtmeState
 
   @override
   void initState() {
-    userService.init();
+    initServices();
     // TODO: implement initState
     super.initState();
+  }
+
+Future<void>  initServices() async {
+   await userService.init();
   }
 
   @override
