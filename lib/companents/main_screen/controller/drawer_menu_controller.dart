@@ -8,6 +8,7 @@ import 'package:get/get.dart' as getx;
 import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/companents/anbar/screan_anbar_esas.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesi.dart';
+import 'package:zs_managment/companents/isci_icazeleri/screen_icazeler.dart';
 import 'package:zs_managment/companents/live_track/screen_live_track.dart';
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/dashbourd/dashbourd_screen_mobile.dart';
@@ -31,6 +32,7 @@ import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
 import '../../base_downloads/screen_download_base.dart';
+import '../../giris_cixis/sceens/reklam_girisCixis/screen_giriscixis_reklamsobesiNew.dart';
 import '../../hesabatlar/wrong_entries/screen_wrongEntries.dart';
 import '../../local_bazalar/local_bazalar.dart';
 import '../../rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
@@ -95,10 +97,6 @@ class DrawerMenuController extends getx.GetxController {
   List<SelectionButtonData> addPermisionsInDrawerMenu(LoggedUserModel loggedUser) {
     dviceType = checkDviceType.getDviceType();
     drawerMenus.clear();
-    drawerMenus.forEach((element) {
-      print("Drawr :"+element.label.toString());
-
-    });
     SelectionButtonData dashboard = SelectionButtonData(
         icon: Icons.dashboard,
         label: "dashboard",
@@ -231,7 +229,7 @@ class DrawerMenuController extends getx.GetxController {
     }
   }
 
-  changeHover() {
+    changeHover() {
     aktivateHover.toggle();
     if (!aktivateHover.value) {
       isMenuExpended.value = false;
@@ -253,38 +251,6 @@ class DrawerMenuController extends getx.GetxController {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          isDesk
-              ? Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          changeHover();
-                        },
-                        icon: const Icon(Icons.menu)),
-                    isMenuExpended.isTrue
-                        ? const SizedBox()
-                        : const SizedBox(
-                      width: 10,
-                    ),
-                    isMenuExpended.isTrue
-                        ? const SizedBox()
-                        : CustomText(
-                        labeltext: "menular".tr,
-                        fontsize: 18,
-                        fontWeight: FontWeight.w600),
-                  ],
-                ),
-              ),
-            ),
-          )
-              : const SizedBox(),
           isMenuExpended.isTrue
               ? const Divider(
             height: 3,
@@ -292,7 +258,7 @@ class DrawerMenuController extends getx.GetxController {
           )
               : const SizedBox(),
           Expanded(
-            flex: dviceType == 3 || dviceType == 2 ? 14 : 10,
+            flex:  14,
             child: SingleChildScrollView(
               child: getx.Obx(() => Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -310,7 +276,7 @@ class DrawerMenuController extends getx.GetxController {
             color: Colors.grey,
           ),
           Expanded(
-            flex: dviceType == 3 || dviceType == 2 ? 5 : 5,
+            flex:  6,
             child: SingleChildScrollView(
               child: getx.Obx(() => Column(
                 children: drawerMenus
@@ -394,7 +360,7 @@ class DrawerMenuController extends getx.GetxController {
             : const Duration(milliseconds: 500),
         curve: Curves.linear,
         child: Padding(
-          padding: const EdgeInsets.all(10.0).copyWith(right: 0),
+          padding: const EdgeInsets.all(8.0).copyWith(right: 0),
           child: Column(
             children: <Widget>[
               getx.Obx(()=>Row(
@@ -719,7 +685,7 @@ class DrawerMenuController extends getx.GetxController {
       // if(modelAppSetting.userStartWork==true) {
          print("modelAppSetting.userStartWork==true");
          if (localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!)) {
-           pageView = ScreenGirisCixisReklam(drawerMenuController: this,);
+           pageView = ScreenGirisCixisReklamNew(drawerMenuController: this,);
            // print("localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!) : "+localBaseDownloads.getIfCariBaseDownloaded(userServices.getLoggedUser().userModel!.moduleId!).toString());
            // if (modelAppSetting.girisCixisType == "map") {
            //   print("xerite sehfesi secildi");
@@ -796,6 +762,11 @@ class DrawerMenuController extends getx.GetxController {
         await localGirisCixisServiz.init();
         List<ModelMainInOut> listGirisCixis= localGirisCixisServiz.getAllGirisCixisServer();
         pageView= ScreenMyVisitHistory(listGirisCixis: listGirisCixis,drawerMenuController: this,);
+        break;
+        case "screenIcaze":
+        await localGirisCixisServiz.init();
+        List<ModelMainInOut> listGirisCixis= localGirisCixisServiz.getAllGirisCixisServer();
+        pageView= ScreenIcazeler(drawerMenuController: this,);
         break;
     }
     selectedIndex.value = drawerIndexdata;

@@ -10,6 +10,13 @@ class UserPermitionsHelper {
   //  return  listPermitions.any((element)=>element.code==perCode);
   // }
 
+  bool canAccessForUsersLeave (List<ModelUserPermissions> listPermitions){
+    bool hasAccess=false;
+    if(listPermitions.isNotEmpty) {
+      hasAccess= listPermitions.any((e) => e.code=="canAccessForUsersLeave");
+    }
+    return hasAccess;
+  }
   bool canEditMercCustomersRutDay (List<ModelUserPermissions> listPermitions){
     bool hasAccess=false;
     if(listPermitions.isNotEmpty) {
@@ -35,6 +42,14 @@ class UserPermitionsHelper {
     bool hasAccess=false;
     if(listPermitions.isNotEmpty) {
       hasAccess= listPermitions.any((e) => e.code=="canCell");
+    }
+    return hasAccess;
+  }
+  bool canRemuveUserEnter(List<ModelUserPermissions> listPermitions) {
+    print("giris sile biler "+listPermitions.any((e) => e.id==25).toString());
+    bool hasAccess=false;
+    if(listPermitions.isNotEmpty) {
+      hasAccess= listPermitions.any((e) => e.id==25);
     }
     return hasAccess;
   }
@@ -114,11 +129,68 @@ class UserPermitionsHelper {
 
   bool liveTrack(List<ModelConfigrations> confirm) {
     if(confirm.where((c) => c.configId == 2).isNotEmpty){
-    bool liveTrack = bool.parse(confirm.where((c) => c.configId == 2).first.data1.toString());
-    return liveTrack;}else{
+    String liveTrack = confirm.where((c) => c.configId == 2).first.data1.toString();
+    return liveTrack=="full"?true:false;
+    }else{
       return false;
     }
   }
 
+  String workTimeInMarketsMinutes(List<ModelConfigrations> confirm) {
+    if(confirm.where((c) => c.configId == 11).isNotEmpty){
+      String liveTrack = confirm.where((c) => c.configId == 11).first.data1.toString();
+      return liveTrack;
+    }else{
+      return "0";
+    }
+  }
 
+  bool hasWorkTimeInMarketPenalty(List<ModelConfigrations> confirm) {
+    if(confirm.where((c) => c.configId == 10).isNotEmpty){
+      String liveTrack = confirm.where((c) => c.configId == 10).first.data1.toString();
+      return liveTrack=="true"?true:false;
+    }else{
+      return false;
+    }
+  }
+
+  bool hasTotalWorkTimePenalty(List<ModelConfigrations> confirm) {
+    if(confirm.where((c) => c.configId == 9).isNotEmpty){
+      String liveTrack = confirm.where((c) => c.configId == 9).first.data1.toString();
+      return liveTrack=="true"?true:false;
+    }else{
+      return false;
+    }
+  }
+
+  (bool,int) getMezuniyyetGunleri(List<ModelConfigrations> confirm) {
+    if(confirm.where((c) => c.configId == 12).isNotEmpty){
+      bool succes = confirm.where((c) => c.configId == 12).first.data1.toString()=="true"?true:false;
+      String gunsayi = confirm.where((c) => c.configId == 12).first.data2.toString();
+      return (succes,gunsayi!=""?int.parse(gunsayi):0);
+    }else{
+      return (false,0);
+    }
+
+  }
+
+  (bool,int) getResmiIcazeliGunSayi(List<ModelConfigrations> confirm) {
+    if(confirm.where((c) => c.configId == 13).isNotEmpty){
+      bool succes = confirm.where((c) => c.configId == 13).first.data1.toString()=="true"?true:false;
+      String gunsayi = confirm.where((c) => c.configId == 13).first.data2.toString();
+      return (succes,gunsayi!=""?int.parse(gunsayi):0);
+    }else{
+      return (false,0);
+    }
+  }
+
+  (bool,int) getResmiSaatliqIcazeSayi(List<ModelConfigrations> confirm) {
+    if(confirm.where((c) => c.configId == 14).isNotEmpty){
+      bool succes = confirm.where((c) => c.configId == 14).first.data1.toString()=="true"?true:false;
+      String gunsayi = confirm.where((c) => c.configId == 14).first.data2.toString();
+      return (succes,gunsayi!=""?int.parse(gunsayi):0);
+    }else{
+      return (false,0);
+    }
+  }
 }

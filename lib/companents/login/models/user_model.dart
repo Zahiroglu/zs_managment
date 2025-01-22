@@ -81,6 +81,7 @@ class UserModel {
   double? regionLongitude;
   @HiveField(32)
   List<ModelConfigrations>? configrations;
+  bool? blockedUser;
 
   UserModel({
     this.id,
@@ -116,6 +117,7 @@ class UserModel {
     this.regionLongitude,
     this.regionLatitude,
     this.configrations,
+    this.blockedUser,
   });
 
   UserModel copyWith({
@@ -195,6 +197,43 @@ class UserModel {
 
   String toRawJson() => json.encode(toJson());
 
+  // factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
+  //   id: json["Id"],
+  //   code: json["Code"],
+  //   name: json["Name"],
+  //   surname: json["Surname"],
+  //   fatherName: json["FatherName"],
+  //   birthdate: json["Birthdate"],
+  //   gender: json["Gender"]?1:0,
+  //   phone: json["Phone"],
+  //   email: json["Email"],
+  //   deviceId: json["DeviceId"],
+  //   moduleId: json["ModuleId"],
+  //   moduleName: json["ModuleName"],
+  //   roleId: json["RoleId"],
+  //   roleName: json["RoleName"],
+  //   regionCode: json["RegionCode"],
+  //   regionName: json["RegionName"],
+  //   regionLatitude: double.tryParse(json['RegionLatitude'].toString()),
+  //   regionLongitude: double.tryParse(json['RegionLongitude'].toString()),
+  //   deviceLogin: json["DeviceLogin"],
+  //   usernameLogin: json["UsernameLogin"],
+  //   username: json["Username"],
+  //   companyId: json["CompanyId"],
+  //   companyName: json["CompanyName"],
+  //   modelModules: json["ModelModules"] == null ? [] : List<ModelModule>.from(json["ModelModules"]!.map((x) => ModelModule.fromJson(x))),
+  //   connections: json["Connections"] == null ? [] : List<ModelUserConnection>.from(json["Connections"]!.map((x) => ModelUserConnection.fromJson(x))),
+  //   permissions: json["Permissions"] == null ? [] : List<ModelUserPermissions>.from(json["Permissions"]!.map((x) => ModelUserPermissions.fromJson(x))),
+  //   draweItems: json["Cards"] == null ? [] : List<ModelUserPermissions>.from(json["Cards"]!.map((x) => ModelUserPermissions.fromJson(x))),
+  //   expDate: json["ExpDate"],
+  //   addDateStr: json["AddDateStr"],
+  //   requestNumber: json["RequestNumber"],
+  //   lastOnlineDate: json["LastOnlineDate"],
+  //   active: json["Active"],
+  //   configrations: json["Configrations"] == null ? [] : List<ModelConfigrations>.from(json["Configrations"]!.map((x) => ModelConfigrations.fromJson(x))),
+  //
+  // );
+
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
     id: json["Id"],
     code: json["Code"],
@@ -202,18 +241,18 @@ class UserModel {
     surname: json["Surname"],
     fatherName: json["FatherName"],
     birthdate: json["Birthdate"],
-    gender: json["Gender"]?1:0,
+    gender: json["Gender"] == null ? 1 : (json["Gender"] ? 1 : 0),
     phone: json["Phone"],
     email: json["Email"],
     deviceId: json["DeviceId"],
     moduleId: json["ModuleId"],
     moduleName: json["ModuleName"],
     roleId: json["RoleId"],
+    regionLatitude: json["RegionLatitude"]!=null?double.parse(json["RegionLatitude"]):0,
+    regionLongitude: json["RegionLongitude"]!=null?double.parse(json["RegionLongitude"]):0,
     roleName: json["RoleName"],
     regionCode: json["RegionCode"],
     regionName: json["RegionName"],
-    regionLatitude: double.tryParse(json['RegionLatitude'].toString()),
-    regionLongitude: double.tryParse(json['RegionLongitude'].toString()),
     deviceLogin: json["DeviceLogin"],
     usernameLogin: json["UsernameLogin"],
     username: json["Username"],
@@ -228,9 +267,11 @@ class UserModel {
     requestNumber: json["RequestNumber"],
     lastOnlineDate: json["LastOnlineDate"],
     active: json["Active"],
+    blockedUser: json["BlockStatus"],
     configrations: json["Configrations"] == null ? [] : List<ModelConfigrations>.from(json["Configrations"]!.map((x) => ModelConfigrations.fromJson(x))),
 
   );
+
 
   Map<String, dynamic> toJson() => {
     "id": id,

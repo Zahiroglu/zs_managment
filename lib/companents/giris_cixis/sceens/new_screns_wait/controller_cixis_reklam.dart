@@ -680,6 +680,7 @@ class ControllerCixisReklam extends GetxController {
   //widgetss
   Widget widgetMusteriHesabatlari(ModelCariler selectedCariModel) {
     return WidgetCarihesabatlar(
+      loggedUser: loggedUserModel,
         cad: selectedCariModel.name ?? "",
         ckod: selectedCariModel.code ?? "",
         height: 110);

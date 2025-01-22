@@ -1,11 +1,14 @@
 import 'dart:convert';
 
+import 'package:zs_managment/companents/login/models/model_configrations.dart';
+
 class ModelLiveTrack {
   String? userCode;
   String? userPosition;
   String? userPositionName;
   String? userFullName;
   String? phoneNumber;
+  List<ModelConfigrations>? listUserConfigs;
   LastInoutAction? lastInoutAction;
   CurrentLocation? currentLocation;
 
@@ -22,6 +25,7 @@ class ModelLiveTrack {
     this.phoneNumber,
     this.lastInoutAction,
     this.currentLocation,
+    this.listUserConfigs,
   });
 
   factory ModelLiveTrack.fromRawJson(String str) => ModelLiveTrack.fromJson(json.decode(str));
@@ -34,6 +38,9 @@ class ModelLiveTrack {
     userPositionName: json["UserPositionName"],
     userFullName: json["UserFullName"],
     phoneNumber: json["PhoneNumber"],
+    listUserConfigs: (json['ListUserConfigs'] as List<dynamic>?)
+        ?.map((item) => ModelConfigrations.fromJson(item as Map<String, dynamic>))
+        .toList(),
     lastInoutAction: json['LastInoutAction'] != null ? LastInoutAction.fromJson(json['LastInoutAction']) : null,
     currentLocation: json['CurrentLocation'] != null ? CurrentLocation.fromJson(json['CurrentLocation']) : null,
 
@@ -65,6 +72,9 @@ class CurrentLocation {
   String? pastInputCustomerName;
   String? inputCustomerDistance;
   String? batteryLevel;
+  bool? isMoving;
+  double? locAccuracy;
+  String? screenState;
 
   CurrentLocation({
     this.userCode,
@@ -80,6 +90,9 @@ class CurrentLocation {
     this.pastInputCustomerName,
     this.inputCustomerDistance,
     this.batteryLevel,
+    this.isMoving,
+    this.locAccuracy,
+    this.screenState,
   });
 
   factory CurrentLocation.fromRawJson(String str) => CurrentLocation.fromJson(json.decode(str));
@@ -100,6 +113,9 @@ class CurrentLocation {
     pastInputCustomerName: json["PastInputCustomerName"],
     inputCustomerDistance: json["InputCustomerDistance"],
     batteryLevel: json["BatteryLevel"].toString(),
+    isMoving: json["IsMoving"],
+    locAccuracy: json["LocAccuracy"],
+    screenState: json["ScreenState"]!=""? json["ScreenState"]:"b",
   );
 
   Map<String, dynamic> toJson() => {
@@ -115,6 +131,7 @@ class CurrentLocation {
     "pastInputCustomerName": pastInputCustomerName,
     "inputCustomerDistance": inputCustomerDistance,
     "batteryLevel": batteryLevel,
+    "ScreenState": screenState,
   };
 
   @override

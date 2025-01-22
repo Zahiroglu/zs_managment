@@ -4,13 +4,13 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:hive/hive.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesabatlar.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/custom_text_field.dart';
+import '../../../constands/app_constands.dart';
 import '../../../dio_config/api_client.dart';
 import '../../../helpers/dialog_helper.dart';
 import '../../../routs/rout_controller.dart';
@@ -23,6 +23,9 @@ import '../../login/models/logged_usermodel.dart';
 import '../../login/models/user_model.dart';
 import '../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'package:intl/intl.dart' as intl;
+
+import '../../ziyaret_tarixcesi/model_requestreport_giriscixis.dart';
+import '../../ziyaret_tarixcesi/simple_user_request.dart';
 class WidgetHesabatListItemsUser extends StatefulWidget {
   BuildContext context;
   ModelCariHesabatlar modelCariHesabatlar;
@@ -164,7 +167,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(5.0).copyWith(bottom: 0),
-                  child: Icon(Icons.clear),
+                  child: const Icon(Icons.clear),
                 ),
               ),
             ),
@@ -296,7 +299,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(5.0).copyWith(bottom: 0),
-                  child: Icon(Icons.clear),
+                  child: const Icon(Icons.clear),
                 ),
               ),
             ),
@@ -453,10 +456,10 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     switch (widget.modelCariHesabatlar.key) {
       case "trhesabat":
         DialogHelper.showLoading("cmendirilir".tr);
-        List<ModelMainInOut> listGirisCixis = await getAllGirisCixis(widget.userCode,widget.roleId);
+        List<ModelMainInOut> listGirisCixis = await getUsersInfo();
         List<UserModel> listUsers = [];
         MercDataModel modela = await getAllCustomersMerc(widget.userCode);
-        if (modela.user != null) {
+        if (modela!=null) {
           Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela, listGirisCixis, listUsers]);
         } else {
           Get.dialog(ShowInfoDialog(
@@ -470,7 +473,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
         break;
         case "tzhesab":
         DialogHelper.showLoading("tzhesab".tr);
-        List<ModelMainInOut> listGirisCixis=await getAllGirisCixis(widget.userCode, widget.roleId);
+        List<ModelMainInOut> listGirisCixis=await getUsersInfo();
         if (listGirisCixis.isNotEmpty) {
           Get.toNamed(RouteHelper.screenTemZiyaret, arguments: [listGirisCixis]);
         } else {
@@ -485,22 +488,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
         break;
     }switch (widget.modelCariHesabatlar.key) {
       case "tizlemehesab":
-        Get.toNamed(RouteHelper.screenLiveTrackReport,arguments: [[]]);
-        // DialogHelper.showLoading(widget.modelCariHesabatlar.label!.tr);
-        // List<MyConnectedUsersCurrentLocationReport> listGirisCixis = [];
-        // listGirisCixis=await getMyConnectedUsersCurrentLocations(widget.userCode, widget.roleId);
-        // DialogHelper.hideLoading();
-        // if (listGirisCixis.isNotEmpty) {
-        //   Get.toNamed(RouteHelper.screenLiveTrackReport,arguments: [listGirisCixis]);
-        // } else {
-        //   Get.dialog(ShowInfoDialog(
-        //       messaje: "mtapilmadi".tr,
-        //       icon: Icons.error,
-        //       callback: () {
-        //         Get.back();
-        //         Get.back();
-        //       }));
-        // }
+        Get.toNamed(RouteHelper.screenLiveTrackReport,arguments: [widget.roleId,widget.userCode,ctFistDay.text,ctLastDay.text]);
         break;
         case "terror":
           Get.toNamed(RouteHelper.screenErrorsReport,arguments: [true,ctFistDay.text.substring(0,16),ctLastDay.text.substring(0,16),widget.userCode,widget.roleId]);
@@ -548,7 +536,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
           responseType: ResponseType.json,
         ),
       );
-      print("respince : "+response.toString());
+      print("respince : $response");
       if (response.statusCode == 200) {
         var dataModel = json.encode(response.data['Result']);
         List listuser = jsonDecode(dataModel);
@@ -567,19 +555,91 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     return listUsers.first;
   }
 
+  Future<List<ModelMainInOut>> getUsersInfo() async {
+    late List<SimpleUserModel>? listUsers = [];
+    List<ModelMainInOut> listGirisCixis=[];
 
-  Future<List<ModelMainInOut>> getAllGirisCixis(String temsilcikodu, String roleId) async {
-    List<ModelMainInOut> listGirisCixis = [];
-    final now = DateTime.now();
-    var date = DateTime(now.year, now.month, 1).toString();
-    DateTime dateParse = DateTime.parse(date);
-    String ilkGun = intl.DateFormat('yyyy-MM-dd').format(dateParse);
-    String songun = intl.DateFormat('yyyy-MM-dd').format(now);
+    await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
-    ModelRequestInOut model = ModelRequestInOut(
-        userRole: [UserRole(code: temsilcikodu, role:roleId)],
-        endDate: songun+" 23:59",
-        startDate: ilkGun+" 00:01");
+    int compId=loggedUserModel.userModel!.companyId!;
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+    var data={
+      "code": widget.userCode,
+      "roleId": widget.roleId,
+      "companyId": loggedUserModel.userModel!.companyId!
+
+    };
+
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio(false).post(
+          "${AppConstands.baseUrlsMain}/Admin/GetSimpleUsersInfoByFilterParams",
+          data: data,
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'smr': '12345',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          var userlist = json.encode(response.data['Result']);
+          List list = jsonDecode(userlist);
+          for(var i in list){
+            UserModel model=UserModel.fromJson(i);
+            listUsers.add(SimpleUserModel(
+                code: model.code,
+                permissions: model.permissions,
+                name: model.name,
+                surname:model.surname,
+                phone: model.phone,
+                roleId: model.roleId,
+                roleName: model.roleName,
+                moduleName: model.moduleName,
+                moduleId: model.moduleId,
+                configrations: model.configrations,
+                email: model.email
+            ));
+          }
+          listGirisCixis= await getAllGirisCixis(listUsers);
+        }
+      } on DioException {
+      }
+    }
+    return listGirisCixis;
+  }
+
+  Future<List<ModelMainInOut>> getAllGirisCixis(List<SimpleUserModel> listUsers) async {
+    List<ModelMainInOut> listGirisCixis=[];
+    final now = DateTime.now();
+    var date = DateTime(now.year, now.month, 1,0,1).toString();
+    DateTime dateParse = DateTime.parse(date);
+    String ilkGun = intl.DateFormat('yyyy/MM/dd').format(dateParse);
+    String songun = intl.DateFormat('yyyy/MM/dd').format(now);
+    ctFistDay.text="$ilkGun 00:01";
+    ctLastDay.text="$songun 23:59";
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    GirisCixisRequest model = GirisCixisRequest(
+        rollar: listUsers,
+        endDate: ctLastDay.text,
+        userCode: widget.userCode,
+        startDate: ctFistDay.text);
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();
@@ -593,7 +653,8 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     } else {
       try {
         final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/GirisCixisSystem/GetUserDataByRoleAndDate",
+          "${loggedUserModel
+              .baseUrl}/Hesabatlar/GetGirisCixisByParmsReport",
           data: model.toJson(),
           options: Options(
             receiveTimeout: const Duration(seconds: 60),
@@ -608,6 +669,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
             responseType: ResponseType.json,
           ),
         );
+
         if (response.statusCode == 200) {
           var dataModel = json.encode(response.data['Result']);
           List listuser = jsonDecode(dataModel);
@@ -616,19 +678,9 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
             listGirisCixis.add(model);
           }
         }
-      } on DioException catch (e) {
-        if (e.response != null) {
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
+      } on DioException {
       }
     }
-    DialogHelper.hideLoading();
     return listGirisCixis;
   }
 

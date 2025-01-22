@@ -329,7 +329,6 @@ class ControllerBaseDownloads extends GetxController {
         loggedUserModel = localUserServices.getLoggedUser();
         List<ModelAnbarRapor> data = await getDataAnbar();
         await localBaseDownloads.addAnbarBaza(data);
-          //listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
@@ -343,10 +342,11 @@ class ControllerBaseDownloads extends GetxController {
         if (loggedUserModel.userModel!.roleId == 21 ||loggedUserModel.userModel!.roleId == 22) {
           data = await getAllMercCariBazaMotivasiya();
         } else {
-          await getAllGirisCixis(loggedUserModel.userModel!.code!,
-              loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
-              data = await getAllMercCariBazaMotivasiya();
-          });
+          data = await getAllMercCariBazaMotivasiya();
+          // await getAllGirisCixis(loggedUserModel.userModel!.code!,
+          //     loggedUserModel.userModel!.roleId.toString()).whenComplete(() async {
+          //     data = await getAllMercCariBazaMotivasiya();
+          // });
         }
           // listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
@@ -374,7 +374,7 @@ class ControllerBaseDownloads extends GetxController {
       case "donwSingleMercBaza":
         await localGirisCixisServiz.init();
         updateElementDownloading(model,true);
-        await getAllGirisCixis(loggedUserModel.userModel!.code!, loggedUserModel.userModel!.roleId.toString());
+       // await getAllGirisCixis(loggedUserModel.userModel!.code!, loggedUserModel.userModel!.roleId.toString());
           List<MercDataModel> data = await getSingleMercCariBazaMotivasiya();
           updateElementDownloading(model,false);
             model.lastDownDay = DateTime.now().toIso8601String();
@@ -743,6 +743,7 @@ class ControllerBaseDownloads extends GetxController {
     String songun = intl.DateFormat('yyyy/MM/dd HH:mm').format(now);
     LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
     ModelRequestInOut model = ModelRequestInOut(
+      listConfs: [],
         userRole: [UserRole(code: temsilcikodu, role: roleId)],
         endDate: songun,
         startDate: ilkGun);
@@ -800,6 +801,8 @@ class ControllerBaseDownloads extends GetxController {
     }
     return listUsers;
   }
+
+
 
   void intentScreen() {
     if (listDonwloads.any((e) => e.musteDonwload == true)) {

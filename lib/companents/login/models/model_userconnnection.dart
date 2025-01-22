@@ -18,6 +18,8 @@ class ModelUserConnection {
   String? fullName;
   @HiveField(4)
   int? userId;
+  @HiveField(5)
+  String? fireIds;
 
   ModelUserConnection({
     this.roleId,
@@ -25,6 +27,7 @@ class ModelUserConnection {
     this.code,
     this.fullName,
     this.userId,
+    this.fireIds,
   });
 
   ModelUserConnection copyWith({
@@ -52,6 +55,7 @@ class ModelUserConnection {
     code: json["Code"],
     fullName: json["FullName"],
     userId: json["UserId"],
+    fireIds: json["FireIds"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -60,6 +64,7 @@ class ModelUserConnection {
     "code": code,
     "fullName": fullName,
     "UserId": userId,
+    "FireIds": fireIds,
   };
 
   @override

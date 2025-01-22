@@ -5,9 +5,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:zs_managment/companents/ziyaret_tarixcesi/simple_user_request.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 import 'package:zs_managment/widgets/widget_notdata_found.dart';
 
+import '../../constands/app_constands.dart';
 import '../../dio_config/api_client.dart';
 import '../../helpers/exeption_handler.dart';
 import '../../routs/rout_controller.dart';
@@ -21,15 +23,18 @@ import '../local_bazalar/local_db_downloads.dart';
 import '../local_bazalar/local_giriscixis.dart';
 import '../local_bazalar/local_users_services.dart';
 import '../login/models/logged_usermodel.dart';
+import '../login/models/user_model.dart';
 import '../main_screen/controller/drawer_menu_controller.dart';
 import '../rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 import '../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'model_requestreport_giriscixis.dart';
+
 class ScreenMyVisitHistory extends StatefulWidget {
-  DrawerMenuController drawerMenuController;
+  final DrawerMenuController drawerMenuController;
   List<ModelMainInOut> listGirisCixis;
-   ScreenMyVisitHistory({super.key,required this.listGirisCixis,required this.drawerMenuController});
+  ScreenMyVisitHistory({super.key,required this.listGirisCixis,required this.drawerMenuController});
 
   @override
   State<ScreenMyVisitHistory> createState() => _ScreenMyVisitHistoryState();
@@ -46,16 +51,18 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
   bool dataLoading=true;
   TextEditingController ctFistDay = TextEditingController();
   TextEditingController ctLastDay = TextEditingController();
+  late RxList<SimpleUserModel>? listUsers = RxList<SimpleUserModel>();
+
   @override
   void initState() {
-    getAllGirisCixis("","");
+    getUsersInfo();
     final now = DateTime.now();
     var date = DateTime(now.year, now.month, 1,0,1).toString();
     DateTime dateParse = DateTime.parse(date);
     String ilkGun = intl.DateFormat('yyyy/MM/dd').format(dateParse);
     String songun = intl.DateFormat('yyyy/MM/dd').format(now);
-    ctFistDay.text=ilkGun;
-    ctLastDay.text=songun;
+    ctFistDay.text=ilkGun+" 00:01";
+    ctLastDay.text=songun+" 23:59";
     // TODO: implement initState
     super.initState();
   }
@@ -82,89 +89,108 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
   }
 
   _bodu(BuildContext context) {
-    return listGirisCixis.isNotEmpty?Column(
+    return Column(
       children: [
-        Expanded(
-            flex: 2,
-            child: infoZiyaretTarixcesi()),
-        Expanded(
-            flex: 9,
-            child: _pageViewZiyaretTarixcesi()),
+        listGirisCixis.isNotEmpty?Expanded(
+          flex: 0,
+            child: infoZiyaretTarixcesi()):const SizedBox(),
+        listGirisCixis.isNotEmpty? Expanded(
+            child: _pageViewZiyaretTarixcesi()):Center(child: NoDataFound(title: "mtapilmadi".tr,height: 250,width: 250,),),
       ],
-    ):Center(child: NoDataFound(title: "mtapilmadi".tr,height: 250,width: 250,),);
+    );
   }
 
   Widget infoZiyaretTarixcesi() {
     return Column(
       children: [
-        SingleChildScrollView(
-          child: Stack(
-            children: [
-              Container(margin: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 0, bottom: 0),
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                decoration: BoxDecoration(
-                    // boxShadow:  const [
-                    //   BoxShadow(
-                    //       color: Colors.grey,
-                    //       offset: Offset(0, 0),
-                    //       spreadRadius: 0.1,
-                    //       blurRadius: 20)
-                    // ],
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey, width: 1),
-                    //borderRadius: const BorderRadius.all(Radius.circular(15))
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomText(
-                        labeltext: "ayliqZiyaretHes".tr,
-                        fontWeight: FontWeight.w600,
-                        fontsize: 16,
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      const Divider(
-                        height: 1,
-                        color: Colors.black,
-                      ),
-                      const SizedBox(
-                        height: 1,
-                      ),
-                      Row(
-                        children: [
-                          CustomText(labeltext: "${"isgunleri".tr} : "),
-                          CustomText(
-                              labeltext: "${listGirisCixis.first.modelInOutDays.length} ${"gun".tr}"),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          CustomText(labeltext: "${"ziyaretSayi".tr} : "),
-                          CustomText(
-                              labeltext:
-                              "${listGirisCixis.first.modelInOutDays.fold(0, (sum, element) => sum + element.visitedCount)} ${"market".tr}"),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          CustomText(labeltext: "${"umumiIssaati".tr} : "),
-                          CustomText(
-                              labeltext:
-                              "${listGirisCixis.first.modelInOutDays.first.workTimeInCustomer} "),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ],
+        Container(margin: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 0, bottom: 0),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+              // boxShadow:  const [
+              //   BoxShadow(
+              //       color: Colors.grey,
+              //       offset: Offset(0, 0),
+              //       spreadRadius: 0.1,
+              //       blurRadius: 20)
+              // ],
+              color: Colors.white,
+              border: Border.all(color: Colors.grey, width: 1),
+              //borderRadius: const BorderRadius.all(Radius.circular(15))
           ),
-        )
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  labeltext: "ayliqZiyaretHes".tr,
+                  fontWeight: FontWeight.w600,
+                  fontsize: 16,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                const Divider(
+                  height: 1,
+                  color: Colors.black,
+                ),
+                const SizedBox(
+                  height: 1,
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"isgunleri".tr} : "),
+                    CustomText(
+                        labeltext: "${listGirisCixis.first.modelInOutDays.length} ${"gun".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"icazeliGunler".tr} : "),
+                    CustomText(
+                        labeltext: "${listGirisCixis.first.totalIcazeGunleri.toString()} ${"gun".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"ziyaretSayi".tr} : "),
+                    CustomText(
+                        labeltext:
+                        "${listGirisCixis.first.modelInOutDays.fold(0, (sum, element) => sum + element.visitedCount)} ${"market".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"Total is vaxti cerimesi".tr} : "),
+                    CustomText(
+                      color: Colors.red,
+                        labeltext:
+                        "${listGirisCixis.first.totalPenaltyWorkInArea.toStringAsFixed(2)} ${"manatSimbol".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"Total marketde qalma cerime".tr} : "),
+                    CustomText(
+                      color: Colors.red,
+                        labeltext:
+                        "${listGirisCixis.first.totalPenaltyInWorkInMarket.toStringAsFixed(2)} ${"manatSimbol".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"Ayliq resmi maas".tr} : "),
+                    CustomText(
+                      color: Colors.blue,
+                        labeltext:
+                        "${listGirisCixis.first.totalSalaryByWorkDay.toStringAsFixed(2)} ${"manatSimbol".tr}"),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -174,8 +200,7 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
         padding: const EdgeInsets.all(0),
         itemCount: listGirisCixis.first.modelInOutDays.length,
         itemBuilder: (con, index) {
-          return itemZiyaretGunluk(
-              listGirisCixis.first.modelInOutDays.elementAt(index));
+          return itemZiyaretGunluk(listGirisCixis.first.modelInOutDays.elementAt(index));
         });
   }
 
@@ -185,7 +210,7 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
         userServices.init();
         localBaseDownloads.init();
         List<MercDataModel> list=await localBaseDownloads.getAllMercDatailByCode(userServices.getLoggedUser().userModel!.code!);
-        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,"${userServices.getLoggedUser().userModel!.name} ${userServices.getLoggedUser().userModel!.surname!}",list.first.mercCustomersDatail]);
+        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,"${userServices.getLoggedUser().userModel!.name} ${userServices.getLoggedUser().userModel!.surname!}",list.isNotEmpty ? list.first.mercCustomersDatail : null]);
       },
       child: Padding(
         padding: const EdgeInsets.all(5.0).copyWith(left: 10,right: 10),
@@ -229,6 +254,12 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
                     CustomText(labeltext: model.lastExitDate.substring(11,model.lastExitDate.toString().length)),
                   ],
                 ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"icazeliDeq".tr} : ",fontWeight: FontWeight.w600),
+                    CustomText(labeltext: model.modelInOut.first.icazeDeqiqeleri.toString()+" "+"deq".tr),
+                  ],
+                ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: DecoratedBox(
@@ -242,21 +273,51 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              CustomText(
-                                labeltext: "${"marketlerdeISvaxti".tr} : ",
+                              Row(
+                                children: [
+                                  CustomText(
+                                    labeltext: "${"marketdeISvaxti".tr} : ",
+                                  ),
+                                  CustomText(labeltext: model.workTimeInCustomer),
+                                ],
                               ),
-                              CustomText(labeltext: model.workTimeInCustomer),
+                              const SizedBox(width: 5,),
+                              model.penaltyInWorkInMarket>0?Row(
+                                children: [
+                                  const Icon(Icons.arrow_right_alt),
+                                  CustomText(labeltext: "${"cerime".tr} : "),
+                                  CustomText(labeltext:  "${model.penaltyInWorkInMarket.toStringAsFixed(2)} ${"manatSimbol".tr}",
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.red,),
+                                ],
+                              ):const SizedBox(),
                             ],
                           ),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              CustomText(
-                                labeltext: "${"erazideIsVaxti".tr} : ",
+                              Row(
+                                children: [
+                                  CustomText(
+                                    labeltext: "${"erazideIsVaxti".tr} : ",
+                                  ),
+                                  CustomText(
+                                    labeltext: model.workTimeInArea,
+                                  ),
+                                ],
                               ),
-                              CustomText(
-                                labeltext: model.workTimeInArea,
-                              ),
+                              const SizedBox(width: 5,),
+                              model.penaltyWorkInArea>0?Row(
+                                children: [
+                                  const Icon(Icons.arrow_right_alt),
+                                  CustomText(labeltext: "${"cerime".tr} : "),
+                                  CustomText(labeltext:  "${model.penaltyWorkInArea.toStringAsFixed(2)} ${"manatSimbol".tr}",
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.red,),
+                                ],
+                              ):const SizedBox(),
                             ],
                           ),
                         ],
@@ -272,7 +333,7 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
     );
   }
 
-  Future<void> getAllGirisCixis(String firtDate,String lastDate) async {
+  Future<void> getAllGirisCixisOld(String firtDate,String lastDate) async {
    setState(() {
      dataLoading=true;
      listGirisCixis.clear();
@@ -280,7 +341,6 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
     await localGirisCixisServiz.init();
     await userServices.init();
     await localBaseDownloads.init();
-    List<ModelMainInOut> listUsers = [];
     final now = DateTime.now();
     var date = DateTime(now.year, now.month, 1,0,1).toString();
     DateTime dateParse = DateTime.parse(date);
@@ -294,9 +354,10 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
     }
     LoggedUserModel loggedUserModel = userServices.getLoggedUser();
     ModelRequestInOut model = ModelRequestInOut(
+      listConfs:  loggedUserModel.userModel!.configrations!,
         userRole: [UserRole(code: loggedUserModel.userModel!.code!, role: loggedUserModel.userModel!.roleId.toString())],
-        endDate: songun+" 23:59",
-        startDate: ilkGun+" 00:01");
+        endDate: "$songun 23:59",
+        startDate: "$ilkGun 00:01");
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();
@@ -354,6 +415,138 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
     });
   }
 
+  Future<void> getAllGirisCixis(List<SimpleUserModel> listUsers) async {
+    await localGirisCixisServiz.init();
+    await userServices.init();
+    await localBaseDownloads.init();
+    LoggedUserModel loggedUserModel = userServices.getLoggedUser();
+    GirisCixisRequest model = GirisCixisRequest(
+        rollar: listUsers,
+        endDate: ctLastDay.text,
+        userCode: loggedUserModel.userModel!.code,
+        startDate: ctFistDay.text);
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio(false).post(
+          "${loggedUserModel
+              .baseUrl}/Hesabatlar/GetGirisCixisByParmsReport",
+          data: model.toJson(),
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'smr': '12345',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          var dataModel = json.encode(response.data['Result']);
+          List listuser = jsonDecode(dataModel);
+          for (var i in listuser) {
+            ModelMainInOut model = ModelMainInOut.fromJson(i);
+            await localGirisCixisServiz.addSelectedGirisCixisDBServer(model);
+            listGirisCixis.add(model);
+          }
+        }
+      } on DioException {
+      }
+    }
+    setState(() {
+      dataLoading=false;
+    });
+  }
+
+  Future<void> getUsersInfo() async {
+    setState(() {
+      dataLoading=true;
+      listGirisCixis.clear();
+    });
+    listGirisCixis.clear();
+    listGirisCixis.clear();
+    listUsers!.clear();
+    await userServices.init();
+    LoggedUserModel loggedUserModel = userServices.getLoggedUser();
+    int compId=loggedUserModel.userModel!.companyId!;
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    languageIndex = await getLanguageIndex();
+     var data={
+        "code": loggedUserModel.userModel!.code!,
+        "roleId": loggedUserModel.userModel!.roleId!,
+        "compId": compId,
+        "regionCode":loggedUserModel.userModel!.regionCode!,
+       "companyId": loggedUserModel.userModel!.companyId!
+
+      };
+
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.dialog(ShowInfoDialog(
+        icon: Icons.network_locked_outlined,
+        messaje: "internetError".tr,
+        callback: () {},
+      ));
+    } else {
+      try {
+        final response = await ApiClient().dio(false).post(
+          "${AppConstands.baseUrlsMain}/Admin/GetSimpleUsersInfoByFilterParams",
+          data: data,
+          options: Options(
+            receiveTimeout: const Duration(seconds: 60),
+            headers: {
+              'Lang': languageIndex,
+              'Device': dviceType,
+              'smr': '12345',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          var userlist = json.encode(response.data['Result']);
+          List list = jsonDecode(userlist);
+          for(var i in list){
+            UserModel model=UserModel.fromJson(i);
+            listUsers!.add(SimpleUserModel(
+                code: model.code,
+                permissions: model.permissions,
+                name: model.name,
+                surname:model.surname,
+                phone: model.phone,
+                roleId: model.roleId,
+                roleName: model.roleName,
+                moduleName: model.moduleName,
+                moduleId: model.moduleId,
+                configrations: model.configrations,
+                email: model.email
+            ));
+          }
+          await getAllGirisCixis(listUsers!);
+        }
+      } on DioException {
+      }
+    }
+  }
+
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
@@ -387,7 +580,7 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(5.0).copyWith(bottom: 0),
-                  child: Icon(Icons.clear),
+                  child: const Icon(Icons.clear),
                 ),
               ),
             ),
@@ -402,7 +595,7 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
                       labeltext: "Ilkin tarix",
                       fontsize: 18,
                       fontWeight: FontWeight.w400),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   SizedBox(
@@ -476,13 +669,14 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
                 height: 40,
                 width: MediaQuery.of(context).size.width * 0.4,
                 cllback: () async {
-                 await  getAllGirisCixis(ctFistDay.text,ctLastDay.text);
+                 await  getUsersInfo();
                 },
                 label: "Hesabat al")
           ],
         ),
       ),
     );
+
   }
 
   void callDatePicker(bool isFistDate) async {
@@ -491,11 +685,11 @@ class _ScreenMyVisitHistoryState extends State<ScreenMyVisitHistory> {
 
     if (isFistDate) {
       //ctFistDay.text = "$day.$ay.${order.year}";
-      ctFistDay.text = intl.DateFormat('yyyy/MM/dd').format(order!);
+      ctFistDay.text = intl.DateFormat('yyyy/MM/dd').format(order!)+" 00:01";
 
     } else {
       // ctLastDay.text = "$day.$ay.${order.year}"
-      ctLastDay.text =  intl.DateFormat('yyyy/MM/dd').format(order!);
+      ctLastDay.text =  intl.DateFormat('yyyy/MM/dd').format(order!)+" 23:59";
 
     }
   }

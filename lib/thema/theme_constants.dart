@@ -54,10 +54,10 @@ ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   cardTheme: CardTheme(
       elevation: 10,
-      color: Colors.white,
-      shadowColor: Colors.black.withOpacity(0.2)
+      color: Colors.black,
+      shadowColor: Colors.white.withOpacity(0.2)
   ),
-  drawerTheme: const DrawerThemeData(elevation: 0, backgroundColor: Colors.white),
+  drawerTheme: const DrawerThemeData(elevation: 5, backgroundColor: Colors.black),
   switchTheme: SwitchThemeData(
     trackColor: MaterialStateProperty.all<Color>(Colors.grey),
     thumbColor: MaterialStateProperty.all<Color>(Colors.white),

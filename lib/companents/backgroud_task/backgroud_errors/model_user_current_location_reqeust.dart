@@ -33,6 +33,12 @@ class ModelUsercCurrentLocationReqeust {
   String? sendingStatus;
   @HiveField(13)
   double? locationHeading;
+  @HiveField(14)
+  double? locAccuracy;
+  @HiveField(15)
+  bool? isMoving;
+  @HiveField(15)
+  String? screenState;
 
   ModelUsercCurrentLocationReqeust({
     this.userCode,
@@ -49,6 +55,9 @@ class ModelUsercCurrentLocationReqeust {
     this.batteryLevel,
     this.sendingStatus,
     this.locationHeading,
+    this.locAccuracy,
+    this.isMoving,
+    this.screenState,
   });
 
   factory ModelUsercCurrentLocationReqeust.fromRawJson(String str) => ModelUsercCurrentLocationReqeust.fromJson(json.decode(str));
@@ -69,6 +78,7 @@ class ModelUsercCurrentLocationReqeust {
     inputCustomerDistance: json["inputCustomerDistance"],
     batteryLevel: json["batteryLevel"].toDouble(),
     locationHeading: json["heading"].toDouble(),
+    screenState: json["screenState"].toString(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -85,5 +95,8 @@ class ModelUsercCurrentLocationReqeust {
     "inputCustomerDistance": inputCustomerDistance,
     "batteryLevel": batteryLevel,
     "heading": locationHeading,
+    "locAccuracy": locAccuracy!=null?locAccuracy!.round():0,
+    "isMoving": isMoving,
+    "sceenState": screenState,
   };
 }

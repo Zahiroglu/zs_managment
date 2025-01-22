@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:hive/hive.dart';
+import 'package:lottie/lottie.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
@@ -10,15 +9,15 @@ import 'package:intl/intl.dart';
 import 'package:zs_managment/widgets/widget_notdata_found.dart';
 import '../../widgets/custom_text_field.dart';
 import '../hesabatlar/user_hesabatlar/useruzre_hesabatlar.dart';
-import '../hesabatlar/user_hesabatlar/widgetHesabatListItemsUser.dart';
 import 'model/model_live_track.dart';
 
 class SearchLiveUsers extends StatelessWidget {
   ModelLiveTrack selectedUser;
   List<ModelLiveTrack> listUsers;
   Function(ModelLiveTrack) callBack;
+  Function(bool) callBackGunluk;
 
-  SearchLiveUsers({required this.listUsers, required this.callBack,required this.selectedUser, super.key});
+  SearchLiveUsers({required this.listUsers, required this.callBack,required this.selectedUser, required this.callBackGunluk, super.key});
 
   TextEditingController ctSearch = TextEditingController();
 
@@ -61,6 +60,9 @@ class SearchLiveUsers extends StatelessWidget {
                 itemCount: listUsers.length,
                 itemBuilder: (context, index) {
                   return WidgetWorkerItemLiveTarck(
+                    callBackGunluk: (v){
+                      callBackGunluk.call(v);
+                    },
                     selectedUser: selectedUser,
                     context: context,
                     element: listUsers.elementAt(index),
@@ -106,9 +108,11 @@ class _WidgetWorkerItemNotWorkedTodayState extends State<WidgetWorkerItemNotWork
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+      if(mounted){
         setState(() {
           expandMore=!expandMore;
         });
+      }
       },
       child: Container(
         padding: const EdgeInsets.all(5),
@@ -321,12 +325,14 @@ class WidgetWorkerItemLiveTarck extends StatefulWidget {
     required this.element,
     required this.callBack,
     required this.selectedUser,
+    required this.callBackGunluk,
   });
 
   final BuildContext context;
   final ModelLiveTrack element;
   final ModelLiveTrack selectedUser;
   Function(ModelLiveTrack) callBack;
+  Function(bool) callBackGunluk;
 
   @override
   State<WidgetWorkerItemLiveTarck> createState() =>
@@ -335,6 +341,7 @@ class WidgetWorkerItemLiveTarck extends StatefulWidget {
 
 class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
   bool expandMore=false;
+
 
   @override
   void initState() {
@@ -346,11 +353,13 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-       setState(() {
-         expandMore=false;
-       });
+      if(mounted){
+        setState(() {
+          expandMore=false;
+        });
+      }
         if (widget.element.currentLocation != null) {
-          widget.callBack(widget.element).call;
+          widget.callBack(widget.element).call();
           Get.back();
         }
       },
@@ -362,19 +371,18 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                 boxShadow: [
                   BoxShadow(
                     color: widget.element.currentLocation!.isOnline!
-                        ? Colors.green
-                        : Colors.red,
+                        ? Colors.grey
+                        : Colors.grey,
                     spreadRadius: 0,
                     blurRadius: 3,
                     blurStyle: BlurStyle.outer
                   )
                 ],
                   border: Border.all(
-
                     width: 0.4,
                       color: widget.element.currentLocation!.isOnline!
-                          ? Colors.green
-                          : Colors.red),
+                          ? Colors.grey
+                          : Colors.grey),
                   borderRadius: BorderRadius.circular(10)),
               margin: const EdgeInsets.only(left: 10, right: 10, top: 10,bottom: 5),
               child: Column(
@@ -385,18 +393,14 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                     padding: const EdgeInsets.all(5.0),
                     child: Row(
                       children: [
-                        const Expanded(
+                         Expanded(
                           flex: 1,
-                          child: CircleAvatar(
-                            child: ClipOval(
-                              child: Icon(Icons.person),
-                              // child: Image.network(
-                              //   "https://st2.depositphotos.com/1570716/8433/i/950/depositphotos_84330370-stock-photo-portrait-of-a-smart-young.jpg",
-                              //   fit: BoxFit.cover, // Ensures the image fills the circular avatar
-                              //   width: double.infinity, // Ensures the image fits inside the CircleAvatar
-                              //   height: double.infinity,
-                              // ),
-                            ),
+                          child:widget.element.currentLocation!.screenState!=
+                              "b"? Image.asset(widget.element.currentLocation!.screenState==
+                              "off"?"images/screenOff.png":"images/screenUnlock.png",fit: BoxFit.contain,
+                          width: 30,height: 45,
+                          ):const CircleAvatar(
+                            child: Icon(Icons.person),
                           ),
                         ),
                         const SizedBox(
@@ -412,83 +416,132 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                                 overflow: TextOverflow.ellipsis,
                                 labeltext: widget.element.currentLocation
                                         ?.userFullName ??
-                                    'Melumat tapilmadi',
+                                    'melumattapilmadi'.tr,
                                 fontsize: 16,
                                 maxline: 1,
                                 fontWeight: FontWeight.bold,
                               ),
+                              CustomText(
+                                  labeltext:widget.element.userPositionName??"melumattapilmadi".tr,
+                                  fontsize: 10,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 5),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        CustomText(
-                                            labeltext:widget.element.userPositionName??"Bilinmir",
-                                            fontsize: 12,
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w600),
-                                        Row(
-                                          children: [
-                                            CustomText(
-                                                labeltext:
-                                                    "${"sonYenilenme".tr} : ",
-                                                fontsize: 12,
-                                                color: Colors.black87,
-                                                fontWeight: FontWeight.w600),
-                                            CustomText(
-                                                fontsize: 12,
-                                                color: Colors.black87,
-                                                labeltext: widget
-                                                    .element
-                                                    .currentLocation!
-                                                    .locationDate
-                                                    .toString()
-                                                    .substring(10, 16)),
-                                          ],
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Image.asset("images/locaccuracy.png",width: 20,height: 20,fit: BoxFit.fill,),
+                                          CustomText(
+                                              fontsize: 12,
+                                              color: Colors.black87,
+                                              labeltext: "${widget.element.currentLocation!.locAccuracy} m"),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 5,),
+                                      Row(
+                                        children: [
+                                          Image.asset("images/batterystatus.png",width: 15,height: 12,fit: BoxFit.fill,),
+                                          const SizedBox(width: 0,),
+                                          CustomText(
+                                              fontsize: 12,
+                                              color: Colors.black87,
+                                              labeltext: "${widget.element.currentLocation!.batteryLevel} %"),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      Row(
+                                        children: [
+                                          Image.asset("images/userspeed.png",width: 15,height: 12,fit: BoxFit.fill,),
+                                          const SizedBox(width: 5,),
+                                          CustomText(
+                                              fontsize: 12,
+                                              color: Colors.black87,
+                                              labeltext: "${widget.element.currentLocation!.speed} m/s"),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      widget.element.currentLocation!.isMoving!?
+                                      Container(
+                                        height: 15,
+                                        padding: const EdgeInsets.only(left: 5,right: 5),
+                                        decoration: const BoxDecoration(
+                                            color: Colors.green,
+                                            borderRadius:BorderRadius.all( Radius.circular(5))
                                         ),
-                                        const SizedBox(
-                                          width: 10,
+                                        child: CustomText(labeltext: "${"hereketdedir".tr}"),
+                                      ):Container(
+                                        height: 15,
+                                        padding: const EdgeInsets.only(left: 5,right: 5),
+                                        decoration: const BoxDecoration(
+                                            color: Colors.orange,
+                                            borderRadius:BorderRadius.all( Radius.circular(5))
                                         ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            CustomText(
-                                                color: Colors.black87,
-                                                labeltext: "${"surret".tr} : ",
-                                                fontsize: 12,
-                                                fontWeight: FontWeight.w600),
-                                            CustomText(
-                                                fontsize: 12,
-                                                color: Colors.black87,
-                                                labeltext:
-                                                    "${widget.element.currentLocation!.speed} km"),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                        child: CustomText(labeltext: "${"stabildir".tr}",),)
+                                    ],
                                   ),
-                                  SizedBox(
-                                    height: 20,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        IconButton(
-                                            padding: const EdgeInsets.all(0),
-                                            onPressed: () {
-                                              _expandMore();
-                                            },
-                                            icon:  Icon(!expandMore?Icons.expand_circle_down_rounded:Icons.expand_less))
-                                      ],
+                                ],
+                              ),
+                              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    flex:12,
+                                      child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(padding: const EdgeInsets.all(5),
+                                        child: widget.element.lastInoutAction!.outDate!.length>5?
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                                flex:5,
+                                                child: Container(
+                                              padding: const EdgeInsets.only(left: 5,right: 5,top: 2,bottom: 2),
+                                              decoration: const BoxDecoration(
+                                                  color: Colors.orange,
+                                                  borderRadius:BorderRadius.all( Radius.circular(5))
+                                              ),
+                                              child: CustomText(labeltext: "${"cixisEdilib".tr} : ${widget.element.lastInoutAction!.outDate.toString().substring(11,16)}",),
+                                            )),
+                                            const SizedBox(width: 10,),
+                                            Expanded(
+                                                flex:4,
+                                                child: calculateOneHour(widget.element.lastInoutAction!.outDate)?CustomText(labeltext: "Yoxlanmalidir",color:Colors.red,fontWeight: FontWeight.w600,):const SizedBox())
+                                          ],
+                                        ):
+                                        Container(
+                                          padding: const EdgeInsets.only(left: 5,right: 5,top: 2,bottom: 2),
+                                          decoration: const BoxDecoration(
+                                              color: Colors.green,
+                                              borderRadius:BorderRadius.all( Radius.circular(5))
+                                          ),
+                                          child: CustomText(labeltext: "${"marketdedir".tr} : ${widget.element.currentLocation!.inputCustomerDistance!} m",),),
+                                      )
+                                    ],
+                                  )),
+                                  Expanded(
+                                    flex:3,
+                                    child: SizedBox(
+                                      height: 20,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          IconButton(
+                                              padding: const EdgeInsets.all(0),
+                                              onPressed: () {
+                                                _expandMore();
+                                              },
+                                              icon:  Icon(!expandMore?Icons.expand_circle_down_rounded:Icons.expand_less))
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -510,27 +563,17 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                 ],
               )),
           Positioned(
-              top: 2,
-              right: 2,
-              child: Container(
-                width: 100,
-                margin: const EdgeInsets.only(right: 5),
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                    color: widget.element.currentLocation!.isOnline!
-                        ? Colors.green
-                        : Colors.red,
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    border: Border.all(color: Colors.black)),
-                child: Center(
-                    child: CustomText(
-                  labeltext: widget.element.currentLocation!.isOnline!
-                      ? "Online"
-                      : "Offline",
-                  fontsize: 12,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                )),
+              top: 10,
+              right: 10,
+              child: Row(
+                children: [
+                  CustomText(
+                      fontsize: 12,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                      labeltext: widget.element.currentLocation!.locationDate.toString().substring(10,16)),
+                 Lottie.asset(widget.element.currentLocation!.isOnline!?"lottie/pointyasil.json":"lottie/pointqirmizi.json",height: 25,filterQuality: FilterQuality.medium,fit: BoxFit.fill),
+                ],
               )),
           Positioned(
               top: 10,
@@ -576,7 +619,7 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                   width: 110,
                   cllback: (){
                     getGunlukHesabat();
-                  }, label: "Gunluk hesabat")
+                  }, label: "todeyRut".tr)
             ],
           ),
           const SizedBox(
@@ -596,7 +639,7 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                 child: CustomText(
                   overflow: TextOverflow.ellipsis,
                   labeltext: selectedModel.customerName!,
-                  fontsize: 18,
+                  fontsize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -604,7 +647,7 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                 flex: 2,
                 child: CustomText(
                   overflow: TextOverflow.ellipsis,
-                  labeltext: selectedModel.inDate!.toString(),
+                  labeltext: selectedModel.inDate!.toString().substring(0,10),
                   fontsize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -638,7 +681,7 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                     labeltext: "${"girisVaxt".tr} : ",
                     fontsize: 14,
                     fontWeight: FontWeight.w600),
-                CustomText(labeltext: " ${selectedModel.inDate.toString()}"),
+                CustomText(labeltext: " ${selectedModel.inDate!.substring(11,16)}"),
               ],
             ),
             const SizedBox(
@@ -673,7 +716,7 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
                               fontWeight: FontWeight.w600),
                           selectedModel.outDate != null
                               ? CustomText(
-                                  labeltext: " ${selectedModel.outDate!}")
+                                  labeltext: " ${selectedModel.outDate!.substring(11,16)}")
                               : CustomText(labeltext: "cixisedilmeyib".tr),
                         ],
                       ),
@@ -723,23 +766,50 @@ class _WidgetWorkerItemLiveTarckState extends State<WidgetWorkerItemLiveTarck> {
   }
 
   void getGunlukHesabat() {
+    widget.callBackGunluk.call(true);
     DateTime now = DateTime.now();
-    int day = now.weekday;
     final String formattedDate = DateFormat('yyyy-MM-dd').format(now);
     String starDate = "$formattedDate 00:01";
     String endDate = "$formattedDate 23:59";
     Get.toNamed(RouteHelper.screenLiveTrackReport, arguments: [
-      int.parse(widget.element.userPosition!),
+      widget.element.userPosition!,
       widget.element.userCode,
-      day,
       starDate,
       endDate
     ]);
   }
 
   void _expandMore() {
-    setState(() {
-      expandMore = !expandMore;  // Toggle the boolean value
-    });
+   if(mounted){
+     setState(() {
+       expandMore = !expandMore;  // Toggle the boolean value
+     });
+   }
+  }
+
+
+  bool calculateOneHour(String? outDate) {
+    if (outDate == null) return false;
+
+    // Özel tarih formatı
+    final DateFormat dateFormat = DateFormat("yyyy.MM.dd HH:mm:ss.SSS");
+
+    try {
+      // Tarihi parse et
+      DateTime dateTimeout = dateFormat.parse(outDate);
+
+      // Şimdiki zaman
+      DateTime now = DateTime.now();
+
+      // Zaman farkını hesapla
+      Duration difference = now.difference(dateTimeout);
+
+      // 1 saatten fazla mı kontrol et
+      return difference.inHours >= 1;
+    } catch (e) {
+      print("Geçersiz tarih formatı: $e");
+      return false;
+    }
+
   }
 }

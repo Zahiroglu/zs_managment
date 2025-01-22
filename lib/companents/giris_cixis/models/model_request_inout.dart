@@ -1,11 +1,15 @@
 import 'dart:convert';
 
+import 'package:zs_managment/companents/login/models/model_configrations.dart';
+
 class ModelRequestInOut {
+  List<ModelConfigrations> listConfs;
   List<UserRole> userRole;
   String startDate;
   String endDate;
 
   ModelRequestInOut({
+    required this.listConfs,
     required this.userRole,
     required this.startDate,
     required this.endDate,
@@ -16,12 +20,14 @@ class ModelRequestInOut {
   String toRawJson() => json.encode(toJson());
 
   factory ModelRequestInOut.fromJson(Map<String, dynamic> json) => ModelRequestInOut(
+    listConfs: List<ModelConfigrations>.from(json["listConfs"].map((x) => ModelConfigrations.fromJson(x))),
     userRole: List<UserRole>.from(json["user"].map((x) => UserRole.fromJson(x))),
     startDate: json["startDate"],
     endDate: json["endDate"],
   );
 
   Map<String, dynamic> toJson() => {
+    "listConfs": List<dynamic>.from(listConfs.map((x) => x.toJson())),
     "userRole": List<dynamic>.from(userRole.map((x) => x.toJson())),
     "startDate": startDate,
     "endDate": endDate,

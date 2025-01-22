@@ -8,6 +8,7 @@ import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_cesid_hesa
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_cari_hereket.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/satis_hesabati/screen_faktura.dart';
 import 'package:zs_managment/companents/hesabatlar/giriscixis_hesabat/screen_gunlukgiris_cixis.dart';
+import 'package:zs_managment/companents/isci_icazeleri/screen_icazeyarat.dart';
 import 'package:zs_managment/companents/login/app_permition_setting.dart';
 import 'package:zs_managment/companents/login/splashandwelcome/welcome_screen.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
@@ -24,6 +25,7 @@ import '../companents/hesabatlar/user_hesabatlar/liveTrack_report/screen_livetra
 import '../companents/hesabatlar/user_hesabatlar/temsilci_uzrez_ziyaret_hesabati/temsilci_uzre_ziyaret_hesabati.dart';
 import '../companents/live_track/screen_not_in_work.dart';
 import '../companents/login/register/register_by_user.dart';
+import '../companents/login/yeniVersiya/screen_new_version.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/merc_cari_edit.dart';
 import '../companents/rut_gostericileri/mercendaizer/merc_rout_edit/screen_rutsirasi_edit.dart';
 import '../companents/rut_gostericileri/mercendaizer/screens/info_mercmusteri_datail.dart';
@@ -43,6 +45,7 @@ import '../companents/ziyaret_tarixcesi/screen_ziyaret_giriscixislar_merc.dart';
 class RouteHelper {
   /////////////////constants
   static const String wellcome = '/wellcome_screen';
+  static const String appNewVersion = '/app_new_version';
   static const String mobileLisanceScreen = '/mobile_lisance';
   static const String registerByUser = '/register_by_user';
   static const String mobileLoginFistScreen = '/mobileLoginFistScreen';
@@ -84,6 +87,7 @@ class RouteHelper {
   static const String screenTemZiyaret = '/screenTemZiyaret';
   static const String screenErrorsReport = '/screenErrorsReport';
   static const String screenNotInWorkUsers = '/screenNotInWorkUsers';
+  static const String screenIcazeYarat = '/screenIcazeYarat';
   /////////////////getLinks
   static String getWellComeScreen() => wellcome;
   static String getScreenRegisterByUser() => registerByUser;
@@ -127,10 +131,23 @@ class RouteHelper {
   static String getScreenTemZiyaret() => screenTemZiyaret;
   static String getScreenErrorsReport() => screenErrorsReport;
   static String getScreenNotInWorkUsers() => screenNotInWorkUsers;
+  static String getScreenIcazeYarat() => screenIcazeYarat;
+  static String getScreenAppNewVersion() => appNewVersion;
 
   static List<GetPage> routes = [
 
     GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: appNewVersion, page: () {
+      return   ScreenNewVersion(bildiris: Get.arguments[0]);
+    }),
+    GetPage(
+        transition: Transition.rightToLeft,
+        transitionDuration: const Duration(milliseconds: 500),
+        name: screenIcazeYarat, page: () {
+      return   ScreenIcazeYrat(illikGunLimiti: Get.arguments[0],ayliqSaatLimiti: Get.arguments[1],callBack: (v){},);
+    }), GetPage(
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: registerByUser, page: () {
@@ -147,7 +164,7 @@ class RouteHelper {
         transitionDuration: const Duration(milliseconds: 500),
         name: screenErrorsReport, page: () {
       return   ScreenErrorsReport(mustgetAllUsers: Get.arguments[0],startDay: Get.arguments[1]
-        ,endDay: Get.arguments[2],userCode: Get.arguments[3],userRoleId: Get.arguments[4],);
+        ,endDay: Get.arguments[2],userCode: Get.arguments[3],userRoleId: Get.arguments[4],listUsers: Get.arguments[5],);
     }),
     GetPage(
         transition: Transition.rightToLeft,
@@ -159,8 +176,7 @@ class RouteHelper {
         transition: Transition.rightToLeft,
         transitionDuration: const Duration(milliseconds: 500),
         name: screenLiveTrackReport, page: () {
-      return   ScreenLiveTrackReport(roleId: Get.arguments[0],userCode: Get.arguments[1],
-      rutDay: Get.arguments[2],startDay: Get.arguments[3],endDay: Get.arguments[4],);
+      return   ScreenLiveTrackReport(roleId: Get.arguments[0],userCode: Get.arguments[1],startDay: Get.arguments[2],endDay: Get.arguments[3],);
     }),
     GetPage(
         transition: Transition.rightToLeft,

@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:android_id/android_id.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -6,12 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:zs_managment/companents/login/models/base_responce.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
-import 'package:zs_managment/companents/login/models/model_company.dart';
-import 'package:zs_managment/companents/login/models/model_configrations.dart';
-import 'package:zs_managment/companents/login/models/model_token.dart';
-import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:zs_managment/companents/setting_panel/setting_panel_controller.dart';
@@ -23,7 +18,6 @@ import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 export 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../../../dio_config/custim_interceptor.dart';
 import '../../../local_bazalar/local_db_downloads.dart';
 import '../../../notifications/firebase_notificatins.dart';
@@ -43,14 +37,14 @@ class UserApiControllerMobile extends GetxController {
   String basVerenXeta = "";
   String languageIndex = "az";
   DrawerMenuController controller = Get.put(DrawerMenuController());
-  //FirebaseNotyficationController fireTokenServiz=FirebaseNotyficationController();
+  FirebaseNotyficationController fireTokenServiz=FirebaseNotyficationController();
+
   @override
   void onInit() {
     localUserServices.init();
     localBaseDownloads.init();
 
     initPlatformState();
-    // TODO: implement onInit
     super.onInit();
   }
 
@@ -80,6 +74,7 @@ class UserApiControllerMobile extends GetxController {
   }
 
 
+
   void clouseApp() {
     Get.delete<DrawerMenuController>();
     Get.reset(clearRouteBindings: true); SystemNavigator.pop();
@@ -87,6 +82,7 @@ class UserApiControllerMobile extends GetxController {
 
 
   Future<void> loginWithMobileDviceId(String baseUrl) async {
+    final info = await PackageInfo.fromPlatform();
     languageIndex = await getLanguageIndex();
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
@@ -102,10 +98,11 @@ class UserApiControllerMobile extends GetxController {
     else {
       try {
         final response = await dio.post(
-          AppConstands.baseUrlsMain+"/v1/LoginController/LoginWithDeviceId",
+          "${AppConstands.baseUrlsMain}/v1/LoginController/LoginWithDeviceId",
           data: {
+              "mobileAppVersion":"${info.version}+${info.buildNumber}",
               "deviceId":  dviceId.value,
-              "firebaseId": "string",
+              "firebaseId": await fireTokenServiz.getFireToken(),
               "macAddress": "string"
 
           },
@@ -121,9 +118,6 @@ class UserApiControllerMobile extends GetxController {
             responseType: ResponseType.json,
           ),
         );
-        print("login-with-username :"+response.requestOptions.path.toString());
-        print("login-with-username :"+response.data.toString());
-        print("login-with-username code:"+response.statusCode.toString());
 
         if (response.statusCode == 404) {
           Get.dialog(ShowInfoDialog(
@@ -139,7 +133,12 @@ class UserApiControllerMobile extends GetxController {
             if(response.data['Code']==201){
               LicenseModel lisaceModel = LicenseModel.fromJson(response.data['Result']['Result']);
               Get.offNamed(RouteHelper.registerByUser,arguments: [lisaceModel,dviceId.value]);
-            }else {
+            }
+            else if(response.data['Code']==202){
+              var xeta = response.data['Result'];
+              Get.offNamed(RouteHelper.appNewVersion,arguments: [xeta]);
+            }
+            else {
               LoggedUserModel modelLogged = LoggedUserModel.fromJson(response.data['Result']);
               await localUserServices.init();
               await localUserServices.addUserToLocalDB(modelLogged);
@@ -180,15 +179,9 @@ class UserApiControllerMobile extends GetxController {
         }
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print("Xeta : "+e.requestOptions.toString());
-          print("Xeta : "+e.message.toString());
         }
-        print(e.message);
         Get.dialog(ShowInfoDialog(
           icon: Icons.error_outline,
           messaje: e.message??"Xeta bas verdi.Adminle elaqe saxlayin",
@@ -206,7 +199,7 @@ class UserApiControllerMobile extends GetxController {
     DialogHelper.showLoading("Dil deyisdirilir...");
     bool isSucces = false;
     await localUserServices.init();
-    LoggedUserModel loggedUserModel=await localUserServices.getLoggedUser();
+    LoggedUserModel loggedUserModel=localUserServices.getLoggedUser();
     dviceType = checkDviceType.getDviceType();
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
@@ -223,7 +216,7 @@ class UserApiControllerMobile extends GetxController {
     } else {
       try {
         final response = await ApiClient().dio(true).post(
-          AppConstands.baseUrlsMain+"/v1/LoginController/LoginWithDeviceId",
+          "${AppConstands.baseUrlsMain}/v1/LoginController/LoginWithDeviceId",
           data: {
             "deviceId":  loggedUserModel.userModel!.deviceId!,
             "firebaseId": "string",
@@ -249,14 +242,14 @@ class UserApiControllerMobile extends GetxController {
           DrawerMenuController drawerMenuController = Get.put(DrawerMenuController());
           SettingPanelController settingcontroller = Get.put(SettingPanelController());
           await settingcontroller.getCurrentLoggedUserFromLocale(modelLogged.userModel);
-          await drawerMenuController.addPermisionsInDrawerMenu(modelLogged);
+          drawerMenuController.addPermisionsInDrawerMenu(modelLogged);
           isSucces = true;
           DialogHelper.hideLoading();
         }else{
           isSucces = false;
           DialogHelper.hideLoading();
         }
-      } on DioException catch (e) {
+      } on DioException {
         DialogHelper.hideLoading();
       }
     }

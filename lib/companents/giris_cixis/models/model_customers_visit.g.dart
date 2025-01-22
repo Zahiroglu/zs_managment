@@ -40,13 +40,14 @@ class ModelCustuomerVisitAdapter extends TypeAdapter<ModelCustuomerVisit> {
       inDt: fields[19] as DateTime?,
       gonderilme: fields[20] as String?,
       operationType: fields[21] as String?,
+      userPositionName: fields[23] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelCustuomerVisit obj) {
     writer
-      ..writeByte(23)
+      ..writeByte(24)
       ..writeByte(0)
       ..write(obj.userCode)
       ..writeByte(1)
@@ -92,7 +93,9 @@ class ModelCustuomerVisitAdapter extends TypeAdapter<ModelCustuomerVisit> {
       ..writeByte(21)
       ..write(obj.operationType)
       ..writeByte(22)
-      ..write(obj.girisEdilenRutCodu);
+      ..write(obj.girisEdilenRutCodu)
+      ..writeByte(23)
+      ..write(obj.userPositionName);
   }
 
   @override

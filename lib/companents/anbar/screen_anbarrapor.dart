@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:zs_managment/companents/anbar/controller_anbar.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
 import 'model_anbarrapor.dart';
 
 class ScreanAnbarRapor extends StatefulWidget {
-  List<ModelAnbarRapor> listMehsullar;
+  final List<ModelAnbarRapor> listMehsullar;
 
-  ScreanAnbarRapor({Key? key, required this.listMehsullar}) : super(key: key);
+ const ScreanAnbarRapor({Key? key, required this.listMehsullar}) : super(key: key);
 
   @override
   _ScreanAnbarRaporState createState() => _ScreanAnbarRaporState();

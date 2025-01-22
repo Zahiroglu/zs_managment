@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/giris_cixis/sceens/reklam_girisCixis/controller_giriscixis_reklam.dart';
@@ -17,15 +16,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zs_managment/widgets/simple_info_dialog.dart';
 import 'package:zs_managment/widgets/widget_notdata_found.dart';
 import 'package:zs_managment/widgets/widget_rutgunu.dart';
-
 import '../../../../helpers/user_permitions_helper.dart';
 import '../../../hesabatlar/cari_hesabat/cari_ziyaret_hesabati/widget_giriscixis_item.dart';
 import '../../../hesabatlar/cari_hesabat/cari_ziyaret_hesabati/widget_giriscixis_item_gonderilmeyen.dart';
 import '../../../local_bazalar/local_users_services.dart';
 import '../../../login/models/logged_usermodel.dart';
 import '../../../login/services/api_services/users_controller_mobile.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-    as bg;
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 
 class ScreenGirisCixisReklam extends StatefulWidget {
   DrawerMenuController drawerMenuController;
@@ -41,8 +38,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   ControllerGirisCixisReklam controllerGirisCixis = Get.put(ControllerGirisCixisReklam());
   PageController pageController = PageController();
   late bg.Location _currentLocation;
-
-
   //late LocationSettings locationSettings;
   int defaultTargetPlatform = 0;
   bool followMe = false;
@@ -71,7 +66,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
     super.initState();
   }
 
-
   Future<void> getAllCustomers() async {
     controllerGirisCixis.dataLoading.value=true;
     if(await permitionController.checkGPSStatusWithPermissionHandler()){
@@ -79,12 +73,12 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
         gpsNotFound=false;
       });
       bg.BackgroundGeolocation.getCurrentPosition(
-        persist: false, // Mövqeyi yadda saxlamamaq üçün
-        samples: 1,     // Yalnız bir dəfə mövqeyi götür
-        maximumAge: 0,  // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
-        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqliklə mövqe əldə etmək
-        timeout: 30     //
-    ).then((v) {
+          persist: false,       // Mövqeyi yadda saxlamamaq üçün
+          samples: 1,           // Yalnız bir dəfə mövqe götür
+          maximumAge: 0,        // Həmişə yeni mövqe almaq üçün
+          desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqliklə mövqe əldə etmək
+          timeout: 60           // Mövqenin alınması üçün maksimum gözləmə müddəti
+      ).then((v) {
       if (controllerGirisCixis.initialized) {
         controllerGirisCixis.getGirisEdilmisCari(LatLng(v.coords.latitude, v.coords.longitude));
       }
@@ -106,7 +100,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
     }
   }
 
-
   Future<void> initConfigrations() async {
     await userService.init();
     loggedUserModel = userService.getLoggedUser();
@@ -115,22 +108,21 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   }
 
   void _toggleListening() {
-
     bg.BackgroundGeolocation.getCurrentPosition(
         persist: false, // Mövqeyi yadda saxlamamaq üçün
-        samples: 1,     // Yalnız bir dəfə mövqeyi götür
+        samples: 100,     // Yalnız bir dəfə mövqeyi götür
         maximumAge: 0,  // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
-        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH, // Yüksək dəqiqliklə mövqe əldə etmək
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM, // Yüksək dəqiqliklə mövqe əldə etmək
         timeout: 30     //
     ).then((v) {
       _currentLocation = v;
       controllerGirisCixis.changeSelectedDistance(
           controllerGirisCixis.selectedTemsilci.value,
           LatLng(v.coords.latitude, v.coords.longitude));
+      setState(() {});
     });
 
   }
-
 
   @override
   void dispose() {
@@ -252,8 +244,8 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             controllerGirisCixis.marketeGirisEdilib.isTrue
-                ? widgetCixisUcun(context)
-                : widgetListRutGunu(controller)
+                ? Expanded(child: widgetCixisUcun(context))
+                : Expanded(child: widgetListRutGunu(controller))
           ],
         ));
   }
@@ -306,7 +298,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                     ? [
                         BoxShadow(
                             color: element.color!,
-                            offset: Offset(0, 0),
+                            offset: const Offset(0, 0),
                             blurRadius: 10,
                             spreadRadius: 0.1,
                             blurStyle: BlurStyle.outer)
@@ -477,48 +469,55 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
     )
         : RefreshIndicator(
       onRefresh: getAllCustomers,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          widgetTabBar(),
-          if (controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
-              controllerGirisCixis.selectedTabItem.value.keyText != "gz")
-            Padding(
-              padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
-              child: CustomText(
-                labeltext: controllerGirisCixis.selectedTemsilci.value.code == "u"
-                    ? "$selectedItemsLabel (${controllerGirisCixis.listSelectedMusteriler.length})"
-                    : "${controllerGirisCixis.selectedTemsilci.value.name!} ( ${controllerGirisCixis.listSelectedMusteriler.length} )",
-                fontsize: 18,
-                fontWeight: FontWeight.bold,
-                textAlign: TextAlign.start,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            widgetTabBar(),
+            if (controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
+                controllerGirisCixis.selectedTabItem.value.keyText != "gz")
+              Padding(
+                padding: const EdgeInsets.all(5.0).copyWith(left: 10, bottom: 5),
+                child: CustomText(
+                  labeltext: controllerGirisCixis.selectedTemsilci.value.code == "u"
+                      ? "$selectedItemsLabel (${controllerGirisCixis.listSelectedMusteriler.length})"
+                      : "${controllerGirisCixis.selectedTemsilci.value.name!} ( ${controllerGirisCixis.listSelectedMusteriler.length} )",
+                  fontsize: 18,
+                  fontWeight: FontWeight.bold,
+                  textAlign: TextAlign.start,
+                ),
+              )
+            else
+              const SizedBox(),
+            controllerGirisCixis.marketeGirisEdilib.isFalse &&
+                (controllerGirisCixis.listSifarisler.isNotEmpty ||
+                    controllerGirisCixis.listIadeler.isNotEmpty)
+                ? controllerGirisCixis.cardTotalSifarisler(context, false)
+                : const SizedBox(),
+            Expanded(
+              child: controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
+                  controllerGirisCixis.selectedTabItem.value.keyText != "gz"
+                  ? ListView(
+                physics: const ScrollPhysics(),
+                controller: scrollController,
+                padding: const EdgeInsets.all(0).copyWith(bottom: 0),
+                children: controllerGirisCixis.listSelectedMusteriler
+                    .map((e) => widgetCustomers(e))
+                    .toList(),
+              )
+                  : controllerGirisCixis
+                  .modelRutPerform.value.listGirisCixislar!.isEmpty &&
+                  controllerGirisCixis.modelRutPerform.value
+                      .listGonderilmeyenZiyaretler!.isEmpty
+                  ? const SizedBox()
+                  : ziyaretEdilenler(
+                controllerGirisCixis.selectedTabItem.value.keyText == "z",
               ),
-            )
-          else
-            const SizedBox(),
-          controllerGirisCixis.marketeGirisEdilib.isFalse &&
-              (controllerGirisCixis.listSifarisler.isNotEmpty ||
-                  controllerGirisCixis.listIadeler.isNotEmpty)
-              ? controllerGirisCixis.cardTotalSifarisler(context, false)
-              : const SizedBox(),
-          SizedBox(
-            height: 300,
-            child: controllerGirisCixis.selectedTabItem.value.keyText != "z" &&
-                controllerGirisCixis.selectedTabItem.value.keyText != "gz"
-                ? ListView(
-              controller: scrollController,
-              padding: const EdgeInsets.all(0).copyWith(bottom: 0),
-              children: controllerGirisCixis.listSelectedMusteriler
-                  .map((e) => widgetCustomers(e))
-                  .toList(),
-            )
-                : controllerGirisCixis.modelRutPerform.value.listGirisCixislar!.isEmpty &&
-                controllerGirisCixis.modelRutPerform.value.listGonderilmeyenZiyaretler!.isEmpty
-                ? const SizedBox()
-                : ziyaretEdilenler(controllerGirisCixis.selectedTabItem.value.keyText == "z"),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -971,7 +970,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         e.postalCode == "region"
-            ? SizedBox()
+            ? const SizedBox()
             : SizedBox(
                 height: 150,
                 child: controllerGirisCixis
@@ -1004,7 +1003,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                             "${e.postalCode == "region" ? "ofisdenUzaqliq".tr : "marketdenUzaqliq".tr} : $secilenMarketdenUzaqliqString"),
                   ),
                   e.postalCode == "region"
-                      ? SizedBox()
+                      ? const SizedBox()
                       : Padding(
                           padding: const EdgeInsets.all(5.0)
                               .copyWith(top: 2, bottom: 0),
@@ -1117,26 +1116,24 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   }
 
   Future<void> showGirisDialog(ModelCariler model) async {
-    DialogHelper.showLoading("mesHesablanir".tr);
+    DialogHelper.showLoading("mesafeHesablanir".tr);
     secilenMarketdenUzaqliq=marketeGirisIcazeMesafesi+100;
     if (await permitionController.checkBackgroundLocationPermission()) {
       if (await permitionController.checkNotyPermission()) {
       if (await permitionController.checkGPSStatusWithPermissionHandler()) {
         bg.BackgroundGeolocation.getCurrentPosition(
-            persist: false,
-            // Mövqeyi yadda saxlamamaq üçün
-            samples: 50,
-            // Yalnız bir dəfə mövqeyi götür
-            maximumAge: 0,
-            // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
-            desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-            // Yüksək dəqiqliklə mövqe əldə etmək
-            timeout: 3 //
+            persist: false, // Mövqeyi yadda saxlamamaq üçün
+            samples: 100,     // Yalnız bir dəfə mövqeyi götür
+            maximumAge: 0,  // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
+            desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM, // Yüksək dəqiqliklə mövqe əldə etmək
+            timeout: 30     //
         ).then((e) {
+          print("Yeni kordinat : "+e.toString());
           selectedCariModel = model;
           _currentLocation = e;
-          secilenMusterininRutGunuDuzluyu =
-              controllerGirisCixis.rutGununuYoxla(model);
+          secilenMusterininRutGunuDuzluyu =model.rutGunu=="Duz"?true:false;
+          print("rut gunu  : "+(model.rutGunu=="Duz"?"true":"false"));
+
           secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(
               e.coords.latitude,
               e.coords.longitude,
@@ -1235,7 +1232,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                             .center,
                                         children: [
                                           CustomText(
-                                            labeltext: "mesafe".tr + " : ",
+                                            labeltext: "${"mesafe".tr} : ",
                                             fontsize: 14,
                                             maxline: 1,
                                             textAlign: TextAlign.start,
@@ -1256,7 +1253,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                     : Column(
                                   children: [
                                     const Icon(Icons.info,
-                                        color: Colors.red, size: 40),
+                                        color: Colors.green, size: 40),
                                     const SizedBox(
                                       height: 5,
                                     ),
@@ -1285,7 +1282,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                           .width *
                                           0.4,
                                       height: 40,
-                                      textColor: Colors.red,
+                                      textColor: Colors.green,
                                       icon: Icons.exit_to_app_rounded,
                                       elevation: 5,
                                       cllback: () async {
@@ -1360,7 +1357,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(5.0)
-                        .copyWith(top: 10, bottom: 25, left: 10),
+                        .copyWith(top: 10, bottom: 15, left: 10),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1369,15 +1366,18 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: CustomText(
-                                  labeltext: controllerGirisCixis
-                                          .modelgirisEdilmis
-                                          .value
-                                          .customerName ??
-                                      "",
-                                  fontWeight: FontWeight.w600,
-                                  fontsize: 18,
-                                  maxline: 2),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 30),
+                                child: CustomText(
+                                    labeltext: controllerGirisCixis
+                                            .modelgirisEdilmis
+                                            .value
+                                            .customerName ??
+                                        "",
+                                    fontWeight: FontWeight.w800,
+                                    fontsize: 18,
+                                    maxline: 2),
+                              ),
                             ),
                           ],
                         ),
@@ -1548,25 +1548,19 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
         ));
   }
 
-
   Future<void> showCixisDialog() async {
     DialogHelper.showLoading("mesafeHesablanir".tr);
     if (await permitionController.checkBackgroundLocationPermission()) {
       if (await permitionController.checkNotyPermission()) {
         if (await permitionController.checkGPSStatusWithPermissionHandler()) {
           bg.BackgroundGeolocation.getCurrentPosition(
-              persist: false,
-              // Mövqeyi yadda saxlamamaq üçün
-              samples: 50,
-              // GPS sensorundan bir neçə nümunə götür
-              // Yalnız bir dəfə mövqeyi götür
-              maximumAge: 0,
-              // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
-              desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-              // Yüksək dəqiqliklə mövqe əldə etmək
-              timeout: 3 // Mövqeyi əldə etmək üçün maksimum gözləmə müddəti (3 saniyə)
+              persist: false, // Mövqeyi yadda saxlamamaq üçün
+              samples: 100,     // Yalnız bir dəfə mövqeyi götür
+              maximumAge: 0,  // Ən son mövqeyi yox, yalnız cari mövqeyi almaq üçün
+              desiredAccuracy: bg.Config.DESIRED_ACCURACY_MEDIUM, // Yüksək dəqiqliklə mövqe əldə etmək
+              timeout: 30     //
           ).then((bg.Location v) {
-            print("yeni konum : " + v.coords.toString());
+
             _currentLocation = v;
             secilenMarketdenUzaqliq = controllerGirisCixis.calculateDistance(
                 v.coords.latitude,
@@ -1576,8 +1570,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                         .customerLatitude!),
                 double.parse(controllerGirisCixis.modelgirisEdilmis.value
                     .customerLongitude!));
-            print(" yeni secilenMarketdenUzaqliq : " +
-                secilenMarketdenUzaqliq.toString());
             if (secilenMarketdenUzaqliq > 1) {
               secilenMarketdenUzaqliqString =
               "${(secilenMarketdenUzaqliq).round()} km";
@@ -1731,7 +1723,7 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                                             .width *
                                             0.4,
                                         height: 40,
-                                        textColor: Colors.red,
+                                        textColor: Colors.green,
                                         icon: Icons.exit_to_app_rounded,
                                         elevation: 5,
                                         cllback: () async {
@@ -1774,7 +1766,6 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
                 transitionCurve: Curves.easeOut,
                 transitionDuration: const Duration(milliseconds: 400));
           }).catchError((error) {
-            print("Mövqe əldə edilmədi: $error");
           });
         } else {
           Get.dialog(ShowInfoDialog(
@@ -1807,18 +1798,15 @@ class _ScreenGirisCixisReklamState extends State<ScreenGirisCixisReklam>
   }
 
   Future<void> cixisEt(String uzaqliq, bg.Location value) async {
-    await controllerGirisCixis
-        .pripareForExit(value, uzaqliq, selectedCariModel)
+    await controllerGirisCixis.pripareForExit(value, uzaqliq, selectedCariModel)
         .then((e) {
       _toggleListening();
       setState(() {});
     });
   }
 
-  Future<void> girisEt(String uzaqliqString, double uzaqliq, bg.Location value,
-      ModelCariler model) async {
-       await controllerGirisCixis
-           .pripareForEnter(uzaqliqString, value, model, secilenMarketdenUzaqliq)
+  Future<void> girisEt(String uzaqliqString, double uzaqliq, bg.Location value,ModelCariler model) async {
+       await controllerGirisCixis.pripareForEnter(uzaqliqString, value, model, secilenMarketdenUzaqliq)
            .then((e) {
          setState(() {
            selectedCariModel = ModelCariler();

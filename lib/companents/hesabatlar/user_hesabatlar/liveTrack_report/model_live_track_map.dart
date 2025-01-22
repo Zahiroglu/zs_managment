@@ -55,6 +55,9 @@ class MyConnectedUsersCurrentLocationReport {
   String? batteryLevel;
   LastInoutAction? inOutCustomer;
   String? locationHeading;
+  double? locAccuracy;
+  bool? isMoving;
+  String? screenState;
 
   MyConnectedUsersCurrentLocationReport({
     this.inOutId,
@@ -71,6 +74,9 @@ class MyConnectedUsersCurrentLocationReport {
     this.batteryLevel,
     this.inOutCustomer,
     this.locationHeading,
+    this.locAccuracy,
+    this.isMoving,
+    this.screenState,
   });
 
   factory MyConnectedUsersCurrentLocationReport.fromRawJson(String str) => MyConnectedUsersCurrentLocationReport.fromJson(json.decode(str));
@@ -89,6 +95,9 @@ class MyConnectedUsersCurrentLocationReport {
     speed: json["Speed"],
     batteryLevel: json["BatteryLevel"],
     locationHeading: json["LocationHeading"],
+    locAccuracy: json["LocAccuracy"],
+    isMoving: json["IsMoving"],
+    screenState: json["ScreenState"],
     inOutCustomer: json["InOutCustomer"]!=null?LastInoutAction.fromJson(json["InOutCustomer"]):LastInoutAction(),
   );
 
@@ -106,6 +115,7 @@ class MyConnectedUsersCurrentLocationReport {
     "speed": speed,
     "batteryLevel": batteryLevel,
     "inOutCustomer": inOutCustomer,
+    "screenState": screenState,
   };
 
   @override

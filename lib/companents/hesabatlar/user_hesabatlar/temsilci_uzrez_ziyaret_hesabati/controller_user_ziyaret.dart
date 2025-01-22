@@ -30,7 +30,6 @@ class ControllerUserZiyaret extends GetxController {
   Future<void> getAllUsers( List<ModelMainInOut> listGirisCixislar) async {
     dataLoading.value = true;
     if(listGirisCixislar.isNotEmpty) {
-      print("ModelInOutDay leng"+ listGirisCixislar.first.modelInOutDays.length.toString());
       for (ModelInOutDay element in listGirisCixislar.first.modelInOutDays) {
         listGunlukGirisCixislar.add(element);
       }

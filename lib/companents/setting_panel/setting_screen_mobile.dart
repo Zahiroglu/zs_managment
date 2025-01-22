@@ -513,7 +513,6 @@ class _SettingScreenMobileState extends State<SettingScreenMobile> {
   }
 
   void icazelerFormunaBax(UserModel model) {
-    print(model.permissions.toString());
     List<ModelUserPermissions> listper=[];
     listper.addAll(model.permissions!);
     listper.addAll(model.draweItems!);

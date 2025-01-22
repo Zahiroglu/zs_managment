@@ -58,7 +58,9 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
     String gun=widget.modelGunlukGirisCixis.day.substring(8,10);
     String il=widget.modelGunlukGirisCixis.day.substring(0,4);
     DateTime dateTime = DateTime.parse("$il-$ay-$gun");
-    print("dateTime.weekday :"+dateTime.weekday.toString());
+    widget.modelCariler.forEach((w){
+      print("w : "+w.toString());
+    });
     switch (dateTime.weekday) {
       case 1:
         hefteninGunu = "gun1";
@@ -179,10 +181,13 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
     int minutes = 0;
     Duration difference = const Duration();
     for (var element in list) {
-      difference = difference +
-          DateTime.parse(element.outDate)
-              .difference(DateTime.parse(element.inDate));
-    }
+      if(element.outDate!="null") {
+        difference = difference +
+            DateTime.parse(element.outDate)
+                .difference(DateTime.parse(element.inDate));
+      }else{
+        difference=const Duration(seconds: 0);
+      }}
     hours = hours + difference.inHours % 24;
     minutes = minutes + difference.inMinutes % 60;
     if (hours < 1) {
@@ -361,8 +366,8 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                           CustomText(
                               labeltext: "${"isbitme".tr} : ",
                               fontWeight: FontWeight.w600),
-                          CustomText(
-                              labeltext: model.lastExitDate.substring(11,model.firstEnterDate.length)),
+                          model.lastExitDate!="null"? CustomText(
+                              labeltext: model.lastExitDate.substring(11,model.firstEnterDate.length)):SizedBox(),
                         ],
                       ),
                       Padding(
@@ -381,7 +386,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                                   children: [
                                     CustomText(
                                       labeltext:
-                                          "${"marketlerdeISvaxti".tr} : ",
+                                          "${"marketdeISvaxti".tr} : ",
                                     ),
                                     CustomText(labeltext: model.workTimeInCustomer),
                                   ],
@@ -537,7 +542,8 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                     const SizedBox(
                       width: 2,
                     ),
-                    CustomText(labeltext: model.outDate.substring(11,  model.outDate.toString().length)),
+                    model.outDate!="null" ?CustomText(labeltext: model.outDate.substring(11,  model.outDate.toString().length)):const SizedBox(),
+
                     const SizedBox(
                       width: 10,
                     ),
@@ -557,8 +563,8 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                       width: 2,
                     ),
                     CustomText(
-                        labeltext: carculateTimeDistace(
-                            model.inDate, model.outDate)),
+                        labeltext: model.outDate!="null"?carculateTimeDistace(
+                            model.inDate, model.outDate):"0"),
                   ],
                 ),
                 Row(

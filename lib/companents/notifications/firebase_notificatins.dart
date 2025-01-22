@@ -1,6 +1,12 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+import 'package:zs_managment/companents/login/mobile/login_mobile_first_screen.dart';
+
+import '../login/mobile/mobile_lisance_screen.dart';
 import 'noty_background_track.dart';
 
 class FirebaseNotyficationController {
@@ -31,14 +37,77 @@ class FirebaseNotyficationController {
     return token!;
   }
 
-  void fireBaseMessageInit(){
+  Future<void> fireBaseMessageInit()async{
     NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
-    FirebaseMessaging.onMessage.listen((messaje) async {
-      print("Messaje title :"+messaje.notification!.title.toString());
-      print("Messaje body :"+messaje.notification!.body.toString());
-    await NotyBackgroundTrack.showFireBaseNoty(body: messaje.notification!.body.toString(),fln: flutterLocalNotificationsPlugin,title: messaje.notification!.title.toString(),id: 2);
+    FirebaseMessaging.onMessage.listen((message) async {
+      // Mesajın body və title sahələrini əldə edin
+      final title = message.notification?.title ?? "No Title";
+      final body = message.notification?.body ?? "No Body";
+      // Mesajın data hissəsindən Click_Action-u əldə edin
+      var clickAction="";
+      if (message.data.containsKey('click_action')) {
+        clickAction = message.data['click_action'];
+        print("Initial Click_Action: $clickAction");
+      }
+      await NotyBackgroundTrack.showFireBaseNoty(
+        body: body,
+        title: title,
+        id: 5,
+        fln: flutterLocalNotificationsPlugin,
+      );
+      // "BLOCK" dəyərinə görə proqramı bağla
+      if (clickAction == "Block") {
+       // Proqramı bağla
+        if (Platform.isAndroid) {
+          SystemNavigator.pop(); // Android üçün
+          messaging.deleteToken();
+        } else if (Platform.isIOS) {
+          exit(0); // iOS üçün (App Store-da tövsiyə edilmir)
+        }
+        return;
+      }else if(clickAction == "Yenilik"){
+        restartApplication();
+      }
+      print("messaje : $message");
+      print("Click_Action:"+ message.notification.toString());
     });
-
   }
+  void restartApplication() {
+    Get.offAll(() => ScreenRequestCheckMobile()); // Bütün naviqasiyanı sıfırlayır və əsas səhifəni açır
+  }
+  Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
+    NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
+    final title = message.notification?.title ?? "No Title";
+    final body = message.notification?.body ?? "No Body";
+    // Mesajın data hissəsindən Click_Action-u əldə edin
+    var clickAction = "";
+    if (message.data.containsKey('click_action')) {
+      clickAction = message.data['click_action'];
+      print("Initial Click_Action: $clickAction");
+    }
+    await NotyBackgroundTrack.showFireBaseNoty(
+      body: body,
+      title: title,
+      id: 5,
+      fln: flutterLocalNotificationsPlugin,
+    );
+    // "BLOCK" dəyərinə görə proqramı bağla
+    if (clickAction == "Block") {
+      // Proqramı bağla
+      if (Platform.isAndroid) {
+        SystemNavigator.pop(); // Android üçün
+        messaging.deleteToken();
+      } else if (Platform.isIOS) {
+        exit(0); // iOS üçün (App Store-da tövsiyə edilmir)
+      }
+      return;
+    }
+    else if (clickAction == "Yenilik") {
+      restartApplication();
+    }
+    print("messaje : $message");
+    print("Click_Action:" + message.notification.toString());
+}
+
 
 }

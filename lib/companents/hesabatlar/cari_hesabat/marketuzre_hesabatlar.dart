@@ -4,13 +4,16 @@ import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesab
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/widgetHesabatListItems.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
 
+import '../../login/models/logged_usermodel.dart';
+
 class WidgetCarihesabatlar extends StatefulWidget {
   String ckod;
   String cad;
-  double height;
+  double? height;
+  LoggedUserModel loggedUser;
 
   WidgetCarihesabatlar(
-      {required this.cad, required this.ckod, required this.height, super.key});
+      {required this.cad, required this.ckod,this.height,required this.loggedUser, super.key});
 
   @override
   State<WidgetCarihesabatlar> createState() => _WidgetCarihesabatlarState();
@@ -18,17 +21,21 @@ class WidgetCarihesabatlar extends StatefulWidget {
 
 class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
   ModelCariHesabatlar modelCariHesabatlar = ModelCariHesabatlar();
+  List<ModelCariHesabatlar> list=[];
+
 
   @override
   void initState() {
     print("Ckod :"+widget.ckod.toString()+" Cad :"+widget.cad.toString());
+    list=modelCariHesabatlar
+        .getAllCariHesabatlarListy(widget.loggedUser.userModel!.permissions!);
     // TODO: implement initState
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return list.isNotEmpty?Material(
       color: Colors.transparent,
       child: DecoratedBox(
         decoration:  BoxDecoration(
@@ -63,9 +70,8 @@ class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
                 height: widget.height,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: modelCariHesabatlar
-                      .getAllCariHesabatlarListy()
-                      .map((e) => WidgetHesabatListItemsCari(
+                  children:
+                  list.map((e) => WidgetHesabatListItemsCari(
                             cAd: widget.cad,
                             ckod: widget.ckod,
                             context: context,
@@ -78,6 +84,6 @@ class _WidgetCarihesabatlarState extends State<WidgetCarihesabatlar> {
           ],
         ),
       ),
-    );
+    ):const SizedBox();
   }
 }

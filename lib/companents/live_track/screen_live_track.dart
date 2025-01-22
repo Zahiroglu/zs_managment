@@ -1,37 +1,44 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:lottie/lottie.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:zs_managment/companents/giris_cixis/models/model_request_inout.dart';
 import 'package:zs_managment/companents/live_track/screen_search_live_users.dart';
 import 'package:zs_managment/companents/main_screen/controller/drawer_menu_controller.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
+import 'package:zs_managment/widgets/sual_dialog.dart';
 
+import '../../helpers/user_permitions_helper.dart';
 import '../../widgets/simple_info_dialog.dart';
 import '../hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import '../hesabatlar/user_hesabatlar/useruzre_hesabatlar.dart';
 import 'controller_live_track/controller_live_track.dart';
 import 'model/model_live_track.dart';
+import 'package:intl/intl.dart' as intel;
 
 class ScreenLiveTrack extends StatefulWidget {
-  DrawerMenuController drawerMenuController;
+ final DrawerMenuController drawerMenuController;
 
-  ScreenLiveTrack({required this.drawerMenuController, super.key});
+  const ScreenLiveTrack({required this.drawerMenuController, super.key});
 
   @override
   State<ScreenLiveTrack> createState() => _ScreenLiveTrackState();
 }
 
-class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
+class _ScreenLiveTrackState extends State<ScreenLiveTrack> with WidgetsBindingObserver{
   ControllerLiveTrack controllerGirisCixis = Get.put(ControllerLiveTrack());
   final ScrollController listViewController = ScrollController();
   bool expandMenuVisible = false;
@@ -42,21 +49,24 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
   Completer<map.GoogleMapController> _controllerMap = Completer();
   bool userHesabatlarMustVisible = false;
   bool scrrolOpened=false;
-
+  UserPermitionsHelper userPermitionsHelper=UserPermitionsHelper();
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     configGeolocatior();
     _determinePosition().then((value) {
-      setState(() {
-        _currentLocation = value;
-        _initialPosition = map.LatLng(_currentLocation.latitude, _currentLocation.longitude);
-        map.CameraPosition cameraPosition = map.CameraPosition(
-          target: map.LatLng(_currentLocation.latitude, _currentLocation.longitude), zoom: 15,
-        );
-        Future.delayed(const Duration(milliseconds: 200)).whenComplete(() =>
-            newgooglemapxontroller!.animateCamera(
-                map.CameraUpdate.newCameraPosition(cameraPosition)));
-      });
+     if(mounted){
+       setState(() {
+         _currentLocation = value;
+         _initialPosition = map.LatLng(_currentLocation.latitude, _currentLocation.longitude);
+         map.CameraPosition cameraPosition = map.CameraPosition(
+           target: map.LatLng(_currentLocation.latitude, _currentLocation.longitude), zoom: 15,
+         );
+         Future.delayed(const Duration(milliseconds: 200)).whenComplete(() =>
+             newgooglemapxontroller!.animateCamera(
+                 map.CameraUpdate.newCameraPosition(cameraPosition)));
+       });
+     }
     });
 
     super.initState();
@@ -64,10 +74,36 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
 
   @override
   void dispose() {
-    _controllerMap = Completer();
-    controllerGirisCixis.timer!.cancel();
+    // Timer iptali
+    controllerGirisCixis.timer?.cancel();
+
+    // ScrollController serbest bırakılması
+    listViewController.dispose();
+
+    // Google Map Controller serbest bırakılması
+    newgooglemapxontroller?.dispose();
+
+    // Observer kaldırma
+    WidgetsBinding.instance.removeObserver(this);
+
+    // GetX Controller kaldırma
     Get.delete<ControllerLiveTrack>();
+
+    // Completer sıfırlama
+    _controllerMap = Completer();
+
+    // Super çağrısı
     super.dispose();
+  }
+
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      controllerGirisCixis.timer!.cancel();
+      // Tətbiq yenidən açıldıqda background xidmətini aktiv et
+    }
   }
 
   configGeolocatior() {
@@ -151,22 +187,25 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             child: SnappingSheet(
           onSheetMoved: (positionData) {
             if (positionData.relativeToSnappingPositions > 0.6) {
+              if(mounted){
               setState(() {
                 expandMenuVisible = true;
                 userHesabatlarMustVisible = true;
-              });
+              });}
             }
-            else if (positionData.relativeToSnappingPositions >= 0.35) {
+            else if (positionData.relativeToSnappingPositions >= 0.30) {
+              if(mounted){
               setState(() {
                 scrrolOpened=true;
-              });
+              });}
             }
             else {
+              if(mounted){
               setState(() {
                 scrrolOpened=false;
                 expandMenuVisible = false;
                 userHesabatlarMustVisible = false;
-              });
+              });}
             }
           },
           controller: controllerGirisCixis.snappingSheetController.value,
@@ -198,12 +237,12 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             ),
           ],
           grabbing: Obx(() {
-            return controllerGirisCixis.selectedModel.value.lastInoutAction!= null ? grappengContainer(context) : const SizedBox();
+
+            return controllerGirisCixis.selectedModel.value.lastInoutAction==null?const SizedBox(): grappengContainer(context) ;
           }),
           grabbingHeight: controllerGirisCixis.userMarkerSelected.isFalse
               ? MediaQuery.of(context).size.height / 5
-              : userHesabatlarMustVisible?MediaQuery.of(context).size.height
-              / 6.2:MediaQuery.of(context).size.height / 2.5,
+              : userHesabatlarMustVisible?MediaQuery.of(context).size.height/3 :MediaQuery.of(context).size.height / 2.5,
           sheetAbove: null,
           sheetBelow: SnappingSheetContent(
             draggable: true,
@@ -242,7 +281,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             children: [
               Container(
                 margin: const EdgeInsets.only(top: 10),
-                width: 35,
+                width: 50,
                 height: 7,
                 decoration: BoxDecoration(
                   color: Colors.grey,
@@ -251,52 +290,40 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               ),
             ],
           ),
-          expandMenuVisible
-              ? Positioned(
-            top: -15,
-            right: -5,
-            child: IconButton(
-              iconSize: 40,
-              onPressed: () {
-                setState(() {
-                  controllerGirisCixis.userMarkerSelected.isFalse
-                      ? controllerGirisCixis.snappingSheetController.value
-                      .snapToPosition(const SnappingPosition.pixels(
-                      positionPixels: 80))
-                      : controllerGirisCixis.snappingSheetController.value
-                      .snapToPosition(const SnappingPosition.pixels(
-                      positionPixels: 100));
-                });
-              },
-              icon: const Icon(Icons.expand_more),
-            ),
-          )
-              : const SizedBox(),
+          // expandMenuVisible
+          //     ? Positioned(
+          //   top: -15,
+          //   right: -5,
+          //   child: IconButton(
+          //     iconSize: 40,
+          //     onPressed: () {
+          //       setState(() {
+          //         controllerGirisCixis.userMarkerSelected.isFalse
+          //             ? controllerGirisCixis.snappingSheetController.value
+          //             .snapToPosition(const SnappingPosition.pixels(
+          //             positionPixels: 80))
+          //             : controllerGirisCixis.snappingSheetController.value
+          //             .snapToPosition(const SnappingPosition.pixels(
+          //             positionPixels: 100));
+          //       });
+          //     },
+          //     icon: const Icon(Icons.expand_more),
+          //   ),
+          // )
+          //     : const SizedBox(),
           Positioned(
-            top: 10,
-            right: userHesabatlarMustVisible ? 40 : 0,
-            child: Container(
-              margin: const EdgeInsets.only(right: 5),
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: controllerGirisCixis.selectedModel.value.currentLocation!.isOnline!
-                    ? Colors.green
-                    : Colors.red,
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                border: Border.all(color: Colors.black),
-              ),
-              child: Center(
-                child: CustomText(
-                  labeltext: controllerGirisCixis.selectedModel.value.currentLocation!.isOnline!
-                      ? "Online"
-                      : "Offline",
-                  fontsize: 12,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
+              top: 10,
+              right: 10,
+              child: Row(
+                children: [
+                  CustomText(
+                      fontsize: 12,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                      labeltext: controllerGirisCixis.selectedModel.value.currentLocation!.locationDate.toString().substring(10,16)),
+                  Lottie.asset(controllerGirisCixis.selectedModel.value.currentLocation!.isOnline!?"lottie/pointyasil.json":"lottie/pointqirmizi.json",height: 25,filterQuality: FilterQuality.medium,fit: BoxFit.fill),
+                ],
+              )),
           Positioned(
             top: 5,
             left: 5,
@@ -314,122 +341,38 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
     );
   }
 
-
-  // Widget grappengContainer(BuildContext context) {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-  //       boxShadow: [
-  //         BoxShadow(blurRadius: 25, color: Colors.black.withOpacity(0.5)),
-  //       ],
-  //     ),
-  //     child: Stack(
-  //       children: [
-  //         controllerGirisCixis.userMarkerSelected.isFalse
-  //             ? _widgetMarketInfo(context)
-  //             : _widgetUserInfo(context),
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             Container(
-  //               margin: const EdgeInsets.only(top: 10),
-  //               width: 35,
-  //               height: 7,
-  //               decoration: BoxDecoration(
-  //                 color: Colors.grey,
-  //                 borderRadius: BorderRadius.circular(5),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //         expandMenuVisible
-  //             ? Positioned(
-  //                 top: -15,
-  //                 right: -5,
-  //                 child: IconButton(
-  //                   iconSize: 40,
-  //                   onPressed: () {
-  //                     setState(() {
-  //                       controllerGirisCixis.userMarkerSelected.isFalse
-  //                           ? controllerGirisCixis.snappingSheetController.value
-  //                               .snapToPosition(const SnappingPosition.pixels(
-  //                                   positionPixels: 80))
-  //                           : controllerGirisCixis.snappingSheetController.value
-  //                               .snapToPosition(const SnappingPosition.pixels(
-  //                                   positionPixels: 100));
-  //                     });
-  //                   },
-  //                   icon: const Icon(Icons.expand_more),
-  //                 ))
-  //             : const SizedBox(),
-  //         Positioned(
-  //           top: 10,
-  //           right: userHesabatlarMustVisible?40:0,
-  //           child: Expanded(
-  //               flex: 2,
-  //               child: Container(
-  //                 margin: const EdgeInsets.only(right: 5),
-  //                 padding: const EdgeInsets.all(2),
-  //                 decoration: BoxDecoration(
-  //                     color: controllerGirisCixis
-  //                         .selectedModel.value.currentLocation!.isOnline!
-  //                         ? Colors.green
-  //                         : Colors.red,
-  //                     borderRadius: const BorderRadius.all(Radius.circular(10)),
-  //                     border: Border.all(color: Colors.black)),
-  //                 child: Center(
-  //                     child: CustomText(
-  //                       labeltext: controllerGirisCixis
-  //                           .selectedModel.value.currentLocation!.isOnline!
-  //                           ? "Online"
-  //                           : "Offline",
-  //                       fontsize: 12,
-  //                       color: Colors.white,
-  //                       fontWeight: FontWeight.bold,
-  //                     )),
-  //               ),
-  //             ),),
-  //               Positioned(
-  //                 top: 5,
-  //                 left: 5,
-  //                 child: Icon(
-  //                   controllerGirisCixis.selectedModel.value.lastInoutAction!.outLatitude!=null? Icons.label_important:Icons.label_important_outline,
-  //                   color:controllerGirisCixis.selectedModel.value.lastInoutAction!.outLatitude!=null? Colors.blueAccent:Colors.yellow,
-  //                 ))
-  //
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget widgetGoogleMap() {
     return Obx(()=>Stack(
       children: [
         map.GoogleMap(
           initialCameraPosition: map.CameraPosition(target: _initialPosition),
           onTap: (v) {
-            setState(() {
-              String marketMarkerId="${controllerGirisCixis.selectedModel.value.lastInoutAction!.customerCode}-${controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate}";
-              controllerGirisCixis.markers.removeWhere((e)=>e.markerId.value==marketMarkerId);
-              controllerGirisCixis.circles.clear();
-              controllerGirisCixis.polylines.clear();
-              controllerGirisCixis.selectedModel.value = ModelLiveTrack();
-              controllerGirisCixis.userMarkerSelected.isFalse
-                  ? controllerGirisCixis.snappingSheetController.value
-                  .snapToPosition(
-                  const SnappingPosition.pixels(positionPixels: 80))
-                  : controllerGirisCixis.snappingSheetController.value
-                  .snapToPosition(
-                  const SnappingPosition.pixels(positionPixels: 80));
-            });
-          },
+            if(mounted) {
+              setState(() {
+                String marketMarkerId = "${controllerGirisCixis.selectedModel
+                    .value.lastInoutAction!.customerCode}-${controllerGirisCixis
+                    .selectedModel.value.lastInoutAction!.inDate}";
+                controllerGirisCixis.markers.removeWhere((e) =>
+                e.markerId.value == marketMarkerId);
+                controllerGirisCixis.circles.clear();
+                controllerGirisCixis.polylines.clear();
+                controllerGirisCixis.selectedModel.value = ModelLiveTrack();
+                controllerGirisCixis.userMarkerSelected.isFalse
+                    ? controllerGirisCixis.snappingSheetController.value
+                    .snapToPosition(
+                    const SnappingPosition.pixels(positionPixels: 80))
+                    : controllerGirisCixis.snappingSheetController.value
+                    .snapToPosition(
+                    const SnappingPosition.pixels(positionPixels: 80));
+              });
+            }},
           polylines: controllerGirisCixis.polylines.toSet(),
           markers: controllerGirisCixis.markers,
           circles: controllerGirisCixis.circles.toSet(),
           onCameraMove: (possition) {
-            setState(() {});
-          },
+            if(mounted) {
+              setState(() {});
+            }},
           padding: const EdgeInsets.all(2),
           mapToolbarEnabled: false,
           zoomGesturesEnabled: true,
@@ -459,12 +402,13 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               child: IconButton(
                 icon: const Icon(Icons.search_outlined),
                 onPressed: (){
+                  if(mounted){
                   setState(() {
                     controllerGirisCixis.selectedModel.value = ModelLiveTrack();
                     controllerGirisCixis.userMarkerSelected.value=true;
                     controllerGirisCixis.searcAktive.value=true;
                     scrrolOpened=false;
-                  });
+                  });}
                   //openSearchScreen();
                 },
               ),
@@ -487,7 +431,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             top: 45,
             child: Row(
               children: [
-                controllerGirisCixis.sonYenilenme.isEmpty?const SizedBox(): CustomText(labeltext:"Son yenilenme : ${controllerGirisCixis.sonYenilenme.value.substring(11,19)}",color: Colors.black,fontsize: 8),
+                controllerGirisCixis.sonYenilenme.isEmpty?const SizedBox(): CustomText(labeltext:"${"lastRefresh".tr}: ${controllerGirisCixis.sonYenilenme.value.substring(11,19)}",color: Colors.black,fontsize: 12,fontWeight: FontWeight.bold,),
               ],
             )):const SizedBox(),
         controllerGirisCixis.dataLoading.isTrue?Positioned(
@@ -508,7 +452,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                       width: 20,
                       child: CircularProgressIndicator(color: Colors.white,strokeWidth: 1,)),
                   const SizedBox(width: 10,),
-                  CustomText(labeltext: "mDeyisdirilir".tr+"...",color: Colors.white,),
+                  CustomText(labeltext: "${"mDeyisdirilir".tr}...",color: Colors.white,),
                 ],
               ),
             )):const SizedBox(),
@@ -552,7 +496,16 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             top: 130,
             child: InkWell(
               onTap: (){
-                Get.toNamed(RouteHelper.screenErrorsReport,arguments: [false,"","","",""]);
+                final now = DateTime.now();
+                var date1 = DateTime(now.year, now.month,now.day,00,01);
+                var date2 = DateTime(now.year, now.month,now.day,23,59);
+                String ilkTarix = intel.DateFormat('yyyy-MM-dd ss:mm').format(date1);
+                intel.DateFormat('yyyy-MM-dd ss:mm').format(date2);
+                List<UserRole> listRollar=[];
+                for (var e in controllerGirisCixis.listTrackdata) {
+                  listRollar.add(UserRole(code: e.userCode!,role: e.userPosition!));
+                }
+                Get.toNamed(RouteHelper.screenErrorsReport,arguments: [false,date1,date2,"","",listRollar]);
 
               },
               child: Stack(
@@ -600,7 +553,8 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
             child: InkWell(
                 onTap: () {
                   controllerGirisCixis.searcAktive.value=false;
-                  setState(() {});
+                  if(mounted){
+                  setState(() {});}
                 },
                 child: const Icon(Icons.zoom_out_map))):const SizedBox()
       ],
@@ -660,7 +614,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                       " ${controllerGirisCixis.selectedModel.value.currentLocation!.userFullName}  (${controllerGirisCixis.selectedModel.value.userCode!})"),
             ],
           ),
-          _widgetInfoZiyaret()
+          controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate==""?const SizedBox():_widgetInfoZiyaret()
         ],
       ),
     );
@@ -673,100 +627,125 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
           height: 2,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                CustomText(
-                    labeltext: "${"girisVaxt".tr} : ",
-                    fontsize: 14,
-                    fontWeight: FontWeight.w600),
-                CustomText(
-                    labeltext:
-                        " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate.toString().substring(0,10)}"),
-              ],
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Row(
-              children: [
-                const Icon(
-                  Icons.social_distance,
-                  size: 12,
-                ),
-                CustomText(
-                    labeltext:
-                        " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.inDistance??""}"),
-              ],
-            )
-          ],
-        ),
-        const SizedBox(
-          height: 2,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CustomText(
-                    labeltext: "${"cixisVaxt".tr} : ",
-                    fontsize: 14,
-                    fontWeight: FontWeight.w600),
-                controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5
-                    ? CustomText(
-                        labeltext:
-                            " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate.toString().substring(0,10)}")
-                    : CustomText(labeltext: "cixisedilmeyib".tr),
-              ],
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5
-                ? Row(
-                    children: [
-                      const Icon(
-                        Icons.social_distance,
-                        size: 12,
-                      ),
-                      CustomText(
-                          labeltext:
-                              " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDistance??""}"),
-                    ],
-                  )
-                : const SizedBox()
-          ],
-        ),
-        const SizedBox(
-          height: 2,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CustomText(
-                    labeltext: "marketdeISvaxti".tr + " : ",
-                    fontsize: 14,
-                    fontWeight: FontWeight.w600),
-                CustomText(
-                    labeltext:
-                        " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.workTimeInCustomer}"),
-              ],
-            ),
-          ],
-        ),
+         Column(
+           mainAxisAlignment: MainAxisAlignment.start,
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+           Row(
+             mainAxisAlignment: MainAxisAlignment.start,
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Row(
+                 children: [
+                   CustomText(
+                       labeltext: "${"girisVaxt".tr} : ",
+                       fontsize: 14,
+                       fontWeight: FontWeight.w600),
+                   controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate==""?const SizedBox(): CustomText(
+                       labeltext:
+                       " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate.toString().substring(11,16)}"),
+                 ],
+               ),
+               const SizedBox(
+                 width: 20,
+               ),
+               Row(
+                 children: [
+                   const Icon(
+                     Icons.social_distance,
+                     size: 12,
+                   ),
+                   CustomText(
+                       labeltext:
+                       " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.inDistance??""}"),
+                 ],
+               )
+             ],
+           ),
+           const SizedBox(
+             height: 2,
+           ),
+           Row(
+             mainAxisAlignment: MainAxisAlignment.start,
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Row(
+                 children: [
+                   CustomText(
+                       labeltext: "${"cixisVaxt".tr} : ",
+                       fontsize: 14,
+                       fontWeight: FontWeight.w600),
+                   controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5
+                       ? CustomText(
+                       labeltext:
+                       " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate.toString().substring(10,16)}")
+                       : CustomText(labeltext: "cixisedilmeyib".tr),
+                 ],
+               ),
+               const SizedBox(
+                 width: 20,
+               ),
+               controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5
+                   ? Row(
+                 children: [
+                   const Icon(
+                     Icons.social_distance,
+                     size: 12,
+                   ),
+                   CustomText(
+                       labeltext:
+                       " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDistance??""}"),
+                 ],
+               )
+                   : const SizedBox()
+             ],
+           ),
+             const SizedBox(
+               height: 2,
+             ),
+             Row(
+               mainAxisAlignment: MainAxisAlignment.start,
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 Row(
+                   children: [
+                     CustomText(
+                         labeltext: "${"marketdeISvaxti".tr} : ",
+                         fontsize: 14,
+                         fontWeight: FontWeight.w600),
+                     CustomText(
+                         labeltext:
+                         " ${controllerGirisCixis.selectedModel.value.lastInoutAction!.workTimeInCustomer}"),
+                   ],
+                 ),
+               ],
+             ),
+         ],),
+            userPermitionsHelper.canRemuveUserEnter(controllerGirisCixis.localUserServices.getLoggedUser().userModel!.permissions!)?
+           Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: CustomElevetedButton(
+              height: 20,
+                width: 25,
+                textVisible: false,
+                elevation: 5,
+                hasshadow: true,
+                textColor: Colors.red,
+                icon: Icons.delete,
+                surfaceColor: Colors.white,
+                cllback: (){
+                _showDialogGirisSil();
+                }, label: ""),
+          ):const SizedBox(),
+        ],),
+
       ],
     );
   }
 
   _widgetUserInfo(BuildContext context) {
-    double cariSurret=double.parse(controllerGirisCixis.selectedModel.value.currentLocation!.speed!);
     return Container(
       padding: const EdgeInsets.only(top: 25, left: 10),
       child: Column(
@@ -779,15 +758,12 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               children: [
                 Expanded(
                   flex: 1,
-                  child: CircleAvatar(
-                    child: ClipOval(
-                      child: Image.network(
-                        "https://st2.depositphotos.com/1570716/8433/i/950/depositphotos_84330370-stock-photo-portrait-of-a-smart-young.jpg",
-                        fit: BoxFit.cover, // Ensures the image fills the circular avatar
-                        width: double.infinity, // Ensures the image fits inside the CircleAvatar
-                        height: double.infinity,
-                      ),
-                    ),
+                  child: controllerGirisCixis.selectedModel.value.currentLocation!.screenState!=
+                      "b"? Image.asset(controllerGirisCixis.selectedModel.value.currentLocation!.screenState==
+                      "off"?"images/screenOff.png":"images/screenUnlock.png",fit: BoxFit.contain,
+                    width: 30,height: 45,
+                  ):const CircleAvatar(
+                    child: Icon(Icons.person),
                   ),
                 ),
                 const SizedBox(width: 5,),
@@ -805,81 +781,117 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                         maxline: 1,
                         fontWeight: FontWeight.bold,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(children: [
-                              CustomText(
-                                  labeltext: "${"sonYenilenme".tr} : ",
-                                  fontsize: 12,
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w600),
-                              CustomText(
-                                  fontsize: 12,
-                                  color: Colors.black87,
-                                  labeltext: controllerGirisCixis
-                                      .selectedModel.value.currentLocation!.locationDate.toString().substring(10,16)),
-                            ],),
-                            const SizedBox(width: 10,),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomText(
-                                    color: Colors.black87,
-                                    labeltext: "${"surret".tr} : ",
-                                    fontsize: 12,
-                                    fontWeight: FontWeight.w600),
-                                CustomText(
-                                    fontsize: 12,
-                                    color: Colors.black87,
-                                    labeltext: "${controllerGirisCixis
-                                        .selectedModel.value.currentLocation!.speed} km"),
-                                const SizedBox(width: 5,),
-                                cariSurret>1?
-                                Container(
-                                  height: 15,
-                                  padding: const EdgeInsets.only(left: 5,right: 5),
-                                  decoration: const BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius:BorderRadius.all( Radius.circular(5))
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Image.asset("images/locaccuracy.png",width: 20,height: 20,fit: BoxFit.fill,),
+                                          CustomText(
+                                              fontsize: 12,
+                                              color: Colors.black87,
+                                              labeltext: "${controllerGirisCixis.selectedModel.value.currentLocation!.locAccuracy} m"),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 5,),
+                                      Row(
+                                        children: [
+                                          Image.asset("images/batterystatus.png",width: 15,height: 12,fit: BoxFit.fill,),
+                                          const SizedBox(width: 0,),
+                                          CustomText(
+                                              fontsize: 12,
+                                              color: Colors.black87,
+                                              labeltext: "${controllerGirisCixis.selectedModel.value.currentLocation!.batteryLevel} %"),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      Row(
+                                        children: [
+                                          Image.asset("images/userspeed.png",width: 15,height: 12,fit: BoxFit.fill,),
+                                          const SizedBox(width: 5,),
+                                          CustomText(
+                                              fontsize: 12,
+                                              color: Colors.black87,
+                                              labeltext: "${controllerGirisCixis.selectedModel.value.currentLocation!.speed} m/s"),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      controllerGirisCixis.selectedModel.value.currentLocation!.isMoving!?
+                                      Container(
+                                        height: 15,
+                                        padding: const EdgeInsets.only(left: 5,right: 5),
+                                        decoration: const BoxDecoration(
+                                            color: Colors.green,
+                                            borderRadius:BorderRadius.all( Radius.circular(5))
+                                        ),
+                                        child: CustomText(labeltext: "hereketdedir".tr),
+                                      ):Container(
+                                        height: 15,
+                                        padding: const EdgeInsets.only(left: 5,right: 5),
+                                        decoration: const BoxDecoration(
+                                            color: Colors.orange,
+                                            borderRadius:BorderRadius.all( Radius.circular(5))
+                                        ),
+                                        child: CustomText(labeltext: "stabildir".tr,),)
+                                    ],
                                   ),
-                                  child: CustomText(labeltext: "${"hereketdedir".tr}"),
-                                ):Container(
-                                  height: 15,
-                                  padding: const EdgeInsets.only(left: 5,right: 5),
-                                  decoration: const BoxDecoration(
-                                      color: Colors.orange,
-                                      borderRadius:BorderRadius.all( Radius.circular(5))
+                                ],
+                              ),
+                              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(padding: const EdgeInsets.all(5),
+                                        child: controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5?
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.only(left: 5,right: 5,top: 2,bottom: 2),
+                                              decoration: const BoxDecoration(
+                                                  color: Colors.orange,
+                                                  borderRadius:BorderRadius.all( Radius.circular(5))
+                                              ),
+                                              child: CustomText(labeltext: "${"cixisEdilib".tr} : ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate.toString().substring(11,16)}",),
+                                            ),
+                                            const SizedBox(width: 20,),
+                                          ],
+                                        ):Container(
+                                          padding: const EdgeInsets.only(left: 0,right: 5,top: 2,bottom: 2),
+                                          decoration: const BoxDecoration(
+                                              color: Colors.green,
+                                              borderRadius:BorderRadius.all( Radius.circular(5))
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(0.0).copyWith(left: 5),
+                                            child: CustomText(labeltext: "${"marketdedir".tr} : ${controllerGirisCixis.selectedModel.value.currentLocation!.inputCustomerDistance!} m",),
+                                          ),),
+                                      )
+                                    ],
                                   ),
-                                  child: CustomText(labeltext: "${"stabildir".tr}",),)
-                              ],
-                            ),
-                            const Spacer()
-                          ],
-                        ),
-                      ),
-                      Padding(padding: const EdgeInsets.all(5),
-                        child: controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate!.length>5?
-                        Container(
-                          padding: const EdgeInsets.only(left: 5,right: 5,top: 2,bottom: 2),
-                          decoration: const BoxDecoration(
-                              color: Colors.green,
-                              borderRadius:BorderRadius.all( Radius.circular(5))
-                          ),
-                          child: CustomText(labeltext: "${"cixisEdilib".tr} : ${controllerGirisCixis.selectedModel.value.lastInoutAction!.outDate.toString().substring(11,16)}",),
-                        ):Container(
-                          padding: const EdgeInsets.only(left: 5,right: 5,top: 2,bottom: 2),
-                          decoration: const BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius:BorderRadius.all( Radius.circular(5))
-                          ),
-                          child: CustomText(labeltext: "${"marketdedir".tr} : ${controllerGirisCixis.selectedModel.value.currentLocation!.inputCustomerDistance!} m"??"0",),),
-                      )
+                                ],
+                              ),
 
+                            ],
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -889,49 +901,63 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
            Padding(
              padding: const EdgeInsets.only(right: 10),
              child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  onTap:(){
-                    openWhatsAppChat(phone: controllerGirisCixis.selectedModel.value.phoneNumber!.toString());
-                  },
+               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+               children: [
+                 CustomElevetedButton(
+                     icon: Icons.visibility,
+                     textColor: Colors.green,
+                     borderColor: Colors.green,
+                     height: 20,
+                     width: 110,
+                     cllback: (){
+                       getGunlukHesabat();
+                     }, label: "todeyRut".tr),
+                 Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap:(){
+                        openWhatsAppChat(phone: controllerGirisCixis.selectedModel.value.phoneNumber!.toString());
+                      },
 
-                  child: SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: Image.asset("images/whatsapp.png"),
-                  ),
-                ),
-                const SizedBox(width: 10,),
-                InkWell(
-                  onTap: (){
-                    launchPhoneDialer(phone: controllerGirisCixis.selectedModel.value.phoneNumber!.toString());
-                  },
-                  child: SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: Image.asset("images/mobilecall.png"),
-                  ),
-                ) ,
-                const SizedBox(width: 10,),
-                InkWell(
-                  onTap: (){
-                    createRoutBetweenTwoPoints(controllerGirisCixis
-                        .selectedModel.value.currentLocation!);
-                  },
-                  child: SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: Image.asset("images/directionmap.png"),
-                  ),
-                )
-              ],
-                       ),
+                      child: SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: Image.asset("images/whatsapp.png"),
+                      ),
+                    ),
+                    const SizedBox(width: 10,),
+                    InkWell(
+                      onTap: (){
+                        launchPhoneDialer(phone: controllerGirisCixis.selectedModel.value.phoneNumber!.toString());
+                      },
+                      child: SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: Image.asset("images/mobilecall.png"),
+                      ),
+                    ) ,
+                    const SizedBox(width: 10,),
+                    InkWell(
+                      onTap: (){
+                        createRoutBetweenTwoPoints(controllerGirisCixis
+                            .selectedModel.value.currentLocation!);
+                      },
+                      child: SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: Image.asset("images/directionmap.png"),
+                      ),
+                    )
+                  ],
+                           ),
+               ],
+             ),
            ),
           const SizedBox(
             height: 5,
           ),
-          userHesabatlarMustVisible||controllerGirisCixis.selectedModel.value.lastInoutAction==null?const SizedBox():Column(
+          userHesabatlarMustVisible&&controllerGirisCixis.selectedModel.value.lastInoutAction==null?const SizedBox():Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -948,7 +974,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
                 color: Colors.grey,
               ),
               const SizedBox(
-                height: 5,
+                height: 1,
               ),
               Row(
                 children: [
@@ -977,12 +1003,24 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               ),
             ],
           ),
-          userHesabatlarMustVisible||controllerGirisCixis.selectedModel.value.lastInoutAction==null?const SizedBox():_widgetInfoZiyaret(),
+          userHesabatlarMustVisible&&controllerGirisCixis.selectedModel.value.lastInoutAction!.inDate==""?const SizedBox():_widgetInfoZiyaret(),
         ],
       ),
     );
   }
 
+  void getGunlukHesabat() {
+    DateTime now = DateTime.now();
+    final String formattedDate = intel.DateFormat('yyyy-MM-dd').format(now);
+    String starDate = "$formattedDate 00:01";
+    String endDate = "$formattedDate 23:59";
+    Get.toNamed(RouteHelper.screenLiveTrackReport, arguments: [
+      controllerGirisCixis.selectedModel.value.userPosition,
+      controllerGirisCixis.selectedModel.value.userCode,
+      starDate,
+      endDate
+    ]);
+  }
   Future<void> createRoutBetweenTwoPoints(CurrentLocation modelCariler) async {
     Coords cordEnd = Coords(double.parse(modelCariler.latitude.toString()),
         double.parse(modelCariler.longitude.toString()));
@@ -1005,28 +1043,76 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
 
   Future<void> openMapSettingScreen() async {
     controllerGirisCixis.availableMap = await Get.toNamed(RouteHelper.mobileMapSettingMobile);
-    setState(() {});
-  }
+    if(mounted) {
+      setState(() {});
+    }}
 
-  Future<void> openWhatsAppChat({required String phone}) async {
-    final Uri whatsappUrl = Uri.parse("whatsapp://send?phone=$phone");
-
-    if (await canLaunchUrl(whatsappUrl)) {
-      await launchUrl(whatsappUrl);
-    } else {
-      throw 'Could not launch WhatsApp chat';
-    }
-  }
 
   Future<void> launchPhoneDialer({required String phone}) async {
-    final Uri phoneUri = Uri(scheme: 'tel', path: phone);
+    String formattedPhone = phone.replaceAll(RegExp(r'[^+\d]'), '');  // Yalnız '+' və rəqəmlər qalır
+    Get.dialog(ShowSualDialog(messaje: "$formattedPhone nomresine zeng etmeye eminsiniz?", callBack: (v) async {
+      if(v){
+        Get.back();
+        bool? res = await FlutterPhoneDirectCaller.callNumber(formattedPhone);
+        if (res == null || !res) {
+          throw 'Could not launch phone dialer.';
+        }
+      }
+    }));
+  }
 
-    if (await canLaunchUrl(phoneUri)) {
-      await launchUrl(phoneUri);
-    } else {
-      throw 'Could not launch phone dialer';
+  // openWhatsAppChat({required String phone}) async {
+  //   String formattedPhone = phone.replaceAll(RegExp(r'[^+\d]'), '');
+  //   var whatsappAndroid =Uri.parse("whatsapp://send?phone=$formattedPhone&text=hello");
+  //   if (await canLaunchUrl(whatsappAndroid)) {
+  //     await launchUrl(whatsappAndroid);
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text("WhatsApp is not installed on the device"),
+  //       ),
+  //     );
+  //   }
+  // }
+
+  Future<void> openWhatsAppChat({required String phone}) async {
+    String formattedPhone = phone.replaceAll(RegExp(r'[^+\d]'), '');
+
+    final whatsappUrl = 'https://wa.me/$formattedPhone';  // WhatsApp üçün
+    final businessUrl = 'whatsapp-business://send?phone=$formattedPhone';  // WhatsApp Business üçün
+
+    var whatsappUrlUri = Uri.parse(whatsappUrl);
+    var bizneswhatsappUrlUri = Uri.parse(businessUrl);
+
+    try {
+      // WhatsApp URL-ni açmağa çalışırıq
+      bool canLaunchWhatsapp = await canLaunchUrl(whatsappUrlUri);
+      if (canLaunchWhatsapp) {
+        await launchUrl(whatsappUrlUri);
+      } else {
+        // WhatsApp Business URL-ni açmağa çalışırıq
+        bool canLaunchBusiness = await canLaunchUrl(bizneswhatsappUrlUri);
+        if (canLaunchBusiness) {
+          await launchUrl(bizneswhatsappUrlUri);
+        } else {
+          // Heç bir tətbiq tapılmadığı halda istifadəçiyə xəbər veririk
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("WhatsApp və ya WhatsApp Business tətbiqi cihazda tapılmadı"),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Xəta baş verərsə istifadəçiyə xəbər veririk
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Bir xəta baş verdi, xahiş edirik yenidən cəhd edin."),
+        ),
+      );
     }
   }
+
 
   _hesabatHisseMartker(BuildContext context) {
     return controllerGirisCixis.selectedModel.value.lastInoutAction!= null
@@ -1036,6 +1122,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
               child: Column(
                 children: [
                   WidgetCarihesabatlar(
+                    loggedUser: controllerGirisCixis.localUserServices.getLoggedUser(),
                     height: 100,
                     ckod: controllerGirisCixis.selectedModel.value.lastInoutAction!.customerCode!,
                     cad: controllerGirisCixis.selectedModel.value.lastInoutAction!.customerName!,
@@ -1055,8 +1142,8 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
           children: [
             WidgetRuthesabatlar(
               listP: controllerGirisCixis.localUserServices.getLoggedUser().userModel!.permissions!.where((e)=>e.category==3).toList(),
-              roleId: controllerGirisCixis.selectedModel.value.userPosition.toString(),height: 100,temsilciKodu: controllerGirisCixis.selectedModel.value.userCode!, onClick: (){
-              controllerGirisCixis.timer!.cancel();
+              roleId: controllerGirisCixis.selectedModel.value.userPosition.toString(),height: 100,temsilciKodu: controllerGirisCixis.selectedModel.value.userCode!, onClick: () async {
+              await Future.delayed(const Duration(milliseconds: 100));
             },),
           ],
         ),
@@ -1066,7 +1153,11 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
 
 
   Widget searchUsers(BuildContext context){
-   return  SearchLiveUsers(listUsers: controllerGirisCixis.listTrackdata,callBack: (element){
+   return  SearchLiveUsers(
+     callBackGunluk: (v){
+       controllerGirisCixis.timer!.cancel();
+     },
+     listUsers: controllerGirisCixis.listTrackdata,callBack: (element){
      if(element.userCode!=null){
        controllerGirisCixis.createMarkerCirculeAndPolyline(element);
        controllerGirisCixis.searcAktive.value=false;
@@ -1087,5 +1178,14 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> {
      }
    },
      selectedUser: controllerGirisCixis.selectedModel.value,);
+  }
+
+  void _showDialogGirisSil() {
+    Get.dialog(ShowSualDialog(messaje: "Girisi silmeye eminsiniz?", callBack: (v){
+      if(v){
+        controllerGirisCixis.girisiSil(controllerGirisCixis.selectedModel.value);
+      }
+
+    }));
   }
 }

@@ -49,7 +49,7 @@ class CustomInterceptor extends Interceptor {
     await localUserServices.init();
     String token = await localUserServices.getLoggedToken();
     print('Time :' + DateTime.now().toString() + ' Request[=> PATH:${options.path}] data :${options.data}');
-   print('Time :' + DateTime.now().toString() + options.headers.toString());
+   //print('Time :' + DateTime.now().toString() + options.headers.toString());
     if (token.isNotEmpty) {
       options.headers['Authorization'] = "Bearer $token";
     } else {
@@ -61,11 +61,12 @@ class CustomInterceptor extends Interceptor {
 
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
-    print('Time :' + DateTime.now().toString() + ' Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " result :" + response.data.toString());
+   print('Time :' + DateTime.now().toString() + ' Responce[${response.statusCode}] => PATH: ${response.requestOptions.path.toString()}' + " result :" + response.data.toString());
     if (response.statusCode == 404) {
       Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
     }
     else if(response.data!=null){
+      print("response.data : "+response.data.toString());
       if (response.data['Exception'] != null) {
       ModelExceptions model = ModelExceptions.fromJson(response.data['Exception']);
       if (model.code == "006") {
@@ -88,7 +89,7 @@ class CustomInterceptor extends Interceptor {
       } else {
         Get.dialog(ShowInfoDialog(
           color: Colors.red,
-          icon: Icons.perm_identity,
+          icon: Icons.info_rounded,
           messaje: model.message!,
           callback: () {
             Get.back();
@@ -96,7 +97,7 @@ class CustomInterceptor extends Interceptor {
         ));
       }
     }
-    else {
+       else {
       if (mustShowResult) {
         Get.back();
         Get.dialog(ShowInfoDialog(

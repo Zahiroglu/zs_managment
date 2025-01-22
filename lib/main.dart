@@ -1,13 +1,18 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:screen_state/screen_state.dart';
 import 'package:zs_managment/companents/anbar/model_anbarrapor.dart';
+import 'package:zs_managment/companents/backgroud_task/bacgroud_location_fulltime.dart';
 import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/backgroud_task/backgroud_errors/local_backgroud_events.dart';
 import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
@@ -24,7 +29,6 @@ import 'package:zs_managment/language/utils/dep.dart' as dep;
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/thema/thema_controller.dart';
 import 'package:zs_managment/thema/theme_constants.dart';
-import 'package:zs_managment/utils/checking_dvice_type.dart';
 import 'companents/backgroud_task/backgroud_errors/model_back_error.dart';
 import 'companents/backgroud_task/backgroud_errors/model_user_current_location_reqeust.dart';
 import 'companents/base_downloads/models/model_cariler.dart';
@@ -39,32 +43,79 @@ import 'companents/login/models/model_token.dart';
 import 'companents/login/models/model_userconnnection.dart';
 import 'companents/login/models/model_userspormitions.dart';
 import 'companents/login/models/user_model.dart';
+import 'companents/notifications/firebase_notificatins.dart';
 import 'companents/rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
+import 'helpers/user_permitions_helper.dart';
 import 'language/lang_constants.dart';
 import 'language/localization_controller.dart';
 import 'language/model_language.dart';
 import 'language/utils/messages.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-as bg;
+    as bg;
+import 'package:firebase_core/firebase_core.dart';
 
-
-Future<void>  main() async {
+bool isHeadlessTaskRegistered = false; // Kaydın olup olmadığını kontrol etmek için bir değişken
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(options: const FirebaseOptions(apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w',
-  //     appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',messagingSenderId: '281974451758',
-  //     projectId: 'zscontrollsystem'));
   await Hive.initFlutter();
+  await Firebase.initializeApp(
+      options: const FirebaseOptions(
+          apiKey: 'AIzaSyArwk-LNUsz7bPN7cgKToorBC5nwd4_y4w',
+          appId: '1:281974451758:android:b37adf32a79ddfd0f1b9bf',
+          messagingSenderId: '281974451758',
+          projectId: 'zscontrollsystem'));
   registerAdapters();
-  Map<String, Map<String, String>> languages = await dep.init();
-  await bg.BackgroundGeolocation.registerHeadlessTask(backgroundTaskHandler);
-  runApp(MyApp(languages: languages));
+  ///FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
 
+  Map<String, Map<String, String>> languages = await dep.init();
+
+  // Headless task yalnızca bir kez kaydedilsin
+  if (!isHeadlessTaskRegistered) {
+    await bg.BackgroundGeolocation.registerHeadlessTask(backgroundTaskHandler);
+    isHeadlessTaskRegistered = true; // Kaydettikten sonra bayrağı güncelle
+  }
+  runApp(MyApp(languages: languages));
+}
+
+Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  await NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
+  final title = message.notification?.title ?? "No Title";
+  final body = message.notification?.body ?? "No Body";
+  // Mesajın data hissəsindən Click_Action-u əldə edin
+  var clickAction = "";
+  if (message.data.containsKey('click_action')) {
+    clickAction = message.data['click_action'];
+    print("Bacgroudn Initial Click_Action: $clickAction");
+  }
+  await NotyBackgroundTrack.showBigTextNotificationAlarm(
+      title: title,
+      body:body,
+      fln: flutterLocalNotificationsPlugin);
+
+  // "BLOCK" dəyərinə görə proqramı bağla
+  if (clickAction == "Block") {
+    exit(0); // Tətbiqi tamamilə bağlayır
+
+    // Proqramı bağla
+    // if (Platform.isAndroid) {
+    //   SystemNavigator.pop(); // Android üçün
+    // } else if (Platform.isIOS) {
+    //   exit(0); // iOS üçün (App Store-da tövsiyə edilmir)
+    // }
+    // return;
+  }
+  else if (clickAction == "Yenilik") {
+  }
+  print("messaje : $message");
+  print("Click_Action:" + message.notification.toString());
 }
 
 void registerAdapters() {
   if (!Hive.isAdapterRegistered(1)) {
     Hive.registerAdapter(LanguageModelAdapter()); // id-2
-  }if (!Hive.isAdapterRegistered(2)) {
+  }
+  if (!Hive.isAdapterRegistered(2)) {
     Hive.registerAdapter(LoggedUserModelAdapter()); // id-2
   }
   if (!Hive.isAdapterRegistered(3)) {
@@ -154,179 +205,202 @@ void registerAdapters() {
 }
 
 bool isTaskRunning = false;
-bool mobilInternetOff = false;
+String telefonunEkrani="on";
+
 
 @pragma('vm:entry-point')
-void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
-  print('📬 --> $headlessEvent');
+void backgroundTaskHandler(bg.HeadlessEvent event) async {
+  WidgetsFlutterBinding.ensureInitialized();
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   await NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
-  if (isTaskRunning) return;
-  isTaskRunning = true;
+  final directory = await getApplicationDocumentsDirectory();
+  registerAdapters();
+  Hive.init(directory.path);
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    final directory = await getApplicationDocumentsDirectory();
-    registerAdapters();
-    Hive.init(directory.path);
-  switch (headlessEvent.name) {
+  switch (event.name) {
     case bg.Event.BOOT:
-      bg.State state = await bg.BackgroundGeolocation.state;
-      print("📬 didDeviceReboot: ${state.didDeviceReboot}");
-      break;
-    case bg.Event.HEARTBEAT:
-      try {
-        bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
-          persist: false,
-            samples: 1,
-            timeout: 10,
-            extras: {
-              "event": "heartbeat",
-              "headless": true
-            }
-        );
-        if (location.mock) {
-          await sendErrorsToServers("Block", "Saxta GPS məlumatı aşkarlandı ve blok edildi",location.coords.latitude.toString(),location.coords.longitude.toString());
-        } else {
-          print("Samir : Real location: ${location.coords.latitude}, ${location.coords.longitude}");
-          await sendInfoLocationsToDatabase(location,flutterLocalNotificationsPlugin).whenComplete(() async {
-            await Future.delayed(const Duration(seconds: 2)); // Sorğu cavabını gözləyin
-            isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
-          });
-        }
-        print('[getCurrentPosition] Headless: $location');
-      } catch (error) {
-        print('[getCurrentPosition] Headless ERROR: $error');
-      }
-      break;
-    case bg.Event.MOTIONCHANGE:
-      bg.Location location = headlessEvent.event;
-      print(location);
-      break;
-    case bg.Event.GEOFENCE:
-      bg.GeofenceEvent geofenceEvent = headlessEvent.event;
-      if (geofenceEvent.action == 'ENTER') {
-        print("Geofence-ə daxil oldunuz: ${geofenceEvent.identifier}");
-      } else if (geofenceEvent.action == 'EXIT') {
-        print("Geofence-dən çıxdınız: ${geofenceEvent.identifier}");
-      }
-      break;
-    case bg.Event.SCHEDULE:
-      bg.State state = headlessEvent.event;
-      print(state);
       break;
     case bg.Event.ACTIVITYCHANGE:
-      bg.ActivityChangeEvent event = headlessEvent.event;
-      print(event);
       break;
     case bg.Event.POWERSAVECHANGE:
-      bool enabled = headlessEvent.event;
-      print(enabled);
-      break;
-    case bg.Event.CONNECTIVITYCHANGE:
-      bg.ConnectivityChangeEvent event = headlessEvent.event;
-
-      print(event);
-      break;
-    case bg.Event.ENABLEDCHANGE:
-      bool enabled = headlessEvent.event;
-      print(enabled);
+      // bool enabled = headlessEvent.event;
+      // print(enabled);
       break;
     case bg.Event.AUTHORIZATION:
-      bg.AuthorizationEvent event = headlessEvent.event;
-      if(event.status!=bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS){
-        await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Gps icaze sistemine mudaxile edirsen.Duzelt Yada blok edileceksen.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-
+      bg.AuthorizationEvent eventa = event.event;
+      if (eventa.status != bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
+        await NotyBackgroundTrack.showBigTextNotificationAlarm(
+            title: "Diqqet",
+            body:
+                "Gps icaze sistemine mudaxile edirsen.Duzelt Yada blok edileceksen.Tarix : ${DateTime.now()}",
+            fln: flutterLocalNotificationsPlugin);
+        sendErrorsToServers(
+            "Block",
+            "Block",
+            "Gps icaze sistemine mudaxile edirsen.Duzelt Yada blok edileceksen",
+            "0",
+            "0");
+        isTaskRunning = false;
       }
-      print(event);
-
       break;
-  }}catch (e) {
-    print("Samir : Error in background task: $e");
-    isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
-
-  } finally {
-    isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
+    case bg.Event.LOCATION:
+      bg.Location location = event.event;
+      sendLocation(location, flutterLocalNotificationsPlugin);
+      break;
+    case "heartbeat":
+      try {
+        final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
+          persist: false,
+          samples: 500,
+          maximumAge: 0, // Həmişə yeni məlumat əldə et
+          timeout: 5, // Məlumat üçün maksimum gözləmə müddəti
+        );
+        sendLocation(location, flutterLocalNotificationsPlugin);
+      } catch (error) {
+        print("Messaje : $error");
+      }
+      break;
   }
+  // try {
+  //   final directory = await getApplicationDocumentsDirectory();
+  //   registerAdapters();
+  //   Hive.init(directory.path);
+  //   final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
+  //     persist: false,
+  //     samples: 500,
+  //     maximumAge: 0, // Həmişə yeni məlumat əldə et
+  //     timeout: 5, // Məlumat üçün maksimum gözləmə müddəti
+  //   );
+  //   //sebekeni yoxla
+  //   bool hasInternet=await checkMobileDataStatus();
+  //   if(!hasInternet){
+  //     await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
+  //     await sendErrorsToServers("internet","Internet", "Mobil interneti el ile baglamisdir",location.coords.latitude.toString(),location.coords.longitude.toString());
+  //     mobilInternetOff = true; // Taskı bitir
+  //     isTaskRunning = false; // Taskı bitir
+  //     return;
+  //   }else{
+  //     mobilInternetOff = false; // Taskı bitir
+  //     await flutterLocalNotificationsPlugin.cancel(1);
+  //   }
+  //   // GPS statusunu yoxla
+  //   bool isGPSEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!isGPSEnabled) {
+  //     await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil GPS aktivlesdirin.Eks halda girisiniz silinecel.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
+  //     isTaskRunning = false; // Taskı bitir
+  //     return;
+  //   }else{
+  //     isTaskRunning = true; // Taskı bitir
+  //     await flutterLocalNotificationsPlugin.cancel(1);
+  //   }
+  //   // konum bilgilerini yoxla
+  //   if (location.mock) {
+  //     await sendErrorsToServers("Block","Block", "Saxta GPS məlumatı aşkarlandı ve blok edildi",location.coords.latitude.toString(),location.coords.longitude.toString());
+  //     isTaskRunning = false; // Taskı bitir
+  //   } else {
+  //     await sendInfoLocationsToDatabase(location,flutterLocalNotificationsPlugin).whenComplete(() async {
+  //       await Future.delayed(const Duration(seconds: 2)); // Sorğu cavabını gözləyin
+  //       isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
+  //     });
+  //   }
+  // }
+  // catch (e) {
+  //   print("Samir : Error in background task: $e");
+  //   isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
+  //
+  // } finally {
+  //   isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
+  // }
 }
 
-void backgroundTaskHandler(bg.HeadlessEvent event) async {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  await NotyBackgroundTrack.initialize(flutterLocalNotificationsPlugin);
-  if (isTaskRunning) return;
-  isTaskRunning = true;
-  WidgetsFlutterBinding.ensureInitialized();
-  try {
-    final directory = await getApplicationDocumentsDirectory();
-    registerAdapters();
-    Hive.init(directory.path);
-    final bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
-      persist: false,
-      samples: 500,
-      maximumAge: 0, // Həmişə yeni məlumat əldə et
-      timeout: 5, // Məlumat üçün maksimum gözləmə müddəti
-    );
-    //sebekeni yoxla
-    bool hasInternet=await checkMobileDataStatus();
-    if(!hasInternet){
-      await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-      await sendErrorsToServers("Internet", "Mobil interneti el ile baglamisdir",location.coords.latitude.toString(),location.coords.longitude.toString());
-      mobilInternetOff = true; // Taskı bitir
-      isTaskRunning = false; // Taskı bitir
-      return;
-    }else{
-      mobilInternetOff = false; // Taskı bitir
-      await flutterLocalNotificationsPlugin.cancel(1);
+Future<void> sendLocation(bg.Location location, FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  final Screen screena = Screen();
+  screena.screenStateStream.listen((ScreenStateEvent event) {
+    switch(event){
+      case ScreenStateEvent.SCREEN_UNLOCKED:
+        telefonunEkrani="unlock";
+        break;
+      case ScreenStateEvent.SCREEN_ON:
+        telefonunEkrani="on";
+        break;
+      case ScreenStateEvent.SCREEN_OFF:
+        telefonunEkrani="off";
+        break;
     }
-    // GPS statusunu yoxla
-    bool isGPSEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!isGPSEnabled) {
-      await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil GPS aktivlesdirin.Eks halda girisiniz silinecel.Tarix : ${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-      isTaskRunning = false; // Taskı bitir
-      return;
-    }else{
-      isTaskRunning = true; // Taskı bitir
-      await flutterLocalNotificationsPlugin.cancel(1);
-    }
-    // konum bilgilerini yoxla
-    if (location.mock) {
-      await sendErrorsToServers("Block", "Saxta GPS məlumatı aşkarlandı ve blok edildi",location.coords.latitude.toString(),location.coords.longitude.toString());
-      isTaskRunning = false; // Taskı bitir
-    } else {
-      await sendInfoLocationsToDatabase(location,flutterLocalNotificationsPlugin).whenComplete(() async {
-        await Future.delayed(const Duration(seconds: 2)); // Sorğu cavabını gözləyin
-        isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
-      });
-    }
-  } catch (e) {
-    print("Samir : Error in background task: $e");
+  });
+  print("telefonunEkrani : "+telefonunEkrani.toString());
+  bool hasInternet = await checkMobileDataStatus();
+  if (!hasInternet) {
+    await NotyBackgroundTrack.showBigTextNotificationAlarm(
+        title: "Diqqet",
+        body:
+            "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek.Tarix : ${DateTime.now()}",
+        fln: flutterLocalNotificationsPlugin);
+    await sendErrorsToServers(
+        "internet",
+        "Internet",
+        "Mobil interneti el ile baglamisdir",
+        location.coords.latitude.toString(),
+        location.coords.longitude.toString());
+    isTaskRunning = false; // Taskı bitir
+    return;
+  } else {
+    await flutterLocalNotificationsPlugin.cancel(1);
+  }
+  bool isGPSEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!isGPSEnabled) {
+    await NotyBackgroundTrack.showBigTextNotificationAlarm(
+        title: "Diqqet",
+        body: "Mobil GPS aktivlesdirin.Eks halda girisiniz silinecel.Tarix : ${DateTime.now()}",
+        fln: flutterLocalNotificationsPlugin);
+    isTaskRunning = false; // Taskı bitir
+    return;
+  } else {
+    isTaskRunning = false; // Taskı bitir
+    await flutterLocalNotificationsPlugin.cancel(1);
+  }
+  // konum bilgilerini yoxla
+  if (location.mock) {
+    await sendErrorsToServers(
+        "Block",
+        "Block",
+        "Saxta GPS məlumatı aşkarlandı ve blok edildi",
+        location.coords.latitude.toString(),
+        location.coords.longitude.toString());
+    isTaskRunning = false; // Taskı bitir
+  } else {
     isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
-
-  } finally {
-    isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
+    await sendInfoLocationsToDatabase(location, flutterLocalNotificationsPlugin,telefonunEkrani)
+        .whenComplete(() async {
+      await Future.delayed(
+          const Duration(seconds: 2)); // Sorğu cavabını gözləyin
+      isTaskRunning = false; // Task tamamlandı, flaqı sıfırla.
+    });
   }
 }
 
 Future<bool> checkMobileDataStatus() async {
   final connectivityResult = await Connectivity().checkConnectivity();
   if (connectivityResult == ConnectivityResult.mobile) {
-    print("Mobil data aktivdir.");
     return true;
   } else {
-    print("Heç bir şəbəkə bağlantısı yoxdur.");
     return false;
   }
 }
 
-Future<void> sendInfoLocationsToDatabase(bg.Location location, FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+Future<void> sendInfoLocationsToDatabase(bg.Location location,
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, String telefonunEkrani) async {
   LocalUserServices userService = LocalUserServices();
   LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
+  UserPermitionsHelper userPermitionsHelper = UserPermitionsHelper();
   await userService.init();
   await localBackgroundEvents.init();
   await localGirisCixisServiz.init();
+  String ent = userPermitionsHelper.getUserWorkTime(userService.getLoggedUser().userModel!.configrations!)[1].substring(0, 2);
   ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
-  double uzaqliq=0;
-  if(modela.customerCode!=null){
+  double uzaqliq = 0;
+  if (modela.customerCode != null) {
     uzaqliq = calculateDistanceInMeters(
       location.coords.latitude,
       location.coords.longitude,
@@ -334,50 +408,80 @@ Future<void> sendInfoLocationsToDatabase(bg.Location location, FlutterLocalNotif
       double.parse(modela.customerLatitude!),
     );
   }
+  stopTracking(int.parse(ent), modela);
   LoggedUserModel loggedUserModel = userService.getLoggedUser();
   String accesToken = loggedUserModel.tokenModel!.accessToken!;
+  await NotyBackgroundTrack.showBigTextNotification(
+      title: "Diqqet",
+      body:
+          "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}",
+      fln: flutterLocalNotificationsPlugin);
+
   ModelUsercCurrentLocationReqeust model = ModelUsercCurrentLocationReqeust(
+    screenState: telefonunEkrani,
     sendingStatus: "0",
-    batteryLevel: location.battery.level * 100,
+    batteryLevel: (location.battery.level * 100).roundToDouble(),
     inputCustomerDistance: uzaqliq.round(),
     isOnline: true,
-    latitude:  location.coords.latitude,
+    latitude: location.coords.latitude,
     longitude: location.coords.longitude,
     locationDate: DateTime.now().toString().substring(0, 18),
-    pastInputCustomerCode: modela.customerCode??"0",
-    pastInputCustomerName: modela.customerName??"0",
+    pastInputCustomerCode: modela.customerCode ?? "0",
+    pastInputCustomerName: modela.customerName ?? "0",
     locationHeading: location.coords.heading,
     speed: location.coords.speed,
-    userFullName:"${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!.surname!}",
+    userFullName:
+        "${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!.surname!}",
     userCode: loggedUserModel.userModel!.code!,
     userPosition: loggedUserModel.userModel!.roleId.toString(),
+    locAccuracy: location.coords.accuracy,
+    isMoving: location.isMoving,
   );
-    try{
-      final response = await ApiClientBack().dio(false).post(
-        "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
-        data: model.toJson(),
-        options: Options(
-          headers: {
-            'Lang': "az",
-            'Device': 1,
-            'smr': '12345',
-            "Authorization": "Bearer $accesToken"
-          },
-          validateStatus: (_) => true,
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.json,
-        ),
-      );
-      if (response.statusCode != 200) {
-        await localBackgroundEvents.addBackLocationToBase(model);
-      }
-    } on DioException catch (e) {
-      await  localBackgroundEvents.addBackLocationToBase(model);
+  try {
+    final response = await ApiClientBack().dio(false).post(
+          "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
+          data: model.toJson(),
+          options: Options(
+            headers: {
+              'Lang': "az",
+              'Device': 1,
+              'smr': '12345',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
+    if (response.statusCode != 200) {
+      await localBackgroundEvents.addBackLocationToBase(model);
     }
-
+    if (location.coords.accuracy < 50) {
+      if (uzaqliq > 1000) {
+        await sendErrorsToServers(
+            "Distance",
+            "Uzaqlasma",
+            modela.customerName ??
+                "Bilinmeyen adli marketden teyin edilmis mesafeden cox uzaqdir.Cari uzqliq : ${uzaqliq.round()} m",
+            location.coords.latitude.toString(),
+            location.coords.longitude.toString());
+      }
+    }
+  } on DioException {
+    await localBackgroundEvents.addBackLocationToBase(model);
+  }
 }
 
-Future<void> sendErrorsToServers(String xetaBasliq, String xetaaciqlama,String lat,String long) async {
+void stopTracking(int endDate, ModelCustuomerVisit modela) async {
+  DateTime now = DateTime.now();
+  if (now.hour >= endDate) {
+    if (modela.outLongitude != ""&&modela.outLongitude!=null) {
+      await bg.BackgroundGeolocation.stop();
+    }
+  }
+}
+
+Future<void> sendErrorsToServers(String errorCode, String xetaBasliq, String xetaaciqlama, String lat, String long) async {
   LocalUserServices userService = LocalUserServices();
   LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
@@ -390,48 +494,52 @@ Future<void> sendErrorsToServers(String xetaBasliq, String xetaaciqlama,String l
   ModelBackErrors model = ModelBackErrors(
     userId: loggedUserModel.userModel!.id,
     deviceId: loggedUserModel.userModel!.deviceId!,
-    errCode: xetaBasliq,
+    errCode: errorCode,
     errDate: DateTime.now().toString(),
-    errName: xetaaciqlama,
+    errName: xetaBasliq,
     description: xetaaciqlama,
     locationLatitude: lat,
     locationLongitude: long,
     sendingStatus: "0",
     userCode: loggedUserModel.userModel!.code,
-    userFullName: "${loggedUserModel.userModel!.name} ${loggedUserModel.userModel!.surname}",
+    userFullName:
+        "${loggedUserModel.userModel!.name} ${loggedUserModel.userModel!.surname}",
     userPosition: loggedUserModel.userModel!.roleId,
   );
-  try{
+  try {
     final response = await ApiClient().dio(false).post(
-      "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
-      data: model.toJson(),
-      options: Options(
-        headers: {
-          'Lang': 'az',
-          'Device': 1,
-          'SMR': '12345',
-          "Authorization": "Bearer $accesToken"
-        },
-        validateStatus: (_) => true,
-        contentType: Headers.jsonContentType,
-        responseType: ResponseType.json,
-      ),
-    );
+          "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
+          data: model.toJson(),
+          options: Options(
+            headers: {
+              'Lang': 'az',
+              'Device': 1,
+              'SMR': '12345',
+              "Authorization": "Bearer $accesToken"
+            },
+            validateStatus: (_) => true,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json,
+          ),
+        );
     if (response.statusCode == 200) {
       if (xetaBasliq == "Block") {
-        BackgroudLocationServiz backgroudLocationServiz=Get.put(BackgroudLocationServiz());
+        BackgroudLocationServiz backgroudLocationServiz =
+            Get.put(BackgroudLocationServiz());
         await userService.clearALLdata();
         await backgroudLocationServiz.stopBackGroundFetch();
         await backgroudLocationServiz.sistemiYenidenBaslat();
       }
-    }else{
-     await localBackgroundEvents.addBackErrorToBase(model);
-    }}on DioException catch (e) {
+    } else {
+      await localBackgroundEvents.addBackErrorToBase(model);
+    }
+  } on DioException {
     await localBackgroundEvents.addBackErrorToBase(model);
   }
 }
 
-double calculateDistanceInMeters(double lat1, double lon1, double lat2, double lon2) {
+double calculateDistanceInMeters(
+    double lat1, double lon1, double lat2, double lon2) {
   const double p = 0.017453292519943295; // Radians conversion factor
   var c = cos;
   final double a = 0.5 -
@@ -443,15 +551,18 @@ double calculateDistanceInMeters(double lat1, double lon1, double lat2, double l
 
 class MyApp extends StatefulWidget {
   final Map<String, Map<String, String>> languages;
-  const MyApp({super.key,required this.languages});
+
+  const MyApp({super.key, required this.languages});
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  LocalUserServices userService = LocalUserServices();
+  UserPermitionsHelper userPermitionHelper = UserPermitionsHelper();
   LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
-  final BackgroudLocationServiz backgroudLocationServiz = Get.put(BackgroudLocationServiz());
+  FirebaseNotyficationController firebaseNotyficationController = FirebaseNotyficationController();
 
   @override
   void dispose() {
@@ -464,66 +575,86 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
     WidgetsBinding.instance.addObserver(this);
     checkIfFirstTimeOpened();
     super.initState();
-
   }
 
   Future<void> checkIfFirstTimeOpened() async {
-    print("Samir : program yeniden acildi");
+    UserPermitionsHelper userPermitionsHelper=UserPermitionsHelper();
     await localGirisCixisServiz.init();
-    ModelCustuomerVisit model = await localGirisCixisServiz.getGirisEdilmisMarket();
-    if (model.userCode != null) {
-      print("Samir : istifadeci girisdedir");
-
-      checkAndStartServices(model);
-    }else{
-      print("Samir : istifadeci girisde deyil");
-
+    await userService.init();
+    await firebaseNotyficationController.fireBaseMessageInit();
+    LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    if (loggedUserModel.userModel != null) {
+      ModelCustuomerVisit model = await localGirisCixisServiz.getGirisEdilmisMarket();
+      if (userPermitionHelper.liveTrack(loggedUserModel.userModel!.configrations!)) {
+        int count= localGirisCixisServiz.getAllGirisCixisToday().length;
+        if(count>0){
+          checkAndStartServicesFull(model);
+      }else{
+          String endDate=userPermitionsHelper.getUserWorkTime(userService.getLoggedUser().userModel!.configrations!)[1].substring(0,2);
+          DateTime now = DateTime.now();
+          if (now.hour < int.parse(endDate)) {
+            checkAndStartServicesFull(model);
+          }
+        }} else {
+        if (model.userCode != null) {
+          checkAndStartServices(model);
+        }
+      }
     }
   }
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
-    // if (state == AppLifecycleState.resumed) {
-    //   // Tətbiq yenidən açıldıqda background xidmətini aktiv et
-    //   print("Tətbiq yenidən açıldı");
-    //    checkAndStartServices();
-    // }
+    if (state == AppLifecycleState.resumed) {
+      // Tətbiq yenidən açıldıqda background xidmətini aktiv et
+    } else if (state == AppLifecycleState.inactive) {}
   }
-
 
   void checkAndStartServices(ModelCustuomerVisit model) async {
     try {
       // Xidmətin statusunu yoxla
-      bg.State state = await bg.BackgroundGeolocation.state;
       await restartServices(model);
     } catch (e) {
-      print("Samir : Xidmətlərin yoxlanması və işə salınması zamanı xəta baş verdi: $e");
+    }
+  }
+
+  void checkAndStartServicesFull(ModelCustuomerVisit model) async {
+    try {
+      await restartServicesFull(model);
+    } catch (e) {
+      print("Messaje : $e");
     }
   }
 
   Future<void> restartServices(ModelCustuomerVisit model) async {
     try {
-      BackgroudLocationServiz backgroudLocationServiz=Get.put(BackgroudLocationServiz());
+      BackgroudLocationServiz backgroudLocationServiz =
+          Get.put(BackgroudLocationServiz());
       // Xidmətləri dayandır və yenidən başlat
       await backgroudLocationServiz.stopBackGroundFetch();
-      print("Samir : BackgroundGeolocation xidməti dayandırıldı.");
       await backgroudLocationServiz.startBackgorundFetck(model);
-      print("Samir : BackgroundGeolocation xidməti işə düşdü.");
     } catch (e) {
-      print("Samir : Xidmətlər yenidən başlatıla bilmədi: $e");
+    }
+  }
+
+  Future<void> restartServicesFull(ModelCustuomerVisit model) async {
+    try {
+      BackgroudLocationServizFullTime backgroudLocationServiz = Get.put(BackgroudLocationServizFullTime());
+      await backgroudLocationServiz.stopBackGroundFetch();
+      await backgroudLocationServiz.startBackgorundFetckFull(model);
+    } catch (e) {
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return  GetBuilder<LocalizationController>(builder: (localizationController){
+    return GetBuilder<LocalizationController>(
+        builder: (localizationController) {
       return GetMaterialApp(
         debugShowCheckedModeBanner: false,
         darkTheme: darkTheme,
-        theme: Get.put(ThemaController()).isDark.value
-            ? darkTheme
-            : lightTheme,
+        theme: Get.put(ThemaController()).isDark.value ? darkTheme : lightTheme,
         themeMode: Get.put(ThemaController()).isDark.value
             ? ThemeMode.dark
             : ThemeMode.light,
@@ -538,8 +669,4 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       );
     });
   }
-
-
 }
-
-

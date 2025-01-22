@@ -6,6 +6,7 @@ part 'model_customers_visit.g.dart';
 
 @HiveType(typeId: 13)
 class ModelCustuomerVisit {
+  int? userId;
   @HiveField(0)
   String? userCode;
   @HiveField(1)
@@ -57,6 +58,7 @@ class ModelCustuomerVisit {
   String? userPositionName;
 
   ModelCustuomerVisit({
+    this.userId,
     this.userCode,
     this.girisEdilenRutCodu,
     this.userPosition,
@@ -89,6 +91,7 @@ class ModelCustuomerVisit {
   String toRawJson() => json.encode(toJson());
 
   factory ModelCustuomerVisit.fromJson(Map<String, dynamic> json) => ModelCustuomerVisit(
+    userId: json["UserId"],
     userCode: json["UserCode"],
     userPosition: json["UserPosition"].toString(),
     userPositionName: json["UserPositionName"].toString(),
@@ -113,6 +116,7 @@ class ModelCustuomerVisit {
   );
 
   Map<String, dynamic> toJson() => {
+    "UserId": userId,
     "userCode": userCode,
     "userPosition": userPosition,
     "userPositionName": userPositionName,
@@ -136,5 +140,8 @@ class ModelCustuomerVisit {
     "inDt": inDt?.toIso8601String(),
   };
 
-
+  @override
+  String toString() {
+    return 'ModelCustuomerVisit{userId: $userId,userCode: $userCode, userPosition: $userPosition, customerCode: $customerCode, userFullName: $userFullName, customerName: $customerName, customerLatitude: $customerLatitude, customerLongitude: $customerLongitude, inDate: $inDate, inLatitude: $inLatitude, inLongitude: $inLongitude, inDistance: $inDistance, inNote: $inNote, outDate: $outDate, outLatitude: $outLatitude, outLongitude: $outLongitude, outDistance: $outDistance, outNote: $outNote, workTimeInCustomer: $workTimeInCustomer, isRutDay: $isRutDay, inDt: $inDt, gonderilme: $gonderilme, operationType: $operationType, enterCount: $enterCount, girisEdilenRutCodu: $girisEdilenRutCodu, userPositionName: $userPositionName}';
+  }
 }

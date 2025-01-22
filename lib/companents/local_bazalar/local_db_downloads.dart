@@ -146,14 +146,12 @@ class LocalBaseDownloads {
     }else{
       deyer = listustDown.where((element) => element.musteDonwload == true).length;
     }
-    print("deyer :"+deyer.toString());
     return deyer==0?false:true;
   }
 
 //////Umumi Rut gostericilerini Doldur//////
 
   Future<ModelRutPerform> getRutDatailForMerc(bool hamisi,String temKod,String loggedUser) async {
-    print("Selected User :"+temKod.toString());
     ModelRutPerform modelRutPerform=ModelRutPerform();
     List<ModelCariler> listCariler=[];
     List<ModelCariler> listRutGUNU=[];
@@ -355,7 +353,6 @@ class LocalBaseDownloads {
   List<UserModel> getAllConnectedUserFromLocal() {
     List<UserModel> list = [];
       boxListConnectedUsers.toMap().forEach((key, value) {
-        print(value.toString());
         list.add(value);});
     return list;
   }

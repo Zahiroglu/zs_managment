@@ -451,23 +451,18 @@ class _ScreenRegisterByUserState extends State<ScreenRegisterByUser> {
   }
 
   void callDatePicker() async {
-    String day = "01";
-    String ay = "01";
     var order = await getDate();
-    if (order!.day.toInt() < 10) {
-      day = "0${order.day}";
-    } else {
-      day = order.day.toString();
-    }
-    if (order.month.toInt() < 10) {
-      ay = "0${order.month}";
-    } else {
-      ay = order.month.toString();
-    }
-    selectedDate = "$day.$ay.${order.year}";
-    cttextDogumTarix.text = "$day.$ay.${order.year}";
-  }
+    String day = order!.day < 10 ? "0${order.day}" : order.day.toString();
+    String month = order.month < 10 ? "0${order.month}" : order.month.toString();
+    String formattedDate = "$day.$month.${order.year}";
 
+    // Düzgün format üçün tarixi DateTime tipində saxlayın
+    DateTime selectedDateTime = DateTime(order.year, order.month, order.day);
+
+    // İki formatı saxlaya bilərsiniz
+    selectedDate = selectedDateTime.toString(); // Görünüş üçün
+    cttextDogumTarix.text = selectedDateTime.toString();
+  }
   Future<DateTime?> getDate() {
     return showDatePicker(
       context: Get.context!,
@@ -604,6 +599,7 @@ class _ScreenRegisterByUserState extends State<ScreenRegisterByUser> {
 
     return succes;
   }
+
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }

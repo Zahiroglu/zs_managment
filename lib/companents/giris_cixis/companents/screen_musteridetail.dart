@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zs_managment/companents/base_downloads/models/model_cariler.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesabatlar.dart';
+import 'package:zs_managment/companents/local_bazalar/local_users_services.dart';
 import 'package:zs_managment/routs/rout_controller.dart';
 import 'package:zs_managment/widgets/custom_eleveted_button.dart';
 import 'package:zs_managment/widgets/custom_responsize_textview.dart';
@@ -28,12 +29,22 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
   Set<map.Marker> markers = <map.Marker>{};
   bool backClicked = false;
   ModelCariHesabatlar modelCariHesabatlar=ModelCariHesabatlar();
-
+  LocalUserServices userServices=LocalUserServices();
+  bool dataLoading=false;
   @override
   void initState() {
     addMarker();
+    initServices();
     // TODO: implement initState
     super.initState();
+  }
+
+  initServices() async {
+    dataLoading=true;
+   await userServices.init();
+   setState(() {
+     dataLoading=false;
+   });
   }
 
   @override
@@ -41,7 +52,7 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
     return Material(
       child: SafeArea(
         child: Scaffold(
-          body: Stack(
+          body: dataLoading?SizedBox():Stack(
             children: [
               SizedBox(width: MediaQuery
                   .of(context)
@@ -668,7 +679,9 @@ class _ScreenMusteriDetailState extends State<ScreenMusteriDetail> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        WidgetCarihesabatlar(height: 110,cad: widget.modelCariler.name!,ckod: widget.modelCariler.code!),
+        WidgetCarihesabatlar(
+          height: 500,
+          cad: widget.modelCariler.name!,ckod: widget.modelCariler.code!,loggedUser: userServices.getLoggedUser(),),
       ],
     );
 

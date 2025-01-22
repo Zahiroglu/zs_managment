@@ -61,7 +61,7 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
                 child: widgetHeader()),
             const Divider(thickness: 3,endIndent: 5,indent: 5),
             Expanded(
-              flex: 13,
+              flex: 16,
               child: widget.drawerMenuController.getItemsMenu(widget.closeDrawer,false,widget.scaffoldkey),
             ),
             // const SizedBox(
@@ -100,10 +100,11 @@ class _CustomDrawerMobileState extends State<CustomDrawerMobile> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomText(labeltext: "${widget.userModel.userModel!.name} ${widget.userModel.userModel!.surname} - ${widget.userModel.userModel!.code}",fontWeight: FontWeight.w700,fontsize: 16,overflow: TextOverflow.ellipsis,),
-                    SizedBox(width: 5,),
-                    CustomText(labeltext: "${widget.userModel.userModel!.moduleName}",fontWeight: FontWeight.w500,fontsize: 14,overflow: TextOverflow.ellipsis,),
-                    CustomText(labeltext: "${widget.userModel.userModel!.roleName}",fontWeight: FontWeight.w500,fontsize: 14,overflow: TextOverflow.ellipsis,),
+                    CustomText(
+                      maxline: 2,
+                      labeltext: "${widget.userModel.userModel!.name} ${widget.userModel.userModel!.surname} - ${widget.userModel.userModel!.code}",fontWeight: FontWeight.w700,fontsize: 16,overflow: TextOverflow.ellipsis,),
+                    const SizedBox(width: 5,),
+                    CustomText(labeltext: "${widget.userModel.userModel!.moduleName} | "+"${widget.userModel.userModel!.roleName}",fontWeight: FontWeight.w500,fontsize: 14,overflow: TextOverflow.ellipsis,),
 
                   ],
                 ),

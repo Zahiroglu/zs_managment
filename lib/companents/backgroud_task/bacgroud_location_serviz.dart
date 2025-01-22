@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
 as bg;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive/hive.dart';
+import 'package:screen_state/screen_state.dart';
 import 'package:zs_managment/companents/backgroud_task/backgroud_errors/model_back_error.dart';
 import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
@@ -22,6 +25,7 @@ import '../main_screen/controller/drawer_menu_controller.dart';
 import 'backgroud_errors/local_backgroud_events.dart';
 import 'backgroud_errors/model_user_current_location_reqeust.dart';
 
+
 class BackgroudLocationServiz extends GetxController {
   LocalUserServices userService = LocalUserServices();
   LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
@@ -36,40 +40,79 @@ class BackgroudLocationServiz extends GetxController {
   LocalBazalar localBazalar = LocalBazalar();
   Rx<ModelCustuomerVisit> modelgirisEdilmis = ModelCustuomerVisit().obs;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  RxBool hasConnection=true.obs;
+  RxBool hereketsizdir=false.obs;
+  var selectedDate = DateTime.now().obs; // `obs` ilə `DateTime` reaktiv hala gəlir
+  final Screen screena = Screen();
+  final List<StreamSubscription> _subscriptions = [];
+  RxString telefonunEkrani="on".obs;
 
+  String  startListening() {
+    var screenSubscription = screena.screenStateStream.listen((ScreenStateEvent event) {
+      switch(event){
+        case ScreenStateEvent.SCREEN_UNLOCKED:
+          telefonunEkrani.value="unlock";
+          break;
+        case ScreenStateEvent.SCREEN_ON:
+          telefonunEkrani.value="on";
+          break;
+        case ScreenStateEvent.SCREEN_OFF:
+          telefonunEkrani.value="off";
+          break;
+      }
+    });
+    _subscriptions.add(screenSubscription);
+   return telefonunEkrani.value;
+    // Başqa stream-lər üçün də eyni şəkildə dinləyicilər əlavə edilə bilər
+  }
+
+  void stopAllListening() {
+    for (var subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    _subscriptions.clear(); // Dinləyiciləri tamamilə təmizləyirik
+  }
 
   Future<void> startBackgorundFetck(ModelCustuomerVisit modela) async {
+    startListening();
     try {
-      bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
-        try {
-          final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
-            persist: false,
-            samples: 400,
-            maximumAge: 0,
-            timeout: 5,
-          );
-          if (initialLocation!.mock) {
-            await sendErrorsToServers( blok, "Samir :Saxta GPS məlumatı aşkarlandı: ${initialLocation.coords}");
+      bg.BackgroundGeolocation.onLocation((bg.Location location) async {
+        if (DateTime.now().difference(selectedDate.value).inSeconds <= 30) {
+        }else{
+          selectedDate.value = DateTime.now();
+          if (location.mock) {
+            await sendErrorsToServers(blok,blok, "Saxta GPS məlumatı aşkarlandı:",location.coords.latitude.toString(),location.coords.longitude.toString());
           } else {
             cureentTime.value = DateTime.now();
-            currentLatitude.value = initialLocation.coords.latitude;
-            currentLongitude.value = initialLocation.coords.longitude;
-            await sendInfoLocationsToDatabase(initialLocation,modela);
+            currentLatitude.value = location.coords.latitude;
+            currentLongitude.value = location.coords.longitude;
+            await sendInfoLocationsToDatabase(location,modela);
           }
-        } catch (e) {
-          print("Samir :Heartbeat xətası: $e");
         }
-      });
-      bg.BackgroundGeolocation.onActivityChange((a) {
-        print("Samir activity deyisdi" +a.toString());
+        }, (bg.LocationError error) {});
+      bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
+          try {
+            final bg.Location initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
+              persist: false,
+              samples: 400,
+              maximumAge: 0,
+              timeout: 10,
+            );
+            if (initialLocation.mock) {
+              await sendErrorsToServers( blok,blok, "Saxta GPS məlumatı aşkarlandı:",initialLocation.coords.latitude.toString(),initialLocation.coords.longitude.toString());
+            } else {
+              cureentTime.value = DateTime.now();
+              currentLatitude.value = initialLocation.coords.latitude;
+              currentLongitude.value = initialLocation.coords.longitude;
+              await sendInfoLocationsToDatabase(initialLocation,modela);
+            }
+          } catch (e) {
+          }
+
       });
       bg.BackgroundGeolocation.onAuthorization((c) {
-        // if (c == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_DENIED) {
-        //   print("GPS icazəsi rədd edildi.");
-        // } else
-        if (c != bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
-          sendErrorsToServers(blok, "${modela.customerCode}marketde girisde iken Gps melumatlar sistemini deyisdiyi ucun blok edildi. Gps service - $c");
+
+        if (c.status != bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
+          sendErrorsToServers(blok,blok, "${modela.customerName} adli marketde girisde iken Gps melumatlar sistemini deyisdiyi ucun blok edildi. Gps service - $c","","");
         }
       });
       bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) async {
@@ -84,89 +127,89 @@ class BackgroudLocationServiz extends GetxController {
         }
       });
       bg.BackgroundGeolocation.onConnectivityChange((connection) async {
-        hasConnection.value=connection.connected;
         if (!connection.connected) {
           await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
-           await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}");
+           await sendErrorsToServers("Internet","Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}","","");
         } else {
           //await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
           await flutterLocalNotificationsPlugin.cancel(1);
         }
       });
-        bg.BackgroundGeolocation.addGeofence(bg.Geofence(
-            identifier: modela.customerName!,   // Geofence üçün unikal ad
-            radius: 500,            // Radius (metr)
-            latitude: double.parse(modela.customerLatitude!),      // Coğrafi enlik (məsələn, Bakının mərkəzi)
-            longitude:  double.parse(modela.customerLongitude!),     // Coğrafi uzunluq
-            notifyOnEntry: true,    // Daxil olduqda xəbərdar et
-            notifyOnExit: true,     // Çıxdıqda xəbərdar et
-            notifyOnDwell: false,    // Geofence daxilində müəyyən müddət qaldıqda xəbərdar et
-            ///loiteringDelay: 30000   // Dwell üçün gecikmə (milisaniyə ilə)
-        )).then((bool success) {
-          if (success) {
-            print("Geofence əlavə edildi!");
-          }
-        }).catchError((error) {
-          print("Geofence əlavə edilərkən xəta baş verdi: $error");
-        });
       await bg.BackgroundGeolocation.ready(bg.Config(
         persistMode: bg.Config.PERSIST_MODE_NONE,
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
         distanceFilter: 0,
-        locationUpdateInterval: 60000, // Yer məlumatlarını hər 30 saniyədən bir yenilə
-        fastestLocationUpdateInterval: 60000, // Ən sürətli yeniləmə 30 saniyə
-        heartbeatInterval: 60, // 60 saniyədə bir heartbeat
+        locationUpdateInterval: 60000,
+        fastestLocationUpdateInterval: 60000,
+        // Enerji idarəetməsi və fon xidmətləri
+        preventSuspend: true,
         stopOnTerminate: false,
         startOnBoot: true,
-        preventSuspend: true,
-        foregroundService: true,
-        debug: false,
-        enableHeadless: true,
+        pausesLocationUpdatesAutomatically: false,
+        disableStopDetection: true,
+        // Yenidən yükləmə və təkrar işə düşmə
+        forceReloadOnBoot: true,
+        forceReloadOnHeartbeat: true,
+        // Bildiriş parametrləri
         notification: bg.Notification(
           title: "ZS-CONTROL Aktivdir",
           text: "Fon rejimində izlənir.",
-          sticky: true, // Bildiriş sabitdir
+          sticky: true,
           channelId: "zs0001",
           channelName: "zs-controll",
-          strings: {
-            "myCustomElement": "My Custom Element Text"
-          },
-          priority: bg.Config.NOTIFICATION_PRIORITY_MAX, // Yüksək prioritet
+          priority: bg.Config.NOTIFICATION_PRIORITY_MAX,
         ),
+        // Debug və log parametrləri
+        debug: false,
+        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+        // Digər parametrlər
+        enableHeadless: true,
+        heartbeatInterval: 60,
+        reset: true,
+        foregroundService: true,
       )).then((bg.State state) async {
         if (!state.enabled) {
           await bg.BackgroundGeolocation.start();
-        }
+          final bg.Location initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
+            persist: false,
+            samples: 1,
+            maximumAge: 0,
+            timeout: 5,
+          );
+          await sendInfoLocationsToDatabase(initialLocation,modela);
+          selectedDate.value = DateTime.now();
+                }
       });
-      // Başlanğıc yer məlumatını dərhal götür
-      final bg.Location? initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
+
+    } catch (e) {
+    }
+  }
+
+  Future<bool> stopBackGroundFetch() async {
+
+    try {
+      // Bütün bildirişləri ləğv edin
+      await flutterLocalNotificationsPlugin.cancelAll();
+      await bg.BackgroundGeolocation.start();
+      final bg.Location initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
         persist: false,
         samples: 1,
         maximumAge: 0,
         timeout: 5,
       );
-      if (initialLocation != null) {
-        await sendInfoLocationsToDatabase(initialLocation,modela);
-      } } catch (e) {
-      print("Samir : startBackgroundFetch xətası: $e");
-    }
-  }
-
-  Future<bool> stopBackGroundFetch() async {
-    try {
-      // Bütün bildirişləri ləğv edin
-      await flutterLocalNotificationsPlugin.cancelAll();
-
-      // Dinləyiciləri silin
+      await sendInfoLocationsToDatabase(initialLocation,ModelCustuomerVisit());
+      selectedDate.value = DateTime.now();
+          // Dinləyiciləri silin
       await bg.BackgroundGeolocation.removeListeners();
       await bg.BackgroundGeolocation.removeGeofences();
       await bg.BackgroundGeolocation.stop();
-      print("stopBackGroundFetch dayandi");
+      stopAllListening();
+      Get.delete<BackgroudLocationServiz>();
       return true;
         } catch (e) {
-      print("stopBackGroundFetch xeta : " + e.toString());
       return false;
     }
+
   }
 
   Future<String> getLanguageIndex() async {
@@ -177,9 +220,8 @@ class BackgroudLocationServiz extends GetxController {
     await userService.init();
     await localBackgroundEvents.init();
     await localGirisCixisServiz.init();
-    await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
     ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
-    if(modela.customerLongitude!=null){
+    if(modela.customerLongitude==null){
       modela=modelBirinci;
     }
     double uzaqliq=0;
@@ -196,8 +238,9 @@ class BackgroudLocationServiz extends GetxController {
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     ModelUsercCurrentLocationReqeust model = ModelUsercCurrentLocationReqeust(
+      screenState: telefonunEkrani.value,
       sendingStatus: "0",
-      batteryLevel: location.battery.level * 100,
+      batteryLevel: (location.battery.level * 100).roundToDouble(),
       inputCustomerDistance: uzaqliq.round(),
       isOnline: true,
       latitude:  location.coords.latitude,
@@ -210,8 +253,11 @@ class BackgroudLocationServiz extends GetxController {
       userFullName:"${loggedUserModel.userModel!.name!} ${loggedUserModel.userModel!.surname!}",
       userCode: loggedUserModel.userModel!.code!,
       userPosition: loggedUserModel.userModel!.roleId.toString(),
+      locAccuracy: location.coords.accuracy,
+      isMoving: location.isMoving,
     );
-    if(hasConnection.isTrue){
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult != ConnectivityResult.none){
       try{
         final response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
@@ -230,14 +276,25 @@ class BackgroudLocationServiz extends GetxController {
         );
         if (response.statusCode != 200) {
           await localBackgroundEvents.addBackLocationToBase(model);
-        }
-      } on DioException catch (e) {
+        }else{
+          checkUnsendedLocations();
+          checkUnsendedErrors();
+          if(location.coords.accuracy<50){
+         if(uzaqliq>1000){
+            NotyBackgroundTrack.showBigTextNotificationAlarm(
+              title: "Marketden Uzaqlasirsan",
+              body: "Marketden cox uzaqlasirsan.Zehmet olmasa geri don",
+              fln: flutterLocalNotificationsPlugin,
+            );
+            await sendErrorsToServers("Distance","Uzaqlasma",  "${modela.customerName} adli marketden teyin edilmis mesafeden cox uzaqdir.Cari uzqliq : ${uzaqliq.round()} m",location.coords.latitude.toString(),location.coords.longitude.toString());
+          }
+        }}
+      } on DioException {
         await  localBackgroundEvents.addBackLocationToBase(model);
       }
     }else{
       await localBackgroundEvents.addBackLocationToBase(model);
     }
-
   }
 
   Future<void> checkUnsendedLocations() async {
@@ -255,27 +312,29 @@ class BackgroudLocationServiz extends GetxController {
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    if(hasConnection.isTrue){
-        final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
-          data: model.toJson(),
-          options: Options(
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'smr': '12345',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        if (response.statusCode == 200) {
-          await localBackgroundEvents.deleteItemLocation(model);
-          checkUnsendedLocations();
-        }
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult != ConnectivityResult.none) {
+      String accesToken = loggedUserModel.tokenModel!.accessToken!;
+      final response = await ApiClient().dio(false).post(
+        "${loggedUserModel
+            .baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
+        data: model.toJson(),
+        options: Options(
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        await localBackgroundEvents.deleteItemLocation(model);
+        checkUnsendedLocations();
+      }
     }
   }
 
@@ -289,52 +348,57 @@ class BackgroudLocationServiz extends GetxController {
     return distanceInKm * 1000; // Convert to meters
   }
   ////////// back errors
-  Future<void> sendErrorsToServers(String xetaBasliq, String xetaaciqlama) async {
+  Future<void> sendErrorsToServers(String errorCode,String xetaBasliq, String xetaaciqlama,String lat,String long) async {
+    LocalUserServices userService = LocalUserServices();
+    LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
+    LocalGirisCixisServiz localGirisCixisServiz = LocalGirisCixisServiz();
+    // await NotyBackgroundTrack.showBigTextNotification(title: "Diqqet", body: "Konum Deyisdi Gps :${location.coords.latitude},${location.coords.longitude}", fln: flutterLocalNotificationsPlugin);
     await userService.init();
     await localBackgroundEvents.init();
+    await localGirisCixisServiz.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
-    String languageIndex = await getLanguageIndex();
-    int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     ModelBackErrors model = ModelBackErrors(
       userId: loggedUserModel.userModel!.id,
-      deviceId: dviceType.toString(),
-      errCode: xetaBasliq,
+      deviceId: loggedUserModel.userModel!.deviceId!,
+      errCode: errorCode,
       errDate: DateTime.now().toString(),
-      errName: xetaaciqlama,
+      errName: xetaBasliq,
       description: xetaaciqlama,
-      locationLatitude: currentLatitude.toString(),
-      locationLongitude: currentLongitude.toString(),
+      locationLatitude: lat,
+      locationLongitude: long,
       sendingStatus: "0",
       userCode: loggedUserModel.userModel!.code,
       userFullName: "${loggedUserModel.userModel!.name} ${loggedUserModel.userModel!.surname}",
       userPosition: loggedUserModel.userModel!.roleId,
     );
-    if(hasConnection.isTrue){
-    final response = await ApiClient().dio(false).post(
-      "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
-      data: model.toJson(),
-      options: Options(
-        headers: {
-          'Lang': languageIndex,
-          'Device': dviceType,
-          'SMR': '12345',
-          "Authorization": "Bearer $accesToken"
-        },
-        validateStatus: (_) => true,
-        contentType: Headers.jsonContentType,
-        responseType: ResponseType.json,
-      ),
-    );
-    if (response.statusCode == 200) {
-      if (xetaBasliq == "Block") {
-        await stopBackGroundFetch();
-        await sistemiYenidenBaslat();
-      }
-    }else{
-      localBackgroundEvents.addBackErrorToBase(model);
-    }}else{
-      localBackgroundEvents.addBackErrorToBase(model);
+    try{
+      final response = await ApiClient().dio(false).post(
+        "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
+        data: model.toJson(),
+        options: Options(
+          headers: {
+            'Lang': 'az',
+            'Device': 1,
+            'SMR': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+        if (xetaBasliq == "Block") {
+          BackgroudLocationServiz backgroudLocationServiz=Get.put(BackgroudLocationServiz());
+          await userService.clearALLdata();
+          await backgroudLocationServiz.stopBackGroundFetch();
+          await backgroudLocationServiz.sistemiYenidenBaslat();
+        }
+      }else{
+        await localBackgroundEvents.addBackErrorToBase(model);
+      }}on DioException {
+      await localBackgroundEvents.addBackErrorToBase(model);
     }
   }
 
@@ -355,7 +419,8 @@ class BackgroudLocationServiz extends GetxController {
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    if(hasConnection.isTrue){
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult != ConnectivityResult.none){
     final response = await ApiClient().dio(false).post(
       "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
       data: unsendedModel.toJson(),

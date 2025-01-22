@@ -449,6 +449,7 @@ class ControllerMercPref extends GetxController {
     String songun = intl.DateFormat('yyyy/MM/dd').format(dateParse2);
     LoggedUserModel loggedUserModel = userLocalService.getLoggedUser();
     ModelRequestInOut model = ModelRequestInOut(
+      listConfs: [],
         userRole: [UserRole(code: temsilcikodu, role: roleId)],
         endDate: "$songun 00:01",
         startDate: "$ilkGun 23:59");

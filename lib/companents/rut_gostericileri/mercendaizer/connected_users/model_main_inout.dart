@@ -14,12 +14,30 @@ class ModelMainInOut {
   String userFullName;
   @HiveField(4)
   List<ModelInOutDay> modelInOutDays;
+  @HiveField(5)
+  String workDaysCount ;
+  @HiveField(6)
+  double totalPenaltyInWorkInMarket;
+  @HiveField(7)
+  double totalPenaltyWorkInArea;
+  @HiveField(8)
+  double totalPenalty;
+  @HiveField(9)
+  double totalSalaryByWorkDay;
+  int? totalIcazeGunleri ;
 
-  ModelMainInOut({
+
+ModelMainInOut({
     required this.userCode,
     required this.userPosition,
     required this.userFullName,
     required this.modelInOutDays,
+    required this.workDaysCount,
+    required this.totalPenaltyInWorkInMarket,
+    required this.totalPenaltyWorkInArea,
+    required this.totalPenalty,
+    required this.totalSalaryByWorkDay,
+   this.totalIcazeGunleri,
   });
 
   factory ModelMainInOut.fromRawJson(String str) => ModelMainInOut.fromJson(json.decode(str));
@@ -30,7 +48,14 @@ class ModelMainInOut {
     userCode: json["UserCode"],
     userPosition: json["UserPosition"].toString(),
     userFullName: json["UserFullName"],
+    workDaysCount: json["WorkDaysCount"].toString(),
+    totalPenaltyInWorkInMarket: json["TotalPenaltyInWorkInMarket"],
+    totalPenaltyWorkInArea: json["TotalPenaltyWorkInArea"],
+    totalPenalty: json["TotalPenalty"],
+    totalSalaryByWorkDay: json["TotalSalaryByWorkDay"]??0,
+    totalIcazeGunleri: json["TotalIcazeGunleri"]??0,
     modelInOutDays: List<ModelInOutDay>.from(json["ModelInOutDays"].map((x) => ModelInOutDay.fromJson(x))),
+
   );
 
   Map<String, dynamic> toJson() => {
@@ -61,6 +86,14 @@ class ModelInOutDay {
   String workTimeInArea;
   @HiveField(7)
   List<ModelInOut> modelInOut;
+  @HiveField(9)
+  double workTimeInAreaMinute;
+  @HiveField(10)
+  double penaltyInWorkInMarket;
+  @HiveField(11)
+  double penaltyWorkInArea;
+  @HiveField(12)
+  double totalPenalty ;
 
   ModelInOutDay({
     required this.day,
@@ -70,6 +103,10 @@ class ModelInOutDay {
     required this.workTimeInCustomer,
     required this.workTimeInArea,
     required this.modelInOut,
+    required this.workTimeInAreaMinute,
+    required this.penaltyInWorkInMarket,
+    required this.penaltyWorkInArea,
+    required this.totalPenalty,
   });
 
   factory ModelInOutDay.fromRawJson(String str) => ModelInOutDay.fromJson(json.decode(str));
@@ -83,6 +120,10 @@ class ModelInOutDay {
     lastExitDate: json["LastExitDate"].toString(),
     workTimeInCustomer: json["WorkTimeInCustomer"],
     workTimeInArea: json["WorkTimeInArea"],
+    workTimeInAreaMinute: json["WorkTimeInAreaMinute"],
+    penaltyInWorkInMarket: json["PenaltyInWorkInMarket"],
+    penaltyWorkInArea: json["PenaltyWorkInArea"],
+    totalPenalty: json["TotalPenalty"],
     modelInOut: List<ModelInOut>.from(json["ModelInOutList"].map((x) => ModelInOut.fromJson(x))),
   );
 
@@ -143,8 +184,10 @@ class ModelInOut {
   dynamic isRutDay;
   @HiveField(20)
   dynamic inDt;
+  dynamic icazeDeqiqeleri ;
 
-  ModelInOut({
+
+ModelInOut({
     this.userCode,
     this.userPosition,
     this.customerCode,
@@ -165,6 +208,7 @@ class ModelInOut {
     this.workTimeInCustomer,
     this.isRutDay,
     this.inDt,
+    this.icazeDeqiqeleri,
   });
 
   factory ModelInOut.fromRawJson(String str) => ModelInOut.fromJson(json.decode(str));
@@ -192,6 +236,7 @@ class ModelInOut {
     workTimeInCustomer: json["WorkTimeInCustomer"],
     isRutDay: json["IsRutDay"],
     inDt: json["InDt"],
+    icazeDeqiqeleri: json["IcazeDeqiqeleri"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -215,5 +260,6 @@ class ModelInOut {
     "WorkTimeInCustomer": workTimeInCustomer,
     "IsRutDay": isRutDay,
     "InDt": inDt,
+    "icazeDeqiqeleri": icazeDeqiqeleri,
   };
 }

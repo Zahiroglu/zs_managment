@@ -49,17 +49,18 @@ class ModelBackErrors {
   String toRawJson() => json.encode(toJson());
 
   factory ModelBackErrors.fromJson(Map<String, dynamic> json) => ModelBackErrors(
-    userCode: json["userCode"],
-    userPosition: json["userPosition"],
-    userFullName: json["userFullName"],
-    errCode: json["errCode"],
-    errName: json["errName"],
-    errDate: json["errDate"],
-    deviceId: json["deviceId"],
-    locationLatitude: json["locationLatitude"],
-    locationLongitude: json["locationLongitude"],
-    description: json["description"],
-    userId: json["userId"],
+    userCode: json["UserCode"],
+    //userPosition: int.parse(json["UserPosition"]),
+    userPosition: 0,
+    userFullName: json["UserFullname"],
+    errCode: json["ErrCode"],
+    errName: json["ErrName"],
+    errDate: json["ErrDate"],
+    deviceId: json["DeviceId"],
+    locationLatitude: json["LocationLatitude"].toString(),
+    locationLongitude: json["LocationLongitude"].toString(),
+    description: json["Description"],
+    userId: json["UserId"],
   );
 
   Map<String, dynamic> toJson() => {

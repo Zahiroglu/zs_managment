@@ -23,8 +23,9 @@ class ModelCariHesabatlar {
       this.isAktiv,
       this.key});
 
-  List<ModelCariHesabatlar> getAllCariHesabatlarListy() {
+  List<ModelCariHesabatlar> getAllCariHesabatlarListy(List<ModelUserPermissions> list) {
     List<ModelCariHesabatlar> cariHesabatlar = [];
+    List<ModelCariHesabatlar> gonderilen = [];
     cariHesabatlar.add(ModelCariHesabatlar(
         label: "Cari ziyaret hesabati",
         icon: Icons.transfer_within_a_station,
@@ -73,8 +74,9 @@ class ModelCariHesabatlar {
         needDate: true,
         isAktiv: true,
         key: "cZayMalH"));
+    gonderilen=cariHesabatlar.where((e)=>list.any((a)=>a.code==e.key)).toList();
 
-    return cariHesabatlar;
+    return gonderilen;
   }
 
   List<ModelCariHesabatlar> getAllUserHesabatlarListy(List<ModelUserPermissions> list) {
@@ -100,7 +102,7 @@ class ModelCariHesabatlar {
         label: "Temsilci izleme hesabati",
         icon: Icons.spatial_tracking_outlined,
         color: Colors.grey,
-        needTime: true,
+        needTime: false,
         //routName: RouteHelper.getCariSatilanCesidRaporu(),
         needDate: true,
         key: "tizlemehesab"));
@@ -110,7 +112,7 @@ class ModelCariHesabatlar {
         color: Colors.red,
         needTime: true,
         //routName: RouteHelper.getCariSatilanCesidRaporu(),
-        needDate: true,
+        needDate: false,
         key: "terror"));
     gonderilen=cariHesabatlar.where((e)=>list.any((a)=>a.code==e.key)).toList();
     return gonderilen;

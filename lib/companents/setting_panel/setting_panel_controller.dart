@@ -31,6 +31,7 @@ class SettingPanelController extends GetxController{
 
      dataLoading.value=false;
      print("getCurrentLoggedUserFromLocale :"+modelModule.value.toString());
+     print("region :"+modelModule.value.regionLongitude.toString()+","+modelModule.value.regionLatitude.toString());
      update();
    }
 

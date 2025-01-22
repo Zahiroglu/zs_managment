@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:zs_managment/companents/login/services/api_services/users_controller_mobile.dart';
 import 'package:zs_managment/widgets/sual_dialog.dart';
-
 import '../../../../widgets/custom_responsize_textview.dart';
 import '../../../giris_cixis/models/model_customers_visit.dart';
 

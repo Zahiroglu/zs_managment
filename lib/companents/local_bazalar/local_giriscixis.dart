@@ -47,7 +47,6 @@ class LocalGirisCixisServiz {
     if(listGirisler.isNotEmpty){
       if(listGirisler.last.operationType!="out"){
         model=listGirisler.last;
-
       }else{
         model = ModelCustuomerVisit();
       }

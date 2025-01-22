@@ -9,11 +9,14 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
+import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
+import 'package:zs_managment/companents/giris_cixis/models/model_request_giriscixis.dart';
 import 'package:zs_managment/companents/live_track/model/model_live_track.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
 import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
+import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import '../../../dio_config/api_client.dart';
 import '../../../global_models/custom_enummaptype.dart';
@@ -21,20 +24,19 @@ import '../../../global_models/model_appsetting.dart';
 import '../../../global_models/model_maptypeapp.dart';
 import '../../../helpers/exeption_handler.dart';
 import '../../../widgets/simple_info_dialog.dart';
+import '../../backgroud_task/backgroud_errors/local_backgroud_events.dart';
+import '../../backgroud_task/backgroud_errors/model_back_error.dart';
 import '../../local_bazalar/local_app_setting.dart';
 import '../../local_bazalar/local_users_services.dart';
 import '../../login/models/logged_usermodel.dart';
 import '../model/model_my_connecteduserslocations.dart';
+import 'package:intl/intl.dart' as inl;
 
 class ControllerLiveTrack extends GetxController {
-  RxList<ModelLiveTrack> listTrackdata =
-      List<ModelLiveTrack>.empty(growable: true).obs;
-  Rx<MyConnectedUsersCurrentLocation> modelMuyConnectUsers =
-      MyConnectedUsersCurrentLocation().obs;
-  RxList<UserModel> listAllConnectedUsers =
-      List<UserModel>.empty(growable: true).obs;
-  RxList<UserModel> listIslemeyenUsers =
-      List<UserModel>.empty(growable: true).obs;
+  RxList<ModelLiveTrack> listTrackdata =List<ModelLiveTrack>.empty(growable: true).obs;
+  Rx<MyConnectedUsersCurrentLocation> modelMuyConnectUsers = MyConnectedUsersCurrentLocation().obs;
+  RxList<UserModel> listAllConnectedUsers =List<UserModel>.empty(growable: true).obs;
+  RxList<UserModel> listIslemeyenUsers = List<UserModel>.empty(growable: true).obs;
   RxBool dataLoading = true.obs;
   RxSet<map.Marker> markers = RxSet<map.Marker>();
   Rx<ModelLiveTrack> selectedModel = ModelLiveTrack().obs;
@@ -44,8 +46,7 @@ class ControllerLiveTrack extends GetxController {
   RxSet<map.Circle> circles = RxSet();
   RxBool userMarkerSelected = false.obs;
   RxBool searcAktive = true.obs;
-  Rx<SnappingSheetController> snappingSheetController =
-      SnappingSheetController().obs;
+  Rx<SnappingSheetController> snappingSheetController = SnappingSheetController().obs;
   ExeptionHandler exeptionHandler = ExeptionHandler();
   String languageIndex = "az";
   late CheckDviceType checkDviceType = CheckDviceType();
@@ -57,8 +58,7 @@ class ControllerLiveTrack extends GetxController {
           mapName: CustomMapType.google.name,
           mapType: MapType.google,
           icon:
-              'packages/map_launcher/assets/icons/${CustomMapType.google}.svg')
-      .obs;
+              'packages/map_launcher/assets/icons/${CustomMapType.google}.svg').obs;
   Timer? timer;
 
   @override
@@ -83,8 +83,7 @@ class ControllerLiveTrack extends GetxController {
   @override
   Future<void> onInit() async {
     _startTimerPeriodic(59);
-    listAllConnectedUsers.value =
-        localBaseDownloads.getAllConnectedUserFromLocal();
+    listAllConnectedUsers.value =localBaseDownloads.getAllConnectedUserFromLocal();
     await appSetting.init();
     await localUserServices.init();
     ModelAppSetting modelSetting = await appSetting.getAvaibleMap();
@@ -125,7 +124,7 @@ class ControllerLiveTrack extends GetxController {
             icon: await getClusterBitmapMenimYerim(
                 120,
                 element.currentLocation!.isOnline!,
-                element.currentLocation!.userFullName!),
+                element.currentLocation!.userFullName!,element.currentLocation!.locAccuracy!),
             position: map.LatLng(
                 double.parse(element.currentLocation!.latitude!),
                 double.parse(element.currentLocation!.longitude!))));
@@ -135,8 +134,7 @@ class ControllerLiveTrack extends GetxController {
     update();
   }
 
-  createCircles(
-      String longitude, String latitudeitude, String ckod, bool? cixisEdilib) {
+  createCircles(String longitude, String latitudeitude, String ckod, bool? cixisEdilib) {
     circles.add(map.Circle(
         circleId: map.CircleId(ckod),
         center:
@@ -149,6 +147,17 @@ class ControllerLiveTrack extends GetxController {
         strokeWidth: 1));
   }
 
+  createCirclesUserLocAcure(String longitude, String latitudeitude, String userCode, double acure) {
+    circles.add(map.Circle(
+        circleId: map.CircleId(userCode),
+        center:
+            map.LatLng(double.parse(latitudeitude), double.parse(longitude)),
+        radius: acure,
+        fillColor:Colors.blue.withOpacity(0.4),
+        strokeColor: Colors.black.withOpacity(0.2),
+        strokeWidth: 1));
+  }
+
   void addPolyLineForEnter(
     bool isIn,
     String id,
@@ -156,7 +165,8 @@ class ControllerLiveTrack extends GetxController {
     String customerLongitude,
     String enterLat,
     String enterLng,
-  ) {
+  )
+  {
     map.Polyline poly = map.Polyline(
       polylineId: map.PolylineId(id),
       color: Colors.green,
@@ -173,7 +183,8 @@ class ControllerLiveTrack extends GetxController {
   }
 
   Future<map.BitmapDescriptor> getClusterBitmapMarket(
-      int size, String marketAdi, bool isExited) async {
+      int size, String marketAdi, bool isExited) async
+  {
     final PictureRecorder pictureRecorder = PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
     var icon = Icons.home;
@@ -205,34 +216,42 @@ class ControllerLiveTrack extends GetxController {
     return map.BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
 
-  Future<map.BitmapDescriptor> getClusterBitmapMenimYerim(
-      int size, bool isOnline, String username) async {
+  Future<map.BitmapDescriptor> getClusterBitmapMenimYerim( int size, bool isOnline, String username, double accuracy) async {
     final PictureRecorder pictureRecorder = PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
+
+    // İkonu çəkin
     var icon = Icons.man;
     TextPainter textPainter = TextPainter(textDirection: TextDirection.rtl);
     textPainter.text = TextSpan(
-        text: String.fromCharCode(icon.codePoint),
-        style: TextStyle(
-            fontSize: size * 0.7,
-            fontFamily: icon.fontFamily,
-            color: isOnline ? Colors.green : Colors.red));
+      text: String.fromCharCode(icon.codePoint),
+      style: TextStyle(
+        fontSize: size * 0.7,
+        fontFamily: icon.fontFamily,
+        color: isOnline ? Colors.green : Colors.red,
+      ),
+    );
     textPainter.layout();
     textPainter.paint(canvas, Offset(size / 4, size / 4));
+
+    // İstifadəçi adını çəkin
     TextPainter painter = TextPainter(textDirection: TextDirection.ltr);
     painter.text = TextSpan(
       text: username,
       style: TextStyle(
-          decoration: TextDecoration.underline,
-          fontSize: size / 10,
-          color: Colors.black,
-          fontWeight: FontWeight.bold),
+        decoration: TextDecoration.underline,
+        fontSize: size / 10,
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
     );
     painter.layout();
     painter.paint(
       canvas,
       Offset((size - painter.width) * 0.7, size / 6),
     );
+
+    // Şəkli tamamlayın
     final img = await pictureRecorder.endRecording().toImage(size, size);
     final data = await img.toByteData(format: ImageByteFormat.png);
     return map.BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
@@ -259,7 +278,8 @@ class ControllerLiveTrack extends GetxController {
       update();
     }
   }
-    createMarkerCirculeAndPolyline(ModelLiveTrack model) async {
+
+  createMarkerCirculeAndPolyline(ModelLiveTrack model) async {
       if (model.lastInoutAction!.outDate == ""||model.lastInoutAction!.customerLongitude!="") {
         print("model.lastInoutAction!.outDate == ""&&model.lastInoutAction!.customerLongitude!=""");
         String marketMarkerId="${model.lastInoutAction!.customerCode}-${model.lastInoutAction!.inDate}";
@@ -277,11 +297,14 @@ class ControllerLiveTrack extends GetxController {
             position: map.LatLng(
                 double.parse(model.lastInoutAction!.customerLatitude!),
                 double.parse(model.lastInoutAction!.customerLongitude!))));
-      createCircles(
-      model.lastInoutAction!.customerLongitude!,
-      model.lastInoutAction!.customerLatitude!,
-      model.lastInoutAction!.customerCode!,
-      model.lastInoutAction!.outDate == null);
+      createCircles(model.lastInoutAction!.customerLongitude!, model.lastInoutAction!.customerLatitude!, model.lastInoutAction!.customerCode!,
+          model.lastInoutAction!.outDate == null);
+          createCirclesUserLocAcure(
+            model.currentLocation!.longitude!,
+            model.currentLocation!.latitude!,
+            model.userCode!,
+            model.currentLocation!.locAccuracy!
+          );
       addPolyLineForEnter(
       true,
       listTrackdata.indexOf(model).toString(),
@@ -323,11 +346,24 @@ class ControllerLiveTrack extends GetxController {
 
         if (response.statusCode == 200) {
           var dataModel = json.encode(response.data['Result']);
+
           modelMuyConnectUsers.value =MyConnectedUsersCurrentLocation.fromJson(jsonDecode(dataModel));
           sonYenilenme.value = DateTime.now().toIso8601String();
           for (var element in modelMuyConnectUsers.value.userLocation!) {
             listTrackdata.removeWhere((e) => e.userCode == element.userCode);
             listTrackdata.add(element);
+            listTrackdata.sort((x, y) {
+              int xOnline = x.currentLocation!.isOnline!?1:0;
+              int yOnline = y.currentLocation!.isOnline!?1:0;
+              // Azalan sıralama için `yOnline.compareTo(xOnline)`
+              return yOnline.compareTo(xOnline);
+            });
+            listTrackdata.sort((x, y) {
+              int xOnline = x.lastInoutAction!.outDate==""?1:0;
+              int yOnline = y.lastInoutAction!.outDate==""?1:0;
+              // Azalan sıralama için `yOnline.compareTo(xOnline)`
+              return yOnline.compareTo(xOnline);
+            });
           }
           await fillMarkersByListTrack(listTrackdata);
         }
@@ -349,37 +385,93 @@ class ControllerLiveTrack extends GetxController {
   Future<String> getLanguageIndex() async {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
-}
 
-class UserRole {
-  String? code;
-  String? role;
+  Future<void> girisiSil(ModelLiveTrack model) async {
+   // await sendErrorsToServers("Giris silme","${model.userCode!} kodlu istifadecinin ${model.lastInoutAction!.customerCode!} kodlu musteriye girisi silinmisdir",model);
+  await _callApiForVisits(model);
+  }
 
-  UserRole({
-    this.code,
-    this.role,
-  });
-
-  // Factory constructor to create an instance from JSON
-  factory UserRole.fromJson(Map<String, dynamic> json) {
-    return UserRole(
-      code: json['code'] as String?,
-      role: json['role'] as String?,
+  Future<void> _callApiForVisits(ModelLiveTrack modelGirisCixis) async {
+    DialogHelper.showLoading("melumatlar");
+    await localUserServices.init();
+    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
+    ModelRequestGirisCixis model =  ModelRequestGirisCixis(
+        inDt: modelGirisCixis.lastInoutAction!.inDate!,
+        userPosition: modelGirisCixis.userPosition,
+        userCode: modelGirisCixis.userCode,
+        customerCode: modelGirisCixis.lastInoutAction!.customerCode,
+        );
+    String languageIndex = await getLanguageIndex();
+    int dviceType = checkDviceType.getDviceType();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    final response = await ApiClient().dio(true).post(
+      "${loggedUserModel.baseUrl}/GirisCixisSystem/DeleteUserLastEnter",
+      data: model.toJson(),
+      options: Options(
+        headers: {
+          'Lang': languageIndex,
+          'Device': dviceType,
+          'smr': '12345',
+          "Authorization": "Bearer $accesToken"
+        },
+        validateStatus: (_) => true,
+        contentType: Headers.jsonContentType,
+        responseType: ResponseType.json,
+      ),
     );
+    // 404
+    if (response.statusCode == 200) {
+      DialogHelper.hideLoading();
+    }
+    update();
   }
 
-  // Method to convert instance to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'code': code,
-      'role': role,
-    };
+  Future<void> sendErrorsToServers(String xetaBasliq, String xetaaciqlama,ModelLiveTrack modelGirisCixis) async {
+    LocalBackgroundEvents localBackgroundEvents = LocalBackgroundEvents();
+    await localUserServices.init();
+    await localBackgroundEvents.init();
+    LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
+    String accesToken = loggedUserModel.tokenModel!.accessToken!;
+    ModelBackErrors model = ModelBackErrors(
+      userId: loggedUserModel.userModel!.id,
+      deviceId: loggedUserModel.userModel!.deviceId!,
+      errCode: xetaBasliq,
+      errDate: DateTime.now().toString(),
+      errName: xetaaciqlama,
+      description: xetaaciqlama,
+      locationLatitude: "0",
+      locationLongitude: "0",
+      sendingStatus: "0",
+      userCode: loggedUserModel.userModel!.code,
+      userFullName: "${loggedUserModel.userModel!.name} ${loggedUserModel.userModel!.surname}",
+      userPosition: loggedUserModel.userModel!.roleId,
+    );
+    try{
+      final response = await ApiClient().dio(true).post(
+        "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
+        data: model.toJson(),
+        options: Options(
+          headers: {
+            'Lang': 'az',
+            'Device': 1,
+            'SMR': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      if (response.statusCode == 200) {
+       await _callApiForVisits(modelGirisCixis);
+      }else{
+        await localBackgroundEvents.addBackErrorToBase(model);
+      }}on DioException catch (e) {
+      await localBackgroundEvents.addBackErrorToBase(model);
+    }
   }
 
-  // Factory constructor to create an instance from raw JSON string
-  factory UserRole.fromRawJson(String str) =>
-      UserRole.fromJson(json.decode(str));
-
-  // Method to convert instance to raw JSON string
-  String toRawJson() => json.encode(toJson());
 }
+
+
+

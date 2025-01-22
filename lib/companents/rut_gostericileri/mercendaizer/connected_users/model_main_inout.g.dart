@@ -21,13 +21,18 @@ class ModelMainInOutAdapter extends TypeAdapter<ModelMainInOut> {
       userPosition: fields[2] as String,
       userFullName: fields[3] as String,
       modelInOutDays: (fields[4] as List).cast<ModelInOutDay>(),
+      workDaysCount: fields[5] as String,
+      totalPenaltyInWorkInMarket: fields[6] as double,
+      totalPenaltyWorkInArea: fields[7] as double,
+      totalPenalty: fields[8] as double,
+      totalSalaryByWorkDay: fields[9] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelMainInOut obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(9)
       ..writeByte(1)
       ..write(obj.userCode)
       ..writeByte(2)
@@ -35,7 +40,17 @@ class ModelMainInOutAdapter extends TypeAdapter<ModelMainInOut> {
       ..writeByte(3)
       ..write(obj.userFullName)
       ..writeByte(4)
-      ..write(obj.modelInOutDays);
+      ..write(obj.modelInOutDays)
+      ..writeByte(5)
+      ..write(obj.workDaysCount)
+      ..writeByte(6)
+      ..write(obj.totalPenaltyInWorkInMarket)
+      ..writeByte(7)
+      ..write(obj.totalPenaltyWorkInArea)
+      ..writeByte(8)
+      ..write(obj.totalPenalty)
+      ..writeByte(9)
+      ..write(obj.totalSalaryByWorkDay);
   }
 
   @override
@@ -67,13 +82,17 @@ class ModelInOutDayAdapter extends TypeAdapter<ModelInOutDay> {
       workTimeInCustomer: fields[5] as String,
       workTimeInArea: fields[6] as String,
       modelInOut: (fields[7] as List).cast<ModelInOut>(),
+      workTimeInAreaMinute: fields[9] as double,
+      penaltyInWorkInMarket: fields[10] as double,
+      penaltyWorkInArea: fields[11] as double,
+      totalPenalty: fields[12] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelInOutDay obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(11)
       ..writeByte(1)
       ..write(obj.day)
       ..writeByte(2)
@@ -87,7 +106,15 @@ class ModelInOutDayAdapter extends TypeAdapter<ModelInOutDay> {
       ..writeByte(6)
       ..write(obj.workTimeInArea)
       ..writeByte(7)
-      ..write(obj.modelInOut);
+      ..write(obj.modelInOut)
+      ..writeByte(9)
+      ..write(obj.workTimeInAreaMinute)
+      ..writeByte(10)
+      ..write(obj.penaltyInWorkInMarket)
+      ..writeByte(11)
+      ..write(obj.penaltyWorkInArea)
+      ..writeByte(12)
+      ..write(obj.totalPenalty);
   }
 
   @override

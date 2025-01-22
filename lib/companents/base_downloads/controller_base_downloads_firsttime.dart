@@ -370,7 +370,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         localBaseDownloads.addDownloadedBaseInfo(model);
           await localBaseDownloads.addConnectedUsers(listUser);
           updateElementDownloading(model,false);
-
         break;
       case "downanbar":
         await localGirisCixisServiz.init();
@@ -388,23 +387,16 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
         loggedUserModel = localUserServices.getLoggedUser();
         updateElementDownloading(model,true);
         List<MercDataModel> data = [];
-        if (loggedUserModel.userModel!.roleId == 21 ||
-            loggedUserModel.userModel!.roleId == 22) {
-          data = await getAllMercCariBazaMotivasiya();
-        } else {
-          await getAllGirisCixis(loggedUserModel.userModel!.code!,
+        await getAllGirisCixis(loggedUserModel.userModel!.code!,
               loggedUserModel.userModel!.roleId.toString())
               .whenComplete(() async {
             data = await getAllMercCariBazaMotivasiya();
           });
-        }
-          // listDonwloads.removeWhere((e) => e.code == model.code);
           model.lastDownDay = DateTime.now().toIso8601String();
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
         updateElementDownloading(model,false);
-          // listDonwloads.add(model);
 
       case "myRut":
         await localGirisCixisServiz.init();
@@ -482,11 +474,10 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
               gender: 0,
             ));
           }
-
         }
-      }catch(Exeption){
-      }
-      }
+      }catch(ex){
+      print(ex);
+      }}
     return listUsers;
   }
 
@@ -754,7 +745,6 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
     return listProducts;
   }
 
-
   void syncAllInfo() async {
     await localUserServices.init();
     loggedUserModel = localUserServices.getLoggedUser();
@@ -774,6 +764,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
     String songun = intl.DateFormat('yyyy/MM/dd').format(now);
     LoggedUserModel loggedUserModel = localUserServices.getLoggedUser();
     ModelRequestInOut model = ModelRequestInOut(
+      listConfs: [],
         userRole: [UserRole(code: temsilcikodu, role: roleId)],
         endDate: songun,
         startDate: ilkGun);

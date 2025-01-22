@@ -50,7 +50,7 @@ class ControllerAnbar extends GetxController {
 
   Future<void> changeSelectedQroupProducts(ModelAnaQrupAnbar element) async {
     listSelectedMehsullar.value = listMehsullar.where((p) => p.anaqrup == element.groupAdi!).toList();
-    await Get.toNamed(RouteHelper.anbarCesidlerSehfesi, arguments: [ listSelectedMehsullar.value]);
+    await Get.toNamed(RouteHelper.anbarCesidlerSehfesi, arguments: [ listSelectedMehsullar]);
     update();
   }
 

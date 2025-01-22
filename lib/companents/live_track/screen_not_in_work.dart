@@ -20,21 +20,22 @@ class _ScreenNotInWorkUsersState extends State<ScreenNotInWorkUsers> {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue.withOpacity(0.5),
-        centerTitle: false,
-        title: CustomText(labeltext: "${DateTime.now().toString().substring(0,11)} ${"notInWorkUsers".tr}",),
-        actions: [],
-      ),
-      body: SizedBox(
-        child: ListView.builder(
-    itemCount: widget.listModel.length,
-    itemBuilder: (context,index){
-    return WidgetWorkerItemNotWorkedToday(
-      loggedUserModel: widget.loggedUserModel,
-      context: context, element: widget.listModel.elementAt(index), callBack: (e) {  },);
-  })));
+    return  Material(
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          title: CustomText(labeltext: "${DateTime.now().toString().substring(0,11)} ${"notInWorkUsers".tr}",),
+          actions: [],
+        ),
+        body: SizedBox(
+          child: ListView.builder(
+      itemCount: widget.listModel.length,
+      itemBuilder: (context,index){
+      return WidgetWorkerItemNotWorkedToday(
+        loggedUserModel: widget.loggedUserModel,
+        context: context, element: widget.listModel.elementAt(index), callBack: (e) {  },);
+        }))),
+    );
 
 }
 }

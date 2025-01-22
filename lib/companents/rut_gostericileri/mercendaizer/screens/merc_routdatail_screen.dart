@@ -161,7 +161,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         ? 355
                         : tabinitialIndex == 1
                         ? 320
-                        : 225,
+                        :  tabinitialIndex == 3?270:225,
                     pinned: true,
                     floating: false,
                     stretch: true,
@@ -1276,8 +1276,11 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
 
   Widget itemZiyaretGunluk(ModelInOutDay model) {
     return InkWell(
-      onTap: (){
-        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,widget.modelMercBaza.user!.name,widget.modelMercBaza.mercCustomersDatail!]);
+      onTap: () async {
+        await userLocalService.init();
+        await localBaseDownloads.init();
+        List<MercDataModel> list=await localBaseDownloads.getAllMercDatailByCode(userLocalService.getLoggedUser().userModel!.code!);
+        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,"${userLocalService.getLoggedUser().userModel!.name} ${userLocalService.getLoggedUser().userModel!.surname!}",list.isNotEmpty ? list.first.mercCustomersDatail : null]);
       },
       child: Padding(
         padding: const EdgeInsets.all(5.0).copyWith(left: 10,right: 10),
@@ -1321,6 +1324,12 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                     CustomText(labeltext: model.lastExitDate.substring(11,model.lastExitDate.toString().length)),
                   ],
                 ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"icazeliDeq".tr} : ",fontWeight: FontWeight.w600),
+                    CustomText(labeltext: model.modelInOut.first.icazeDeqiqeleri.toString()+" "+"deq".tr),
+                  ],
+                ),
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: DecoratedBox(
@@ -1334,21 +1343,51 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              CustomText(
-                                labeltext: "${"marketlerdeISvaxti".tr} : ",
+                              Row(
+                                children: [
+                                  CustomText(
+                                    labeltext: "${"marketdeISvaxti".tr} : ",
+                                  ),
+                                  CustomText(labeltext: model.workTimeInCustomer),
+                                ],
                               ),
-                              CustomText(labeltext: model.workTimeInCustomer),
+                              const SizedBox(width: 5,),
+                              model.penaltyInWorkInMarket>0?Row(
+                                children: [
+                                  const Icon(Icons.arrow_right_alt),
+                                  CustomText(labeltext: "${"cerime".tr} : "),
+                                  CustomText(labeltext:  "${model.penaltyInWorkInMarket.toStringAsFixed(2)} ${"manatSimbol".tr}",
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.red,),
+                                ],
+                              ):const SizedBox(),
                             ],
                           ),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              CustomText(
-                                labeltext: "${"erazideIsVaxti".tr} : ",
+                              Row(
+                                children: [
+                                  CustomText(
+                                    labeltext: "${"erazideIsVaxti".tr} : ",
+                                  ),
+                                  CustomText(
+                                    labeltext: model.workTimeInArea,
+                                  ),
+                                ],
                               ),
-                              CustomText(
-                                labeltext: model.workTimeInArea,
-                              ),
+                              const SizedBox(width: 5,),
+                              model.penaltyWorkInArea>0?Row(
+                                children: [
+                                  const Icon(Icons.arrow_right_alt),
+                                  CustomText(labeltext: "${"cerime".tr} : "),
+                                  CustomText(labeltext:  "${model.penaltyWorkInArea.toStringAsFixed(2)} ${"manatSimbol".tr}",
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.red,),
+                                ],
+                              ):const SizedBox(),
                             ],
                           ),
                         ],
@@ -1356,7 +1395,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                     ),
                   ),
                 ),
-               ],
+              ],
             ),
           ),
         ),
@@ -1364,7 +1403,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     );
   }
 
-  Widget infoZiyaretTarixcesi() {
+  Widget infoZiyaretTarixcesia() {
     return Obx(()=>Column(
       children: [
         SingleChildScrollView(
@@ -1435,6 +1474,101 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
             ],
           ),
         )
+      ],
+    ));
+  }
+
+  Widget infoZiyaretTarixcesi() {
+    return Obx(()=>Column(
+      children: [
+        Container(margin: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 50, bottom: 0),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            // boxShadow:  const [
+            //   BoxShadow(
+            //       color: Colors.grey,
+            //       offset: Offset(0, 0),
+            //       spreadRadius: 0.1,
+            //       blurRadius: 20)
+            // ],
+            color: Colors.white,
+            border: Border.all(color: Colors.grey, width: 1),
+            //borderRadius: const BorderRadius.all(Radius.circular(15))
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  labeltext: "ayliqZiyaretHes".tr,
+                  fontWeight: FontWeight.w600,
+                  fontsize: 16,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                const Divider(
+                  height: 1,
+                  color: Colors.black,
+                ),
+                const SizedBox(
+                  height: 1,
+                ),
+                controllerRoutDetailUser.modelInOut.isNotEmpty?Row(
+                  children: [
+                    CustomText(labeltext: "${"isgunleri".tr} : "),
+                    CustomText(
+                        labeltext: "${controllerRoutDetailUser.modelInOut.first.modelInOutDays.length} ${"gun".tr}"),
+                  ],
+                ):const SizedBox(),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"icazeliGunler".tr} : "),
+                    CustomText(
+                        labeltext: "${controllerRoutDetailUser.modelInOut.first.totalIcazeGunleri.toString()} ${"gun".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"ziyaretSayi".tr} : "),
+                    CustomText(
+                        labeltext:
+                        "${controllerRoutDetailUser.modelInOut.first.modelInOutDays.fold(0, (sum, element) => sum + element.visitedCount)} ${"market".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"Total is vaxti cerimesi".tr} : "),
+                    CustomText(
+                        color: Colors.red,
+                        labeltext:
+                        "${controllerRoutDetailUser.modelInOut.first.totalPenaltyWorkInArea.toStringAsFixed(2)} ${"manatSimbol".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"Total marketde qalma cerime".tr} : "),
+                    CustomText(
+                        color: Colors.red,
+                        labeltext:
+                        "${controllerRoutDetailUser.modelInOut.first.totalPenaltyInWorkInMarket.toStringAsFixed(2)} ${"manatSimbol".tr}"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomText(labeltext: "${"Ayliq resmi maas".tr} : "),
+                    CustomText(
+                        color: Colors.blue,
+                        labeltext:
+                        "${controllerRoutDetailUser.modelInOut.first.totalSalaryByWorkDay.toStringAsFixed(2)} ${"manatSimbol".tr}"),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
       ],
     ));
   }

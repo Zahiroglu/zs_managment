@@ -20,6 +20,7 @@ import 'package:zs_managment/utils/checking_dvice_type.dart';
 import '../../../../widgets/custom_responsize_textview.dart';
 import '../../../../widgets/simple_info_dialog.dart';
 import '../../../login/models/logged_usermodel.dart';
+import '../../../login/models/user_model.dart';
 import 'controller_user_ziyaret.dart';
 
 class TemsilciUzreZiyaretHesabati extends StatefulWidget {
@@ -37,11 +38,12 @@ class _TemsilciUzreZiyaretHesabatiState extends State<TemsilciUzreZiyaretHesabat
   late CheckDviceType checkDviceType = CheckDviceType();
   String languageIndex = "az";
   LocalUserServices userService = LocalUserServices();
-
+  MercDataModel modela=MercDataModel();
   @override
   void initState() {
     userService.init();
     if (controllerRoutDetailUser.initialized) {
+      getAllDataFromBaza();
       controllerRoutDetailUser.getAllUsers(widget.listGirisCixis);
     }
     // TODO: implement initState
@@ -78,10 +80,13 @@ class _TemsilciUzreZiyaretHesabatiState extends State<TemsilciUzreZiyaretHesabat
         SingleChildScrollView(
           child: Stack(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
+              Card(
+
+                margin: const EdgeInsets.all(5).copyWith(top: 0,left: 10,right: 10),
+                elevation: 5,
+                shadowColor: Colors.black,
                 child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(10.0).copyWith(top: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,8 +143,6 @@ class _TemsilciUzreZiyaretHesabatiState extends State<TemsilciUzreZiyaretHesabat
     return InkWell(
       onTap: () async {
         DialogHelper.showLoading("cmendirilir".tr);
-        List<ModelMainInOut> listGirisCixis = [];
-        MercDataModel modela = await getAllCustomersMerc(widget.listGirisCixis.first.userCode);
         DialogHelper.hideLoading();
         if (modela.user != null) {
           Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,widget.listGirisCixis.first.userFullName,modela.mercCustomersDatail]);
@@ -211,9 +214,9 @@ class _TemsilciUzreZiyaretHesabatiState extends State<TemsilciUzreZiyaretHesabat
                     CustomText(
                         labeltext: "${"isbitme".tr} : ",
                         fontWeight: FontWeight.w600),
-                    CustomText(
+              model.lastExitDate!='null'? CustomText(
                         labeltext: model.lastExitDate.substring(
-                            11, model.lastExitDate.toString().length)),
+                            11, model.lastExitDate.toString().length)):SizedBox(),
                   ],
                 ),
                 Padding(
@@ -258,13 +261,27 @@ class _TemsilciUzreZiyaretHesabatiState extends State<TemsilciUzreZiyaretHesabat
     );
   }
 
+
+  Future<String> getLanguageIndex() async {
+    return await Hive.box("myLanguage").get("langCode") ?? "az";
+  }
+
   Future<MercDataModel> getAllCustomersMerc(String temKod) async {
-    MercDataModel listUsers = MercDataModel();
+    List<MercDataModel> listUsers = [];
+    List<UserModel> listConnectedUsers = [];
     languageIndex = await getLanguageIndex();
-    List<String> secilmisTemsilciler = [];
-    secilmisTemsilciler.add(temKod);
+    LoggedUserModel loggedUserModel =  userService.getLoggedUser();
+    DateTime dateTime=DateTime.now();
+    var data=
+    {
+      "code": temKod,
+      "roleId": widget.listGirisCixis.first.userPosition,
+      "companyId": loggedUserModel.userModel!.companyId,
+      "il": dateTime.year,
+      "ay": dateTime.month
+
+    };
     int dviceType = checkDviceType.getDviceType();
-    LoggedUserModel loggedUserModel = userService.getLoggedUser();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
@@ -274,68 +291,43 @@ class _TemsilciUzreZiyaretHesabatiState extends State<TemsilciUzreZiyaretHesabat
         callback: () {},
       ));
     } else {
-      try {
-        final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/api/v1/Sales/customers-by-merch",
-          data: jsonEncode(secilmisTemsilciler),
-          options: Options(
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Lang': languageIndex,
-              'Device': dviceType,
-              'abs': '123456',
-              "Authorization": "Bearer $accesToken"
-            },
-            validateStatus: (_) => true,
-            contentType: Headers.jsonContentType,
-            responseType: ResponseType.json,
-          ),
-        );
-        print("responce kode :" + response.data.toString());
-        if (response.statusCode == 404) {
-          Get.dialog(ShowInfoDialog(
-            icon: Icons.error,
-            messaje: "baglantierror".tr,
-            callback: () {},
+      var response = await ApiClient().dio(false).post(
+        "${loggedUserModel.baseUrl}/MercSystem/getAllMercRout",
+        data: data,
+        options: Options(
+          headers: {
+            'Lang': languageIndex,
+            'Device': dviceType,
+            'smr': '12345',
+            "Authorization": "Bearer $accesToken"
+          },
+          validateStatus: (_) => true,
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ),
+      );
+      print("respince : "+response.toString());
+      if (response.statusCode == 200) {
+        var dataModel = json.encode(response.data['Result']);
+        List listuser = jsonDecode(dataModel);
+        for (var i in listuser) {
+          listUsers.add(MercDataModel.fromJson(i));
+          listConnectedUsers.add(UserModel(
+            roleName: "Mercendaizer",
+            roleId: 23,
+            code: MercDataModel.fromJson(i).user!.code,
+            name: MercDataModel.fromJson(i).user!.name,
+            gender: 0,
           ));
-        } else {
-          if (response.statusCode == 200) {
-            var dataModel = json.encode(response.data['result']);
-            List listuser = jsonDecode(dataModel);
-            for (var i in listuser) {
-              listUsers = MercDataModel.fromJson(i);
-            }
-          } else {
-            BaseResponce baseResponce = BaseResponce.fromJson(response.data);
-            Get.dialog(ShowInfoDialog(
-              icon: Icons.error_outline,
-              messaje: baseResponce.exception!.message.toString(),
-              callback: () {},
-            ));
-          }
         }
-      } on DioException catch (e) {
-        if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
-        } else {
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
-        }
-        Get.dialog(ShowInfoDialog(
-          icon: Icons.error_outline,
-          messaje: e.message ?? "Xeta bas verdi.Adminle elaqe saxlayin",
-          callback: () {},
-        ));
       }
     }
-    return listUsers;
+    return listUsers.first;
   }
 
-  Future<String> getLanguageIndex() async {
-    return await Hive.box("myLanguage").get("langCode") ?? "az";
+  Future<void> getAllDataFromBaza() async {
+    modela = await getAllCustomersMerc(widget.listGirisCixis.first.userCode);
+    setState(() {});
   }
 
 }

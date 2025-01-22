@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 class ModelRequestGirisCixis {
+  int? userId;
   String? userCode;
   String? userName;
   String? userPosition;
@@ -15,6 +16,7 @@ class ModelRequestGirisCixis {
   bool? isRutDay;
 
   ModelRequestGirisCixis({
+    this.userId,
     this.userCode,
     this.userName,
     this.userPosition,
@@ -34,6 +36,7 @@ class ModelRequestGirisCixis {
   String toRawJson() => json.encode(toJson());
 
   factory ModelRequestGirisCixis.fromJson(Map<String, dynamic> json) => ModelRequestGirisCixis(
+    userId: json["userId"],
     userCode: json["userCode"],
     userName: json["userName"],
     userPosition: json["userPosition"],
@@ -49,6 +52,7 @@ class ModelRequestGirisCixis {
   );
 
   Map<String, dynamic> toJson() => {
+    "userId": userId,
     "userCode": userCode,
     "userName": userName,
     "userPosition": userPosition,
