@@ -410,7 +410,7 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
           model.musteDonwload = false;
           localBaseDownloads.addDownloadedBaseInfo(model);
           localBaseDownloads.addAllToMercBase(data);
-        updateElementDownloading(model,false);
+          updateElementDownloading(model,false);
 
         break;
       case "donwSingleMercBaza":
@@ -605,6 +605,8 @@ class ControllerBaseDownloadsFirstTime extends GetxController {
 
         }
         await localBaseDownloads.addConnectedUsers(listConnectedMercs);
+      }else{
+
       }
     }
     return listUsers;

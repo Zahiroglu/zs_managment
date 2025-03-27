@@ -63,7 +63,7 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
         child: Column(
           children: [
             dataLoading
-                ? Center(
+                ? const Center(
                     child: CircularProgressIndicator(
                     color: Colors.teal,
                   ))
@@ -197,22 +197,19 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     );
   }
 
-  List<MercCustomersDatail> sortListByDayOrderNumber(
-      List<MercCustomersDatail> listRutGunleri) {
+  List<MercCustomersDatail> sortListByDayOrderNumbera(List<MercCustomersDatail> listRutGunleri) {
     List<MercCustomersDatail> newList = [];
     final Map<String, MercCustomersDatail> profileMap = {};
     for (var item in listRutGunleri) {
+      if(item.days!.where((element) => element.day == widget.rutGunuInt).isNotEmpty){
       profileMap[item.days!
           .where((element) => element.day == widget.rutGunuInt)
           .first
           .orderNumber
           .toString()] = item;
-    }
-    var mapEntries = profileMap.entries.toList()
-      ..sort(((a, b) => a.key.compareTo(b.key)));
-    profileMap
-      ..clear()
-      ..addEntries(mapEntries);
+    }}
+    var mapEntries = profileMap.entries.toList()..sort(((a, b) => a.key.compareTo(b.key)));
+    profileMap..clear()..addEntries(mapEntries);
     for (var element in profileMap.values) {
       setState(() {
         newList.add(element);
@@ -223,6 +220,37 @@ class _ScreenMercRutSirasiEditState extends State<ScreenMercRutSirasiEdit> {
     });
     return newList;
   }
+
+  List<MercCustomersDatail> sortListByDayOrderNumber(List<MercCustomersDatail> listRutGunleri) {
+    List<MercCustomersDatail> newList = [];
+
+    // Eyni günə uyğun olan bütün elementləri əlavə etmək üçün
+    for (var item in listRutGunleri) {
+      final matchingDays = item.days?.where((element) => element.day == widget.rutGunuInt).toList();
+
+      if (matchingDays != null && matchingDays.isNotEmpty) {
+        // Bütün uyğun elementləri əlavə edin
+        for (var matchingDay in matchingDays) {
+          newList.add(item);
+        }
+      }
+    }
+
+    // Siyahını `orderNumber`-a görə çeşidləyin
+    newList.sort((a, b) {
+      final aOrder = a.days?.firstWhere((element) => element.day == widget.rutGunuInt).orderNumber ?? 0;
+      final bOrder = b.days?.firstWhere((element) => element.day == widget.rutGunuInt).orderNumber ?? 0;
+      return aOrder.compareTo(bOrder);
+    });
+
+    // Yükləmə bitdikdən sonra vəziyyəti yeniləyin
+    setState(() {
+      dataLoading = false;
+    });
+
+    return newList;
+  }
+
 
   void changeListDayOrderByListIndex(List<MercCustomersDatail> listRutGunleri) {
     for (var element in listRutGunleri) {

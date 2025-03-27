@@ -39,6 +39,7 @@ class ControllerLiveTrackReport extends GetxController {
   @override
   void dispose() {
     customInfoWindowController.value.dispose();
+    Get.delete<ControllerLiveTrackReport>();
     // TODO: implement dispose
     super.dispose();
   }

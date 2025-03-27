@@ -156,9 +156,9 @@ class Day {
   );
 
   Map<String, dynamic> toJson() => {
-    "DayNumber": day,
-    "OrderNumber": orderNumber,
-    "CariCode": cariKod??"0",
+    "dayNumber": day,
+    "orderNumber": orderNumber,
+    "cariCode": cariKod??"0",
   };
 
   @override

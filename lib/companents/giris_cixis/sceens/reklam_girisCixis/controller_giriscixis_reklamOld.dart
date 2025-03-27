@@ -472,7 +472,6 @@ class ControllerGirisCixisReklamOld extends GetxController {
           case "Gumumi":
             if(selectedTemsilci.value.code == "m") {
               listSelectedMusteriler.value = carculateDistanceList(listCariler.where((elent) => elent.forwarderCode == loggedUserModel.userModel!.code!).toList(), possition.value);
-              print("listSelectedMusteriler count : ${listSelectedMusteriler.length}");
 
             }else{
               listSelectedMusteriler ==
@@ -1250,7 +1249,6 @@ class ControllerGirisCixisReklamOld extends GetxController {
       list.add(element);
     }
     list.sort((a, b) => a.mesafeInt!.compareTo(b.mesafeInt!));
-    print("Lsit count : ${list.length}");
     return list;
   }
 
@@ -1523,7 +1521,7 @@ class ControllerGirisCixisReklamOld extends GetxController {
         height: 115,
         width: 110,
         decoration: BoxDecoration(
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(color: Colors.grey, offset: Offset(2, 2), blurRadius: 5)
             ],
             color: elementAt.color,
@@ -2161,8 +2159,7 @@ class ControllerGirisCixisReklamOld extends GetxController {
 
   void girisiSil(LocationData currentLocation) async {
     Get.dialog(ShowSualDialog(
-        messaje:
-            "Girisi silseniz butun emeliyyatlar silinecek.Silmeye eminsiniz?",
+        messaje: "Girisi silseniz butun emeliyyatlar silinecek.Silmeye eminsiniz?",
         callBack: (va) async {
           if (va) {
             _timer!.cancel();
@@ -2174,7 +2171,10 @@ class ControllerGirisCixisReklamOld extends GetxController {
             marketeGirisEdilib.value = false;
             modelgirisEdilmis.value = ModelCustuomerVisit();
             getSatisMelumatlari();
-            //ctKassaDialog.text = "";
+            if (!userPermitionHelper.liveTrack(loggedUserModel.userModel!.configrations!)) {
+               BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
+               await backgroudLocationServiz.stopBackGroundFetch();
+            }
             ctCixisQeyd.text = "";
             getGirisEdilmisCari(map.LatLng(currentLocation.latitude!, currentLocation.longitude!));
             update();
@@ -2294,11 +2294,8 @@ class ControllerGirisCixisReklamOld extends GetxController {
           inDt: modelgirisEdilmis.value.inDt,
           userFullName: userService.getLoggedUser().userModel!.name.toString(),
           userCode: userService.getLoggedUser().userModel!.code.toString(),
-          userPosition:
-              userService.getLoggedUser().userModel!.roleId.toString(),
-          workTimeInCustomer: carculateTimeDistace(
-              modelgirisEdilmis.value.inDate.toString(),
-              DateTime.now().toString()),
+          userPosition: userService.getLoggedUser().userModel!.roleId.toString(),
+          workTimeInCustomer: carculateTimeDistace(modelgirisEdilmis.value.inDate.toString(), DateTime.now().toString()),
           customerLatitude: modelgirisEdilmis.value.customerLatitude,
           customerLongitude: modelgirisEdilmis.value.customerLongitude);
     }
@@ -2388,7 +2385,7 @@ class ControllerGirisCixisReklamOld extends GetxController {
       } else {
         if (ModelExceptions.fromJson(response.data['Exception']).code != null) {
           String expCode = ModelExceptions.fromJson(response.data['Exception']).code.toString();
-          String messsaje = ModelExceptions.fromJson(response.data['exception']).message.toString();
+          String messsaje = ModelExceptions.fromJson(response.data['Exception']).message.toString();
           if (expCode == "010") {
             DialogHelper.hideLoading();
             Get.dialog(ShowInfoDialog(
@@ -2501,54 +2498,56 @@ class ControllerGirisCixisReklamOld extends GetxController {
       modelVisit.gonderilme = "1";
       if (isEnter) {
           if (userPermitionHelper.liveTrack(loggedUserModel.userModel!.configrations!)) {
-            bg.State state = await bg.BackgroundGeolocation.state;
-                 if(!state.enabled){
-                   BackgroudLocationServizFullTime backgroudLocationServizFullTime = Get.put(BackgroudLocationServizFullTime());
-                   await backgroudLocationServizFullTime.startBackgorundFetckFull(modelVisit).then((v) {
+                BackgroudLocationServizFullTime backgroudLocationServizFullTime = Get.put(BackgroudLocationServizFullTime());
+                await backgroudLocationServizFullTime.startBackgorundFetckFull(modelVisit).then((v) {
                 funFlutterToast("ugurluApiGiris", true);
                 girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
               });
-                 }else{
-                   funFlutterToast("ugurluApiGiris", true);
-                   girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
-                 }
+
           }
           else{
-            BackgroudLocationServiz backgroudLocationServiz = Get.put(BackgroudLocationServiz());
-            await backgroudLocationServiz.startBackgorundFetck(modelVisit).then((v) {
+                BackgroudLocationServiz backgroudLocationServiz = Get.put(BackgroudLocationServiz());
+                await backgroudLocationServiz.startBackgorundFetck(modelVisit).then((v) {
               funFlutterToast("ugurluApiGiris", true);
               girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
             });
           }
         }
       else {
-        funFlutterToast("ugurluApiCixis", true);
-        cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
+                funFlutterToast("ugurluApiCixis", true);
+                cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
       }
-    }else if(response.statusCode==400){
+    }
+    else if(response.statusCode==400){
       if (ModelExceptions.fromJson(response.data['Exception']).code != null) {
         String expCode = ModelExceptions.fromJson(response.data['Exception']).code.toString();
-        if(expCode!="400"){
+        // if(expCode!="400"){
+        //   DialogHelper.hideLoading();
+        //   modelVisit.gonderilme = "0";
+        //   if (userPermitionHelper.liveTrack(loggedUserModel.userModel!.configrations!)) {
+        //     bg.State state = await bg.BackgroundGeolocation.state;
+        //     if(!state.enabled){
+        //       BackgroudLocationServizFullTime backgroudLocationServizFullTime = Get.put(BackgroudLocationServizFullTime());
+        //       await backgroudLocationServizFullTime.startBackgorundFetckFull(modelVisit).then((v) {
+        //         funFlutterToast("ugurluApiGiris", true);
+        //         girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+        //       });
+        //     }else{
+        //       funFlutterToast("ugurluApiGiris", true);
+        //       girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
+        //     }
+        //   }
+        //   else {
+        //     funFlutterToast("errorApiCixis", false);
+        //     cixisiLocaldaTesdiqleLast(currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
+        //   }
+        // }
+        //else
+          if(expCode=="zs003"){
           DialogHelper.hideLoading();
-          modelVisit.gonderilme = "0";
-          if (userPermitionHelper.liveTrack(loggedUserModel.userModel!.configrations!)) {
-            bg.State state = await bg.BackgroundGeolocation.state;
-            if(!state.enabled){
-              BackgroudLocationServizFullTime backgroudLocationServizFullTime = Get.put(BackgroudLocationServizFullTime());
-              await backgroudLocationServizFullTime.startBackgorundFetckFull(modelVisit).then((v) {
-                funFlutterToast("ugurluApiGiris", true);
-                girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
-              });
-            }else{
-              funFlutterToast("ugurluApiGiris", true);
-              girisiLocaldaTesdiqleLast(currentLocation, uzaqliq, modelVisit, selectedModel);
-            }
-          }
-          else {
-            funFlutterToast("errorApiCixis", false);
-            cixisiLocaldaTesdiqleLast(
-                currentLocation, uzaqliq, ctCixisQeyd.text, modelVisit);
-          }
+          DialogHelper.hideLoading();
+          Get.dialog(ShowInfoDialog(
+              messaje: ModelExceptions.fromJson(response.data['Exception']).message!, icon: Icons.error, callback: () {}));
         }
       }
     }

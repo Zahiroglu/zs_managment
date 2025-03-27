@@ -75,7 +75,6 @@ class ModelCariHesabatlar {
         isAktiv: true,
         key: "cZayMalH"));
     gonderilen=cariHesabatlar.where((e)=>list.any((a)=>a.code==e.key)).toList();
-
     return gonderilen;
   }
 

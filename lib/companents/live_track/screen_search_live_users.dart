@@ -9,17 +9,30 @@ import 'package:intl/intl.dart';
 import 'package:zs_managment/widgets/widget_notdata_found.dart';
 import '../../widgets/custom_text_field.dart';
 import '../hesabatlar/user_hesabatlar/useruzre_hesabatlar.dart';
+import 'controller_live_track/controller_live_track.dart';
 import 'model/model_live_track.dart';
 
-class SearchLiveUsers extends StatelessWidget {
-  ModelLiveTrack selectedUser;
-  List<ModelLiveTrack> listUsers;
+class SearchLiveUsers extends StatefulWidget {
+  ControllerLiveTrack controllerLive;
   Function(ModelLiveTrack) callBack;
   Function(bool) callBackGunluk;
 
-  SearchLiveUsers({required this.listUsers, required this.callBack,required this.selectedUser, required this.callBackGunluk, super.key});
+  SearchLiveUsers({required this.controllerLive, required this.callBack, required this.callBackGunluk, super.key});
 
-  TextEditingController ctSearch = TextEditingController();
+  @override
+  State<SearchLiveUsers> createState() => _SearchLiveUsersState();
+}
+
+class _SearchLiveUsersState extends State<SearchLiveUsers> {
+  List<ModelLiveTrack> selectedusers=[];
+
+
+  @override
+  void initState() {
+    selectedusers=widget.controllerLive.listTrackdata;
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,38 +48,63 @@ class SearchLiveUsers extends StatelessWidget {
             height: 10,
           ),
           Expanded(
-              flex: 2,
+              flex: 0,
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
                 child: CustomTextField(
                   containerHeight: 40,
                   suffixIcon: Icons.search_outlined,
                   align: TextAlign.center,
-                  controller: ctSearch,
+                  controller: widget.controllerLive.ctSearch,
                   fontsize: 14,
                   hindtext: "axtar".tr,
                   inputType: TextInputType.text,
                   onTextChange: (s) {
-                    //searchUsers(s);
+                    searchUsers(s);
                   },
                 ),
               )),
           const SizedBox(
             height: 5,
           ),
+                  Expanded(
+                      flex: 1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(width: 10,),
+                              CustomText(labeltext: "Girisde olan : ${selectedusers.where((e)=>e.lastInoutAction!.outLongitude=="").length}",),
+                              const SizedBox(width: 5,),
+                              CustomText(labeltext: "Cixis eden : ${selectedusers.where((e)=>e.lastInoutAction!.outLongitude!="").length}",),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              CustomText(labeltext: "Online : ${selectedusers.where((e)=>e.currentLocation!.isOnline==true).length}",),
+                              const SizedBox(width: 5,),
+                              CustomText(labeltext: "Offline : ${selectedusers.where((e)=>e.currentLocation!.isOnline==false).length}",),
+                              const SizedBox(width: 20,),
+                            ],
+                          ),
+                        ],
+                      )),
           Expanded(
-            flex: 20,
-            child: listUsers.isNotEmpty?ListView.builder(
-                itemCount: listUsers.length,
+            flex: 30,
+            child: selectedusers.isNotEmpty?ListView.builder(
+                itemCount: selectedusers.length,
                 itemBuilder: (context, index) {
                   return WidgetWorkerItemLiveTarck(
                     callBackGunluk: (v){
-                      callBackGunluk.call(v);
+                      widget.callBackGunluk.call(v);
                     },
-                    selectedUser: selectedUser,
+                    selectedUser: widget.controllerLive.selectedModel.value,
                     context: context,
-                    element: listUsers.elementAt(index),
-                    callBack: callBack,
+                    element: selectedusers.elementAt(index),
+                    callBack: widget.callBack,
                   );
                 }):NoDataFound(
               title: "melumattapilmadi".tr,
@@ -76,6 +114,18 @@ class SearchLiveUsers extends StatelessWidget {
               ),
         ));
   }
+
+  void searchUsers(String s) {
+    if(s.isEmpty){
+      selectedusers=widget.controllerLive.listTrackdata;
+    }else{
+      selectedusers=widget.controllerLive.listTrackdata.where((e)=>e.userFullName!.toString().toUpperCase().contains(s.toUpperCase())||
+          e.userCode!.toUpperCase().contains(s.toUpperCase())).toList();
+    }
+    setState(() {
+    });();
+  }
+
 }
 
 class WidgetWorkerItemNotWorkedToday extends StatefulWidget {

@@ -38,6 +38,7 @@ class ControllerSatis extends GetxController {
     await localBaseDownloads.init();
     await localBaseSatis.init();
     listMehsullar.value = localBaseDownloads.getAllMehsullar();
+    await userService.init();
     loggedUserModel = userService.getLoggedUser();
     fillListAnaQruplar();
   }

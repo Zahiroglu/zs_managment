@@ -4,7 +4,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:zs_managment/companents/login/mobile/login_mobile_first_screen.dart';
 
 import '../login/mobile/mobile_lisance_screen.dart';
 import 'noty_background_track.dart';
@@ -33,7 +32,6 @@ class FirebaseNotyficationController {
 
   Future<String> getFireToken() async {
     String? token=await messaging.getToken();
-    print("Fire token :"+token.toString());
     return token!;
   }
 
@@ -47,7 +45,6 @@ class FirebaseNotyficationController {
       var clickAction="";
       if (message.data.containsKey('click_action')) {
         clickAction = message.data['click_action'];
-        print("Initial Click_Action: $clickAction");
       }
       await NotyBackgroundTrack.showFireBaseNoty(
         body: body,
@@ -68,8 +65,6 @@ class FirebaseNotyficationController {
       }else if(clickAction == "Yenilik"){
         restartApplication();
       }
-      print("messaje : $message");
-      print("Click_Action:"+ message.notification.toString());
     });
   }
   void restartApplication() {
@@ -83,7 +78,6 @@ class FirebaseNotyficationController {
     var clickAction = "";
     if (message.data.containsKey('click_action')) {
       clickAction = message.data['click_action'];
-      print("Initial Click_Action: $clickAction");
     }
     await NotyBackgroundTrack.showFireBaseNoty(
       body: body,
@@ -105,8 +99,6 @@ class FirebaseNotyficationController {
     else if (clickAction == "Yenilik") {
       restartApplication();
     }
-    print("messaje : $message");
-    print("Click_Action:" + message.notification.toString());
 }
 
 

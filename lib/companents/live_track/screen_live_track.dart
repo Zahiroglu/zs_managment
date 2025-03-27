@@ -74,23 +74,20 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> with WidgetsBindingOb
 
   @override
   void dispose() {
+    // Observer kaldırma
+    WidgetsBinding.instance.removeObserver(this);
+    // Completer sıfırlama
+    _controllerMap = Completer();
     // Timer iptali
     controllerGirisCixis.timer?.cancel();
 
     // ScrollController serbest bırakılması
     listViewController.dispose();
-
     // Google Map Controller serbest bırakılması
     newgooglemapxontroller?.dispose();
 
-    // Observer kaldırma
-    WidgetsBinding.instance.removeObserver(this);
-
     // GetX Controller kaldırma
-    Get.delete<ControllerLiveTrack>();
-
-    // Completer sıfırlama
-    _controllerMap = Completer();
+     Get.delete<ControllerLiveTrack>();
 
     // Super çağrısı
     super.dispose();
@@ -242,7 +239,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> with WidgetsBindingOb
           }),
           grabbingHeight: controllerGirisCixis.userMarkerSelected.isFalse
               ? MediaQuery.of(context).size.height / 5
-              : userHesabatlarMustVisible?MediaQuery.of(context).size.height/3 :MediaQuery.of(context).size.height / 2.5,
+              : userHesabatlarMustVisible?MediaQuery.of(context).size.height/2.8 :MediaQuery.of(context).size.height / 2.5,
           sheetAbove: null,
           sheetBelow: SnappingSheetContent(
             draggable: true,
@@ -393,26 +390,79 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> with WidgetsBindingOb
           },
           onMapCreated: _onMapCreated,
         ),
-        controllerGirisCixis.searcAktive.isTrue?const SizedBox():Positioned(
-            right: controllerGirisCixis.dataLoading.isFalse? 60:10,
-            top: 15,
+    controllerGirisCixis.searcAktive.isFalse ?Positioned(
+            right:10,
+            top: 70,
             child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.grey.withOpacity(0.5),
-              child: IconButton(
-                icon: const Icon(Icons.search_outlined),
-                onPressed: (){
-                  if(mounted){
-                  setState(() {
-                    controllerGirisCixis.selectedModel.value = ModelLiveTrack();
-                    controllerGirisCixis.userMarkerSelected.value=true;
-                    controllerGirisCixis.searcAktive.value=true;
-                    scrrolOpened=false;
-                  });}
-                  //openSearchScreen();
-                },
-              ),
-            )),
+                radius: 25,
+                backgroundColor: Colors.grey.withOpacity(0.3),
+                child: InkWell(
+                  onTap: () {
+              if(mounted){
+              setState(() {
+                controllerGirisCixis.selectedModel.value = ModelLiveTrack();
+                controllerGirisCixis.userMarkerSelected.value=true;
+                controllerGirisCixis.searcAktive.value=true;
+                scrrolOpened=false;
+              });}
+                  },
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 60,
+                        width: 60,
+                        margin: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.6),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.green.withOpacity(0.8))),
+                        child: const Center(
+                            child:Icon(Icons.search_outlined)),
+                      ),
+                      Positioned(
+                          top: -0,
+                          right: -0,
+                          child: Container(
+                              padding: const EdgeInsets.all(1),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.green,
+                              ),
+                              child: SizedBox(
+                                  width: 20,
+                                  child: Center(
+                                      child: CustomText(
+                                        labeltext: controllerGirisCixis
+                                            .listTrackdata.length
+                                            .toString(),
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontsize: 12,
+                                      )))))
+                    ],
+                  ),
+                )
+            )):const SizedBox(),
+        // controllerGirisCixis.searcAktive.isTrue?const SizedBox():Positioned(
+        //     right: controllerGirisCixis.dataLoading.isFalse? 60:10,
+        //     top: 15,
+        //     child: CircleAvatar(
+        //       radius: 20,
+        //       backgroundColor: Colors.grey.withOpacity(0.5),
+        //       child: IconButton(
+        //         icon: const Icon(Icons.search_outlined),
+        //         onPressed: (){
+        //           if(mounted){
+        //           setState(() {
+        //             controllerGirisCixis.selectedModel.value = ModelLiveTrack();
+        //             controllerGirisCixis.userMarkerSelected.value=true;
+        //             controllerGirisCixis.searcAktive.value=true;
+        //             scrrolOpened=false;
+        //           });}
+        //           //openSearchScreen();
+        //         },
+        //       ),
+        //     )),
         controllerGirisCixis.dataLoading.isFalse?Positioned(
             right: 10,
             top: 15,
@@ -1154,10 +1204,11 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> with WidgetsBindingOb
 
   Widget searchUsers(BuildContext context){
    return  SearchLiveUsers(
+     controllerLive: controllerGirisCixis,
      callBackGunluk: (v){
        controllerGirisCixis.timer!.cancel();
      },
-     listUsers: controllerGirisCixis.listTrackdata,callBack: (element){
+     callBack: (element){
      if(element.userCode!=null){
        controllerGirisCixis.createMarkerCirculeAndPolyline(element);
        controllerGirisCixis.searcAktive.value=false;
@@ -1177,7 +1228,7 @@ class _ScreenLiveTrackState extends State<ScreenLiveTrack> with WidgetsBindingOb
                map.CameraUpdate.newCameraPosition(cameraPosition)));
      }
    },
-     selectedUser: controllerGirisCixis.selectedModel.value,);
+   );
   }
 
   void _showDialogGirisSil() {

@@ -129,9 +129,6 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     listBodyWidgets.add(_pageViewUmumiZiyeretEdilmeyenler());
     listHeaderWidgets.add(infoZiyaretTarixcesi());
     listBodyWidgets.add(_pageViewZiyaretTarixcesi());
-    print("Tab lent+"+controllerRoutDetailUser.listTabItems.length.toString());
-    print("listBodyWidgets+"+listBodyWidgets.length.toString());
-    print("listHeaderWidgets+"+listHeaderWidgets.length.toString());
     setState(() {});}
 
   @override
@@ -1262,7 +1259,6 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
     });
   }
 
-
   ///ziyaret tarixleri
   Widget _pageViewZiyaretTarixcesi() {
     return Obx(()=>ListView.builder(
@@ -1279,8 +1275,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
       onTap: () async {
         await userLocalService.init();
         await localBaseDownloads.init();
-        List<MercDataModel> list=await localBaseDownloads.getAllMercDatailByCode(userLocalService.getLoggedUser().userModel!.code!);
-        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,"${userLocalService.getLoggedUser().userModel!.name} ${userLocalService.getLoggedUser().userModel!.surname!}",list.isNotEmpty ? list.first.mercCustomersDatail : null]);
+        List<MercDataModel> list=await localBaseDownloads.getAllMercDatailByCode(model.modelInOut.first.userCode);
+        Get.toNamed(RouteHelper.screenZiyaretGirisCixis,arguments: [model,"${model.modelInOut.first.userFullName}",list.first.mercCustomersDatail]);
       },
       child: Padding(
         padding: const EdgeInsets.all(5.0).copyWith(left: 10,right: 10),
@@ -1523,22 +1519,23 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         labeltext: "${controllerRoutDetailUser.modelInOut.first.modelInOutDays.length} ${"gun".tr}"),
                   ],
                 ):const SizedBox(),
-                Row(
-                  children: [
+                controllerRoutDetailUser.modelInOut.isNotEmpty? Row(children: [
                     CustomText(labeltext: "${"icazeliGunler".tr} : "),
                     CustomText(
-                        labeltext: "${controllerRoutDetailUser.modelInOut.first.totalIcazeGunleri.toString()} ${"gun".tr}"),
-                  ],
-                ),
-                Row(
+                      labeltext: controllerRoutDetailUser.modelInOut.isNotEmpty &&
+                          controllerRoutDetailUser.modelInOut.firstOrNull?.totalIcazeGunleri != null
+                          ? "${controllerRoutDetailUser.modelInOut.firstOrNull!.totalIcazeGunleri.toString()} ${"gun".tr}"
+                          : "${"0"} ${"gun".tr}",
+                    ),                ],):const SizedBox(),
+                controllerRoutDetailUser.modelInOut.isNotEmpty?Row(
                   children: [
                     CustomText(labeltext: "${"ziyaretSayi".tr} : "),
                     CustomText(
                         labeltext:
                         "${controllerRoutDetailUser.modelInOut.first.modelInOutDays.fold(0, (sum, element) => sum + element.visitedCount)} ${"market".tr}"),
                   ],
-                ),
-                Row(
+                ):const SizedBox(),
+                controllerRoutDetailUser.modelInOut.isNotEmpty?Row(
                   children: [
                     CustomText(labeltext: "${"Total is vaxti cerimesi".tr} : "),
                     CustomText(
@@ -1546,8 +1543,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         labeltext:
                         "${controllerRoutDetailUser.modelInOut.first.totalPenaltyWorkInArea.toStringAsFixed(2)} ${"manatSimbol".tr}"),
                   ],
-                ),
-                Row(
+                ):const SizedBox(),
+                controllerRoutDetailUser.modelInOut.isNotEmpty? Row(
                   children: [
                     CustomText(labeltext: "${"Total marketde qalma cerime".tr} : "),
                     CustomText(
@@ -1555,8 +1552,8 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         labeltext:
                         "${controllerRoutDetailUser.modelInOut.first.totalPenaltyInWorkInMarket.toStringAsFixed(2)} ${"manatSimbol".tr}"),
                   ],
-                ),
-                Row(
+                ):const SizedBox(),
+                controllerRoutDetailUser.modelInOut.isNotEmpty? Row(
                   children: [
                     CustomText(labeltext: "${"Ayliq resmi maas".tr} : "),
                     CustomText(
@@ -1564,7 +1561,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
                         labeltext:
                         "${controllerRoutDetailUser.modelInOut.first.totalSalaryByWorkDay.toStringAsFixed(2)} ${"manatSimbol".tr}"),
                   ],
-                )
+                ):const SizedBox()
               ],
             ),
           ),
@@ -1574,9 +1571,7 @@ class _ScreenMercRoutDatailState extends State<ScreenMercRoutDatail> with Ticker
   }
 
   void _intentRutSirasiScreen(String rutGunu, int gunInt) {
-    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listRutGunleri,rutGunu,gunInt,widget.modelMercBaza.user!.code]);
+    Get.toNamed(RouteHelper.getScreenMercRutSiraEdit(),arguments:[ controllerRoutDetailUser.listMercBaza,rutGunu,gunInt,widget.modelMercBaza.user!.code]);
   }
-
-  void _getNewDatasFromServer() {}
 
 }

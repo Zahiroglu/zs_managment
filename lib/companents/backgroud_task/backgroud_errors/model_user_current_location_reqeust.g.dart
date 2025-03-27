@@ -34,13 +34,14 @@ class ModelUsercCurrentLocationReqeustAdapter
       locationHeading: fields[13] as double?,
       locAccuracy: fields[14] as double?,
       isMoving: fields[15] as bool?,
+      screenState: fields[16] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ModelUsercCurrentLocationReqeust obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.userCode)
       ..writeByte(1)
@@ -72,7 +73,9 @@ class ModelUsercCurrentLocationReqeustAdapter
       ..writeByte(14)
       ..write(obj.locAccuracy)
       ..writeByte(15)
-      ..write(obj.isMoving);
+      ..write(obj.isMoving)
+      ..writeByte(16)
+      ..write(obj.screenState);
   }
 
   @override

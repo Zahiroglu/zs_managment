@@ -63,7 +63,6 @@ class _ScreenGirisCixisReklamNewState extends State<ScreenGirisCixisReklamNew> w
   BackgroudLocationServiz backgroudLocationServiz=BackgroudLocationServiz();
   BackgroudLocationServizFullTime backgroudLocationServizFull=BackgroudLocationServizFullTime();
   LocalPermissionsController permitionController = LocalPermissionsController();
-  late StreamSubscription<LocationData> _locationSubscription;
 
   bool gpsNotFound=false;
   @override
@@ -104,7 +103,7 @@ class _ScreenGirisCixisReklamNewState extends State<ScreenGirisCixisReklamNew> w
             Get.back();
           }));
     }
-    _toggleListening();
+   // _toggleListening();
   }
 
   Future<void> initConfigrations() async {
@@ -114,44 +113,26 @@ class _ScreenGirisCixisReklamNewState extends State<ScreenGirisCixisReklamNew> w
     istifadeciRutdanKenarGirisEdebiler = !permitionsHelper.getOnlyByRutDay(loggedUserModel.userModel!.configrations!);
   }
 
-  void _toggleListening() {
-    _locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
-      if (mounted) {
-        setState(() {
-          print("Giriş-çıxış səhifəsindəki konum dəyişdi");
-          _currentLocation = currentLocation;
-          controllerGirisCixis.changeSelectedDistance(
-            controllerGirisCixis.selectedTemsilci.value,
-            LatLng(currentLocation.latitude!, currentLocation.longitude!),
-          );
-        });
-      }
-
-    });
-  }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    await _locationSubscription.cancel();
     scrollController.dispose();
     pageController.dispose();
     if (controllerGirisCixis.marketeGirisEdilib.isFalse) {
       Get.delete<ControllerGirisCixisReklamOld>();
     }
-    // TODO: implement dispose
     super.dispose();
   }
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
       if (state == AppLifecycleState.paused) {
-         _locationSubscription.cancel();  // Dinləməni müvəqqəti dayandırır
           followMe = false;
+          Get.back();
         }else if(state== AppLifecycleState.resumed){
-         _locationSubscription.resume(); // Dinləməni bərpa edir
-        followMe = true;
-          //_toggleListening();
+         followMe = true;
+         Get.back();
         }
     }
 
@@ -482,20 +463,21 @@ class _ScreenGirisCixisReklamNewState extends State<ScreenGirisCixisReklamNew> w
                           backgroundColor: WidgetStateProperty.all(Colors.blue.withOpacity(0.1)), // Arxa fon rəngi
                           foregroundColor: WidgetStateProperty.all(Colors.white), // İkon rəngi
                         ),
-                        onPressed: (){
+                        onPressed: () async {
                       if(mounted){
-                        setState(() async {
                           if (followMe) {
-                            followMe = false;
-                            await _locationSubscription.cancel();
                             funFlutterToast("Meni izle dayandirildi");
+                            setState(() {
+                              followMe = false;
+                            });
                           } else {
                             //confiqGeolocatior();
-                            _toggleListening();
-                            followMe = true;
+                         //   _toggleListening();
                             funFlutterToast("Meni izle baslatildi");
+                            setState(() {
+                              followMe = true;
+                            });
                           }
-                        });
                       }
                     },
                         icon: Icon(
@@ -1498,13 +1480,13 @@ class _ScreenGirisCixisReklamNewState extends State<ScreenGirisCixisReklamNew> w
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Card(
-                    //   shadowColor: Colors.black,
-                    //   elevation: 5,
-                    //   margin:
-                    //       const EdgeInsets.all(10).copyWith(bottom: 5, top: 0),
-                    //   child: controllerGirisCixis.cardSifarisler(context),
-                    // ), //satis ucun
+                    Card(
+                      shadowColor: Colors.black,
+                      elevation: 5,
+                      margin:
+                          const EdgeInsets.all(10).copyWith(bottom: 5, top: 0),
+                      child: controllerGirisCixis.cardSifarisler(context),
+                    ), //satis ucun
                     // Card(
                     //   shadowColor: Colors.black,
                     //   elevation: 5,
@@ -1790,7 +1772,7 @@ class _ScreenGirisCixisReklamNewState extends State<ScreenGirisCixisReklamNew> w
   Future<void> cixisEt(String uzaqliq, LocationData value) async {
     await controllerGirisCixis.pripareForExit(value, uzaqliq, selectedCariModel)
         .then((e) {
-      _toggleListening();
+      //_toggleListening();
       if(mounted){
         setState(() {});}
       ;
@@ -1800,7 +1782,6 @@ class _ScreenGirisCixisReklamNewState extends State<ScreenGirisCixisReklamNew> w
   Future<void> girisEt(String uzaqliqString, double uzaqliq, LocationData value,ModelCariler model) async {
        await controllerGirisCixis.pripareForEnter(uzaqliqString, value, model, secilenMarketdenUzaqliq)
            .then((e) async {
-         await _locationSubscription.cancel();
          setState(()  {
            selectedCariModel = ModelCariler();
            });

@@ -33,4 +33,9 @@ class GirisCixisRequest {
       endDate: json['EndDate'],
     );
   }
+
+  @override
+  String toString() {
+    return 'GirisCixisRequest{rollar: $rollar, userCode: $userCode, startDate: $startDate, endDate: $endDate}';
+  }
 }

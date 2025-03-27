@@ -301,7 +301,7 @@ Future<void> initAllStates()async{
                   children: [
                     CustomText(labeltext: "icazeninNovu".tr),
                     const SizedBox(width: 10,),
-                    CustomText(labeltext:elementAt.icazeTypeId==4?"sIcaze".tr:"rGicaze".tr),
+                    CustomText(labeltext:elementAt.icazeTypeName!),
                   ],
                 ),
                 elementAt.icazeTypeId!=4?Row(
@@ -347,10 +347,12 @@ Future<void> initAllStates()async{
                   ],
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomText(labeltext: "icazeSebebi".tr),
                     const SizedBox(width: 10,),
-                    CustomText(labeltext:elementAt.icazeQeyd),
+                    Expanded(child: CustomText(labeltext:elementAt.icazeQeyd,maxline: 3,)),
                   ],
                 )
               ],
@@ -359,7 +361,28 @@ Future<void> initAllStates()async{
           Positioned(
               top: 5,
               right: 5,
-              child: elementAt.tesdiqStatusu=="True"?const Icon(Icons.verified_sharp,color: Colors.green,size: 32,):const Icon(Icons.timelapse_outlined,color: Colors.red,))
+              child: Container(
+                decoration:BoxDecoration(
+                    color: elementAt.tesdiqStatusu=="0"?Colors.orange:elementAt.tesdiqStatusu=="1"?Colors.green:Colors.red,
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(5)
+                ),
+                alignment: Alignment.center,
+                margin: const EdgeInsets.all(2),
+                padding: const EdgeInsets.all(2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(labeltext: elementAt.tesdiqStatusu=="0"?"Gozlenilir":elementAt.tesdiqStatusu=="1"?"Tesdiq edilib":"Imtina edilib",fontsize: 10,color: Colors.white,),
+                    Icon(
+                        size: 14,
+                        elementAt.tesdiqStatusu=="0"?Icons.access_time_rounded:elementAt.tesdiqStatusu=="1"?Icons.verified:Icons.clear,
+                        color: Colors.white)
+
+                  ],
+                ),
+              ))
         ],
       ),
     );

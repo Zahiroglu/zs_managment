@@ -31,10 +31,17 @@ class ApiClientBack {
   Dio dio(bool musteShowResult) {
     var dio = Dio(
       BaseOptions(
-        connectTimeout: const Duration(seconds: 20),
+        connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 30),     // Sorğunu göndərmə müddətini 30 saniyə et
+        followRedirects: true,       // 3xx yönləndirmələrə icazə ver
         baseUrl: AppConstands.baseUrlsMain,
         persistentConnection:false,
+          headers: {
+            "Connection": "keep-alive",  // Bağlantını saxla
+            "Accept": "application/json",
+            "User-Agent": "ZS-CONTROLL",
+          }
       ),
     );
     dio.interceptors.clear();

@@ -1,15 +1,8 @@
-import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/login/models/model_configrations.dart';
 import 'package:zs_managment/companents/login/models/model_userspormitions.dart';
 
 class UserPermitionsHelper {
   static String canEnterOtherMerchCustomers="canEnterOtherMerchCustomers";
-
-
-  // bool hasUserPermition(String perCode,List<ModelUserPermissions> listPermitions)  {
-  //  return  listPermitions.any((element)=>element.code==perCode);
-  // }
-
   bool canAccessForUsersLeave (List<ModelUserPermissions> listPermitions){
     bool hasAccess=false;
     if(listPermitions.isNotEmpty) {
@@ -46,15 +39,12 @@ class UserPermitionsHelper {
     return hasAccess;
   }
   bool canRemuveUserEnter(List<ModelUserPermissions> listPermitions) {
-    print("giris sile biler "+listPermitions.any((e) => e.id==25).toString());
     bool hasAccess=false;
     if(listPermitions.isNotEmpty) {
       hasAccess= listPermitions.any((e) => e.id==25);
     }
     return hasAccess;
   }
-
-
 
 
   //Configrations

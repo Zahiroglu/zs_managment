@@ -84,6 +84,7 @@ class UserApiControllerMobile extends GetxController {
   Future<void> loginWithMobileDviceId(String baseUrl) async {
     final info = await PackageInfo.fromPlatform();
     languageIndex = await getLanguageIndex();
+    print("info.buildNumber : "+info.buildNumber.toString());
     final connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
       Get.dialog(ShowInfoDialog(

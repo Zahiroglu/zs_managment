@@ -16,13 +16,10 @@ import '../../../helpers/dialog_helper.dart';
 import '../../../routs/rout_controller.dart';
 import '../../../utils/checking_dvice_type.dart';
 import '../../../widgets/simple_info_dialog.dart';
-import '../../giris_cixis/models/model_request_inout.dart';
 import '../../local_bazalar/local_users_services.dart';
-import '../../login/models/base_responce.dart';
 import '../../login/models/logged_usermodel.dart';
 import '../../login/models/user_model.dart';
 import '../../rut_gostericileri/mercendaizer/data_models/merc_data_model.dart';
-import 'package:intl/intl.dart' as intl;
 
 import '../../ziyaret_tarixcesi/model_requestreport_giriscixis.dart';
 import '../../ziyaret_tarixcesi/simple_user_request.dart';
@@ -49,6 +46,8 @@ class WidgetHesabatListItemsUser extends StatefulWidget {
 class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser> {
   TextEditingController ctFistDay = TextEditingController();
   TextEditingController ctLastDay = TextEditingController();
+  DateTime dateFirst=DateTime.now();
+  DateTime dateLast=DateTime.now();
   String languageIndex = "az";
   late CheckDviceType checkDviceType = CheckDviceType();
   LocalUserServices userService = LocalUserServices();
@@ -233,7 +232,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
                         obscureText: false,
                         updizayn: true,
                         onTopVisible: () {
-                          callDatePicker(true);
+                          callDatePicker(false);
                         },
                         // suffixIcon: Icons.date_range,
                         hasBourder: true,
@@ -433,9 +432,11 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     }
     if (isFistDate) {
       //ctFistDay.text = "$day.$ay.${order.year}";
+      dateFirst=order;
       ctFistDay.text = "${order.year}-$ay-$day";
     } else {
       // ctLastDay.text = "$day.$ay.${order.year}";
+      dateLast=order;
       ctLastDay.text = "${order.year}-$ay-$day";
     }
   }
@@ -455,25 +456,17 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
   Future<void> _intenReqPage() async {
     switch (widget.modelCariHesabatlar.key) {
       case "trhesabat":
+        Get.back();
         DialogHelper.showLoading("cmendirilir".tr);
-        List<ModelMainInOut> listGirisCixis = await getUsersInfo();
+        List<ModelMainInOut> listGirisCixis = await getUsersInfo(true);
         List<UserModel> listUsers = [];
         MercDataModel modela = await getAllCustomersMerc(widget.userCode);
-        if (modela!=null) {
-          Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela, listGirisCixis, listUsers]);
-        } else {
-          Get.dialog(ShowInfoDialog(
-              messaje: "mtapilmadi".tr,
-              icon: Icons.error,
-              callback: () {
-                Get.back();
-                Get.back();
-              }));
-        }
-        break;
+        Get.toNamed(RouteHelper.screenMercRoutDatail, arguments: [modela, listGirisCixis, listUsers]);
+              break;
         case "tzhesab":
-        DialogHelper.showLoading("tzhesab".tr);
-        List<ModelMainInOut> listGirisCixis=await getUsersInfo();
+          Get.back();
+          DialogHelper.showLoading("tzhesab".tr);
+        List<ModelMainInOut> listGirisCixis=await getUsersInfo(false);
         if (listGirisCixis.isNotEmpty) {
           Get.toNamed(RouteHelper.screenTemZiyaret, arguments: [listGirisCixis]);
         } else {
@@ -486,13 +479,26 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
               }));
         }
         break;
-    }switch (widget.modelCariHesabatlar.key) {
       case "tizlemehesab":
+        Get.back();
+        var dif= dateLast.difference(dateFirst).inDays;
+        if(dif<=1){
         Get.toNamed(RouteHelper.screenLiveTrackReport,arguments: [widget.roleId,widget.userCode,ctFistDay.text,ctLastDay.text]);
+        }else{
+          Get.dialog(ShowInfoDialog(
+              messaje: "ziyaretHaciqlama".tr,
+              icon: Icons.running_with_errors_sharp,
+              callback: () {
+              }));
+
+        }
         break;
-        case "terror":
-          Get.toNamed(RouteHelper.screenErrorsReport,arguments: [true,ctFistDay.text.substring(0,16),ctLastDay.text.substring(0,16),widget.userCode,widget.roleId]);
+      case "terror":
+        Get.back();
+        Get.toNamed(RouteHelper.screenErrorsReport,arguments: [true,ctFistDay.text.substring(0,16),ctLastDay.text.substring(0,16),widget.userCode,widget.roleId]);
+      break;
     }
+
   }
 
 
@@ -536,7 +542,6 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
           responseType: ResponseType.json,
         ),
       );
-      print("respince : $response");
       if (response.statusCode == 200) {
         var dataModel = json.encode(response.data['Result']);
         List listuser = jsonDecode(dataModel);
@@ -555,10 +560,9 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     return listUsers.first;
   }
 
-  Future<List<ModelMainInOut>> getUsersInfo() async {
+  Future<List<ModelMainInOut>> getUsersInfo(bool needMounth) async {
     late List<SimpleUserModel>? listUsers = [];
     List<ModelMainInOut> listGirisCixis=[];
-
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     int compId=loggedUserModel.userModel!.companyId!;
@@ -569,7 +573,6 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
       "code": widget.userCode,
       "roleId": widget.roleId,
       "companyId": loggedUserModel.userModel!.companyId!
-
     };
 
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -617,7 +620,7 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
                 email: model.email
             ));
           }
-          listGirisCixis= await getAllGirisCixis(listUsers);
+          listGirisCixis= await getAllGirisCixis(listUsers,needMounth);
         }
       } on DioException {
       }
@@ -625,21 +628,16 @@ class _WidgetHesabatListItemsUserState extends State<WidgetHesabatListItemsUser>
     return listGirisCixis;
   }
 
-  Future<List<ModelMainInOut>> getAllGirisCixis(List<SimpleUserModel> listUsers) async {
+  Future<List<ModelMainInOut>> getAllGirisCixis(List<SimpleUserModel> listUsers, bool needMounth) async {
     List<ModelMainInOut> listGirisCixis=[];
-    final now = DateTime.now();
-    var date = DateTime(now.year, now.month, 1,0,1).toString();
-    DateTime dateParse = DateTime.parse(date);
-    String ilkGun = intl.DateFormat('yyyy/MM/dd').format(dateParse);
-    String songun = intl.DateFormat('yyyy/MM/dd').format(now);
-    ctFistDay.text="$ilkGun 00:01";
-    ctLastDay.text="$songun 23:59";
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
+    String endTimeS=DateTime.now().toString().substring(0,7)+"-01 23:59";
     GirisCixisRequest model = GirisCixisRequest(
         rollar: listUsers,
-        endDate: ctLastDay.text,
+        endDate:ctLastDay.text+" 23:59",
         userCode: widget.userCode,
-        startDate: ctFistDay.text);
+        startDate: needMounth?endTimeS:"${ctLastDay.text}00:01");
+    print("Model tarixleri : ${model.startDate} - ${model.endDate}");
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
     languageIndex = await getLanguageIndex();

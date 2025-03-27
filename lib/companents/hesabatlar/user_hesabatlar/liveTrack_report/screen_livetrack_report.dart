@@ -35,8 +35,8 @@ class _ScreenLiveTrackReportState extends State<ScreenLiveTrackReport> {
   bool showPanel = true;
   final AxisDirection axisDirection = AxisDirection.down; // Set triangle location up,left,right,down
   bool showHistoryPanel=false;
-  bool smoleHistoryPanel=false;
-  bool sortListByDate=false;
+  bool smoleHistoryPanel=true;
+  bool sortListByDate=true;
 
   @override
   void initState() {

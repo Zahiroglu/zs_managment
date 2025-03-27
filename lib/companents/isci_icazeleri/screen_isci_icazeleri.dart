@@ -49,7 +49,6 @@ class _ScreenUsersLeaveRequestState extends State<ScreenUsersLeaveRequest> {
     await getAllDataFromServer();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return  Material(
@@ -168,7 +167,7 @@ class _ScreenUsersLeaveRequestState extends State<ScreenUsersLeaveRequest> {
                     children: [
                       CustomText(labeltext: "Icaze novu : ",color: Colors.grey,),
                       const SizedBox(width: 10,),
-                      CustomText(labeltext:elementAt.icazeTypeId==4?"Saatliq icaze":"Gunluk resmi icaze"),
+                      CustomText(labeltext:elementAt.icazeTypeName??"null"),
                     ],
                   ),
                   elementAt.icazeTypeId!=4?Row(

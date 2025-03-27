@@ -22,10 +22,10 @@ import 'ModelIcazeType.dart';
 import 'package:get/get.dart';
 
 class ScreenIcazeYrat extends StatefulWidget {
-  int illikGunLimiti;
-  int ayliqSaatLimiti;
-  Function(int) callBack;
-  ScreenIcazeYrat({required this.illikGunLimiti,required this.ayliqSaatLimiti,required this.callBack,super.key});
+  final int illikGunLimiti;
+  final int ayliqSaatLimiti;
+  final Function(int) callBack;
+ const ScreenIcazeYrat({required this.illikGunLimiti,required this.ayliqSaatLimiti,required this.callBack,super.key});
 
   @override
   State<ScreenIcazeYrat> createState() => _ScreenIcazeYratState();
@@ -133,7 +133,7 @@ class _ScreenIcazeYratState extends State<ScreenIcazeYrat> {
                           Expanded(
                             child: CustomText(
                                 maxline: 2,
-                                labeltext: "Icazeniz tesdiqlense ${endtDateTime.add(Duration(days: 1)).toString().substring(0,10)} tarixinde isde olmalisiniz!"),
+                                labeltext: "Icazeniz tesdiqlense ${endtDateTime.add(const Duration(days: 1)).toString().substring(0,10)} tarixinde isde olmalisiniz!"),
                           ),
                         ],
                       ),
@@ -232,12 +232,9 @@ class _ScreenIcazeYratState extends State<ScreenIcazeYrat> {
                   underline: const SizedBox(),
                   onChanged: (Modelicazetype? value) {
                     setState(() {
-                      print('selectedIcazeType : '+selectedIcazeType.toString());
-                      print('value : '+value.toString());
                       if(selectedIcazeType.icazeId!=value!.icazeId){
                         selectedIcazeType = value;
                         secilenVaxtQeyd="";
-                        print("selectedIcazeType.icazeId!=value!.icazeId = "+(selectedIcazeType.icazeId!=value!.icazeId).toString());
                         if(value.icazeId==4){
                           ctFistDay.text = DateTime.now().toString().substring(0, 10);
                           ctLastDay.text = DateTime.now().toString().substring(0, 10);
@@ -606,7 +603,7 @@ class _ScreenIcazeYratState extends State<ScreenIcazeYrat> {
     DateTime start = DateTime.parse(startDate);
     DateTime end = DateTime.parse(endDate);
     // İki tarix arasındakı fərqi hesablamaq
-    int differenceInDays = (end.add(Duration(days: 1))).difference(start).inDays;
+    int differenceInDays = (end.add(const Duration(days: 1))).difference(start).inDays;
     secilenVaxtQeyd="$differenceInDays ${"day".tr}";
   }
 
@@ -655,7 +652,8 @@ class _ScreenIcazeYratState extends State<ScreenIcazeYrat> {
             icazeTypeId: selectedIcazeType.icazeId!,
             icazeStartDate: start,
             icazeEndDate: end,
-            icazeQeyd: ctQeyd.text);
+            icazeQeyd: ctQeyd.text,
+        );
         await callReqestAddIcaze(model);
       }else{
         Get.dialog(ShowInfoDialog(messaje: "Qeyd melumatlarini tam doldur", icon: Icons.error, callback: (){}));
@@ -664,7 +662,6 @@ class _ScreenIcazeYratState extends State<ScreenIcazeYrat> {
   }
 
   Future<void> callReqestAddIcaze(ModelIcazeRequest model) async {
-      int status=0;
     DialogHelper.showLoading("Melumatlar daxil edilir",false);
     await userServices.init();
     LoggedUserModel loggedUserModel = userServices.getLoggedUser();
@@ -682,7 +679,7 @@ class _ScreenIcazeYratState extends State<ScreenIcazeYrat> {
     } else {
       try{
         final response = await ApiClient().dio(false).post(
-          "${loggedUserModel.baseUrl}/Icaze/addNewIcazeByUser?illikLimit="+widget.illikGunLimiti.toString()+"&ayliqLimit="+widget.ayliqSaatLimiti.toString(),
+          "${loggedUserModel.baseUrl}/Icaze/addNewIcazeByUser?illikLimit=${widget.illikGunLimiti}&ayliqLimit=${widget.ayliqSaatLimiti}",
           data: model.toJson(),
           options: Options(
             headers: {
@@ -705,7 +702,6 @@ class _ScreenIcazeYratState extends State<ScreenIcazeYrat> {
         }
       }catch(e){
         DialogHelper.hideLoading();
-        print(e);
       }
     }
   }

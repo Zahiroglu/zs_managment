@@ -37,7 +37,7 @@ class ModelUsercCurrentLocationReqeust {
   double? locAccuracy;
   @HiveField(15)
   bool? isMoving;
-  @HiveField(15)
+  @HiveField(16)
   String? screenState;
 
   ModelUsercCurrentLocationReqeust({

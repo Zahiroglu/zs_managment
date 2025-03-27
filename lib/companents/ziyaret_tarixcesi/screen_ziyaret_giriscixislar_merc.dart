@@ -44,11 +44,9 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
 
     _scrollControllerNested = ScrollController();
     _controllerInfo = PageController(initialPage: _initialIndex, viewportFraction: 1);
-    listPages.add(_widgetListGirisler());
-    if(widget.modelCariler.isNotEmpty){
     melumatlariGuneGoreDoldur();
+    listPages.add(_widgetListGirisler());
     listPages.add(_widgetListCariler());
-    }
     // TODO: implement initState
     super.initState();
   }
@@ -59,7 +57,6 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
     String il=widget.modelGunlukGirisCixis.day.substring(0,4);
     DateTime dateTime = DateTime.parse("$il-$ay-$gun");
     widget.modelCariler.forEach((w){
-      print("w : "+w.toString());
     });
     switch (dateTime.weekday) {
       case 1:
@@ -170,7 +167,6 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
         sefZiyaret=sefZiyaret+1;
       }
     }
-    print("listCustomersByDay count :"+listCustomersByDay.length.toString());
     setState(() {
       dataloading=false;
     });
@@ -224,7 +220,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                       collapseMode: CollapseMode.values[0],
                       centerTitle: true,
                     ),
-                    bottom: widget.modelCariler.isNotEmpty?PreferredSize(
+                    bottom: PreferredSize(
                         preferredSize: const Size.fromHeight(60),
                         child: ColoredBox(
                           color: Colors.grey.withOpacity(0.3),
@@ -236,8 +232,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                               ],
                             ),
                           ),
-                        )):const PreferredSize(
-                      preferredSize:Size.fromHeight(5) ,child: SizedBox(),),
+                        ))
                   ),
                 )
               ];
@@ -266,7 +261,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
               "${"giriscixis".tr} ( ${widget.modelGunlukGirisCixis.modelInOut.length} )",
         ),
         const Spacer(),
-        widget.modelCariler.isNotEmpty?CustomElevetedButton(
+        CustomElevetedButton(
           surfaceColor: _initialIndex == 1 ? Colors.green : Colors.white,
           height: 35,
           width: MediaQuery.of(context).size.width * 0.4,
@@ -275,8 +270,8 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
           },
           label:
               "${"cariRut".tr} ( ${listCustomersByDay.length.toString()} )",
-        ):SizedBox(),
-        widget.modelCariler.isNotEmpty?const Spacer():SizedBox(),
+        ),
+       const Spacer()
       ],
     );
   }
@@ -367,7 +362,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                               labeltext: "${"isbitme".tr} : ",
                               fontWeight: FontWeight.w600),
                           model.lastExitDate!="null"? CustomText(
-                              labeltext: model.lastExitDate.substring(11,model.firstEnterDate.length)):SizedBox(),
+                              labeltext: model.lastExitDate.substring(11,model.firstEnterDate.length)):const SizedBox(),
                         ],
                       ),
                       Padding(
@@ -477,7 +472,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
         itemCount: widget.modelGunlukGirisCixis.modelInOut.length,
         itemBuilder: (c, index) {
           return  widget.modelGunlukGirisCixis.modelInOut.elementAt(index).inDate!=null?widgetListGirisItems(
-              widget.modelGunlukGirisCixis.modelInOut.elementAt(index)):SizedBox();
+              widget.modelGunlukGirisCixis.modelInOut.elementAt(index)):const SizedBox();
         });
   }
 
@@ -500,7 +495,7 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                   children: [
                     Expanded(
                         child: CustomText(
-                      labeltext: model.customerName!=null?model.customerName:"Tapilmadi",
+                      labeltext: model.customerName ?? "Tapilmadi",
                       fontsize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue,
@@ -514,17 +509,35 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                 ),
                 Row(
                   children: [
-                    Image.asset(
-                      "images/externalvisit.png",
-                      width: 20,
-                      height: 20,
-                      color: Colors.blue,
+                    Row(
+                      children: [
+                        Image.asset(
+                          "images/externalvisit.png",
+                          width: 20,
+                          height: 20,
+                          color: Colors.blue,
+                        ),
+                        CustomText(labeltext: "${"girisVaxt".tr} : "),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        CustomText(labeltext: model.inDate.substring(11,  model.inDate.toString().length)),
+                      ],
                     ),
-                    CustomText(labeltext: "${"girisVaxt".tr} : "),
-                    const SizedBox(
-                      width: 2,
+                    const SizedBox(width: 20,),
+                    Row(
+                      children: [
+                        Image.asset(
+                          "images/distance.png",
+                          width: 12,
+                          height: 12,
+                        ),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        CustomText(labeltext:" - ${model.inDistance}"),
+                      ],
                     ),
-                    CustomText(labeltext: model.inDate.substring(11,  model.inDate.toString().length)),
                   ],
                 ),
                 const SizedBox(
@@ -532,21 +545,38 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
                 ),
                 Row(
                   children: [
-                    Image.asset(
-                      "images/externalvisit.png",
-                      width: 20,
-                      height: 20,
-                      color: Colors.red,
-                    ),
-                    CustomText(labeltext: "${"cixisVaxt".tr} : "),
-                    const SizedBox(
-                      width: 2,
-                    ),
-                    model.outDate!="null" ?CustomText(labeltext: model.outDate.substring(11,  model.outDate.toString().length)):const SizedBox(),
+                    Row(
+                      children: [
+                        Image.asset(
+                          "images/externalvisit.png",
+                          width: 20,
+                          height: 20,
+                          color: Colors.red,
+                        ),
+                        CustomText(labeltext: "${"cixisVaxt".tr} : "),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        model.outDate!="null" ?CustomText(labeltext: model.outDate.substring(11,  model.outDate.toString().length)):const SizedBox(),
 
-                    const SizedBox(
-                      width: 10,
+                      ],
                     ),
+                    const SizedBox(width: 20,),
+                    Row(
+                      children: [
+                        Image.asset(
+                          "images/distance2.png",
+                          width: 12,
+                          height: 12,
+                          color: Colors.blue,
+                        ),
+                        const SizedBox(
+                          width: 2,
+                        ),
+                        CustomText(labeltext:" - ${model.outDistance}"),
+                      ],
+                    ),
+
                   ],
                 ),
                 const SizedBox(
@@ -591,33 +621,23 @@ class _ScreenZiyaretGirisCixisState extends State<ScreenZiyaretGirisCixis> {
             ),
           ),
         ),
-        // Positioned(
-        //     top: 10,
-        //     right: 10,
-        //     child: Container(
-        //       padding: const EdgeInsets.all(5),
-        //       decoration: BoxDecoration(
-        //           color: Colors.white,
-        //           border: Border.all(
-        //               color: model.rutUygunluq == "Sef"
-        //                   ? Colors.red
-        //                   : Colors.green,
-        //               width: 0.4),
-        //           borderRadius: BorderRadius.circular(5)),
-        //       child: CustomText(
-        //         fontsize: 12,
-        //         labeltext: listCustomersByDay
-        //                 .where((element) => element.cariad == model.cariAd)
-        //                 .isEmpty
-        //             ? "wrong".tr
-        //             : "right".tr,
-        //         color: listCustomersByDay
-        //                 .where((element) => element.cariad == model.cariAd)
-        //                 .isEmpty
-        //             ? Colors.red
-        //             : Colors.green,
-        //       ),
-        //     ))
+        Positioned(
+            top: 10,
+            right: 10,
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(
+                      color: model.isRutDay? Colors.blue
+                          : Colors.red,
+                      width: 0.4),
+                  borderRadius: BorderRadius.circular(5)),
+              child: CustomText(
+                fontsize: 12,
+                labeltext: model.isRutDay?"rutgunu".tr:"rutdanKenar".tr
+              ),
+            ))
       ],
     );
   }

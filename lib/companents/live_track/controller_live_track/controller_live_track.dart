@@ -9,13 +9,11 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
-import 'package:zs_managment/companents/backgroud_task/bacgroud_location_serviz.dart';
 import 'package:zs_managment/companents/giris_cixis/models/model_request_giriscixis.dart';
 import 'package:zs_managment/companents/live_track/model/model_live_track.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as map;
 import 'package:zs_managment/companents/local_bazalar/local_db_downloads.dart';
 import 'package:zs_managment/companents/login/models/user_model.dart';
-import 'package:zs_managment/companents/users_panel/new_user_create/new_user_controller.dart';
 import 'package:zs_managment/helpers/dialog_helper.dart';
 import 'package:zs_managment/utils/checking_dvice_type.dart';
 import '../../../dio_config/api_client.dart';
@@ -30,9 +28,9 @@ import '../../local_bazalar/local_app_setting.dart';
 import '../../local_bazalar/local_users_services.dart';
 import '../../login/models/logged_usermodel.dart';
 import '../model/model_my_connecteduserslocations.dart';
-import 'package:intl/intl.dart' as inl;
 
 class ControllerLiveTrack extends GetxController {
+  TextEditingController ctSearch = TextEditingController();
   RxList<ModelLiveTrack> listTrackdata =List<ModelLiveTrack>.empty(growable: true).obs;
   Rx<MyConnectedUsersCurrentLocation> modelMuyConnectUsers = MyConnectedUsersCurrentLocation().obs;
   RxList<UserModel> listAllConnectedUsers =List<UserModel>.empty(growable: true).obs;
@@ -72,7 +70,6 @@ class ControllerLiveTrack extends GetxController {
     timer = Timer.periodic(Duration(seconds: millisec), (Timer timer) async {
       await getAllDatFromServer();
       if (millisec == 0) {
-        print("yenilenme basladi");
         timer.cancel();
         _startTimerPeriodic(59);
       }
@@ -270,9 +267,7 @@ class ControllerLiveTrack extends GetxController {
     searcAktive.value = false;
     snappingSheetController.value.snapToPosition(
         const SnappingPosition.pixels(positionPixels: 110));
-    print("Iconda ustune basildi");
     if (model.lastInoutAction != null) {
-      print("model.lastInoutAction != null");
       createMarkerCirculeAndPolyline(model);
       selectedModel.value = model;
       update();
@@ -281,7 +276,6 @@ class ControllerLiveTrack extends GetxController {
 
   createMarkerCirculeAndPolyline(ModelLiveTrack model) async {
       if (model.lastInoutAction!.outDate == ""||model.lastInoutAction!.customerLongitude!="") {
-        print("model.lastInoutAction!.outDate == ""&&model.lastInoutAction!.customerLongitude!=""");
         String marketMarkerId="${model.lastInoutAction!.customerCode}-${model.lastInoutAction!.inDate}";
         markers.removeWhere((e)=>e.markerId.value==marketMarkerId);
         markers.add(map.Marker(
@@ -369,13 +363,8 @@ class ControllerLiveTrack extends GetxController {
         }
       } on DioException catch (e) {
         if (e.response != null) {
-          print(e.response!.data);
-          print(e.response!.headers);
-          print(e.response!.requestOptions);
         } else {
           // Something happened in setting up or sending the request that triggered an Error
-          print(e.requestOptions);
-          print(e.message);
         }
       }
     }
@@ -470,6 +459,8 @@ class ControllerLiveTrack extends GetxController {
       await localBackgroundEvents.addBackErrorToBase(model);
     }
   }
+
+
 
 }
 

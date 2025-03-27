@@ -7,6 +7,7 @@ class ModelIcazeRequest {
    String userRoleName;
    String userNameAndSurname;
    int icazeTypeId;
+   String? icazeTypeName;
    DateTime icazeStartDate;
    DateTime icazeEndDate;
    String icazeQeyd;
@@ -18,6 +19,7 @@ class ModelIcazeRequest {
    String? tesdiqStatusu;
    DateTime? tesdiqlenmeTarixi;
    int? totalDuration;
+   bool? paidLeave;
 
 
   ModelIcazeRequest({
@@ -28,6 +30,7 @@ class ModelIcazeRequest {
     required this.userRoleName,
     required this.userNameAndSurname,
     required this.icazeTypeId,
+    this.icazeTypeName,
     required this.icazeStartDate,
     required this.icazeEndDate,
     required this.icazeQeyd,
@@ -40,6 +43,7 @@ class ModelIcazeRequest {
     this.tesdiqlenmeTarixi,
     this.totalDuration,
     this.userFireId,
+    this.paidLeave,
   });
 
   // JSON-dan modelə çevirmək
@@ -52,6 +56,7 @@ class ModelIcazeRequest {
       userRoleName: json['UserRoleName'] ?? "",
       userNameAndSurname: json['UserNameAndSurname'] ?? "",
       icazeTypeId: json['IcazeTypeId'] ?? 0,
+      icazeTypeName: json['IcazeTypeName'] ?? "null",
       icazeStartDate: json['IcazeStartDate'] != null
           ? DateTime.tryParse(json['IcazeStartDate']) ?? DateTime.now()
           : DateTime.now(),
@@ -68,8 +73,9 @@ class ModelIcazeRequest {
       tesdiqlenmeTarixi: json['TesdiqlenmeTarixi'] != null
           ? DateTime.tryParse(json['TesdiqlenmeTarixi'])
           : null,
-      totalDuration: json['TotalDuration'] != null ? json['TotalDuration'] : 0,
+      totalDuration: json['TotalDuration'] ?? 0,
       userFireId: json['UserFireId'] ?? "",
+      paidLeave: json['PaidLeave'] ?? "",
     );
 
   }
@@ -85,6 +91,7 @@ class ModelIcazeRequest {
       'userRoleName': userRoleName,
       'userNameAndSurname': userNameAndSurname,
       'icazeTypeId': icazeTypeId,
+      'icazeTypeName': icazeTypeName,
       'icazeStartDate': icazeStartDate.toIso8601String(),
       'icazeEndDate': icazeEndDate.toIso8601String(),
       'icazeQeyd': icazeQeyd,
@@ -96,6 +103,7 @@ class ModelIcazeRequest {
       'tesdiqStatusu': tesdiqStatusu,
       'tesdiqlenmeTarixi': tesdiqlenmeTarixi?.toIso8601String(),
       'totalDuration': 0,
+      'PaidLeave': true,
     };
   }
 

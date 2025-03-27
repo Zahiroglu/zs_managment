@@ -29,12 +29,20 @@ class ApiClient {
 
   Dio dio(bool musteShowResult) {
     var dio = Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 30),
-        baseUrl: AppConstands.baseUrlsMain,
-        persistentConnection:false,
-      ),
+        BaseOptions(
+            connectTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+            sendTimeout: const Duration(seconds: 30),
+            followRedirects: true,
+            baseUrl: AppConstands.baseUrlsMain,
+            persistentConnection: true,  // Bağlantını saxla
+            headers: {
+              "Connection": "keep-alive",  // Keep-Alive aktiv et
+              "Accept": "application/json",
+              "Accept-Encoding": "gzip, deflate, br", // Data sıxışdırmasını aktiv et
+              "User-Agent": "ZS-CONTROLL",
+            }
+        )
     );
     dio.interceptors.clear();
     dio.interceptors.add(CustomInterceptor(dio: dio,mustShowResult: musteShowResult));

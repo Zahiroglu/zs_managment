@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zs_managment/companents/hesabatlar/cari_hesabat/marketuzre_hesabatlar.dart';
+import 'package:zs_managment/companents/hesabatlar/cari_hesabat/model_cari_hesabatlar.dart';
 import 'package:zs_managment/companents/hesabatlar/widget_simplechart.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/connected_users/model_main_inout.dart';
 import 'package:zs_managment/companents/rut_gostericileri/mercendaizer/controller_mercpref.dart';
@@ -77,7 +78,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                     elevation: 0,
                     backgroundColor: Colors.white,
                     centerTitle: false,
-                    expandedHeight: 430,
+                    expandedHeight: ModelCariHesabatlar().getAllCariHesabatlarListy(widget.controllerMercPref.loggedUserModel.userModel!.permissions!).isNotEmpty?430:280,
                     pinned: true,
                     floating: false,
                     stretch: true,
@@ -88,7 +89,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
                         children: [
                           widgetSatisInfo(context),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           widgetInfoHesabatlar(context)
                         ],
@@ -307,7 +308,7 @@ class _ScreenMercMusteriDetailState extends State<ScreenMercMusteriDetail>
       loggedUser: widget.controllerMercPref.loggedUserModel,
         cad: widget.controllerMercPref.selectedCustomers.value.name!,
         ckod: widget.controllerMercPref.selectedCustomers.value.code!,
-        height: 100));
+        height: ModelCariHesabatlar().getAllCariHesabatlarListy(widget.controllerMercPref.loggedUserModel.userModel!.permissions!).isNotEmpty?100:0));
   }
 
   Widget _infoMarketRout(MercCustomersDatail element, BuildContext context) {

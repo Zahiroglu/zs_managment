@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-as bg;
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive/hive.dart';
 import 'package:screen_state/screen_state.dart';
@@ -13,7 +11,7 @@ import 'package:zs_managment/companents/local_bazalar/local_giriscixis.dart';
 import 'package:zs_managment/companents/login/models/logged_usermodel.dart';
 import 'package:zs_managment/companents/notifications/noty_background_track.dart';
 import 'package:zs_managment/dio_config/api_client.dart';
-import 'package:zs_managment/helpers/user_permitions_helper.dart';
+import '../../helpers/user_permitions_helper.dart';
 import '../../routs/rout_controller.dart';
 import '../../utils/checking_dvice_type.dart';
 import '../anbar/controller_anbar.dart';
@@ -25,7 +23,7 @@ import '../login/services/api_services/users_controller_mobile.dart';
 import '../main_screen/controller/drawer_menu_controller.dart';
 import 'backgroud_errors/local_backgroud_events.dart';
 import 'backgroud_errors/model_user_current_location_reqeust.dart';
-import 'package:screen_state/screen_state.dart' as screen;
+
 
 class BackgroudLocationServizFullTime extends GetxController {
   LocalUserServices userService = LocalUserServices();
@@ -35,33 +33,30 @@ class BackgroudLocationServizFullTime extends GetxController {
   Rx<double> currentLatitude = 0.0.obs;
   Rx<double> currentLongitude = 0.0.obs;
   Rx<bool> isFistTime = true.obs;
-  Rx<DateTime> cureentTime = DateTime.now().obs;
   Rx<ModelCustuomerVisit> modelVisitedInfo = ModelCustuomerVisit().obs;
   static String blok="Block";
   LocalBazalar localBazalar = LocalBazalar();
   Rx<ModelCustuomerVisit> modelgirisEdilmis = ModelCustuomerVisit().obs;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  RxBool hasConnection=true.obs;
-  RxBool hereketdedir=false.obs;
+  RxBool hereketsizdir=false.obs;
   var selectedDate = DateTime.now().obs; // `obs` ilə `DateTime` reaktiv hala gəlir
-  List<StreamSubscription> _subscriptions = [];
-  RxString telefonunEkrani="on".obs;
   final Screen screena = Screen();
+  final Rxn<StreamSubscription<ScreenStateEvent>> _screenSubscription = Rxn<StreamSubscription<ScreenStateEvent>>();
+  RxString telefonunEkrani="on".obs;
+  Rx<bg.Location?> updatedLocation = Rx<bg.Location?>(null);
+  UserPermitionsHelper userPermitionsHelper=UserPermitionsHelper();
 
-
-  void stopTracking(int endDate, ModelCustuomerVisit modela) async {
-    await userService.init();
-    DateTime now = DateTime.now();
-    if (now.hour >= endDate) {
-        await stopBackGroundFetch();
-        stopAllListening();
-        Get.delete<BackgroudLocationServizFullTime>();
+  @override
+  void onClose() {
+    if(_screenSubscription.value!=null){
+      _screenSubscription.value!.cancel();
+      _screenSubscription.value = null;
     }
+    super.onClose();
   }
 
-
-  String  startListening() {
-    var screenSubscription = screena.screenStateStream.listen((ScreenStateEvent event) {
+  String startListening(ModelCustuomerVisit modela) {
+    _screenSubscription.value = screena.screenStateStream.listen((ScreenStateEvent event) async {
       switch(event){
         case ScreenStateEvent.SCREEN_UNLOCKED:
           telefonunEkrani.value="unlock";
@@ -73,54 +68,80 @@ class BackgroudLocationServizFullTime extends GetxController {
           telefonunEkrani.value="off";
           break;
       }
+      if (telefonunEkrani.value == "unlock" || telefonunEkrani.value == "off") {
+        await sendInfoLocationsToDatabase(updatedLocation.value!, modela);
+      }
     });
-    _subscriptions.add(screenSubscription);
     return telefonunEkrani.value;
-    // Başqa stream-lər üçün də eyni şəkildə dinləyicilər əlavə edilə bilər
-  }
-
-
-
-  void stopAllListening() {
-    for (var subscription in _subscriptions) {
-      subscription.cancel();
-    }
-    _subscriptions.clear(); // Dinləyiciləri tamamilə təmizləyirik
   }
 
   Future<void> startBackgorundFetckFull(ModelCustuomerVisit modela) async {
-    startListening();
     try {
+      bg.BackgroundGeolocation.onMotionChange((bg.Location location) async {
+       // await NotyBackgroundTrack.showBigTextNotification(title: " Hərəkət aşkarlandı", body: location.toString(), fln: flutterLocalNotificationsPlugin);
+        bg.State state = await bg.BackgroundGeolocation.state;
+        if (!state.enabled) {
+          await startBackgorundFetckFull(modela);
+        }
+        currentLatitude.value = location.coords.latitude;
+        currentLongitude.value = location.coords.longitude;
+        await sendInfoLocationsToDatabase(location, modela);
+        selectedDate.value = DateTime.now();
+      });
       bg.BackgroundGeolocation.onLocation((bg.Location location) async {
-        if (DateTime.now().difference(selectedDate.value).inSeconds < 30) {
-        }else{
-          selectedDate.value = DateTime.now();
+        // Əgər son yeniləmə vaxtından 30 saniyə keçibsə
+        if (DateTime.now().difference(selectedDate.value).inSeconds >= 30) {
           if (location.mock) {
-            await sendErrorsToServers(blok,blok, "Saxta GPS məlumatı aşkarlandı:",location.coords.latitude.toString(),location.coords.longitude.toString());
+            // Saxta GPS məlumatını serverə göndərin
+            await sendErrorsToServers(
+              blok,
+              blok,
+              "Saxta GPS məlumatı aşkarlandı:",
+              location.coords.latitude.toString(),
+              location.coords.longitude.toString(),
+            );
           } else {
-            cureentTime.value = DateTime.now();
+            // Mövcud koordinatları yeniləyin
             currentLatitude.value = location.coords.latitude;
             currentLongitude.value = location.coords.longitude;
-            await sendInfoLocationsToDatabase(location);
+            // Məlumatı serverə göndərin
+            await sendInfoLocationsToDatabase(location, modela);
+
+            // Son yeniləmə vaxtını təyin edin
+            selectedDate.value = DateTime.now();
+
+            // UI yeniləmə
+            update();
           }
+        } else {
         }
       }, (bg.LocationError error) {});
       bg.BackgroundGeolocation.onHeartbeat((bg.HeartbeatEvent event) async {
+        //await NotyBackgroundTrack.showBigTextNotification(title: "HeartbeatEvent ise dusdu", body: event.toString(), fln: flutterLocalNotificationsPlugin);
+
         try {
-          final bg.Location initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
+          selectedDate.value = DateTime.now();
+          bg.Location? lastLocation = await bg.BackgroundGeolocation.getCurrentPosition(
             persist: false,
-            samples: 400,
-            maximumAge: 0,
-            timeout: 10,
+            samples: 1, // 400 çox ola bilər, 1-5 istifadə etmək daha yaxşıdır
+            maximumAge: 60000, // 1 dəqiqəlik köhnə məlumatı istifadə edə bilər
+            timeout: 10, // Maksimum 10 saniyə gözləyəcək
           );
-          if (initialLocation!.mock) {
-            await sendErrorsToServers( blok,blok, "Saxta GPS məlumatı aşkarlandı:",initialLocation.coords.latitude.toString(),initialLocation.coords.longitude.toString());
-          } else {
-            cureentTime.value = DateTime.now();
-            currentLatitude.value = initialLocation.coords.latitude;
-            currentLongitude.value = initialLocation.coords.longitude;
-            await sendInfoLocationsToDatabase(initialLocation);
+          if (lastLocation.mock) {
+            await sendErrorsToServers( blok,blok, "Saxta GPS məlumatı aşkarlandı:",lastLocation.coords.latitude.toString(),lastLocation.coords.longitude.toString());
           }
+          else {
+            currentLatitude.value = lastLocation.coords.latitude;
+            currentLongitude.value = lastLocation.coords.longitude;
+            await sendInfoLocationsToDatabase(lastLocation,modela);
+          }
+          bg.State state = await bg.BackgroundGeolocation.state;
+          if (!state.enabled) {
+            await startBackgorundFetckFull(modela);
+          }
+          else {
+          }
+          update();
         } catch (e) {
         }
 
@@ -131,6 +152,17 @@ class BackgroudLocationServizFullTime extends GetxController {
           sendErrorsToServers(blok,blok, "${modela.customerName} adli marketde girisde iken Gps melumatlar sistemini deyisdiyi ucun blok edildi. Gps service - $c","","");
         }
       });
+      bg.BackgroundGeolocation.onActivityChange((bg.ActivityChangeEvent event) async {
+        bg.State state = await bg.BackgroundGeolocation.state;
+        if (state.enabled) {
+          bg.BackgroundGeolocation.changePace(true);
+        } else {
+          await startBackgorundFetckFull(modela);
+        }
+        // if (event.activity == "in_vehicle" || event.activity == "on_bicycle"|| event.activity == "on_foot") {
+        //   bg.BackgroundGeolocation.changePace(true); // GPS yenilənməsini aktiv et
+        // }
+      });
       bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) async {
         if (!event.gps) {
           NotyBackgroundTrack.showBigTextNotificationAlarm(
@@ -138,14 +170,15 @@ class BackgroudLocationServizFullTime extends GetxController {
             body: "GPS əl ilə bağlanıb. Zəhmət olmasa yenidən aktiv edin.",
             fln: flutterLocalNotificationsPlugin,
           );
-        } else {
+        }
+        else {
           await flutterLocalNotificationsPlugin.cancel(1);
         }
       });
       bg.BackgroundGeolocation.onConnectivityChange((connection) async {
-        hasConnection.value=connection.connected;
-        if (!connection.connected) {
-          await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
+        final connectivityResult = await (Connectivity().checkConnectivity());
+        if (connectivityResult != ConnectivityResult.mobile&&connectivityResult != ConnectivityResult.wifi) {
+          await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet-Internet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
           await sendErrorsToServers("Internet","Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}","","");
         } else {
           //await sendErrorsToServers("Internet", "${modela.customerName} ${"adlimarkerInternetxetaQalxdi".tr}${"date".tr} : ${DateTime.now()}");
@@ -155,48 +188,57 @@ class BackgroudLocationServizFullTime extends GetxController {
       await bg.BackgroundGeolocation.ready(bg.Config(
         persistMode: bg.Config.PERSIST_MODE_NONE,
         desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-        distanceFilter: 0,
-        locationUpdateInterval: 60000,
-        fastestLocationUpdateInterval: 60000,
-        // Enerji idarəetməsi və fon xidmətləri
+        distanceFilter: 10,  // 📌 0 etmə, ən az 10 metr olsun
+        disableElasticity: false,  // 📌 Daha çevik işləsin
+        locationUpdateInterval: 30000, // 📌 Yenilənmə intervalını qısalt
+        fastestLocationUpdateInterval: 10000, // 📌 Ən sürətli yenilənmə vaxtı 5 saniyə olsun
+        activityRecognitionInterval: 5000,  // 📌 Aktivlik yoxlamasını 3 saniyəyə sal
+        stopOnStationary: false,
+        stopTimeout: 0,
+        stationaryRadius: 5, // 📌 0 etmə, az da olsa radius qoy
+        enableHeadless: true,
+        foregroundService: true,
         preventSuspend: true,
         stopOnTerminate: false,
         startOnBoot: true,
         pausesLocationUpdatesAutomatically: false,
-        disableStopDetection: true,
-        // Yenidən yükləmə və təkrar işə düşmə
         forceReloadOnBoot: true,
         forceReloadOnHeartbeat: true,
-        // Bildiriş parametrləri
-        notification: bg.Notification(
-          title: "ZS-CONTROL Aktivdir",
-          text: "Fon rejimində izlənir.",
-          sticky: true,
-          channelId: "zs0001",
-          channelName: "zs-controll",
-          priority: bg.Config.NOTIFICATION_PRIORITY_MAX,
-        ),
-        // Debug və log parametrləri
+        forceReloadOnMotionChange: true,
         debug: false,
         logLevel: bg.Config.LOG_LEVEL_VERBOSE,
         // Digər parametrlər
-        enableHeadless: true,
         heartbeatInterval: 60,
         reset: true,
-        foregroundService: true,
-      )).then((bg.State state) async {
+        backgroundPermissionRationale: bg.PermissionRationale(
+            title: "Fon lokasiya icazəsi Lazımdır",
+            message: "Tətbiqin fon rejimində də işləməsi üçün icazə verməlisiniz.",
+            positiveAction: "Ok",
+            negativeAction: "Ləğv et"
+        ),
+        // Bildiriş parametrləri
+        notification: bg.Notification(
+          title: "ZS-CONTROL",
+          text: "Sistem aktivdir",
+          sticky: true,
+          channelId: "zs0001",
+          channelName: "ZS-CONTROL",
+          priority: bg.Config.NOTIFICATION_PRIORITY_HIGH, // MAX yerinə HIGH yoxla
+        ),
+
+      )
+      ).then((bg.State state) async {
         if (!state.enabled) {
           await bg.BackgroundGeolocation.start();
-          final bg.Location initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
+          bg.Location? lastLocation = await bg.BackgroundGeolocation.getCurrentPosition(
             persist: false,
-            samples: 1,
-            maximumAge: 0,
-            timeout: 5,
+            samples: 2, // 400 çox ola bilər, 1-5 istifadə etmək daha yaxşıdır
+            maximumAge: 60000, // 1 dəqiqəlik köhnə məlumatı istifadə edə bilər
+            timeout: 10, // Maksimum 10 saniyə gözləyəcək
           );
-          if (initialLocation != null) {
-            await sendInfoLocationsToDatabase(initialLocation);
-            selectedDate.value = DateTime.now();
-          }
+          await sendInfoLocationsToDatabase(lastLocation,modela);
+          selectedDate.value = DateTime.now();
+          startListening(modela);
         }
       });
 
@@ -205,12 +247,41 @@ class BackgroudLocationServizFullTime extends GetxController {
   }
 
   Future<bool> stopBackGroundFetch() async {
-    stopAllListening();
     try {
-      // Dinləyiciləri silin
+      // 📌 Tüm bildirimleri iptal et
+      await flutterLocalNotificationsPlugin.cancelAll();
+
+      // 📌 Mevcut konumu bir kere al
+      final bg.Location initialLocation = await bg.BackgroundGeolocation.getCurrentPosition(
+        persist: false,
+        samples: 1,
+        maximumAge: 0,
+        timeout: 5,
+      );
+
+      // 📌 Konumu veritabanına gönder
+      await sendInfoLocationsToDatabase(initialLocation, ModelCustuomerVisit());
+      selectedDate.value = DateTime.now();
+
+      // 📌 Bütün olay dinleyicilerini kaldır
       await bg.BackgroundGeolocation.removeListeners();
+
+      // 📌 Tüm coğrafi çitleri kaldır
       await bg.BackgroundGeolocation.removeGeofences();
+
+      // 📌 **Önemli:** Konum güncellemelerini durdur
       await bg.BackgroundGeolocation.stop();
+
+      // 📌 **Tamamen servisleri kapat (Ekstra güvenlik için)**
+      await bg.BackgroundGeolocation.destroyLocations();  // 📌 Kaydedilmiş tüm konumları sil
+      await bg.BackgroundGeolocation.stopSchedule();      // 📌 Zamanlanmış görevleri iptal et
+
+      // 📌 Tüm arka plan dinleyicilerini kapat
+      //await stopAllListening();
+
+      // 📌 GetX ile servisi kaldır
+      await Get.delete<BackgroudLocationServizFullTime>();
+
       return true;
     } catch (e) {
       return false;
@@ -221,13 +292,22 @@ class BackgroudLocationServizFullTime extends GetxController {
     return await Hive.box("myLanguage").get("langCode") ?? "az";
   }
 
-  Future<void> sendInfoLocationsToDatabase(bg.Location location) async {
+  void stopTracking(int endDate, ModelCustuomerVisit modela) async {
+    await userService.init();
+    DateTime now = DateTime.now();
+    if (now.hour >= endDate) {
+      await stopBackGroundFetch();
+      Get.delete<BackgroudLocationServizFullTime>();
+    }
+  }
+
+  Future<void> sendInfoLocationsToDatabase(bg.Location location, ModelCustuomerVisit modelBirinci) async {
+    updatedLocation.value=location;
     await userService.init();
     await localBackgroundEvents.init();
     await localGirisCixisServiz.init();
-    UserPermitionsHelper userPermitionsHelper=UserPermitionsHelper();
-    String ent=userPermitionsHelper.getUserWorkTime(userService.getLoggedUser().userModel!.configrations!)[1].substring(0,2);
     ModelCustuomerVisit modela = await localGirisCixisServiz.getGirisEdilmisMarket();
+    String ent=userPermitionsHelper.getUserWorkTime(userService.getLoggedUser().userModel!.configrations!)[1].substring(0,2);
     double uzaqliq=0;
     if(modela.customerCode!=null){
       uzaqliq = calculateDistanceInMeters(
@@ -261,7 +341,7 @@ class BackgroudLocationServizFullTime extends GetxController {
       isMoving: location.isMoving,
     );
     final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult != ConnectivityResult.none) {
+    if (connectivityResult != ConnectivityResult.none){
       try{
         final response = await ApiClient().dio(false).post(
           "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
@@ -279,8 +359,10 @@ class BackgroudLocationServizFullTime extends GetxController {
           ),
         );
         if (response.statusCode != 200) {
+          model.sendingStatus="0";
           await localBackgroundEvents.addBackLocationToBase(model);
-        }else{
+        }
+        else{
           checkUnsendedLocations();
           checkUnsendedErrors();
           if(location.coords.accuracy<50){
@@ -294,13 +376,16 @@ class BackgroudLocationServizFullTime extends GetxController {
             }
           }}
       } on DioException {
+        model.sendingStatus="0";
         await  localBackgroundEvents.addBackLocationToBase(model);
       }
     }else{
+      model.sendingStatus="0";
       await localBackgroundEvents.addBackLocationToBase(model);
+      await NotyBackgroundTrack.showBigTextNotificationAlarm(title: "Diqqet-Internet", body: "Mobil Interneti tecili acin yoxsa sirkete melumat gonderilcek${DateTime.now()}", fln: flutterLocalNotificationsPlugin);
+      await sendErrorsToServers("Internet","Internet", "${modela.customerName} ${"adlimarkerInternetxeta".tr}${"date".tr} : ${DateTime.now()}","","");
     }
     stopTracking(int.parse(ent.toString()),modela);
-
   }
 
   Future<void> checkUnsendedLocations() async {
@@ -314,15 +399,15 @@ class BackgroudLocationServizFullTime extends GetxController {
   Future<void> sendInfoUnsendedLocationsToDatabase(ModelUsercCurrentLocationReqeust model) async {
     await userService.init();
     await localBackgroundEvents.init();
-
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
-    String accesToken = loggedUserModel.tokenModel!.accessToken!;
     final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult != ConnectivityResult.none){
+    if (connectivityResult != ConnectivityResult.none) {
+      String accesToken = loggedUserModel.tokenModel!.accessToken!;
       final response = await ApiClient().dio(false).post(
-        "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
+        "${loggedUserModel
+            .baseUrl}/GirisCixisSystem/InsertUserCurrentLocationRequest",
         data: model.toJson(),
         options: Options(
           headers: {
@@ -340,6 +425,8 @@ class BackgroudLocationServizFullTime extends GetxController {
         await localBackgroundEvents.deleteItemLocation(model);
         checkUnsendedLocations();
       }
+    }else{
+
     }
   }
 
@@ -352,6 +439,7 @@ class BackgroudLocationServizFullTime extends GetxController {
     double distanceInKm = 12742 * asin(sqrt(a)); // Earth's diameter in kilometers
     return distanceInKm * 1000; // Convert to meters
   }
+
   ////////// back errors
   Future<void> sendErrorsToServers(String errorCode,String xetaBasliq, String xetaaciqlama,String lat,String long) async {
     LocalUserServices userService = LocalUserServices();
@@ -395,14 +483,15 @@ class BackgroudLocationServizFullTime extends GetxController {
       );
       if (response.statusCode == 200) {
         if (xetaBasliq == "Block") {
-          BackgroudLocationServizFullTime backgroudLocationServiz=Get.put(BackgroudLocationServizFullTime());
           await userService.clearALLdata();
-          await backgroudLocationServiz.stopBackGroundFetch();
-          await backgroudLocationServiz.sistemiYenidenBaslat();
+          stopBackGroundFetch();
+          sistemiYenidenBaslat();
         }
       }else{
+        model.sendingStatus="0";
         await localBackgroundEvents.addBackErrorToBase(model);
       }}on DioException {
+      model.sendingStatus="0";
       await localBackgroundEvents.addBackErrorToBase(model);
     }
   }
@@ -424,7 +513,8 @@ class BackgroudLocationServizFullTime extends GetxController {
     String languageIndex = await getLanguageIndex();
     int dviceType = checkDviceType.getDviceType();
     String accesToken = loggedUserModel.tokenModel!.accessToken!;
-    if(hasConnection.isTrue){
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult != ConnectivityResult.none){
       final response = await ApiClient().dio(false).post(
         "${loggedUserModel.baseUrl}/GirisCixisSystem/InsertNewBackError",
         data: unsendedModel.toJson(),
@@ -460,7 +550,7 @@ class BackgroudLocationServizFullTime extends GetxController {
     }
   }
 
-  // ckeck unsended Visits
+  ///////// ckeck unsended visits
   Future<void> checkUnsededAllVisits() async {
     await localGirisCixisServiz.init();
     int countUnsended = localGirisCixisServiz
@@ -544,5 +634,6 @@ class BackgroudLocationServizFullTime extends GetxController {
     Get.offAllNamed(RouteHelper.getMobileLisanceScreen());
 
   }
+
 
 }

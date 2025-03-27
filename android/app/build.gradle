@@ -28,6 +28,7 @@ if (flutterVersionName == null) {
 android {
     namespace "com.example.zs_managment"
     compileSdk 34
+    compileSdkVersion rootProject.ext.compileSdkVersion
     ndkVersion "25.2.9519653"
 
     compileOptions {
@@ -46,16 +47,18 @@ android {
     defaultConfig {
         applicationId "com.example.zs_managment"
         minSdkVersion 23
-        targetSdkVersion 34
+        //targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+      //  minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
     }
 
     buildTypes {
         release {
             signingConfig signingConfigs.debug
             minifyEnabled true
-            shrinkResources true
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

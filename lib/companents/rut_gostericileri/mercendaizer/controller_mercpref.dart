@@ -318,23 +318,24 @@ class ControllerMercPref extends GetxController {
   update();
   }
 
-  void updateData(ModelUpdateMercCustomers modelUpdateMercCustomers, bool mustDelate, List<SellingData> selectedSellingDatas) {
+  void updateData(ModelUpdateMercCustomers model, bool mustDelate, List<SellingData> selectedSellingDatas) {
     if(mustDelate){
-       listMercBaza.removeWhere((element) => element.code==modelUpdateMercCustomers.customerCode);
-      listRutGunleri.removeWhere((element) => element.code==modelUpdateMercCustomers.customerCode);
+      print("Musteri silindi");
+       listMercBaza.removeWhere((element) => element.code==model.customerCode);
+      listRutGunleri.removeWhere((element) => element.code==model.customerCode);
     }else{
-      MercCustomersDatail model=listMercBaza.where((p) => p.code==modelUpdateMercCustomers.customerCode).first;
-      listRutGunleri.remove(model);
-      listMercBaza.remove(model);
-      for (var element in selectedSellingDatas) {
-        model.sellingDatas!.removeWhere((e) => e.forwarderCode==element.forwarderCode);
-      }
-      model.totalPlan=model.sellingDatas!.fold(0, (sum, element) => sum!+element.plans);
-      model.totalSelling=model.sellingDatas!.fold(0, (sum, element) => sum!+element.selling);
-      model.totalRefund=model.sellingDatas!.fold(0, (sum, element) => sum!+element.refund);
-      listMercBaza.add(model);
-      listRutGunleri.add(model);
-      selectedCustomers.value=model;
+      print("Musteri yenilendi");
+      MercCustomersDatail modelYeni=listMercBaza.where((p) => p.code==model.customerCode).first;
+      listMercBaza.removeWhere((element) => element.code==model.customerCode);
+      listRutGunleri.removeWhere((element) => element.code==model.customerCode);
+      modelYeni.sellingDatas=selectedSellingDatas;
+      modelYeni.days=model.days;
+      modelYeni.totalPlan=selectedSellingDatas.fold(0, (sum, element) => sum!+element.plans);
+      modelYeni.totalSelling=selectedSellingDatas.fold(0, (sum, element) => sum!+element.selling);
+      modelYeni.totalRefund=selectedSellingDatas.fold(0, (sum, element) => sum!+element.refund);
+      listMercBaza.insert(0, modelYeni);
+      listRutGunleri.insert(0, modelYeni);
+      selectedCustomers.value=modelYeni;
     }
     update();
   }

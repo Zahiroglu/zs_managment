@@ -690,8 +690,9 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       },));
 
     }else {
-      selectedSellingDatas.add(modelMerc.sellingDatas!.first);
-      setState(() {
+      if(modelMerc.sellingDatas!.isNotEmpty) {
+        selectedSellingDatas.add(modelMerc.sellingDatas!.first);
+      }setState(() {
         buttonClicble = false;
       });
       await _callApiUpdateData();
@@ -702,17 +703,17 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
 
   Future<void> _callApiUpdateData() async {
     if(rutGunuBir){
-      selectedDays.add(Day(day: 1, orderNumber: 0));
+      selectedDays.add(Day(day: 1, orderNumber: 0,cariKod: modelMerc.code));
     }if(rutGunuIki){
-      selectedDays.add(Day(day: 2, orderNumber: 0));
+      selectedDays.add(Day(day: 2, orderNumber: 0,cariKod: modelMerc.code));
     }if(rutGunuUc){
-      selectedDays.add(Day(day: 3, orderNumber: 0));
+      selectedDays.add(Day(day: 3, orderNumber: 0,cariKod: modelMerc.code));
     }if(rutGunuDort){
-      selectedDays.add(Day(day: 4, orderNumber: 0));
+      selectedDays.add(Day(day: 4, orderNumber: 0,cariKod: modelMerc.code));
     }if(rutGunuBes){
-      selectedDays.add(Day(day: 5, orderNumber: 0));
+      selectedDays.add(Day(day: 5, orderNumber: 0,cariKod: modelMerc.code));
     }if(rutGunuAlti){
-      selectedDays.add(Day(day: 6, orderNumber: 0));
+      selectedDays.add(Day(day: 6, orderNumber: 0,cariKod: modelMerc.code));
     }
     List<String> lisexpeditorlar=[];
     List<Plan> listPlanlar=[];
@@ -720,6 +721,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       lisexpeditorlar.add(element.forwarderCode);
       listPlanlar.add(Plan(forwarderCode: element.forwarderCode, plan: element.plans));
     }
+
     ChangeMerch changeMerch=ChangeMerch(
       newMerchCode: selectedMercKod,
       forwarderCodes: lisexpeditorlar
@@ -733,6 +735,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
       customerCode: modelMerc.code!,
       plans:listPlanlar
     );
+    print("Model json : "+modelUpdateMercCustomers.toJson().toString());
     await userService.init();
     LoggedUserModel loggedUserModel = userService.getLoggedUser();
     DialogHelper.showLoading("mDeyisdirilir".tr, false);
@@ -772,7 +775,7 @@ class _ScreenMercCariEditState extends State<ScreenMercCariEdit> {
           icon: Icons.verified,
           messaje: response.data["Result"],
           callback: () {
-            widget.controllerMercPref.updateData(modelUpdateMercCustomers,listPlanlar.length==widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length,selectedSellingDatas);
+            widget.controllerMercPref.updateData(modelUpdateMercCustomers, widget.controllerMercPref.selectedMercBaza.value.user!.code==modelMerc.code!,selectedSellingDatas);
             if(listPlanlar.length==widget.controllerMercPref.selectedCustomers.value.sellingDatas!.length){
               Get.back();
               Get.back();
